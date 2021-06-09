@@ -21,6 +21,8 @@ github.com/llir/ll v0.0.0-20210323164713-adeda63e23b9 h1:aMUTSHq/4cZdUedLcytrHRi
 github.com/llir/ll v0.0.0-20210323164713-adeda63e23b9/go.mod h1:8W5HJz80PitAyPZUpOcljQxTu6LD5YKW1URTo+OjVoc=
 github.com/llir/llvm v0.3.3 h1:MIoiY0L1+cXn5xIPoTIabiJsiVs11/Pmg1XAY8DqdXU=
 github.com/llir/llvm v0.3.3/go.mod h1:2a5gsxl6FHDMmjCPukrHL5WkjuySxHliNtxQ8zC2RMY=
+github.com/llvm-mirror/llgo v0.0.0-20190322182713-bf6f0a60fce1 h1:7UmQbbe3cOHSJg53nhEQUFAqkyTKg9qj61VLclP32YI=
+github.com/llvm-mirror/llgo v0.0.0-20190322182713-bf6f0a60fce1/go.mod h1:LOWzBpdxwrXL1wOA1OXbEbeP7dIgxjzKF78kbF/Lt2I=
 github.com/mewmew/float v0.0.0-20201204173432-505706aa38fa h1:R27wrYHe8Zik4z/EV8xxfoH3cwMJw3qI4xsI3yYkGDQ=
 github.com/mewmew/float v0.0.0-20201204173432-505706aa38fa/go.mod h1:O+xb+8ycBNHzJicFVs7GRWtruD4tVZI0huVnw5TM01E=
 github.com/pkg/errors v0.8.1 h1:iURUrRGxPUNPdy5/HRSm+Yj6okJ6UtLINN0Q9M4+h3I=

@@ -1,0 +1,4 @@
+*out*
+*.clj
+main
+*.DS_Store*

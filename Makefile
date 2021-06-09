@@ -1,4 +1,4 @@
-SRC = main.go codegen.go util.go parse.go
+SRC = main.go util.go
 
 rib:
 	go build $(SRC)

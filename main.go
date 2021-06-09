@@ -4,16 +4,17 @@ import (
 	"fmt"
 	"io/ioutil"
 	"os"
+	"sundown/girl/codegen"
+	"sundown/girl/parser"
 )
 
-var help = `Rib: the interactive compiler backend
+var help = `Girl: the interactive compiler backend
 
 Usage:
-	rib [SUBCOMMAND] [PATH]
+	Girl [SUBCOMMAND] [PATH]
 
 Subcommands:
 	build <file>	Compiles input file to LLVM IR
-	parse <file> 	Parses input file and prints syntax tree
 	grammar		Prints the Rib EBNF grammar
 `
 
@@ -28,7 +29,7 @@ func main() {
 
 	switch os.Args[1] {
 	case "grammar":
-		fmt.Println(parser)
+		fmt.Println(parser.Parser)
 		os.Exit(0)
 	case "build":
 		filecontents, err = ioutil.ReadFile(os.Args[2])
@@ -36,18 +37,14 @@ func main() {
 			panic(err)
 		}
 
-		prog := &Program{}
+		prog := &parser.Program{}
 
-		err = parser.ParseString(os.Args[2], string(filecontents), prog)
+		err = parser.Parser.ParseString(os.Args[2], string(filecontents), prog)
 		if err != nil {
 			panic(err)
 		}
 
-		for _, expr := range prog.Expression {
-			gen(expr)
-		}
-
-		print_module()
+		codegen.StartCompiler("out.ll", prog)
 	default:
 		pretty_error("invalid subcommand" + os.Args[1])
 		os.Exit(1)
