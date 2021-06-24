@@ -5,17 +5,27 @@ import (
 )
 
 type Program struct {
-	Expression []*Expression `@@*`
+	Expression []*HighExpression `@@*`
 }
 
 type Block struct {
-	Expression []*Expression `":" @@* ";"`
+	Expression []*Expression `"=" @@* ";"`
+}
+
+type Directive struct {
+	Class *string `@Ident`
+	Instr *string `@Ident ";"`
 }
 
 type FnDecl struct {
-	Ident *Ident `@@ "="`
-	Type  *Type  `@@`
+	Ident *Ident `@@ ":"`
+	Type  *Type  `":" @@`
 	Block *Block `@@`
+}
+
+type HighExpression struct {
+	Directive  *Directive  `"@" @@`
+	Expression *Expression `| @@`
 }
 
 type Expression struct {
@@ -27,7 +37,7 @@ type Expression struct {
 }
 
 type TypeName struct {
-	Type *string `@("int" | "nat" | "real" | "bool" | "str" | "char" | "void")`
+	Type *string `@("Int" | "Nat" | "Real" | "Bool" | "Str" | "Char" | "Void")`
 }
 
 type Type struct {
@@ -49,11 +59,11 @@ type Primary struct {
 	Vec    []*Expression `| "[" (@@ ("," @@)*)? "]"`
 	Int    *int64        `| @Int`
 	Real   *float64      `| @Float`
+	Bool   *string       `| @("True" | "False")`
 	String *string       `| @String`
 	Param  *string       `| @"%"`
 	Noun   *Ident        `| @@`
-	Bool   *string       `| @("true" | "false")`
-	Nil    bool          `| @"void"`
+	Nil    bool          `| @"Nil"`
 }
 
 var Parser = participle.MustBuild(&Program{}, participle.UseLookahead(2))

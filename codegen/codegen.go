@@ -13,16 +13,18 @@ import (
 )
 
 var (
-	param  = "x"
+	param  = "Param"
 	int_bt types.IntType
 	int_t  types.Type
 	real_t types.Type
 	str_t  types.Type
+	bool_t types.Type
 )
 
 type State struct {
 	module   *ir.Module
 	function *ir.Func
+	Entry    *ir.Func
 	block    *ir.Block
 	fns      map[string]*ir.Func
 }
@@ -32,17 +34,32 @@ func StartCompiler(path string, block *parser.Program) error {
 	state.module = ir.NewModule()
 	state.fns = make(map[string]*ir.Func)
 
-	int_bt = types.IntType{TypeName: "int", BitSize: 64}
-	int_t = state.module.NewTypeDef("int", types.I64)
-	real_t = state.module.NewTypeDef("real", types.Double)
-	str_t = state.module.NewTypeDef("string", types.I8Ptr)
+	int_bt = types.IntType{TypeName: "Int", BitSize: 64}
+	int_t = state.module.NewTypeDef("Int", types.I64)
+	real_t = state.module.NewTypeDef("Real", types.Double)
+	str_t = state.module.NewTypeDef("String", types.I8Ptr)
+	bool_t = state.module.NewTypeDef("Bool", types.I1)
 
-	state.BuiltinDouble()
 	state.BuiltinPuts()
+	state.BuiltinDouble()
 
-	for _, expr := range block.Expression {
-		state.compile(expr)
+	for _, he := range block.Expression {
+		if he.Expression != nil {
+			state.compile(he.Expression)
+		}
 	}
+
+	for _, he := range block.Expression {
+		if he.Directive != nil {
+			state.Direct(he.Directive)
+		}
+	}
+
+	// Generate entry point
+	state.function = state.module.NewFunc("main", types.I32)
+	state.block = state.function.NewBlock("entry")
+	state.block.NewCall(state.Entry)
+	state.block.NewRet(constant.NewInt(types.I32, 0))
 
 	ioutil.WriteFile(path, []byte(state.module.String()), 0644)
 
@@ -51,12 +68,17 @@ func StartCompiler(path string, block *parser.Program) error {
 
 func (state *State) compile(expr *parser.Expression) value.Value {
 	if expr.FnDecl != nil {
-		fn := state.module.NewFunc(
-			*expr.FnDecl.Ident.Ident,
-			GenType(expr.FnDecl.Type.Gives),
-			ir.NewParam("x", GenType(expr.FnDecl.Type.Takes)))
+		if takes := GenType(expr.FnDecl.Type.Takes); takes != types.Void {
+			state.function = state.module.NewFunc(
+				*expr.FnDecl.Ident.Ident,
+				GenType(expr.FnDecl.Type.Gives),
+				ir.NewParam(param, takes))
+		} else {
+			state.function = state.module.NewFunc(
+				*expr.FnDecl.Ident.Ident,
+				GenType(expr.FnDecl.Type.Gives))
+		}
 
-		state.function = fn
 		state.block = state.function.NewBlock("entry")
 
 		// Step through and codegen each expression in the function until ";"
@@ -68,49 +90,22 @@ func (state *State) compile(expr *parser.Expression) value.Value {
 			state.block.NewRet(nil)
 		}
 
-		state.fns[*expr.FnDecl.Ident.Ident] = fn
+		state.fns[*expr.FnDecl.Ident.Ident] = state.function
 		// Constructing this function is over so clear state
 		state.block = nil
 		state.function = nil
 	} else if expr.Primary != nil {
-		if expr.Primary.Param != nil {
-			return state.function.Params[0]
-		} else if expr.Primary.Int != nil {
-			return constant.NewInt(&int_bt, *expr.Primary.Int)
-		} else if expr.Primary.Real != nil {
-			return constant.NewFloat(types.Double, *expr.Primary.Real)
-		} else if expr.Primary.Bool != nil {
-			if *expr.Primary.Bool == "true" {
-				return constant.NewBool(true)
-			} else if *expr.Primary.Bool == "false" {
-				return constant.NewBool(false)
-			}
-		} else if expr.Primary.Vec != nil {
-			vec, _ := state.compile_vector(expr.Primary.Vec)
-			return vec
-		} else if expr.Primary.String != nil {
-			s := (*expr.Primary.String)[1:len(*expr.Primary.String)-1] + "\x00"
-			slen := int64(len(s))
-			i := constant.NewCharArrayFromString(s)
-			str := state.module.NewGlobalDef("", i)
-			ptr := constant.NewGetElementPtr(
-				types.NewArray(uint64(slen), types.I8),
-				str,
-				constant.NewInt(types.I32, 0),
-				constant.NewInt(types.I32, 0))
-
-			return ptr
-		}
+		return state.MakePrimary(expr.Primary)
 	} else if expr.Application != nil {
 		switch *expr.Application.Op.Ident {
-		case "return":
+		case "Return":
 			if state.function.Sig.RetType == types.Void {
 				state.block.NewRet(nil)
 			} else {
 				state.block.NewRet(state.compile(expr.Application.Atoms))
 			}
 
-		case "head":
+		case "Head":
 			vec, vec_type := state.compile_vector(expr.Application.Atoms.Primary.Vec)
 			return state.block.NewLoad(
 				types.I32,
@@ -155,15 +150,15 @@ func (state *State) compile_vector(vector []*parser.Expression) (value.Value, *t
 
 func GenType(t *parser.TypeName) types.Type {
 	switch *t.Type {
-	case "int":
+	case "Int":
 		return int_t
-	case "real":
+	case "Real":
 		return real_t
-	case "bool":
+	case "Bool":
 		return types.I1
-	case "void":
+	case "Void":
 		return types.Void
-	case "str":
+	case "Str":
 		return str_t
 	default:
 		return types.Void
@@ -174,34 +169,14 @@ func GenPrimaryType(p *parser.Primary) types.Type {
 	if p != nil {
 		switch {
 		case p.Int != nil:
-			fmt.Println("nice")
-			return types.I32
+			return int_t
 		case p.Real != nil:
-			return types.Double
+			return real_t
 		case p.Bool != nil:
-			return types.I1
+			return bool_t
 		case p.String != nil:
-			return &types.ArrayType{}
+			return str_t
 		}
-	}
-
-	return nil
-}
-
-func gen_literal(p *parser.Primary) value.Value {
-	switch {
-	case p.Int != nil:
-		return constant.NewInt(types.I64, *p.Int)
-	case p.Real != nil:
-		return constant.NewFloat(types.Double, *p.Real)
-	case p.Bool != nil:
-		if *p.Bool == "true" {
-			return constant.NewBool(true)
-		} else if *p.Bool == "false" {
-			return constant.NewBool(false)
-		}
-	case p.String != nil:
-		return constant.NewCharArrayFromString(*p.String)
 	}
 
 	return nil
