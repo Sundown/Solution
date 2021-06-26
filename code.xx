@@ -1,4 +1,12 @@
 @Entry Start;
 
-PrintThrice :: Str -> Void = puts % puts % puts %;
-Start :: Void -> Bool = PrintThrice "nice" Return True;
+PrintThrice :: Str -> Void =
+	puts %
+	puts %
+	puts %
+;
+
+Start :: Void -> Bool =
+	PrintThrice "nice"
+	Return True
+;

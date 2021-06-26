@@ -4,14 +4,14 @@
 
 A compiled language which improves on the elegance of LISP.
 
-Girl generates code via LLVM, hopefully at some point this will be abstracted with a homemade backend.
+Girl generates code via LLVM.
 </div>
 
 ---
 #### Sample
 
 ```haskell
-inverse = real -> real:
+inverse :: real -> real =
 	return / (1, %)
 ;
 ```
@@ -26,8 +26,6 @@ If you, hypothetically, wanted to print "hello world" to stdout, you might write
 ```haskell
 print "hello world"
 ```
-
-But that's just Python 2! You can find out more about Girl's similarities with Python 2 by pressing <kbd>Ctrl</kbd> + <kbd>W</kbd>.
 
 If you, again hypothetically, wanted to print the square root of 9:
 ```haskell
@@ -54,4 +52,3 @@ sum [2, 3, 5, 7, 11]
 - [ ] Handwritten parser
 - [ ] C interop.
 - [ ] A proper standard library
-- [ ] Implement a seperate backend with a funny name
