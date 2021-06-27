@@ -1,4 +1,4 @@
-SRC = main.go util.go
+SRC = sndy.go
 
 rib:
 	go build $(SRC)

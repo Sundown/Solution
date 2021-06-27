@@ -1,10 +1,10 @@
 <div align="center">
-	<h3> Girl :dove:</h3>
+	<h3> Sunday :dove:</h3>
 
 
 A compiled language which improves on the elegance of LISP.
 
-Girl generates code via LLVM.
+Sunday generates code via LLVM.
 </div>
 
 ---

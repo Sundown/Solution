@@ -1,4 +1,4 @@
-module sundown/girl
+module sundown/sunday
 
 go 1.16
 

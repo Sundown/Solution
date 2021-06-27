@@ -3,8 +3,11 @@ package codegen
 import (
 	"fmt"
 	"io/ioutil"
+	"os"
+	"time"
 
-	"sundown/girl/parser"
+	"sundown/sunday/parser"
+	"sundown/sunday/util"
 
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/constant"
@@ -30,6 +33,7 @@ type State struct {
 }
 
 func StartCompiler(path string, block *parser.Program) error {
+	start_time := time.Now()
 	state := State{}
 	state.module = ir.NewModule()
 	state.fns = make(map[string]*ir.Func)
@@ -62,6 +66,8 @@ func StartCompiler(path string, block *parser.Program) error {
 	state.block.NewRet(constant.NewInt(types.I32, 0))
 
 	ioutil.WriteFile(path, []byte(state.module.String()), 0644)
+
+	fmt.Printf("Compiled %s in %s\n", path, time.Since(start_time).Round(1000))
 
 	return nil
 }
@@ -115,8 +121,13 @@ func (state *State) compile(expr *parser.Expression) value.Value {
 					constant.NewInt(types.I32, 0),
 					constant.NewInt(types.I32, 0)))
 		default:
+			fn, err := state.fns[*expr.Application.Op.Ident]
+			if !err {
+				util.Error("Function not found")
+				os.Exit(1)
+			}
 			return state.block.NewCall(
-				state.fns[*expr.Application.Op.Ident],
+				fn,
 				state.compile(expr.Application.Atoms))
 		}
 	}
