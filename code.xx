@@ -1,10 +1,5 @@
 @Entry Start;
 
-Print :: Str -> Void =
-	puts %
-;
-
 Start :: Void -> Bool =
-	Print "nice"
-	Return True
+	Return [1, 2]
 ;

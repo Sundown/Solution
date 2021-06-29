@@ -18,9 +18,9 @@ type Directive struct {
 }
 
 type FnDecl struct {
-	Ident *Ident `@@ ":"`
-	Type  *Type  `":" @@`
-	Block *Block `@@`
+	Ident *Ident   `@@ ":"`
+	Type  *TypeSig `":" @@`
+	Block *Block   `@@`
 }
 
 type HighExpression struct {
@@ -31,7 +31,7 @@ type HighExpression struct {
 type Expression struct {
 	FnDecl      *FnDecl      `@@`
 	Application *Application `| @@`
-	Type        *Type        `| @@`
+	Type        *TypeSig     `| @@`
 	Primary     *Primary     `| @@`
 	Block       *Block       `| @@`
 }
@@ -40,9 +40,15 @@ type TypeName struct {
 	Type *string `@("Int" | "Nat" | "Real" | "Bool" | "Str" | "Char" | "Void")`
 }
 
+type TypeSig struct {
+	Takes *Type `(@@ "-"`
+	Gives *Type `">" @@)`
+}
+
 type Type struct {
-	Takes *TypeName `(@@ "-"`
-	Gives *TypeName `">" @@)`
+	Primative *TypeName   ` @@`
+	Vector    *TypeName   `| "[" @@ "]"`
+	Struct    []*TypeName `| "(" (@@ ("," @@)*)? ")"`
 }
 
 type Application struct {

@@ -19,3 +19,11 @@ func (state *State) BuiltinDouble() {
 func (state *State) BuiltinPuts() {
 	state.MakeBuiltin("puts", str_t, types.I32)
 }
+
+func (state *State) BuiltinCalloc() {
+	state.fns["calloc"] = state.module.NewFunc(
+		"calloc",
+		types.I8Ptr,
+		ir.NewParam("size", types.I64),
+		ir.NewParam("count", types.I64))
+}

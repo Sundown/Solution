@@ -3,11 +3,11 @@ package codegen
 import (
 	"fmt"
 	"io/ioutil"
+	"math"
 	"os"
-	"time"
-
 	"sundown/sunday/parser"
 	"sundown/sunday/util"
+	"time"
 
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/constant"
@@ -18,9 +18,9 @@ import (
 var (
 	param  = "Param"
 	int_bt types.IntType
-	int_t  types.Type
-	real_t types.Type
-	str_t  types.Type
+	int_t,
+	real_t,
+	str_t,
 	bool_t types.Type
 )
 
@@ -46,10 +46,11 @@ func StartCompiler(path string, block *parser.Program) error {
 
 	state.BuiltinPuts()
 	state.BuiltinDouble()
+	state.BuiltinCalloc()
 
 	for _, he := range block.Expression {
 		if he.Expression != nil {
-			state.compile(he.Expression)
+			state.Compile(he.Expression)
 		}
 	}
 
@@ -72,24 +73,24 @@ func StartCompiler(path string, block *parser.Program) error {
 	return nil
 }
 
-func (state *State) compile(expr *parser.Expression) value.Value {
+func (state *State) Compile(expr *parser.Expression) value.Value {
 	if expr.FnDecl != nil {
-		if takes := GenType(expr.FnDecl.Type.Takes); takes != types.Void {
+		if takes := MakeType(expr.FnDecl.Type.Takes); takes != types.Void {
 			state.function = state.module.NewFunc(
 				*expr.FnDecl.Ident.Ident,
-				GenType(expr.FnDecl.Type.Gives),
+				MakeType(expr.FnDecl.Type.Gives),
 				ir.NewParam(param, takes))
 		} else {
 			state.function = state.module.NewFunc(
 				*expr.FnDecl.Ident.Ident,
-				GenType(expr.FnDecl.Type.Gives))
+				MakeType(expr.FnDecl.Type.Gives))
 		}
 
 		state.block = state.function.NewBlock("entry")
 
 		// Step through and codegen each expression in the function until ";"
 		for _, expr := range expr.FnDecl.Block.Expression {
-			state.compile(expr)
+			state.Compile(expr)
 		}
 
 		if state.function.Sig.RetType == types.Void {
@@ -108,7 +109,7 @@ func (state *State) compile(expr *parser.Expression) value.Value {
 			if state.function.Sig.RetType == types.Void {
 				state.block.NewRet(nil)
 			} else {
-				state.block.NewRet(state.compile(expr.Application.Atoms))
+				state.block.NewRet(state.Compile(expr.Application.Atoms))
 			}
 
 		case "Head":
@@ -128,14 +129,14 @@ func (state *State) compile(expr *parser.Expression) value.Value {
 			}
 			return state.block.NewCall(
 				fn,
-				state.compile(expr.Application.Atoms))
+				state.Compile(expr.Application.Atoms))
 		}
 	}
 
 	return nil
 }
 
-func (state *State) compile_vector(vector []*parser.Expression) (value.Value, *types.VectorType) {
+/* func (state *State) compile_vector(vector []*parser.Expression) (value.Value, *types.VectorType) {
 	elm_type := GenPrimaryType(vector[0].Primary)
 	fmt.Println(elm_type)
 	vec_type := &types.VectorType{
@@ -153,13 +154,71 @@ func (state *State) compile_vector(vector []*parser.Expression) (value.Value, *t
 			constant.NewInt(types.I32, int64(i)))
 		ptr.InBounds = true
 
-		state.block.NewStore(state.compile(elm), ptr)
+		state.block.NewStore(state.Compile(elm), ptr)
 	}
 
 	return vec, vec_type
+} */
+
+func (state *State) compile_vector(vector []*parser.Expression) (value.Value, *types.VectorType) {
+	elm_type := GenPrimaryType(vector[0].Primary)
+	// Round length up to the nearest power of 2
+	raw_len := math.Floor(math.Log2(float64(len(vector))) + 1)
+	// No point in tiny vectors
+	if raw_len < 8 {
+		raw_len = 8
+	}
+
+	vec_head := state.block.NewAlloca(types.NewStruct(
+		types.I64,
+		types.NewPointer(elm_type)))
+	vec_head.SetName("vec")
+
+	vec_body := state.block.NewCall(
+		state.fns["calloc"],
+		constant.NewInt(types.I64, 4),
+		constant.NewInt(types.I64, int64(raw_len)))
+	vec_body.SetName("body")
+
+	state.block.NewStore(
+		constant.NewInt(types.I64, int64(raw_len)),
+		state.block.NewGetElementPtr(
+			types.I64,
+			vec_head,
+			constant.NewInt(types.I32, 0)))
+
+	state.block.NewStore(
+		vec_body,
+		state.block.NewGetElementPtr(
+			elm_type,
+			vec_head,
+			constant.NewInt(types.I32, 1)))
+
+	/* for index, element := range vector {
+		state.block.NewStore(
+			state.Compile(element),
+			state.block.NewGetElementPtr(
+				elm_type,
+				vec_body,
+				constant.NewInt(types.I32, int64(index))))
+	} */
+
+	return vec_head, nil
+}
+func MakeType(t *parser.Type) types.Type {
+	switch {
+	case t.Primative != nil:
+		return NameToType(t.Primative)
+	case t.Vector != nil:
+		return types.NewStruct(types.I64, types.NewPointer(NameToType(t.Vector)))
+	case t.Struct != nil:
+		panic("Struct types not implemented yet")
+	default:
+		panic("Unknown type class")
+	}
 }
 
-func GenType(t *parser.TypeName) types.Type {
+func NameToType(t *parser.TypeName) types.Type {
 	switch *t.Type {
 	case "Int":
 		return int_t
