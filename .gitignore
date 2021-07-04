@@ -2,3 +2,4 @@
 *.clj
 main
 *.DS_Store*
+*.ll

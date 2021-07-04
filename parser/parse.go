@@ -14,7 +14,13 @@ type Block struct {
 
 type Directive struct {
 	Class *string `@Ident`
-	Instr *string `@Ident ";"`
+	Instr *Instr  `@@ ";"`
+}
+
+type Instr struct {
+	Ident  *string  `( @Ident`
+	String *string  `| @String`
+	Number *float64 `| @Float)`
 }
 
 type FnDecl struct {

@@ -6,8 +6,8 @@ import (
 	"os"
 	"sundown/sunday/parser"
 	"sundown/sunday/util"
-	"time"
 
+	"github.com/enescakir/emoji"
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
@@ -32,7 +32,6 @@ type State struct {
 }
 
 func StartCompiler(path string, block *parser.Program) error {
-	start_time := time.Now()
 	state := State{}
 	state.module = ir.NewModule()
 	state.fns = make(map[string]*ir.Func)
@@ -65,9 +64,17 @@ func StartCompiler(path string, block *parser.Program) error {
 	state.block.NewCall(state.Entry)
 	state.block.NewRet(constant.NewInt(types.I32, 0))
 
-	ioutil.WriteFile(path, []byte(state.module.String()), 0644)
+	if path == "" {
+		if len(packagename) != 0 {
+			path = packagename
+		} else {
+			path = state.Entry.Name()
+		}
+	}
 
-	fmt.Printf("Compiled %s in %s\n", path, time.Since(start_time).Round(1000))
+	ioutil.WriteFile(path+".ll", []byte(state.module.String()), 0644)
+
+	fmt.Println(string(emoji.Dove), " Compiled", path, "successfully")
 
 	return nil
 }
@@ -113,12 +120,13 @@ func (state *State) Compile(expr *parser.Expression) value.Value {
 
 		case "Head":
 			vec, typ := state.compile_vector(expr.Application.Atoms.Primary.Vec)
-			return state.block.NewLoad(
-				types.I32,
+			return state.block.NewLoad(typ, state.block.NewLoad(
+				types.NewPointer(typ),
 				state.block.NewGetElementPtr(
-					typ,
+					BuildVectorType(typ),
 					vec,
-					constant.NewInt(types.I32, 2)))
+					constant.NewInt(types.I32, 0),
+					constant.NewInt(types.I32, 2))))
 		default:
 			fn, err := state.fns[*expr.Application.Op.Ident]
 			if !err {

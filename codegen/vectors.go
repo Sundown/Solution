@@ -31,21 +31,21 @@ func (state *State) BuildVectorBody(typ types.Type, cap int64, width int64) *ir.
 		types.NewPointer(typ)) // Cast alloc'd memory to typ
 }
 
-func (state *State) WriteVectorLength(vector_struct *ir.InstAlloca, len int64) {
+func (state *State) WriteVectorLength(vector_struct *ir.InstAlloca, len int64, typ types.Type) {
 	state.block.NewStore(constant.NewInt(types.I64, len),
 		state.block.NewGetElementPtr(
-			types.I64, vector_struct, constant.NewInt(types.I32, 0)))
+			BuildVectorType(typ), vector_struct, constant.NewInt(types.I32, 0), constant.NewInt(types.I32, 0)))
 }
 
-func (state *State) WriteVectorCapacity(vector_struct *ir.InstAlloca, cap int64) {
+func (state *State) WriteVectorCapacity(vector_struct *ir.InstAlloca, cap int64, typ types.Type) {
 	state.block.NewStore(constant.NewInt(types.I64, cap),
 		state.block.NewGetElementPtr(
-			types.I64, vector_struct, constant.NewInt(types.I32, 1)))
+			BuildVectorType(typ), vector_struct, constant.NewInt(types.I32, 0), constant.NewInt(types.I32, 1)))
 }
 
 func (state *State) WriteVectorPointer(vector_struct *ir.InstAlloca, typ types.Type, body *ir.InstBitCast) {
 	state.block.NewStore(body, state.block.NewGetElementPtr(
-		types.NewPointer(typ), vector_struct, constant.NewInt(types.I32, 2)))
+		BuildVectorType(typ), vector_struct, constant.NewInt(types.I32, 0), constant.NewInt(types.I32, 2)))
 }
 
 func (state *State) compile_vector(vector []*parser.Expression) (value.Value, types.Type) {
@@ -64,10 +64,10 @@ func (state *State) compile_vector(vector []*parser.Expression) (value.Value, ty
 	vector_body := state.BuildVectorBody(element_type, capacity, 4)
 
 	// Store vector length
-	state.WriteVectorLength(vector_header, int64(len(vector)))
+	state.WriteVectorLength(vector_header, int64(len(vector)), element_type)
 
 	// Store vector capacity
-	state.WriteVectorCapacity(vector_header, capacity)
+	state.WriteVectorCapacity(vector_header, capacity, element_type)
 
 	// Point the vector header to alloc'd body
 	state.WriteVectorPointer(vector_header, element_type, vector_body)

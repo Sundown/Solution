@@ -1,5 +1,6 @@
+@Package "Beta";
 @Entry Start;
 
-Start :: Void -> Bool =
-	Return [1, 2]
+Start :: Void -> Int =
+	Return Head [1, 2]
 ;

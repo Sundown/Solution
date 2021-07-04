@@ -9,7 +9,6 @@ import (
 	"sundown/sunday/codegen"
 	"sundown/sunday/parser"
 	"sundown/sunday/util"
-	"time"
 )
 
 var build = 1
@@ -32,7 +31,7 @@ func GetVersion() string {
 			panic(err)
 		}
 
-		version = strconv.FormatInt(num, 36)
+		version = strconv.FormatInt(num, 36)[0:6]
 
 	} else {
 		version = "unknown"
@@ -42,15 +41,6 @@ func GetVersion() string {
 }
 
 func main() {
-	GetVersion()
-	start_time := time.Now()
-	fmt.Printf(`#===================================#
-#                                   #
-#  Sunday compiler - build: %s  #
-#  https://sundow.nl/sunday         #
-#                                   #
-#===================================#`+"\n", GetVersion()[0:6])
-
 	var filecontents []byte
 	var err error
 
@@ -69,8 +59,6 @@ func main() {
 			panic(err)
 		}
 
-		path := "out.ll"
-		fmt.Println("Parsing")
 		prog := &parser.Program{}
 
 		err = parser.Parser.ParseString(os.Args[2], string(filecontents), prog)
@@ -78,9 +66,7 @@ func main() {
 			panic(err)
 		}
 
-		fmt.Printf("Parsed: %s in %s\n", path, time.Since(start_time).Round(1000))
-		fmt.Println("Compiling")
-		codegen.StartCompiler(path, prog)
+		codegen.StartCompiler("", prog)
 	default:
 		util.Error("invalid subcommand" + os.Args[1])
 		os.Exit(1)
