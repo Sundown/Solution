@@ -1,15 +1,13 @@
-<div align="center">
-	<h3> Sunday :dove:</h3>
+## Sunday :dove:</h3>
 
 A minimalist, compiled, functional language.
 
-Sunday generates code via LLVM.
-</div>
+This project is currently a work in progress and is useful for little apart from learning the basics of LLVM as used in a small-scale project.
 
 ---
 #### Sample
 
-```dart
+```java
 @Package "Example";
 @Entry Start;
 
@@ -22,6 +20,9 @@ Inverse : Real -> Real =
 ```
 
 ```sh
-$ sunday run Example.xx
+$ sndy run Example.xx
 0.143
 ```
+---
+#### Running
+Simply `go build sndy.go` and everything should work out, provided deps are available.

@@ -1,5 +1,0 @@
-@Package "Dev";
-@Entry Start;
-
-Start : Void -> Int =
-	Return 1;
