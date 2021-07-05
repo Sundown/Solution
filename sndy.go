@@ -66,6 +66,7 @@ func main() {
 			panic(err)
 		}
 
+		//repr.Println(prog)
 		codegen.StartCompiler("", prog)
 	default:
 		util.Error("invalid subcommand" + os.Args[1])

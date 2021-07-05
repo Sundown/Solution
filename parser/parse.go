@@ -5,50 +5,37 @@ import (
 )
 
 type Program struct {
-	Expression []*HighExpression `@@*`
-}
-
-type Block struct {
-	Expression []*Expression `"=" @@* ";"`
+	Statements []*struct {
+		Directive *Directive `"@" @@`
+		FnDecl    *FnDecl    `| @@`
+	} `@@*`
 }
 
 type Directive struct {
 	Class *string `@Ident`
-	Instr *Instr  `@@ ";"`
-}
-
-type Instr struct {
-	Ident  *string  `( @Ident`
-	String *string  `| @String`
-	Number *float64 `| @Float)`
+	Instr *struct {
+		Ident  *string  `( @Ident`
+		String *string  `| @String`
+		Number *float64 `| @Float)`
+	} `@@ ";"`
 }
 
 type FnDecl struct {
-	Ident *Ident   `@@ ":"`
-	Type  *TypeSig `":" @@`
-	Block *Block   `@@`
-}
-
-type HighExpression struct {
-	Directive  *Directive  `"@" @@`
-	Expression *Expression `| @@`
+	Ident       *string       `@Ident ":"`
+	Type        *Expression   `@@ "="`
+	Expressions []*Expression `(@@ ";")*`
 }
 
 type Expression struct {
-	FnDecl      *FnDecl      `@@`
-	Application *Application `| @@`
-	Type        *TypeSig     `| @@`
-	Primary     *Primary     `| @@`
-	Block       *Block       `| @@`
+	Application *Application `( @@`
+	Type        *Type        `| @@`
+	Primary     *Primary     `| @@ )`
+	Op          *string      `( @(":"":" | "-"">" | "." )`
+	Binary      *Expression  `@@)?`
 }
 
 type TypeName struct {
 	Type *string `@("Int" | "Nat" | "Real" | "Bool" | "Str" | "Char" | "Void")`
-}
-
-type TypeSig struct {
-	Takes *Type `(@@ "-"`
-	Gives *Type `">" @@)`
 }
 
 type Type struct {
@@ -58,12 +45,8 @@ type Type struct {
 }
 
 type Application struct {
-	Op    *Ident      `@@`
-	Atoms *Expression `@@`
-}
-
-type Ident struct {
-	Ident *string `@Ident`
+	Function  *string     `@Ident`
+	Parameter *Expression `@@`
 }
 
 type Primary struct {
@@ -72,10 +55,10 @@ type Primary struct {
 	Int    *int64        `| @Int`
 	Real   *float64      `| @Float`
 	Bool   *string       `| @("True" | "False")`
+	Nil    *string       `| @"Nil"`
 	String *string       `| @String`
 	Param  *string       `| @"%"`
-	Noun   *Ident        `| @@`
-	Nil    bool          `| @"Nil"`
+	Noun   *string       `| @Ident`
 }
 
 var Parser = participle.MustBuild(&Program{}, participle.UseLookahead(2))

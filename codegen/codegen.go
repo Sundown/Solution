@@ -46,13 +46,13 @@ func StartCompiler(path string, block *parser.Program) error {
 	state.BuiltinDouble()
 	state.BuiltinCalloc()
 
-	for _, he := range block.Expression {
-		if he.Expression != nil {
-			state.Compile(he.Expression)
+	for _, he := range block.Statements {
+		if he.FnDecl != nil {
+			state.CompileFunction(he.FnDecl)
 		}
 	}
 
-	for _, he := range block.Expression {
+	for _, he := range block.Statements {
 		if he.Directive != nil {
 			state.Direct(he.Directive)
 		}
@@ -79,47 +79,53 @@ func StartCompiler(path string, block *parser.Program) error {
 	return nil
 }
 
+func (state *State) CompileFunction(fn *parser.FnDecl) {
+	if fn.Type.Op == nil || fn.Type.Binary == nil || *fn.Type.Op != "->" {
+		panic("FnDecl, broken type signature")
+	}
+
+	if takes := MakeType(fn.Type.Type); takes != types.Void {
+		state.function = state.module.NewFunc(
+			*fn.Ident,
+			MakeType(fn.Type.Binary.Type),
+			ir.NewParam(param, takes))
+	} else {
+		state.function = state.module.NewFunc(
+			*fn.Ident,
+			MakeType(fn.Type.Binary.Type))
+	}
+
+	state.block = state.function.NewBlock("entry")
+
+	// Step through and codegen each expression in the function until ";"
+	for _, expr := range fn.Expressions {
+		state.Compile(expr)
+	}
+
+	if state.function.Sig.RetType == types.Void {
+		state.block.NewRet(nil)
+	}
+
+	state.fns[*fn.Ident] = state.function
+	// Constructing this function is over so clear state
+	state.block = nil
+	state.function = nil
+}
+
 func (state *State) Compile(expr *parser.Expression) value.Value {
-	if expr.FnDecl != nil {
-		if takes := MakeType(expr.FnDecl.Type.Takes); takes != types.Void {
-			state.function = state.module.NewFunc(
-				*expr.FnDecl.Ident.Ident,
-				MakeType(expr.FnDecl.Type.Gives),
-				ir.NewParam(param, takes))
-		} else {
-			state.function = state.module.NewFunc(
-				*expr.FnDecl.Ident.Ident,
-				MakeType(expr.FnDecl.Type.Gives))
-		}
-
-		state.block = state.function.NewBlock("entry")
-
-		// Step through and codegen each expression in the function until ";"
-		for _, expr := range expr.FnDecl.Block.Expression {
-			state.Compile(expr)
-		}
-
-		if state.function.Sig.RetType == types.Void {
-			state.block.NewRet(nil)
-		}
-
-		state.fns[*expr.FnDecl.Ident.Ident] = state.function
-		// Constructing this function is over so clear state
-		state.block = nil
-		state.function = nil
-	} else if expr.Primary != nil {
+	if expr.Primary != nil {
 		return state.MakePrimary(expr.Primary)
 	} else if expr.Application != nil {
-		switch *expr.Application.Op.Ident {
+		switch *expr.Application.Function {
 		case "Return":
 			if state.function.Sig.RetType == types.Void {
 				state.block.NewRet(nil)
 			} else {
-				state.block.NewRet(state.Compile(expr.Application.Atoms))
+				state.block.NewRet(state.Compile(expr.Application.Parameter))
 			}
 
 		case "Head":
-			vec, typ := state.compile_vector(expr.Application.Atoms.Primary.Vec)
+			vec, typ := state.compile_vector(expr.Application.Parameter.Primary.Vec)
 			return state.block.NewLoad(typ, state.block.NewLoad(
 				types.NewPointer(typ),
 				state.block.NewGetElementPtr(
@@ -128,14 +134,14 @@ func (state *State) Compile(expr *parser.Expression) value.Value {
 					constant.NewInt(types.I32, 0),
 					constant.NewInt(types.I32, 2))))
 		default:
-			fn, err := state.fns[*expr.Application.Op.Ident]
+			fn, err := state.fns[*expr.Application.Function]
 			if !err {
 				util.Error("Function not found")
 				os.Exit(1)
 			}
 			return state.block.NewCall(
 				fn,
-				state.Compile(expr.Application.Atoms))
+				state.Compile(expr.Application.Parameter))
 		}
 	}
 
