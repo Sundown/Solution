@@ -9,6 +9,8 @@ import (
 	"sundown/sunday/codegen"
 	"sundown/sunday/parser"
 	"sundown/sunday/util"
+
+	"github.com/alecthomas/repr"
 )
 
 var build = 1
@@ -66,7 +68,8 @@ func main() {
 			panic(err)
 		}
 
-		//repr.Println(prog)
+		ioutil.WriteFile("tree.yml", []byte(repr.String(prog, repr.Indent("	"))), 0644)
+
 		codegen.StartCompiler("", prog)
 	default:
 		util.Error("invalid subcommand" + os.Args[1])

@@ -1,6 +1,7 @@
 package codegen
 
 import (
+	"fmt"
 	"math"
 	"sundown/sunday/parser"
 
@@ -18,9 +19,7 @@ func BuildVectorType(typ types.Type) *types.StructType {
 }
 
 func (state *State) BuildVectorHeader(typ types.Type) *ir.InstAlloca {
-	header := state.block.NewAlloca(BuildVectorType(typ))
-	header.SetName("vector_header")
-	return header
+	return state.block.NewAlloca(BuildVectorType(typ))
 }
 
 func (state *State) BuildVectorBody(typ types.Type, cap int64, width int64) *ir.InstBitCast {
@@ -48,9 +47,10 @@ func (state *State) WriteVectorPointer(vector_struct *ir.InstAlloca, typ types.T
 		BuildVectorType(typ), vector_struct, constant.NewInt(types.I32, 0), constant.NewInt(types.I32, 2)))
 }
 
-func (state *State) compile_vector(vector []*parser.Expression) (value.Value, types.Type) {
+func (state *State) MakeVector(vector []*parser.Expression) (value.Value, types.Type) {
 	element_type := GenPrimaryType(vector[0].Primary)
-	// Round length up to the nearest power of 2
+	fmt.Println(element_type)
+	// Round length *up* to the nearest power of 2
 	capacity := int64(math.Floor(math.Log2(float64(len(vector))) + 1))
 	// No point in tiny vectors
 	if capacity < 8 {
@@ -73,9 +73,14 @@ func (state *State) compile_vector(vector []*parser.Expression) (value.Value, ty
 	state.WriteVectorPointer(vector_header, element_type, vector_body)
 
 	for index, element := range vector {
-		state.block.NewStore(state.Compile(element),
+		v, _ := state.Compile(element)
+
+		state.block.NewStore(v,
 			state.block.NewGetElementPtr(
-				element_type, vector_body, constant.NewInt(types.I32, int64(index))))
+				element_type,
+				vector_body,
+				constant.NewInt(types.I32, int64(index))))
+
 	}
 
 	return vector_header, element_type

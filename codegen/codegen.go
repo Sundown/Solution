@@ -19,7 +19,7 @@ var (
 	int_bt types.IntType
 	int_t,
 	real_t,
-	str_t,
+	//types.I8Ptr,
 	bool_t types.Type
 )
 
@@ -39,7 +39,7 @@ func StartCompiler(path string, block *parser.Program) error {
 	int_bt = types.IntType{TypeName: "Int", BitSize: 64}
 	int_t = state.module.NewTypeDef("Int", types.I64)
 	real_t = state.module.NewTypeDef("Real", types.Double)
-	str_t = state.module.NewTypeDef("String", types.I8Ptr)
+	//types.I8Ptr = state.module.NewTypeDef("String", types.I8Ptr)
 	bool_t = state.module.NewTypeDef("Bool", types.I1)
 
 	state.BuiltinPuts()
@@ -112,7 +112,7 @@ func (state *State) CompileFunction(fn *parser.FnDecl) {
 	state.function = nil
 }
 
-func (state *State) Compile(expr *parser.Expression) value.Value {
+func (state *State) Compile(expr *parser.Expression) (value.Value, types.Type) {
 	if expr.Primary != nil {
 		return state.MakePrimary(expr.Primary)
 	} else if expr.Application != nil {
@@ -121,31 +121,34 @@ func (state *State) Compile(expr *parser.Expression) value.Value {
 			if state.function.Sig.RetType == types.Void {
 				state.block.NewRet(nil)
 			} else {
-				state.block.NewRet(state.Compile(expr.Application.Parameter))
+				v, _ := state.Compile(expr.Application.Parameter)
+				state.block.NewRet(v)
 			}
 
 		case "Head":
-			vec, typ := state.compile_vector(expr.Application.Parameter.Primary.Vec)
+			vec, typ := state.Compile(expr.Application.Parameter)
+
 			return state.block.NewLoad(typ, state.block.NewLoad(
 				types.NewPointer(typ),
 				state.block.NewGetElementPtr(
 					BuildVectorType(typ),
 					vec,
 					constant.NewInt(types.I32, 0),
-					constant.NewInt(types.I32, 2))))
+					constant.NewInt(types.I32, 2)))), BuildVectorType(typ)
 		default:
 			fn, err := state.fns[*expr.Application.Function]
 			if !err {
 				util.Error("Function not found")
 				os.Exit(1)
 			}
-			return state.block.NewCall(
-				fn,
-				state.Compile(expr.Application.Parameter))
+
+			v, t := state.Compile(expr.Application.Parameter)
+
+			return state.block.NewCall(fn, v), t /* TODO: probably wrong */
 		}
 	}
 
-	return nil
+	return nil, nil
 }
 
 func MakeType(t *parser.Type) types.Type {
@@ -153,7 +156,7 @@ func MakeType(t *parser.Type) types.Type {
 	case t.Primative != nil:
 		return NameToType(t.Primative)
 	case t.Vector != nil:
-		return types.NewStruct(types.I64, types.NewPointer(NameToType(t.Vector)))
+		return BuildVectorType(NameToType(t.Vector))
 	case t.Struct != nil:
 		panic("Struct types not implemented yet")
 	default:
@@ -172,7 +175,7 @@ func NameToType(t *parser.TypeName) types.Type {
 	case "Void":
 		return types.Void
 	case "Str":
-		return str_t
+		return types.I8Ptr
 	default:
 		return types.Void
 	}
@@ -181,6 +184,12 @@ func NameToType(t *parser.TypeName) types.Type {
 func GenPrimaryType(p *parser.Primary) types.Type {
 	if p != nil {
 		switch {
+		case p.Vec != nil:
+			if p.Vec[0].Primary == nil {
+				panic("Cannot yet calculate type of complex expression inside sub-vector or something")
+			}
+
+			return types.NewPointer(BuildVectorType(GenPrimaryType(p.Vec[0].Primary)))
 		case p.Int != nil:
 			return int_t
 		case p.Real != nil:
@@ -188,7 +197,7 @@ func GenPrimaryType(p *parser.Primary) types.Type {
 		case p.Bool != nil:
 			return bool_t
 		case p.String != nil:
-			return str_t
+			return types.I8Ptr
 		}
 	}
 

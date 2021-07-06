@@ -17,7 +17,7 @@ func (state *State) BuiltinDouble() {
 }
 
 func (state *State) BuiltinPuts() {
-	state.MakeBuiltin("puts", str_t, types.I32)
+	state.MakeBuiltin("puts", types.I8Ptr, types.I32)
 }
 
 func (state *State) BuiltinCalloc() {
