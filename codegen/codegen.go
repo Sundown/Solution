@@ -156,7 +156,7 @@ func MakeType(t *parser.Type) types.Type {
 	case t.Primative != nil:
 		return NameToType(t.Primative)
 	case t.Vector != nil:
-		return BuildVectorType(NameToType(t.Vector))
+		return BuildVectorType(MakeType(t.Vector))
 	case t.Struct != nil:
 		panic("Struct types not implemented yet")
 	default:

@@ -1,5 +1,7 @@
 ## Sunday :dove:</h3>
 
+:construction: WIP
+
 A minimalist, compiled, functional language.
 
 This project is currently a work in progress and is useful for little apart from learning the basics of LLVM as used in a small-scale project.
