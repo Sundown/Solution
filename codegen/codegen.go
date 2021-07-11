@@ -36,8 +36,8 @@ func StartCompiler(path string, block *parser.Program) error {
 	state.module = ir.NewModule()
 	state.fns = make(map[string]*ir.Func)
 
-	int_bt = types.IntType{TypeName: "Int", BitSize: 64}
-	int_t = state.module.NewTypeDef("Int", types.I64)
+	int_bt = types.IntType{TypeName: "", BitSize: 64}
+	int_t = types.I64
 	real_t = state.module.NewTypeDef("Real", types.Double)
 	//types.I8Ptr = state.module.NewTypeDef("String", types.I8Ptr)
 	bool_t = state.module.NewTypeDef("Bool", types.I1)
@@ -188,7 +188,7 @@ func GenPrimaryType(p *parser.Primary) types.Type {
 			if p.Vec[0].Primary == nil {
 				panic("Cannot yet calculate type of complex expression inside sub-vector or something")
 			}
-
+			/* TODO: this works for some things and breaks others, shouldn't be pointer or something */
 			return types.NewPointer(BuildVectorType(GenPrimaryType(p.Vec[0].Primary)))
 		case p.Int != nil:
 			return int_t

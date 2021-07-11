@@ -28,7 +28,7 @@
 					Op: &"->",
 					Binary: &parser.Expression{
 						Type: &parser.Type{
-							Primative: &parser.TypeName{
+							Vector: &parser.TypeName{
 								Type: &"Int",
 							},
 						},
@@ -39,27 +39,11 @@
 						Application: &parser.Application{
 							Function: &"Return",
 							Parameter: &parser.Expression{
-								Application: &parser.Application{
-									Function: &"Head",
-									Parameter: &parser.Expression{
-										Application: &parser.Application{
-											Function: &"Head",
-											Parameter: &parser.Expression{
-												Primary: &parser.Primary{
-													Vec: []*parser.Expression{
-														{
-															Primary: &parser.Primary{
-																Vec: []*parser.Expression{
-																	{
-																		Primary: &parser.Primary{
-																			Int: &1,
-																		},
-																	},
-																},
-															},
-														},
-													},
-												},
+								Primary: &parser.Primary{
+									Vec: []*parser.Expression{
+										{
+											Primary: &parser.Primary{
+												Int: &1,
 											},
 										},
 									},

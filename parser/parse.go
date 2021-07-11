@@ -39,9 +39,9 @@ type TypeName struct {
 }
 
 type Type struct {
-	Primative *TypeName   ` @@`
-	Vector    *TypeName   `| "[" @@ "]"`
-	Struct    []*TypeName `| "(" (@@ ("," @@)*)? ")"`
+	Primative *TypeName ` @@`
+	Vector    *Type     `| "[" @@ "]"`
+	Struct    []*Type   `| "(" (@@ ("," @@)*)? ")"`
 }
 
 type Application struct {
