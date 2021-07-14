@@ -5,7 +5,7 @@ import (
 	"math"
 	"sundown/sunday/parser"
 
-	"github.com/llir/llvm/ir"
+	llir "github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
@@ -18,11 +18,11 @@ func BuildVectorType(typ types.Type) *types.StructType {
 		types.NewPointer(typ)) // Body
 }
 
-func (state *State) BuildVectorHeader(typ types.Type) *ir.InstAlloca {
+func (state *State) BuildVectorHeader(typ types.Type) *llir.InstAlloca {
 	return state.block.NewAlloca(BuildVectorType(typ))
 }
 
-func (state *State) BuildVectorBody(typ types.Type, cap int64, width int64) *ir.InstBitCast {
+func (state *State) BuildVectorBody(typ types.Type, cap int64, width int64) *llir.InstBitCast {
 	return state.block.NewBitCast(state.block.NewCall(
 		state.fns["calloc"],
 		constant.NewInt(types.I64, width), // Byte size of elements
@@ -30,19 +30,19 @@ func (state *State) BuildVectorBody(typ types.Type, cap int64, width int64) *ir.
 		types.NewPointer(typ)) // Cast alloc'd memory to typ
 }
 
-func (state *State) WriteVectorLength(vector_struct *ir.InstAlloca, len int64, typ types.Type) {
+func (state *State) WriteVectorLength(vector_struct *llir.InstAlloca, len int64, typ types.Type) {
 	state.block.NewStore(constant.NewInt(types.I64, len),
 		state.block.NewGetElementPtr(
 			BuildVectorType(typ), vector_struct, constant.NewInt(types.I32, 0), constant.NewInt(types.I32, 0)))
 }
 
-func (state *State) WriteVectorCapacity(vector_struct *ir.InstAlloca, cap int64, typ types.Type) {
+func (state *State) WriteVectorCapacity(vector_struct *llir.InstAlloca, cap int64, typ types.Type) {
 	state.block.NewStore(constant.NewInt(types.I64, cap),
 		state.block.NewGetElementPtr(
 			BuildVectorType(typ), vector_struct, constant.NewInt(types.I32, 0), constant.NewInt(types.I32, 1)))
 }
 
-func (state *State) WriteVectorPointer(vector_struct *ir.InstAlloca, typ types.Type, body *ir.InstBitCast) {
+func (state *State) WriteVectorPointer(vector_struct *llir.InstAlloca, typ types.Type, body *llir.InstBitCast) {
 	state.block.NewStore(body, state.block.NewGetElementPtr(
 		BuildVectorType(typ), vector_struct, constant.NewInt(types.I32, 0), constant.NewInt(types.I32, 2)))
 }

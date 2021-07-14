@@ -8,7 +8,7 @@ import (
 	"sundown/sunday/util"
 
 	"github.com/enescakir/emoji"
-	"github.com/llir/llvm/ir"
+	llir "github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
@@ -24,17 +24,17 @@ var (
 )
 
 type State struct {
-	module   *ir.Module
-	function *ir.Func
-	Entry    *ir.Func
-	block    *ir.Block
-	fns      map[string]*ir.Func
+	module   *llir.Module
+	function *llir.Func
+	Entry    *llir.Func
+	block    *llir.Block
+	fns      map[string]*llir.Func
 }
 
 func StartCompiler(path string, block *parser.Program) error {
 	state := State{}
-	state.module = ir.NewModule()
-	state.fns = make(map[string]*ir.Func)
+	state.module = llir.NewModule()
+	state.fns = make(map[string]*llir.Func)
 
 	int_bt = types.IntType{TypeName: "", BitSize: 64}
 	int_t = types.I64
@@ -84,7 +84,7 @@ func (state *State) CompileFunction(fn *parser.FnDecl) {
 		state.function = state.module.NewFunc(
 			*fn.Ident,
 			MakeType(fn.Gives),
-			ir.NewParam(param, takes))
+			llir.NewParam(param, takes))
 	} else {
 		state.function = state.module.NewFunc(
 			*fn.Ident,

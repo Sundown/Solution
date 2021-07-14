@@ -6,8 +6,8 @@ import (
 	"os"
 	"os/exec"
 	"strconv"
-	"sundown/sunday/analysis"
 	"sundown/sunday/codegen"
+	"sundown/sunday/ir"
 	"sundown/sunday/parser"
 	"sundown/sunday/util"
 
@@ -65,7 +65,9 @@ func main() {
 	}
 	switch os.Args[1] {
 	case "analyse":
-		repr.Println(analysis.Analyse(prog))
+		res := ir.Analyse(prog)
+		//repr.Println(res)
+		fmt.Println(res.String())
 	case "tree":
 		ioutil.WriteFile("tree.yml", []byte(repr.String(prog, repr.Indent("	"))), 0644)
 	case "build":

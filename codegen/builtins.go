@@ -2,14 +2,16 @@ package codegen
 
 import (
 	"github.com/llir/llvm/ir"
+	llir "github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
 )
 
-func (state *State) MakeBuiltin(s string, in types.Type, out types.Type) *ir.Func {
-	state.fns[s] = state.module.NewFunc(s, out, ir.NewParam(param, in))
+func (state *State) MakeBuiltin(s string, in types.Type, out types.Type) *llir.Func {
+	state.fns[s] = state.module.NewFunc(s, out, llir.NewParam(param, in))
 	return state.fns[s]
 }
+
 func (state *State) BuiltinDouble() {
 	fn := state.MakeBuiltin("double", int_t, int_t)
 	block := fn.NewBlock("entry")
