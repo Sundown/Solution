@@ -22,7 +22,8 @@ type Directive struct {
 
 type FnDecl struct {
 	Ident       *string       `@Ident ":"`
-	Type        *Expression   `@@ "="`
+	Takes       *Type         `@@ "-"`
+	Gives       *Type         `">" @@ "="`
 	Expressions []*Expression `(@@ ";")*`
 }
 

@@ -80,19 +80,15 @@ func StartCompiler(path string, block *parser.Program) error {
 }
 
 func (state *State) CompileFunction(fn *parser.FnDecl) {
-	if fn.Type.Op == nil || fn.Type.Binary == nil || *fn.Type.Op != "->" {
-		panic("FnDecl, broken type signature")
-	}
-
-	if takes := MakeType(fn.Type.Type); takes != types.Void {
+	if takes := MakeType(fn.Takes); takes != types.Void {
 		state.function = state.module.NewFunc(
 			*fn.Ident,
-			MakeType(fn.Type.Binary.Type),
+			MakeType(fn.Gives),
 			ir.NewParam(param, takes))
 	} else {
 		state.function = state.module.NewFunc(
 			*fn.Ident,
-			MakeType(fn.Type.Binary.Type))
+			MakeType(fn.Takes))
 	}
 
 	state.block = state.function.NewBlock("entry")

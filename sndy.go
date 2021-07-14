@@ -6,6 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"strconv"
+	"sundown/sunday/analysis"
 	"sundown/sunday/codegen"
 	"sundown/sunday/parser"
 	"sundown/sunday/util"
@@ -51,25 +52,23 @@ func main() {
 		os.Exit(0)
 	}
 
+	filecontents, err = ioutil.ReadFile(os.Args[2])
+	if err != nil {
+		panic(err)
+	}
+
+	prog := &parser.Program{}
+
+	err = parser.Parser.ParseString(os.Args[2], string(filecontents), prog)
+	if err != nil {
+		panic(err)
+	}
 	switch os.Args[1] {
-	case "grammar":
-		fmt.Println(parser.Parser)
-		os.Exit(0)
-	case "build":
-		filecontents, err = ioutil.ReadFile(os.Args[2])
-		if err != nil {
-			panic(err)
-		}
-
-		prog := &parser.Program{}
-
-		err = parser.Parser.ParseString(os.Args[2], string(filecontents), prog)
-		if err != nil {
-			panic(err)
-		}
-
+	case "analyse":
+		repr.Println(analysis.Analyse(prog))
+	case "tree":
 		ioutil.WriteFile("tree.yml", []byte(repr.String(prog, repr.Indent("	"))), 0644)
-
+	case "build":
 		codegen.StartCompiler("", prog)
 	default:
 		util.Error("invalid subcommand" + os.Args[1])
