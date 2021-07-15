@@ -4,56 +4,38 @@ import (
 	"sundown/sunday/parser"
 )
 
-type Program struct {
-	Statements []*Function
+type State struct {
+	Package    *string
 	Directives []*Directive
+	Functions  []*Function
+	TypeDefs   []*TypeDef
 }
 
-type Binary struct {
-	TypeOf *Type
-	Op     string
-	Left   *Expression
-	Right  *Expression
-}
-
-func (p *Program) String() string {
+func (p *State) String() string {
 	var str string
 	for _, directive := range p.Directives {
-		str += directive.String() + ";\n"
+		str += directive.String() + "\n"
 	}
 
 	str += "\n"
 
-	for _, statement := range p.Statements {
+	for _, statement := range p.Functions {
 		str += statement.String()
 	}
 
 	return str
 }
 
-func (b *Binary) String() string {
-	return b.Left.String() + b.Op + b.Right.String()
-}
-
-func Analyse(program *parser.Program) (output Program) {
+func (state *State) Analyse(program *parser.Program) {
 	for _, statement := range program.Statements {
 		if statement.Directive != nil {
-			output.Directives = append(
-				output.Directives,
+			state.Directives = append(
+				state.Directives,
 				AnalyseDirective(statement.Directive))
 		} else {
-			output.Statements = append(
-				output.Statements,
+			state.Functions = append(
+				state.Functions,
 				AnalyseStatement(statement.FnDecl))
 		}
 	}
-
-	return output
-}
-
-func AnalyseBinary(binary *parser.Expression) (b *Binary) {
-	/* TODO: return an *Application at some point because Binary object
-	is somewhat of a hack */
-	b.Op = *binary.Op
-	return b
 }

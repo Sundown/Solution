@@ -153,8 +153,8 @@ func MakeType(t *parser.Type) types.Type {
 		return NameToType(t.Primative)
 	case t.Vector != nil:
 		return BuildVectorType(MakeType(t.Vector))
-	case t.Struct != nil:
-		panic("Struct types not implemented yet")
+	case t.Tuple != nil:
+		panic("Tuple types not implemented yet")
 	default:
 		panic("Unknown type class")
 	}

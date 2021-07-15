@@ -5,7 +5,12 @@ import "sundown/sunday/parser"
 type Type struct {
 	Atomic string
 	Vector *Type
-	Struct []*Type
+	Tuple  []*Type
+}
+
+type TypeDef struct {
+	Ident *string
+	Type  *Type
 }
 
 func (t *Type) String() string {
@@ -14,9 +19,9 @@ func (t *Type) String() string {
 		return t.Atomic
 	case t.Vector != nil:
 		return "[" + t.Vector.String() + "]"
-	case t.Struct != nil:
+	case t.Tuple != nil:
 		var str string
-		for _, elm := range t.Struct {
+		for _, elm := range t.Tuple {
 			str += "," + elm.String()
 		}
 
@@ -35,9 +40,9 @@ func AnalyseType(typ *parser.Type) (t *Type) {
 		t = &Type{Atomic: *typ.Primative.Type}
 	case typ.Vector != nil:
 		t = &Type{Vector: AnalyseType(typ.Vector)}
-	case typ.Struct != nil:
-		for _, temp := range typ.Struct {
-			t.Struct = append(t.Struct, AnalyseType(temp))
+	case typ.Tuple != nil:
+		for _, temp := range typ.Tuple {
+			t.Tuple = append(t.Tuple, AnalyseType(temp))
 		}
 	}
 

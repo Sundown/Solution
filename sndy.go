@@ -65,9 +65,11 @@ func main() {
 	}
 	switch os.Args[1] {
 	case "analyse":
-		res := ir.Analyse(prog)
+		s := &ir.State{}
+
+		s.Analyse(prog)
 		//repr.Println(res)
-		fmt.Println(res.String())
+		fmt.Println(s.String())
 	case "tree":
 		ioutil.WriteFile("tree.yml", []byte(repr.String(prog, repr.Indent("	"))), 0644)
 	case "build":

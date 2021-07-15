@@ -1,7 +1,6 @@
 package codegen
 
 import (
-	"github.com/llir/llvm/ir"
 	llir "github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
@@ -26,6 +25,6 @@ func (state *State) BuiltinCalloc() {
 	state.fns["calloc"] = state.module.NewFunc(
 		"calloc",
 		types.I8Ptr,
-		ir.NewParam("size", types.I64),
-		ir.NewParam("count", types.I64))
+		llir.NewParam("size", types.I64),
+		llir.NewParam("count", types.I64))
 }

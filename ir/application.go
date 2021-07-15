@@ -9,7 +9,7 @@ type Application struct {
 }
 
 func (a *Application) String() string {
-	return a.Function.Name + "(" + a.Argument.String() + ")"
+	return a.Function.String() + " " + a.Argument.String()
 }
 
 func AnalyseApplication(application *parser.Application) (s *Application) {
@@ -42,16 +42,22 @@ func AnalyseStatement(statement *parser.FnDecl) (s *Function) {
 	}
 
 	return &Function{
-		Name:  *statement.Ident,
+		Ident: &Ident{
+			Namespace: statement.Ident.Namespace,
+			Ident:     statement.Ident.Ident,
+		},
 		Takes: takes,
 		Gives: gives,
 		Body:  &e,
 	}
 }
 
-func AnalyseFunction(function *string) (f *Function) {
+func AnalyseFunction(function *parser.Ident) (f *Function) {
 	f = &Function{
-		Name:  *function,
+		Ident: &Ident{
+			Namespace: function.Namespace,
+			Ident:     function.Ident,
+		},
 		Takes: &Type{Atomic: "Int"},
 		Gives: &Type{Atomic: "Int"}}
 	return f

@@ -20,8 +20,13 @@ type Directive struct {
 	} `@@ ";"`
 }
 
+type Ident struct {
+	Namespace *string `(@Ident ":" ":")?`
+	Ident     *string `@Ident`
+}
+
 type FnDecl struct {
-	Ident       *string       `@Ident ":"`
+	Ident       *Ident        `@@ ":"`
 	Takes       *Type         `@@ "-"`
 	Gives       *Type         `">" @@ "="`
 	Expressions []*Expression `(@@ ";")*`
@@ -31,8 +36,6 @@ type Expression struct {
 	Application *Application `( @@`
 	Type        *Type        `| @@`
 	Primary     *Primary     `| @@ )`
-	Op          *string      `( @(":"":" | "-"">" | "." )`
-	Binary      *Expression  `@@)?`
 }
 
 type TypeName struct {
@@ -42,16 +45,16 @@ type TypeName struct {
 type Type struct {
 	Primative *TypeName ` @@`
 	Vector    *Type     `| "[" @@ "]"`
-	Struct    []*Type   `| "(" (@@ ("," @@)*)? ")"`
+	Tuple     []*Type   `| "(" (@@ ("," @@)*)? ")"`
 }
 
 type Application struct {
-	Function  *string     `@Ident`
+	Function  *Ident      `@@`
 	Parameter *Expression `@@`
 }
 
 type Primary struct {
-	Tuple  []*Expression `  "(" (@@ ("," @@)*)? ")"`
+	Tuple  []*Expression `	"(" (@@ ("," @@)*)? ")"`
 	Vec    []*Expression `| "[" (@@ ("," @@)*)? "]"`
 	Int    *int64        `| @Int`
 	Real   *float64      `| @Float`
@@ -59,7 +62,7 @@ type Primary struct {
 	Nil    *string       `| @"Nil"`
 	String *string       `| @String`
 	Param  *string       `| @"%"`
-	Noun   *string       `| @Ident`
+	Noun   *Ident        `| @@`
 }
 
-var Parser = participle.MustBuild(&Program{}, participle.UseLookahead(2))
+var Parser = participle.MustBuild(&Program{}, participle.UseLookahead(3))
