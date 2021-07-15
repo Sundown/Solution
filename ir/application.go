@@ -9,17 +9,13 @@ type Application struct {
 }
 
 func (a *Application) String() string {
-	if a.Function.Ident.Namespace != nil {
-		return *a.Function.Ident.Namespace + "::" + *a.Function.Ident.Ident + " " + a.Argument.String()
-	} else {
-		return *a.Function.Ident.Ident + " " + a.Argument.String()
-	}
+	return a.Function.Ident.Namespace + "::" + a.Function.Ident.Ident + " " + a.Argument.String()
 }
 
-func AnalyseApplication(application *parser.Application) (s *Application) {
+func (state *State) AnalyseApplication(application *parser.Application) (s *Application) {
 	s = &Application{
-		Function: AnalyseFunction(application.Function),
-		Argument: AnalyseExpression(application.Parameter),
+		Function: state.AnalyseFunction(application.Function),
+		Argument: state.AnalyseExpression(application.Parameter),
 	}
 
 	s.TypeOf = s.Function.Gives

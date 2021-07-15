@@ -44,6 +44,10 @@ func (state *State) AnalyseDirective(directive *parser.Directive) (d *Directive)
 			panic("Package defined with wrong type")
 		}
 
+		if *d.Instruction.Ident == "_" || *d.Instruction.Ident == "Foundation" {
+			panic(`"` + *d.Instruction.Ident + `" is a reserved package name`)
+		}
+
 		state.PackageIdent = d.Instruction.Ident
 	case "Entry":
 		if d.Instruction.Ident == nil {

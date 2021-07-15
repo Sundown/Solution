@@ -31,7 +31,7 @@ func (e *Expression) String() string {
 	return ""
 }
 
-func AnalyseExpression(expression *parser.Expression) (e *Expression) {
+func (state *State) AnalyseExpression(expression *parser.Expression) (e *Expression) {
 	switch {
 	case expression.Type != nil:
 		e = &Expression{
@@ -39,10 +39,10 @@ func AnalyseExpression(expression *parser.Expression) (e *Expression) {
 			Type:   AnalyseType(expression.Type),
 		}
 	case expression.Primary != nil:
-		e = &Expression{Atom: AnalyseAtom(expression.Primary)}
+		e = &Expression{Atom: state.AnalyseAtom(expression.Primary)}
 		e.TypeOf = e.Atom.TypeOf
 	case expression.Application != nil:
-		e = &Expression{Application: AnalyseApplication(expression.Application)}
+		e = &Expression{Application: state.AnalyseApplication(expression.Application)}
 		e.TypeOf = e.Application.Function.Gives
 	}
 

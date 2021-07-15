@@ -19,8 +19,8 @@ type Atom struct {
 }
 
 type Ident struct {
-	Namespace *string
-	Ident     *string
+	Namespace string
+	Ident     string
 }
 
 func (a *Atom) String() string {
@@ -40,11 +40,7 @@ func (a *Atom) String() string {
 	case a.Str != nil:
 		return *a.Str
 	case a.Noun != nil:
-		if a.Noun.Namespace != nil {
-			return *a.Noun.Namespace + "::" + *a.Noun.Ident
-		} else {
-			return *a.Noun.Ident
-		}
+		return a.Noun.Namespace + "::" + a.Noun.Ident
 	case a.Param != nil:
 		return "@"
 	case a.Vector != nil:
@@ -66,13 +62,13 @@ func (a *Atom) String() string {
 	return "_"
 }
 
-func AnalyseAtom(primary *parser.Primary) (a *Atom) {
+func (state *State) AnalyseAtom(primary *parser.Primary) (a *Atom) {
 	switch {
 	case primary.Tuple != nil:
 		var types []*Type
 		var strct []*Expression
 		for _, expr := range primary.Tuple {
-			e := AnalyseExpression(expr)
+			e := state.AnalyseExpression(expr)
 			types = append(types, e.TypeOf)
 			strct = append(strct, e)
 		}
@@ -81,7 +77,7 @@ func AnalyseAtom(primary *parser.Primary) (a *Atom) {
 	case primary.Vec != nil:
 		var vec []*Expression
 		for _, expr := range primary.Vec {
-			e := AnalyseExpression(expr)
+			e := state.AnalyseExpression(expr)
 			/* all elements must be of same type */
 			// Can't compare types properly yet
 			/* if index > 0 && vec[index-1].TypeOf != e.TypeOf {
@@ -114,8 +110,8 @@ func AnalyseAtom(primary *parser.Primary) (a *Atom) {
 		a = &Atom{
 			TypeOf: &Type{Atomic: "Noun"},
 			Noun: &Ident{
-				Namespace: primary.Noun.Namespace,
-				Ident:     primary.Noun.Ident,
+				Namespace: *primary.Noun.Namespace,
+				Ident:     *primary.Noun.Ident,
 			},
 		}
 	case primary.Param != nil:
