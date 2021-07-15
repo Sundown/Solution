@@ -5,10 +5,11 @@ import (
 )
 
 type State struct {
-	Package    *string
-	Directives []*Directive
-	Functions  []*Function
-	TypeDefs   []*TypeDef
+	PackageIdent *string
+	EntryIdent   *string
+	Directives   []*Directive
+	Functions    []*Function
+	TypeDefs     []*TypeDef
 }
 
 func (p *State) String() string {
@@ -31,11 +32,11 @@ func (state *State) Analyse(program *parser.Program) {
 		if statement.Directive != nil {
 			state.Directives = append(
 				state.Directives,
-				AnalyseDirective(statement.Directive))
+				state.AnalyseDirective(statement.Directive))
 		} else {
 			state.Functions = append(
 				state.Functions,
-				AnalyseStatement(statement.FnDecl))
+				state.AnalyseStatement(statement.FnDecl))
 		}
 	}
 }

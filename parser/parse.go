@@ -26,10 +26,10 @@ type Ident struct {
 }
 
 type FnDecl struct {
-	Ident       *Ident        `@@ ":"`
+	Ident       *string       `@Ident ":"`
 	Takes       *Type         `@@ "-"`
 	Gives       *Type         `">" @@ "="`
-	Expressions []*Expression `(@@ ";")*`
+	Expressions []*Expression `(@@ ";")+`
 }
 
 type Expression struct {
@@ -39,7 +39,7 @@ type Expression struct {
 }
 
 type TypeName struct {
-	Type *string `@("Int" | "Nat" | "Real" | "Bool" | "Str" | "Char" | "Void")`
+	Type *string `@Ident`
 }
 
 type Type struct {
@@ -61,8 +61,8 @@ type Primary struct {
 	Bool   *string       `| @("True" | "False")`
 	Nil    *string       `| @"Nil"`
 	String *string       `| @String`
-	Param  *string       `| @"%"`
+	Param  *string       `| @"@"`
 	Noun   *Ident        `| @@`
 }
 
-var Parser = participle.MustBuild(&Program{}, participle.UseLookahead(3))
+var Parser = participle.MustBuild(&Program{}, participle.UseLookahead(4), participle.Unquote())

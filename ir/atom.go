@@ -46,7 +46,7 @@ func (a *Atom) String() string {
 			return *a.Noun.Ident
 		}
 	case a.Param != nil:
-		return "%"
+		return "@"
 	case a.Vector != nil:
 		var str string
 		for _, expr := range a.Vector {

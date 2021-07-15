@@ -6,7 +6,7 @@ import (
 	"os"
 	"os/exec"
 	"strconv"
-	"sundown/sunday/codegen"
+
 	"sundown/sunday/ir"
 	"sundown/sunday/parser"
 	"sundown/sunday/util"
@@ -14,7 +14,6 @@ import (
 	"github.com/alecthomas/repr"
 )
 
-var build = 1
 var help = `Sunday
 
 Usage:
@@ -60,9 +59,11 @@ func main() {
 	prog := &parser.Program{}
 
 	err = parser.Parser.ParseString(os.Args[2], string(filecontents), prog)
+	ioutil.WriteFile("tree.yml", []byte(repr.String(prog, repr.Indent("	"))), 0644)
 	if err != nil {
 		panic(err)
 	}
+
 	switch os.Args[1] {
 	case "analyse":
 		s := &ir.State{}
@@ -70,10 +71,6 @@ func main() {
 		s.Analyse(prog)
 		//repr.Println(res)
 		fmt.Println(s.String())
-	case "tree":
-		ioutil.WriteFile("tree.yml", []byte(repr.String(prog, repr.Indent("	"))), 0644)
-	case "build":
-		codegen.StartCompiler("", prog)
 	default:
 		util.Error("invalid subcommand" + os.Args[1])
 		os.Exit(1)

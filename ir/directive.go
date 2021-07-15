@@ -6,7 +6,7 @@ import (
 )
 
 type Directive struct {
-	Class       string
+	Class       *string
 	Instruction struct {
 		String, Ident *string
 		Number        *float64
@@ -23,11 +23,11 @@ func (d *Directive) String() string {
 		instr = *d.Instruction.Ident
 	}
 
-	return "@" + d.Class + " " + instr + ";"
+	return "@" + *d.Class + " " + instr + ";"
 }
 
-func AnalyseDirective(directive *parser.Directive) (d *Directive) {
-	d = &Directive{Class: *directive.Class}
+func (state *State) AnalyseDirective(directive *parser.Directive) (d *Directive) {
+	d = &Directive{Class: directive.Class}
 
 	/* professional gopher moment */
 	if directive.Instr.Ident != nil {
@@ -36,6 +36,22 @@ func AnalyseDirective(directive *parser.Directive) (d *Directive) {
 		d.Instruction.String = directive.Instr.String
 	} else if directive.Instr.Number != nil {
 		d.Instruction.Number = directive.Instr.Number
+	}
+
+	switch *d.Class {
+	case "Package":
+		if d.Instruction.Ident == nil {
+			panic("Package defined with wrong type")
+		}
+
+		state.PackageIdent = d.Instruction.Ident
+	case "Entry":
+		if d.Instruction.Ident == nil {
+			panic("Entry defined with wrong type")
+		}
+		state.EntryIdent = d.Instruction.Ident
+	default:
+		panic("Unknown directive")
 	}
 
 	return d
