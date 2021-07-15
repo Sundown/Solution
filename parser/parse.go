@@ -45,7 +45,7 @@ type Expression struct {
 }
 
 type Type struct {
-	Primative *string ` @Ident`
+	Primative *Ident  ` @@`
 	Vector    *Type   `| "[" @@ "]"`
 	Tuple     []*Type `| "(" (@@ ("," @@)*)? ")"`
 }

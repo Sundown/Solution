@@ -36,19 +36,28 @@ func (t *Type) String() string {
 func (state *State) AnalyseType(typ *parser.Type) (t *Type) {
 	switch {
 	case typ.Primative != nil:
-		temp := state.TypeDefs[Ident{Namespace: "_", Ident: *typ.Primative}]
+		var namespace string
+		if typ.Primative.Namespace == nil {
+			namespace = "_"
+		} else {
+			namespace = *typ.Primative.Namespace
+		}
+
+		temp := state.TypeDefs[Ident{Namespace: namespace, Ident: *typ.Primative.Ident}]
+
 		if temp == nil {
-			temp = state.TypeDefs[Ident{Namespace: *state.PackageIdent, Ident: *typ.Primative}]
+			temp = state.TypeDefs[Ident{Namespace: *state.PackageIdent, Ident: *typ.Primative.Ident}]
 		}
 
 		if temp == nil {
-			panic(`Type "` + *typ.Primative + `" not found `)
+			panic(`Type "` + *typ.Primative.Ident + `" not found `)
 		}
 
 		t = temp.Type
 	case typ.Vector != nil:
 		t = &Type{Vector: state.AnalyseType(typ.Vector)}
 	case typ.Tuple != nil:
+		t = &Type{}
 		for _, temp := range typ.Tuple {
 			t.Tuple = append(t.Tuple, state.AnalyseType(temp))
 		}
