@@ -3,7 +3,7 @@ package ir
 import "sundown/sunday/parser"
 
 func (state *State) AnalyseStatement(statement *parser.FnDecl) (s *Function) {
-	takes, gives := AnalyseType(statement.Takes), AnalyseType(statement.Gives)
+	takes, gives := state.AnalyseType(statement.Takes), state.AnalyseType(statement.Gives)
 	e := Expression{TypeOf: gives}
 	for _, expr := range statement.Expressions {
 		e.Block = append(e.Block, state.AnalyseExpression(expr))

@@ -7,6 +7,7 @@ import (
 type Program struct {
 	Statements []*struct {
 		Directive *Directive `"@" @@`
+		TypeDecl  *TypeDecl  `| @@`
 		FnDecl    *FnDecl    `| @@`
 	} `@@*`
 }
@@ -25,6 +26,11 @@ type Ident struct {
 	Ident     *string `@Ident`
 }
 
+type TypeDecl struct {
+	Ident *string `@Ident "="`
+	Type  *Type   `@@ ";"`
+}
+
 type FnDecl struct {
 	Ident       *string       `@Ident ":"`
 	Takes       *Type         `@@ "-"`
@@ -38,14 +44,10 @@ type Expression struct {
 	Primary     *Primary     `| @@ )`
 }
 
-type TypeName struct {
-	Type *string `@Ident`
-}
-
 type Type struct {
-	Primative *TypeName ` @@`
-	Vector    *Type     `| "[" @@ "]"`
-	Tuple     []*Type   `| "(" (@@ ("," @@)*)? ")"`
+	Primative *string ` @Ident`
+	Vector    *Type   `| "[" @@ "]"`
+	Tuple     []*Type `| "(" (@@ ("," @@)*)? ")"`
 }
 
 type Application struct {

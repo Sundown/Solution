@@ -42,19 +42,12 @@ func (state *State) GetFunction(namespace *string, ident *string) *Function {
 	if namespace == nil {
 		stdfn := state.Functions[Ident{Namespace: "_", Ident: *ident}]
 		if stdfn == nil {
-			return nil
+			return state.Functions[Ident{Namespace: *state.PackageIdent, Ident: *ident}]
 		} else {
-
 			return stdfn
 		}
 	} else {
-
-		pkgfn := state.Functions[Ident{Namespace: *namespace, Ident: *ident}]
-		if pkgfn == nil {
-			return nil
-		} else {
-			return pkgfn
-		}
+		return state.Functions[Ident{Namespace: *namespace, Ident: *ident}]
 	}
 }
 
@@ -66,6 +59,9 @@ func (state *State) Analyse(program *parser.Program) {
 	retid := Ident{Namespace: "_", Ident: "Return"}
 	state.Functions[retid] = &Function{Ident: &retid, Takes: &Type{Atomic: "T"}, Gives: &Type{Atomic: "T"}, Body: nil}
 
+	intid := Ident{Namespace: "_", Ident: "Int"}
+	state.TypeDefs[intid] = &TypeDef{Ident: &intid, Type: &Type{Atomic: "Int"}}
+
 	for _, statement := range program.Statements {
 		if statement.Directive != nil {
 			dir := state.AnalyseDirective(statement.Directive)
@@ -76,7 +72,22 @@ func (state *State) Analyse(program *parser.Program) {
 				panic("Directive already present")
 			}
 
-		} else {
+		}
+	}
+
+	for _, statement := range program.Statements {
+		if statement.TypeDecl != nil {
+			def := state.AnalyseTypeDecl(statement.TypeDecl)
+			if state.TypeDefs[*def.Ident] == nil {
+				state.TypeDefs[*def.Ident] = def
+			} else {
+				panic("Type already defined in package")
+			}
+		}
+	}
+
+	for _, statement := range program.Statements {
+		if statement.FnDecl != nil {
 			// TODO: do a first pass, ingesting only the declarationss
 			def := state.AnalyseStatement(statement.FnDecl)
 			if state.Functions[*def.Ident] == nil {
@@ -85,6 +96,7 @@ func (state *State) Analyse(program *parser.Program) {
 				panic("Function already defined in package")
 			}
 		}
+
 	}
 
 	found := state.GetFunction(state.PackageIdent, state.EntryIdent)

@@ -36,7 +36,7 @@ func (state *State) AnalyseExpression(expression *parser.Expression) (e *Express
 	case expression.Type != nil:
 		e = &Expression{
 			TypeOf: &Type{Atomic: "Type"},
-			Type:   AnalyseType(expression.Type),
+			Type:   state.AnalyseType(expression.Type),
 		}
 	case expression.Primary != nil:
 		e = &Expression{Atom: state.AnalyseAtom(expression.Primary)}

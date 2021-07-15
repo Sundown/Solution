@@ -1,6 +1,8 @@
 package ir
 
-import "sundown/sunday/parser"
+import (
+	"sundown/sunday/parser"
+)
 
 type Type struct {
 	Atomic string
@@ -9,7 +11,7 @@ type Type struct {
 }
 
 type TypeDef struct {
-	Ident *string
+	Ident *Ident
 	Type  *Type
 }
 
@@ -31,19 +33,34 @@ func (t *Type) String() string {
 	return ""
 }
 
-func AnalyseType(typ *parser.Type) (t *Type) {
+func (state *State) AnalyseType(typ *parser.Type) (t *Type) {
 	switch {
 	case typ.Primative != nil:
-		/* TODO: actually make this generate proper
-		 * type sigs instead of just strings by
-		 * looking at typedefs/builtins */
-		t = &Type{Atomic: *typ.Primative.Type}
+		temp := state.TypeDefs[Ident{Namespace: "_", Ident: *typ.Primative}]
+		if temp == nil {
+			temp = state.TypeDefs[Ident{Namespace: *state.PackageIdent, Ident: *typ.Primative}]
+		}
+
+		if temp == nil {
+			panic(`Type "` + *typ.Primative + `" not found `)
+		}
+
+		t = temp.Type
 	case typ.Vector != nil:
-		t = &Type{Vector: AnalyseType(typ.Vector)}
+		t = &Type{Vector: state.AnalyseType(typ.Vector)}
 	case typ.Tuple != nil:
 		for _, temp := range typ.Tuple {
-			t.Tuple = append(t.Tuple, AnalyseType(temp))
+			t.Tuple = append(t.Tuple, state.AnalyseType(temp))
 		}
+	}
+
+	return t
+}
+
+func (state *State) AnalyseTypeDecl(decl *parser.TypeDecl) (t *TypeDef) {
+	t = &TypeDef{
+		Ident: &Ident{Namespace: *state.PackageIdent, Ident: *decl.Ident},
+		Type:  state.AnalyseType(decl.Type),
 	}
 
 	return t
