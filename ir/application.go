@@ -9,11 +9,21 @@ type Application struct {
 }
 
 func (a *Application) String() string {
-	return a.Function.Ident.Namespace + "::" + a.Function.Ident.Ident + " " + a.Argument.String()
+
+	var sig string
+
+	if a.Function.Ident.IsFoundational() {
+		sig = *a.Function.Ident.Ident
+	} else {
+		sig = *a.Function.Ident.Namespace + "::" + *a.Function.Ident.Ident
+	}
+
+	return sig + " " + a.Argument.String()
 }
 
 func (state *State) AnalyseApplication(application *parser.Application) (s *Application) {
 	s = &Application{
+		// TODO: change function to expression type for currying purposes in the future
 		Function: state.AnalyseFunction(application.Function),
 		Argument: state.AnalyseExpression(application.Parameter),
 	}

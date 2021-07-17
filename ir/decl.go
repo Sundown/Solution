@@ -11,8 +11,8 @@ func (state *State) AnalyseStatement(statement *parser.FnDecl) (s *Function) {
 
 	s = &Function{
 		Ident: &Ident{
-			Namespace: *state.PackageIdent,
-			Ident:     *statement.Ident,
+			Namespace: state.PackageIdent,
+			Ident:     statement.Ident,
 		},
 		Takes: takes,
 		Gives: gives,

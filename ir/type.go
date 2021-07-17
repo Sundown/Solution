@@ -2,12 +2,15 @@ package ir
 
 import (
 	"sundown/sunday/parser"
+
+	"github.com/llir/llvm/ir/types"
 )
 
 type Type struct {
-	Atomic string
+	Atomic *string
 	Vector *Type
 	Tuple  []*Type
+	LLType types.Type
 }
 
 type TypeDef struct {
@@ -17,8 +20,8 @@ type TypeDef struct {
 
 func (t *Type) String() string {
 	switch {
-	case t.Atomic != "":
-		return t.Atomic
+	case t.Atomic != nil:
+		return *t.Atomic
 	case t.Vector != nil:
 		return "[" + t.Vector.String() + "]"
 	case t.Tuple != nil:
@@ -33,6 +36,10 @@ func (t *Type) String() string {
 	return ""
 }
 
+func AtomicType(s string) *Type {
+	return &Type{Atomic: &s}
+}
+
 func (state *State) AnalyseType(typ *parser.Type) (t *Type) {
 	switch {
 	case typ.Primative != nil:
@@ -43,17 +50,17 @@ func (state *State) AnalyseType(typ *parser.Type) (t *Type) {
 			namespace = *typ.Primative.Namespace
 		}
 
-		temp := state.TypeDefs[Ident{Namespace: namespace, Ident: *typ.Primative.Ident}]
+		temp := state.TypeDefs[IdentKey{Namespace: namespace, Ident: *typ.Primative.Ident}]
 
 		if temp == nil {
-			temp = state.TypeDefs[Ident{Namespace: *state.PackageIdent, Ident: *typ.Primative.Ident}]
+			temp = state.TypeDefs[IdentKey{Namespace: *state.PackageIdent, Ident: *typ.Primative.Ident}]
 		}
 
 		if temp == nil {
 			panic(`Type "` + *typ.Primative.Ident + `" not found `)
 		}
 
-		t = temp.Type
+		t = temp
 	case typ.Vector != nil:
 		t = &Type{Vector: state.AnalyseType(typ.Vector)}
 	case typ.Tuple != nil:
@@ -61,15 +68,6 @@ func (state *State) AnalyseType(typ *parser.Type) (t *Type) {
 		for _, temp := range typ.Tuple {
 			t.Tuple = append(t.Tuple, state.AnalyseType(temp))
 		}
-	}
-
-	return t
-}
-
-func (state *State) AnalyseTypeDecl(decl *parser.TypeDecl) (t *TypeDef) {
-	t = &TypeDef{
-		Ident: &Ident{Namespace: *state.PackageIdent, Ident: *decl.Ident},
-		Type:  state.AnalyseType(decl.Type),
 	}
 
 	return t

@@ -8,6 +8,7 @@ type Program struct {
 	Statements []*struct {
 		Directive *Directive `"@" @@`
 		TypeDecl  *TypeDecl  `| @@`
+		NounDecl  *NounDecl  `| @@`
 		FnDecl    *FnDecl    `| @@`
 	} `@@*`
 }
@@ -18,7 +19,7 @@ type Directive struct {
 		Ident  *string  `( @Ident`
 		String *string  `| @String`
 		Number *float64 `| @Float)`
-	} `@@ ";"`
+	} `@@`
 }
 
 type Ident struct {
@@ -27,8 +28,13 @@ type Ident struct {
 }
 
 type TypeDecl struct {
-	Ident *string `@Ident "="`
-	Type  *Type   `@@ ";"`
+	Ident *string `@Ident "~"`
+	Type  *Type   `@@`
+}
+
+type NounDecl struct {
+	Ident *string  `@Ident "="`
+	Value *Primary `@@ ";"`
 }
 
 type FnDecl struct {
@@ -40,7 +46,6 @@ type FnDecl struct {
 
 type Expression struct {
 	Application *Application `( @@`
-	Type        *Type        `| @@`
 	Primary     *Primary     `| @@ )`
 }
 

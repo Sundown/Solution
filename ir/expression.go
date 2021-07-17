@@ -33,11 +33,6 @@ func (e *Expression) String() string {
 
 func (state *State) AnalyseExpression(expression *parser.Expression) (e *Expression) {
 	switch {
-	case expression.Type != nil:
-		e = &Expression{
-			TypeOf: &Type{Atomic: "Type"},
-			Type:   state.AnalyseType(expression.Type),
-		}
 	case expression.Primary != nil:
 		e = &Expression{Atom: state.AnalyseAtom(expression.Primary)}
 		e.TypeOf = e.Atom.TypeOf

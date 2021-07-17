@@ -18,11 +18,6 @@ type Atom struct {
 	Param  *uint
 }
 
-type Ident struct {
-	Namespace string
-	Ident     string
-}
-
 func (a *Atom) String() string {
 	switch {
 	case a.Int != nil:
@@ -40,7 +35,7 @@ func (a *Atom) String() string {
 	case a.Str != nil:
 		return *a.Str
 	case a.Noun != nil:
-		return a.Noun.Namespace + "::" + a.Noun.Ident
+		return *a.Noun.Namespace + "::" + *a.Noun.Ident
 	case a.Param != nil:
 		return "@"
 	case a.Vector != nil:
@@ -60,6 +55,10 @@ func (a *Atom) String() string {
 	}
 
 	return "_"
+}
+
+func (t *Type) AsVector() *Type {
+	return &Type{Vector: t}
 }
 
 func (state *State) AnalyseAtom(primary *parser.Primary) (a *Atom) {
@@ -89,9 +88,9 @@ func (state *State) AnalyseAtom(primary *parser.Primary) (a *Atom) {
 
 		a = &Atom{TypeOf: vec[0].TypeOf, Vector: vec}
 	case primary.Int != nil:
-		a = &Atom{TypeOf: &Type{Atomic: "Int"}, Int: primary.Int}
+		a = &Atom{TypeOf: BaseType("Int"), Int: primary.Int}
 	case primary.Real != nil:
-		a = &Atom{TypeOf: &Type{Atomic: "Real"}, Real: primary.Real}
+		a = &Atom{TypeOf: BaseType("Real"), Real: primary.Real}
 	case primary.Bool != nil:
 		/* TODO: add a third bool state "Maybe", maybe */
 		var b bool
@@ -101,22 +100,15 @@ func (state *State) AnalyseAtom(primary *parser.Primary) (a *Atom) {
 			b = false
 		}
 
-		a = &Atom{TypeOf: &Type{Atomic: "Bool"}, Bool: &b}
+		a = &Atom{TypeOf: BaseType("Bool"), Bool: &b}
 	case primary.String != nil:
 		/* TODO: strings might need their "" cut off each end because parser sometimes leaves them */
-		a = &Atom{TypeOf: &Type{Atomic: "String"}, Str: primary.String}
+		a = &Atom{TypeOf: BaseType("String"), Str: primary.String}
 	case primary.Noun != nil:
-		/* TODO: add lookup because noun is actually referencing something, has a type etc */
-		a = &Atom{
-			TypeOf: &Type{Atomic: "Noun"},
-			Noun: &Ident{
-				Namespace: *primary.Noun.Namespace,
-				Ident:     *primary.Noun.Ident,
-			},
-		}
+		a = state.GetNoun(IRIdent(primary.Noun))
 	case primary.Param != nil:
 		/* TODO: add param index if it exists, needs parser modification too */
-		a = &Atom{TypeOf: &Type{Atomic: "Param"}} /* Currently dead */
+		a = &Atom{TypeOf: AtomicType("Param")} /* Currently dead */
 	}
 
 	return a

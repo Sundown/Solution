@@ -12,24 +12,29 @@ type Function struct {
 }
 
 func (f *Function) String() string {
-	var body string
+	var body, sig string
 	if f.Body != nil {
 		body = " =\n" + f.Body.String() + "\n"
 	} else {
-		body = ";\n"
+		body = ";\n\n"
 	}
 
-	return f.Ident.Namespace + "::" + f.Ident.Ident + " : " +
-		f.Takes.String() + " -> " + f.Gives.String() + body
+	if f.Ident.IsFoundational() {
+		sig = *f.Ident.Ident
+	} else {
+		sig = *f.Ident.Namespace + "::" + *f.Ident.Ident
+	}
+
+	return sig + " : " + f.Takes.String() + " -> " + f.Gives.String() + body
 }
 
 func (f *Function) SigString() string {
-	return f.Ident.Namespace + "::" + f.Ident.Ident + " : " +
+	return *f.Ident.Namespace + "::" + *f.Ident.Ident + " : " +
 		f.Takes.String() + " -> " + f.Gives.String()
 }
 
 func (state *State) AnalyseFunction(function *parser.Ident) (f *Function) {
-	f = state.GetFunction(function.Namespace, function.Ident)
+	f = state.GetFunction(IRIdent(function))
 
 	if f == nil {
 		panic(*function.Ident + " not found in " + *state.PackageIdent + " or Foundation")
@@ -44,7 +49,20 @@ func (state *State) AnalyseBlock(block []*parser.Expression) (b *Expression) {
 		body[index] = state.AnalyseExpression(elm)
 	}
 
-	/* TODO: need some way to calculate typeof */
+	// TODO: need some way to calculate typeof
 	b = &Expression{Block: body}
 	return b
+}
+
+func (state *State) GetFunction(key *Ident) *Function {
+	if key.Namespace == nil {
+		noun := state.Functions[IdentKey{Namespace: "_", Ident: *key.Ident}]
+		if noun == nil {
+			return state.Functions[IdentKey{Namespace: *state.PackageIdent, Ident: *key.Ident}]
+		} else {
+			return noun
+		}
+	} else {
+		return state.Functions[IdentKey{Namespace: *key.Namespace, Ident: *key.Ident}]
+	}
 }

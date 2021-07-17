@@ -10,8 +10,9 @@ type State struct {
 	EntryIdent    *string
 	EntryFunction *Function
 	Directives    map[*string]*Directive
-	Functions     map[Ident]*Function
-	TypeDefs      map[Ident]*TypeDef
+	Functions     map[IdentKey]*Function
+	NounDefs      map[IdentKey]*Atom
+	TypeDefs      map[IdentKey]*Type
 }
 
 func (p *State) String() string {
@@ -38,29 +39,18 @@ func (state *State) PrintFunctions() {
 	fmt.Println(str)
 }
 
-func (state *State) GetFunction(namespace *string, ident *string) *Function {
-	if namespace == nil {
-		stdfn := state.Functions[Ident{Namespace: "_", Ident: *ident}]
-		if stdfn == nil {
-			return state.Functions[Ident{Namespace: *state.PackageIdent, Ident: *ident}]
-		} else {
-			return stdfn
-		}
-	} else {
-		return state.Functions[Ident{Namespace: *namespace, Ident: *ident}]
-	}
-}
-
 func (state *State) Analyse(program *parser.Program) {
 	state.Directives = make(map[*string]*Directive)
-	state.Functions = make(map[Ident]*Function)
-	state.TypeDefs = make(map[Ident]*TypeDef)
+	state.Functions = make(map[IdentKey]*Function)
+	state.TypeDefs = make(map[IdentKey]*Type)
+	state.NounDefs = make(map[IdentKey]*Atom)
+	state.PopulateTypes(BaseTypes)
 
-	retid := Ident{Namespace: "_", Ident: "Return"}
-	state.Functions[retid] = &Function{Ident: &retid, Takes: &Type{Atomic: "T"}, Gives: &Type{Atomic: "T"}, Body: nil}
-
-	intid := Ident{Namespace: "_", Ident: "Int"}
-	state.TypeDefs[intid] = &TypeDef{Ident: &intid, Type: &Type{Atomic: "Int"}}
+	// Temporary
+	und := "_"
+	ret := "Return"
+	retid := Ident{Namespace: &und, Ident: &ret}
+	state.Functions[retid.AsKey()] = &Function{Ident: &retid, Takes: AtomicType("T"), Gives: AtomicType("T"), Body: nil}
 
 	for _, statement := range program.Statements {
 		if statement.Directive != nil {
@@ -77,12 +67,15 @@ func (state *State) Analyse(program *parser.Program) {
 
 	for _, statement := range program.Statements {
 		if statement.TypeDecl != nil {
-			def := state.AnalyseTypeDecl(statement.TypeDecl)
-			if state.TypeDefs[*def.Ident] == nil {
-				state.TypeDefs[*def.Ident] = def
+			def := state.AnalyseType(statement.TypeDecl.Type)
+			key := IdentKey{Namespace: *state.PackageIdent, Ident: *statement.TypeDecl.Ident}
+			if state.TypeDefs[key] == nil {
+				state.TypeDefs[key] = def
 			} else {
 				panic("Type already defined in package")
 			}
+		} else if statement.NounDecl != nil {
+			state.AnalyseNounDecl(statement.NounDecl)
 		}
 	}
 
@@ -90,8 +83,8 @@ func (state *State) Analyse(program *parser.Program) {
 		if statement.FnDecl != nil {
 			// TODO: do a first pass, ingesting only the declarationss
 			def := state.AnalyseStatement(statement.FnDecl)
-			if state.Functions[*def.Ident] == nil {
-				state.Functions[*def.Ident] = def
+			if state.Functions[def.Ident.AsKey()] == nil {
+				state.Functions[def.Ident.AsKey()] = def
 			} else {
 				panic("Function already defined in package")
 			}
@@ -99,7 +92,7 @@ func (state *State) Analyse(program *parser.Program) {
 
 	}
 
-	found := state.GetFunction(state.PackageIdent, state.EntryIdent)
+	found := state.GetFunction(&Ident{Namespace: state.PackageIdent, Ident: state.EntryIdent})
 
 	if found == nil {
 		panic("Entry function not defined")

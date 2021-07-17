@@ -44,7 +44,7 @@ func (state *State) AnalyseDirective(directive *parser.Directive) (d *Directive)
 			panic("Package defined with wrong type")
 		}
 
-		if *d.Instruction.Ident == "_" || *d.Instruction.Ident == "foundation" || *d.Instruction.Ident == "se" {
+		if d.IsFoundational() {
 			panic(`"` + *d.Instruction.Ident + `" is a reserved package name`)
 		}
 
@@ -59,4 +59,8 @@ func (state *State) AnalyseDirective(directive *parser.Directive) (d *Directive)
 	}
 
 	return d
+}
+
+func (d *Directive) IsFoundational() bool {
+	return *d.Instruction.Ident == "_" || *d.Instruction.Ident == "foundation" || *d.Instruction.Ident == "se"
 }
