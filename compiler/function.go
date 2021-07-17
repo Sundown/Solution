@@ -16,6 +16,19 @@ func (state *State) CompileFunction(fn *parse.Function) *ir.Func {
 	state.Block = state.CurrentFunction.NewBlock("entry")
 	state.CompileBlock(fn.Body)
 
+	if fn.Gives.LLType == types.Void {
+		state.Block.NewRet(nil)
+	}
+
+	return state.CurrentFunction
+}
+
+func (state *State) DeclareFunction(fn *parse.Function) *ir.Func {
+	state.CurrentFunction = state.Module.NewFunc(
+		fn.ToLLVMName(),
+		fn.Gives.LLType,
+		ToParam(fn.Takes)...)
+
 	return state.CurrentFunction
 }
 

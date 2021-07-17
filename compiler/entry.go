@@ -30,6 +30,14 @@ func (state *State) Compile(IR *parse.State) {
 			continue
 		}
 
+		state.Functions[fn.ToLLVMName()] = state.DeclareFunction(fn)
+	}
+
+	for _, fn := range state.IR.Functions {
+		if *fn.Ident.Ident == "Return" {
+			continue
+		}
+
 		state.Functions[fn.ToLLVMName()] = state.CompileFunction(fn)
 	}
 

@@ -29,7 +29,7 @@ func (f *Function) String() string {
 }
 
 func (i *Function) ToLLVMName() string {
-	return *i.Ident.Namespace + "-" + *i.Ident.Ident + "_" + i.Takes.String() + "-" + i.Gives.String()
+	return *i.Ident.Namespace + "::" + *i.Ident.Ident + " " + i.Takes.String() + "->" + i.Gives.String()
 }
 
 func (f *Function) SigString() string {
