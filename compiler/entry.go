@@ -25,6 +25,11 @@ func (state *State) Compile(IR *parse.State) {
 	state.Module = ir.NewModule()
 	state.Module.SourceFilename = *state.IR.PackageIdent
 
+	// This doesn't seem to be necessary because parser already substitutes
+	/* for key, def := range state.IR.NounDefs {
+		state.Module.NewGlobalDef(key.Ident, state.CompileAtom(def))
+	} */
+
 	for _, fn := range state.IR.Functions {
 		if *fn.Ident.Ident == "Return" {
 			continue

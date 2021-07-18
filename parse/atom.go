@@ -86,7 +86,7 @@ func (state *State) AnalyseAtom(primary *lex.Primary) (a *Atom) {
 			vec = append(vec, e)
 		}
 
-		a = &Atom{TypeOf: vec[0].TypeOf, Vector: vec}
+		a = &Atom{TypeOf: vec[0].TypeOf.AsVector(), Vector: vec}
 	case primary.Int != nil:
 		a = &Atom{TypeOf: BaseType("Int"), Int: primary.Int}
 	case primary.Real != nil:

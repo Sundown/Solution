@@ -3,6 +3,7 @@ package compiler
 import (
 	"sundown/sunday/parse"
 
+	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
@@ -23,6 +24,8 @@ func (state *State) CompileAtom(atom *parse.Atom) value.Value {
 		return constant.NewInt(types.I64, *atom.Int)
 	} else if atom.Real != nil {
 		return constant.NewFloat(types.Double, *atom.Real)
+	} else if atom.Vector != nil {
+		return state.CompileVector(atom)
 	} else {
 		panic("unreachable")
 	}
@@ -38,4 +41,13 @@ func (state *State) CompileApplication(app *parse.Application) value.Value {
 			state.Functions[app.Function.ToLLVMName()],
 			state.CompileExpression(app.Argument))
 	}
+}
+
+func Int(i int64) constant.Constant {
+	return constant.NewInt(types.I64, i)
+}
+
+func (state *State) Calloc() *ir.Func {
+	return state.Module.NewFunc("calloc", types.I8Ptr,
+		ir.NewParam("size", types.I64), ir.NewParam("count", types.I64))
 }
