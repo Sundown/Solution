@@ -34,7 +34,7 @@ func (state *State) CompileVector(vector *parse.Atom) value.Value {
 	//state.WriteVectorPointer(head, elm_type, body)
 
 	state.WriteVectorPointer(head, head_type, body)
-
+	// adding a comment to recommit for no reason
 	return head
 }
 
