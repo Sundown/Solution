@@ -23,16 +23,32 @@ func (state *State) CompileFunction(fn *parse.Function) *ir.Func {
 func (state *State) DeclareFunction(fn *parse.Function) *ir.Func {
 	state.CurrentFunction = state.Module.NewFunc(
 		fn.ToLLVMName(),
-		fn.Gives.LLType,
+		ToReturn(fn.Gives),
 		ToParam(fn.Takes)...)
 
 	return state.CurrentFunction
 }
 
-func ToParam(t *parse.Type) []*ir.Param {
+func ToReturn(t *parse.Type) (typ types.Type) {
 	if t.LLType == types.Void {
-		return []*ir.Param{}
+		typ = types.Void
+	} else if t.Vector != nil || t.Tuple != nil {
+		typ = types.NewPointer(t.LLType)
+	} else {
+		typ = t.LLType
 	}
 
-	return []*ir.Param{ir.NewParam("@", t.LLType)}
+	return typ
+}
+
+func ToParam(t *parse.Type) (typ []*ir.Param) {
+	if t.LLType == types.Void {
+		typ = []*ir.Param{}
+	} else if t.Vector != nil || t.Tuple != nil {
+		typ = []*ir.Param{ir.NewParam("@", types.NewPointer(t.LLType))}
+	} else {
+		typ = []*ir.Param{ir.NewParam("@", t.LLType)}
+	}
+
+	return typ
 }

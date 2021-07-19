@@ -49,5 +49,5 @@ func Int(i int64) constant.Constant {
 
 func (state *State) Calloc() *ir.Func {
 	return state.Module.NewFunc("calloc", types.I8Ptr,
-		ir.NewParam("size", types.I64), ir.NewParam("count", types.I64))
+		ir.NewParam("size", types.I32), ir.NewParam("count", types.I32))
 }
