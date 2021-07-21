@@ -1,7 +1,6 @@
 package compiler
 
 import (
-	"math"
 	"sundown/sunday/parse"
 
 	"github.com/llir/llvm/ir"
@@ -16,20 +15,21 @@ func (state *State) CompileVector(vector *parse.Atom) value.Value {
 
 	leng, cap := CalculateVectorSizes(vector.Vector)
 
-	elm_type := vector.Vector[0].TypeOf.AsLLType()
+	elm_type, elm_width := vector.Vector[0].TypeOf.AsLLType(), vector.Vector[0].TypeOf.WidthInBytes()
 
 	head_type := vector.TypeOf.AsLLType()
 
 	head := state.BuildVectorHeader(head_type)
+
 	// Store vector length
 	state.WriteVectorLength(head, leng, head_type)
 
 	// Store vector capacity
 	state.WriteVectorCapacity(head, cap, head_type)
 
-	body := state.BuildVectorBody(elm_type, cap, 8)
+	body := state.BuildVectorBody(elm_type, cap, elm_width)
 
-	state.PopulateBody(elm_type, body, vector.Vector)
+	state.PopulateBody(body, elm_type, vector.Vector)
 
 	// Point the vector header to alloc'd body
 	state.WriteVectorPointer(head, head_type, body)
@@ -37,24 +37,35 @@ func (state *State) CompileVector(vector *parse.Atom) value.Value {
 	return head
 }
 
-func (state *State) PopulateBody(elm_type types.Type, body *ir.InstBitCast, vec []*parse.Expression) {
-	for index, element := range vec {
-		v := state.Block.NewLoad(
-			element.TypeOf.AsLLType(),
-			state.CompileExpression(element))
+// Maps from expression[] to vector in LLVM
+func (state *State) PopulateBody(
+	allocated_body *ir.InstBitCast,
+	element_type types.Type,
+	expr_vec []*parse.Expression) {
+	ir_elm_type := expr_vec[0].TypeOf
+	for index, element := range expr_vec {
+		v := state.CompileExpression(element)
+
+		if ir_elm_type.Atomic == nil {
+			v = state.Block.NewLoad(element_type, v)
+		}
 
 		state.Block.NewStore(v,
 			state.Block.NewGetElementPtr(
-				element.TypeOf.AsLLType(),
-				body,
+				element_type,
+				allocated_body,
 				I32(int64(index))))
 	}
 }
 
-func (state *State) WriteVectorPointer(vector_struct *ir.InstAlloca, typ types.Type, body *ir.InstBitCast) {
+func (state *State) WriteVectorPointer(
+	vector_header *ir.InstAlloca,
+	vector_header_type types.Type,
+	constructed_body *ir.InstBitCast) {
 	state.Block.NewStore(
-		body,
-		state.Block.NewGetElementPtr(typ, vector_struct, I32(0), I32(2)))
+		constructed_body,
+		state.Block.NewGetElementPtr(
+			vector_header_type, vector_header, I32(0), I32(2)))
 }
 
 func (state *State) BuildVectorHeader(typ types.Type) *ir.InstAlloca {
@@ -63,17 +74,16 @@ func (state *State) BuildVectorHeader(typ types.Type) *ir.InstAlloca {
 
 func (state *State) BuildVectorBody(typ types.Type, cap int64, width int64) *ir.InstBitCast {
 	return state.Block.NewBitCast(state.Block.NewCall(
-		state.Calloc(),
+		state.GetCalloc(),
 		I32(width), // Byte size of elements
 		I32(cap)),  // How much memory to alloc
 		types.NewPointer(typ)) // Cast alloc'd memory to typ
 }
 
 func (state *State) WriteVectorLength(vector_struct *ir.InstAlloca, len int64, typ types.Type) {
-	z := I32(0)
 	state.Block.NewStore(
 		I32(len),
-		state.Block.NewGetElementPtr(typ, vector_struct, z, z))
+		state.Block.NewGetElementPtr(typ, vector_struct, I32(0), I32(0)))
 }
 
 func (state *State) WriteVectorCapacity(vector_struct *ir.InstAlloca, cap int64, typ types.Type) {
@@ -84,12 +94,10 @@ func (state *State) WriteVectorCapacity(vector_struct *ir.InstAlloca, cap int64,
 
 func CalculateVectorSizes(vector []*parse.Expression) (leng int64, cap int64) {
 	leng = int64(len(vector))
-	if leng == 0 {
+	if leng < 4 {
 		cap = 8
 	} else {
-		// Round upto the next power of 2
-		// TODO: broken lol
-		cap = int64(math.Floor(math.Log2(float64(leng)) + 1))
+		cap = 2 * leng
 	}
 
 	return leng, cap

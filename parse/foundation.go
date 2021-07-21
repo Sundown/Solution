@@ -10,19 +10,19 @@ var Reserved = []string{"Int", "Nat", "Real", "Bool", "Char", "Void", "Bits", "S
 
 var BaseTypes = []Type{IntType, NatType, RealType, BoolType, CharType, VoidType, BitsType, StringType}
 
-var IntType = Type{Atomic: util.Ref("Int"), LLType: types.I64}
-var NatType = Type{Atomic: util.Ref("Nat"), LLType: types.I64}
-var RealType = Type{Atomic: util.Ref("Real"), LLType: types.Double}
-var BoolType = Type{Atomic: util.Ref("Bool"), LLType: types.I1}
-var CharType = Type{Atomic: util.Ref("Char"), LLType: types.I8}
-var VoidType = Type{Atomic: util.Ref("Void"), LLType: types.Void}
+var IntType = Type{Atomic: util.Ref("Int"), LLType: types.I64, Width: 8}
+var NatType = Type{Atomic: util.Ref("Nat"), LLType: types.I64, Width: 8}
+var RealType = Type{Atomic: util.Ref("Real"), LLType: types.Double, Width: 8}
+var BoolType = Type{Atomic: util.Ref("Bool"), LLType: types.I1, Width: 1}
+var CharType = Type{Atomic: util.Ref("Char"), LLType: types.I8, Width: 4}
+var VoidType = Type{Atomic: util.Ref("Void"), LLType: types.Void, Width: 0}
 var BitsType = Type{
 	Atomic: util.Ref("Bits"),
-	LLType: types.NewStruct(types.I32, types.I32Ptr),
+	LLType: types.NewStruct(types.I32, types.I32Ptr), Width: 8, // Pointer
 }
 var StringType = Type{
 	Vector: &Type{Atomic: util.Ref("String"), LLType: types.I8},
-	LLType: types.NewStruct(types.I32, types.I32, types.I8Ptr),
+	LLType: types.NewStruct(types.I32, types.I32, types.I8Ptr), Width: 8, // Pointers
 }
 
 func (state *State) PopulateTypes(tarr []Type) {

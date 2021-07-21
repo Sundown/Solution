@@ -22,3 +22,11 @@ func (t *Type) AsLLType() types.Type {
 		panic("Type is empty")
 	}
 }
+
+func (t *Type) WidthInBytes() int64 {
+	if t.Atomic != nil {
+		return t.Width
+	} else {
+		return 8
+	}
+}

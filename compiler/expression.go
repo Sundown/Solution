@@ -43,7 +43,19 @@ func (state *State) CompileApplication(app *parse.Application) value.Value {
 	}
 }
 
-func (state *State) Calloc() *ir.Func {
-	return state.Module.NewFunc("calloc", types.I8Ptr,
+func (state *State) GetCalloc() *ir.Func {
+	if state.Specials["calloc"] == nil {
+		panic("Calloc undefined")
+	}
+
+	return state.Specials["calloc"]
+}
+
+func (state *State) InitCalloc() {
+	if state.Specials["calloc"] != nil {
+		panic("Calloc already defined")
+	}
+
+	state.Specials["calloc"] = state.Module.NewFunc("calloc", types.I8Ptr,
 		ir.NewParam("size", types.I32), ir.NewParam("count", types.I32))
 }

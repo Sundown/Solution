@@ -10,14 +10,14 @@ This project is currently a work in progress and is useful for little apart from
 #### Sample
 
 ```java
-@Package "Example";
+@Package Example;
 @Entry Start;
 
 Start : Void -> Void =
 	Print Inverse 7;
 
 Inverse : Real -> Real =
-	/* Return 1 / %, where % is the input param */
+	// Return 1 / %, where % is the input param
 	Return Quotient (1, %);
 ```
 

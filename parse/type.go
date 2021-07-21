@@ -11,6 +11,7 @@ type Type struct {
 	Vector *Type
 	Tuple  []*Type
 	LLType types.Type
+	Width  int64
 }
 
 type TypeDef struct {
@@ -83,5 +84,6 @@ func (state *State) AnalyseType(typ *lex.Type) (t *Type) {
 	}
 
 	t.LLType = t.AsLLType()
+	t.Width = t.WidthInBytes()
 	return t
 }

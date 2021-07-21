@@ -14,16 +14,20 @@ type State struct {
 	Module          *ir.Module
 	Block           *ir.Block
 	Functions       map[string]*ir.Func
+	Specials        map[string]*ir.Func
 	CurrentFunction *ir.Func
 }
 
 func (state *State) Compile(IR *parse.State) {
+	state.Specials = make(map[string]*ir.Func)
 	state.Functions = make(map[string]*ir.Func)
 
 	state.IR = IR
 
 	state.Module = ir.NewModule()
 	state.Module.SourceFilename = *state.IR.PackageIdent
+
+	state.InitCalloc()
 
 	// This doesn't seem to be necessary because parser already substitutes
 	/* for key, def := range state.IR.NounDefs {
