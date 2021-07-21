@@ -43,10 +43,6 @@ func (state *State) CompileApplication(app *parse.Application) value.Value {
 	}
 }
 
-func Int(i int64) constant.Constant {
-	return constant.NewInt(types.I64, i)
-}
-
 func (state *State) Calloc() *ir.Func {
 	return state.Module.NewFunc("calloc", types.I8Ptr,
 		ir.NewParam("size", types.I32), ir.NewParam("count", types.I32))
