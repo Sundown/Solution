@@ -1,10 +1,6 @@
 ## Sunday :dove:</h3>
 
-:construction: WIP
-
 A minimalist, compiled, functional language.
-
-This project is currently a work in progress and is useful for little apart from learning the basics of LLVM as used in a small-scale project.
 
 ---
 #### Sample
@@ -14,17 +10,16 @@ This project is currently a work in progress and is useful for little apart from
 @Entry Start;
 
 Start : Void -> Void =
-	Print Inverse 7;
+	Print ["1/7 = ", String Inverse 7];
 
 Inverse : Real -> Real =
-	// Return 1 / %, where % is the input param
-	Return Quotient (1, %);
+	Return Quotient (1, %); // % refers to param
 ```
 
 ```sh
 $ sndy run Example.xx
-0.143
+1/7 = 0.143
 ```
 ---
 #### Running
-Simply `go build sndy.go` and everything should work out, provided deps are available.
+`go build sndy.go` provided dependancies are installed.
