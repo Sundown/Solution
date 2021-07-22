@@ -24,6 +24,10 @@ func (state *State) CompileAtom(atom *parse.Atom) value.Value {
 		return constant.NewInt(types.I64, *atom.Int)
 	} else if atom.Real != nil {
 		return constant.NewFloat(types.Double, *atom.Real)
+	} else if atom.Char != nil {
+		return constant.NewInt(types.I8, int64(*atom.Char))
+	} else if atom.Bool != nil {
+		return constant.NewBool(*atom.Bool)
 	} else if atom.Vector != nil {
 		return state.CompileVector(atom)
 	} else if atom.Tuple != nil {

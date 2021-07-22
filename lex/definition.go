@@ -61,10 +61,9 @@ type Primary struct {
 	Vec    []*Expression `| "[" (@@ ("," @@)*)? "]"`
 	Int    *int64        `| @Int`
 	Real   *float64      `| @Float`
-	Bool   *string       `| @("True" | "False")`
 	Nil    *string       `| @"Nil"`
 	String *string       `| @String`
-	Char   *int8         `| @Char`
+	Char   *string       `| @Char`
 	Param  *string       `| @"@"`
 	Noun   *Ident        `| @@`
 }

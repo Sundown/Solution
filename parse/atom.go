@@ -2,6 +2,7 @@ package parse
 
 import (
 	"fmt"
+	"strconv"
 	"sundown/sunday/lex"
 )
 
@@ -14,7 +15,6 @@ type Atom struct {
 	Real   *float64
 	Bool   *bool
 	Char   *int8
-	Str    *string
 	Noun   *Ident
 	Param  *uint
 }
@@ -33,12 +33,10 @@ func (a *Atom) String() string {
 		} else {
 			return "False"
 		}
-	case a.Str != nil:
-		return *a.Str
 	case a.Noun != nil:
 		return *a.Noun.Namespace + "::" + *a.Noun.Ident
 	case a.Char != nil:
-		return string(rune(*a.Char))
+		return "'" + string(rune(*a.Char)) + "'"
 	case a.Param != nil:
 		return "@"
 	case a.Vector != nil:
@@ -94,22 +92,34 @@ func (state *State) AnalyseAtom(primary *lex.Primary) (a *Atom) {
 		a = &Atom{TypeOf: BaseType("Int"), Int: primary.Int}
 	case primary.Real != nil:
 		a = &Atom{TypeOf: BaseType("Real"), Real: primary.Real}
-	case primary.Bool != nil:
-		var b bool
-		if *primary.Bool == "True" {
-			b = true
-		} else {
-			b = false
+	case primary.Char != nil:
+		v, err := strconv.Unquote(*primary.Char)
+		if err != nil {
+			panic(err)
 		}
 
-		a = &Atom{TypeOf: BaseType("Bool"), Bool: &b}
-	case primary.Char != nil:
-		a = &Atom{TypeOf: BaseType("Char"), Char: primary.Char}
+		t := int8(v[0])
+		a = &Atom{TypeOf: BaseType("Char"), Char: &t}
 	case primary.String != nil:
-		/* TODO: strings might need their "" cut off each end because lex sometimes leaves them */
-		a = &Atom{TypeOf: BaseType("String"), Str: primary.String}
+		arr := []*Expression{}
+		for _, char := range *primary.String {
+			t := int8(char)
+			a := &Atom{TypeOf: BaseType("Char"), Char: &t}
+			arr = append(arr, &Expression{TypeOf: BaseType("Char"), Atom: a})
+		}
+
+		a = &Atom{TypeOf: BaseType("Char").AsVector(), Vector: arr}
 	case primary.Noun != nil:
-		a = state.GetNoun(IRIdent(primary.Noun))
+		var p bool
+		if *primary.Noun.Ident == "True" {
+			p = true
+			a = &Atom{TypeOf: BaseType("Bool"), Bool: &p}
+		} else if *primary.Noun.Ident == "False" {
+			p = false
+			a = &Atom{TypeOf: BaseType("Bool"), Bool: &p}
+		} else {
+			a = state.GetNoun(IRIdent(primary.Noun))
+		}
 	case primary.Param != nil:
 		/* TODO: add param index if it exists, needs lex modification too */
 		a = &Atom{TypeOf: AtomicType("Param")} /* Currently dead */

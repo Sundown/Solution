@@ -49,7 +49,6 @@ func (state *State) PopulateTypes(tarr []Type) {
 
 	id = Ident{Namespace: util.Ref("_"), Ident: util.Ref("String")}
 	state.TypeDefs[id.AsKey()] = &StringType
-
 }
 
 func IsReserved(s string) bool {
