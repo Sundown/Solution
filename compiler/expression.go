@@ -26,6 +26,8 @@ func (state *State) CompileAtom(atom *parse.Atom) value.Value {
 		return constant.NewFloat(types.Double, *atom.Real)
 	} else if atom.Vector != nil {
 		return state.CompileVector(atom)
+	} else if atom.Tuple != nil {
+		return state.CompileTuple(atom)
 	} else {
 		panic("unreachable")
 	}

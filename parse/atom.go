@@ -13,6 +13,7 @@ type Atom struct {
 	Nat    *uint64
 	Real   *float64
 	Bool   *bool
+	Char   *int8
 	Str    *string
 	Noun   *Ident
 	Param  *uint
@@ -36,6 +37,8 @@ func (a *Atom) String() string {
 		return *a.Str
 	case a.Noun != nil:
 		return *a.Noun.Namespace + "::" + *a.Noun.Ident
+	case a.Char != nil:
+		return string(rune(*a.Char))
 	case a.Param != nil:
 		return "@"
 	case a.Vector != nil:
@@ -100,6 +103,8 @@ func (state *State) AnalyseAtom(primary *lex.Primary) (a *Atom) {
 		}
 
 		a = &Atom{TypeOf: BaseType("Bool"), Bool: &b}
+	case primary.Char != nil:
+		a = &Atom{TypeOf: BaseType("Char"), Char: primary.Char}
 	case primary.String != nil:
 		/* TODO: strings might need their "" cut off each end because lex sometimes leaves them */
 		a = &Atom{TypeOf: BaseType("String"), Str: primary.String}

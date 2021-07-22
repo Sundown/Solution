@@ -64,6 +64,7 @@ type Primary struct {
 	Bool   *string       `| @("True" | "False")`
 	Nil    *string       `| @"Nil"`
 	String *string       `| @String`
+	Char   *int8         `| @Char`
 	Param  *string       `| @"@"`
 	Noun   *Ident        `| @@`
 }
