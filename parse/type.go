@@ -9,6 +9,7 @@ import (
 type Type struct {
 	Atomic *string
 	Vector *Type
+	Param  *Type
 	Tuple  []*Type
 	LLType types.Type
 	Width  int64
@@ -28,17 +29,35 @@ func (t *Type) String() string {
 	case t.Tuple != nil:
 		var str string
 		for _, elm := range t.Tuple {
-			str += "," + elm.String()
+			str += ", " + elm.String()
 		}
 
 		return "(" + str[2:] + ")"
 	}
 
-	return ""
+	return "T"
 }
 
 func AtomicType(s string) *Type {
 	return &Type{Atomic: &s}
+}
+
+func (a *Type) Equals(b *Type) bool {
+	if a.Atomic != nil && b.Atomic != nil {
+		return *a.Atomic == *b.Atomic
+	} else if a.Vector != nil && b.Vector != nil {
+		return a.Vector.Equals(b.Vector)
+	} else if a.Tuple != nil && b.Tuple != nil {
+		for i := range a.Tuple {
+			if a.Tuple[i] == nil || b.Tuple[i] == nil || !a.Tuple[i].Equals(b.Tuple[i]) {
+				return false
+			}
+		}
+
+		return true
+	} else {
+		return false
+	}
 }
 
 func (state *State) AnalyseTypeDecl(typ *lex.TypeDecl) {

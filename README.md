@@ -13,7 +13,7 @@ Start : Void -> Void =
 	Print ["1/7 = ", String Inverse 7];
 
 Inverse : Real -> Real =
-	Return Quotient (1, %); // % refers to param
+	Return Quotient (1, @); // @ refers to param
 ```
 
 ```sh

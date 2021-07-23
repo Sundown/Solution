@@ -9,6 +9,7 @@ import (
 
 func (state *State) CompileFunction(fn *parse.Function) *ir.Func {
 	state.CurrentFunction = state.Functions[fn.ToLLVMName()]
+	state.CurrentFunctionIR = fn
 
 	state.Block = state.CurrentFunction.NewBlock("entry")
 	state.CompileBlock(fn.Body)

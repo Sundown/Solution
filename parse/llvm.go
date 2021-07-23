@@ -6,6 +6,9 @@ func (t *Type) AsLLType() types.Type {
 	if t.Atomic != nil {
 		// Type already calculated
 		return t.LLType
+	} else if t.Param != nil {
+		// Boxed
+		return t.Param.AsLLType()
 	} else if t.Vector != nil {
 		// Recurse until atomic type(s) found
 		// Vectors are always of the form <length | capacity | *data>

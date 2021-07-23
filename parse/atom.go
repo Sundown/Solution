@@ -10,13 +10,18 @@ type Atom struct {
 	TypeOf *Type
 	Tuple  []*Expression
 	Vector []*Expression
+	Param  *Param
 	Int    *int64
 	Nat    *uint64
 	Real   *float64
 	Bool   *bool
 	Char   *int8
 	Noun   *Ident
-	Param  *uint
+}
+
+type Param struct {
+	Index *uint
+	Type  *Type
 }
 
 func (a *Atom) String() string {
@@ -121,8 +126,14 @@ func (state *State) AnalyseAtom(primary *lex.Primary) (a *Atom) {
 			a = state.GetNoun(IRIdent(primary.Noun))
 		}
 	case primary.Param != nil:
-		/* TODO: add param index if it exists, needs lex modification too */
-		a = &Atom{TypeOf: AtomicType("Param")} /* Currently dead */
+		idx := uint(0)
+		a = &Atom{
+			TypeOf: &Type{Param: state.CurrentFunction.Takes},
+			Param: &Param{
+				Index: &idx,
+				Type:  state.CurrentFunction.Takes,
+			},
+		}
 	default:
 		panic("Was a new type added?")
 	}

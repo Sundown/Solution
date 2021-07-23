@@ -10,12 +10,13 @@ import (
 )
 
 type State struct {
-	IR              *parse.State
-	Module          *ir.Module
-	Block           *ir.Block
-	Functions       map[string]*ir.Func
-	Specials        map[string]*ir.Func
-	CurrentFunction *ir.Func
+	IR                *parse.State
+	Module            *ir.Module
+	Block             *ir.Block
+	Functions         map[string]*ir.Func
+	Specials          map[string]*ir.Func
+	CurrentFunction   *ir.Func
+	CurrentFunctionIR *parse.Function
 }
 
 func (state *State) Compile(IR *parse.State) {
@@ -29,13 +30,9 @@ func (state *State) Compile(IR *parse.State) {
 
 	state.InitCalloc()
 
-	// This doesn't seem to be necessary because parser already substitutes
-	/* for key, def := range state.IR.NounDefs {
-		state.Module.NewGlobalDef(key.Ident, state.CompileAtom(def))
-	} */
-
 	for _, fn := range state.IR.Functions {
-		if *fn.Ident.Ident == "Return" {
+		if fn.Special {
+			// Special form, internally defined
 			continue
 		}
 
@@ -43,7 +40,8 @@ func (state *State) Compile(IR *parse.State) {
 	}
 
 	for _, fn := range state.IR.Functions {
-		if *fn.Ident.Ident == "Return" {
+		if fn.Special {
+			// Special form, internally defined
 			continue
 		}
 

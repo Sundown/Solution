@@ -6,12 +6,13 @@ import (
 )
 
 type State struct {
-	PackageIdent  *string
-	EntryIdent    *string
-	EntryFunction *Function
-	Functions     map[IdentKey]*Function
-	NounDefs      map[IdentKey]*Atom
-	TypeDefs      map[IdentKey]*Type
+	PackageIdent    *string
+	EntryIdent      *string
+	EntryFunction   *Function
+	CurrentFunction *Function
+	Functions       map[IdentKey]*Function
+	NounDefs        map[IdentKey]*Atom
+	TypeDefs        map[IdentKey]*Type
 }
 
 func (p *State) String() string {
@@ -43,7 +44,11 @@ func (state *State) Parse(program *lex.State) *State {
 	und := "_"
 	ret := "Return"
 	retid := Ident{Namespace: &und, Ident: &ret}
-	state.Functions[retid.AsKey()] = &Function{Ident: &retid, Takes: AtomicType("T"), Gives: AtomicType("T"), Body: nil}
+	state.Functions[retid.AsKey()] = &Function{Ident: &retid, Takes: AtomicType("T"), Gives: AtomicType("T"), Body: nil, Special: true}
+
+	gep := "GEP"
+	gepid := Ident{Namespace: &und, Ident: &gep}
+	state.Functions[gepid.AsKey()] = &Function{Ident: &gepid, Takes: AtomicType("T"), Gives: AtomicType("T"), Body: nil, Special: true}
 
 	for _, statement := range program.Statements {
 		if statement.Directive != nil {

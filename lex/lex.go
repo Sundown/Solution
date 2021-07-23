@@ -2,6 +2,7 @@ package lex
 
 import (
 	"os"
+	"runtime"
 
 	"github.com/alecthomas/participle/v2"
 )
@@ -15,6 +16,7 @@ func (prog *State) Lex(args []string) *State {
 	}
 
 	defer file.Close()
+	defer runtime.GC()
 
 	err = Parser.Parse(args[1], file, prog)
 

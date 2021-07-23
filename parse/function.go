@@ -5,10 +5,11 @@ import (
 )
 
 type Function struct {
-	Ident *Ident
-	Takes *Type
-	Gives *Type
-	Body  *Expression
+	Ident   *Ident
+	Takes   *Type
+	Gives   *Type
+	Body    *Expression
+	Special bool
 }
 
 func (f *Function) String() string {

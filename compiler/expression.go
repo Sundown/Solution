@@ -3,9 +3,6 @@ package compiler
 import (
 	"sundown/sunday/parse"
 
-	"github.com/llir/llvm/ir"
-	"github.com/llir/llvm/ir/constant"
-	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
 )
 
@@ -19,49 +16,31 @@ func (state *State) CompileExpression(expr *parse.Expression) value.Value {
 	}
 }
 
-func (state *State) CompileAtom(atom *parse.Atom) value.Value {
-	if atom.Int != nil {
-		return constant.NewInt(types.I64, *atom.Int)
-	} else if atom.Real != nil {
-		return constant.NewFloat(types.Double, *atom.Real)
-	} else if atom.Char != nil {
-		return constant.NewInt(types.I8, int64(*atom.Char))
-	} else if atom.Bool != nil {
-		return constant.NewBool(*atom.Bool)
-	} else if atom.Vector != nil {
-		return state.CompileVector(atom)
-	} else if atom.Tuple != nil {
-		return state.CompileTuple(atom)
-	} else {
-		panic("unreachable")
-	}
-}
-
 func (state *State) CompileApplication(app *parse.Application) value.Value {
 	switch *app.Function.Ident.Ident {
 	case "Return":
 		state.Block.NewRet(state.CompileExpression(app.Argument))
 		return nil
+	case "GEP":
+		a := app.Argument.Atom
+
+		if a == nil || a.Tuple == nil {
+			panic("GEP requires tuple: (<structure>, uint)")
+		}
+
+		tuple := state.CompileExpression(app.Argument.Atom.Tuple[0])
+		typ := app.Argument.Atom.Tuple[0].TypeOf
+
+		ll_typ := typ.AsLLType()
+
+		i := app.Argument.Atom.Tuple[1].Atom.Int
+
+		gep := state.Block.NewGetElementPtr(ll_typ, tuple, I32(0), I32(*i))
+
+		return gep
 	default:
 		return state.Block.NewCall(
 			state.Functions[app.Function.ToLLVMName()],
 			state.CompileExpression(app.Argument))
 	}
-}
-
-func (state *State) GetCalloc() *ir.Func {
-	if state.Specials["calloc"] == nil {
-		panic("Calloc undefined")
-	}
-
-	return state.Specials["calloc"]
-}
-
-func (state *State) InitCalloc() {
-	if state.Specials["calloc"] != nil {
-		panic("Calloc already defined")
-	}
-
-	state.Specials["calloc"] = state.Module.NewFunc("calloc", types.I8Ptr,
-		ir.NewParam("size", types.I32), ir.NewParam("count", types.I32))
 }
