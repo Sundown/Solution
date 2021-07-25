@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 	"sundown/sunday/compiler"
 	"sundown/sunday/lex"
@@ -13,8 +12,5 @@ func main() {
 	p := &parse.State{}
 	c := &compiler.State{}
 
-	p.Parse(l.Lex(os.Args))
-	fmt.Println(p.String())
-
-	c.Compile(p)
+	c.Compile(p.Parse(l.Lex(os.Args)))
 }

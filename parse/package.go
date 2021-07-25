@@ -50,6 +50,10 @@ func (state *State) Parse(program *lex.State) *State {
 	gepid := Ident{Namespace: &und, Ident: &gep}
 	state.Functions[gepid.AsKey()] = &Function{Ident: &gepid, Takes: AtomicType("T"), Gives: AtomicType("T"), Body: nil, Special: true}
 
+	prn := "Print"
+	prnid := Ident{Namespace: &und, Ident: &prn}
+	state.Functions[prnid.AsKey()] = &Function{Ident: &prnid, Takes: AtomicType("T"), Gives: AtomicType("T"), Body: nil, Special: true}
+
 	for _, statement := range program.Statements {
 		if statement.Directive != nil {
 			state.AnalyseDirective(statement.Directive)

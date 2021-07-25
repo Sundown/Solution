@@ -82,13 +82,13 @@ func (state *State) BuildVectorBody(typ types.Type, cap int64, width int64) *ir.
 
 func (state *State) WriteVectorLength(vector_struct *ir.InstAlloca, len int64, typ types.Type) {
 	state.Block.NewStore(
-		I32(len),
+		I64(len),
 		state.Block.NewGetElementPtr(typ, vector_struct, I32(0), I32(0)))
 }
 
 func (state *State) WriteVectorCapacity(vector_struct *ir.InstAlloca, cap int64, typ types.Type) {
 	state.Block.NewStore(
-		I32(cap),
+		I64(cap),
 		state.Block.NewGetElementPtr(typ, vector_struct, I32(0), I32(1)))
 }
 

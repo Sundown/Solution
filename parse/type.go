@@ -9,7 +9,6 @@ import (
 type Type struct {
 	Atomic *string
 	Vector *Type
-	Param  *Type
 	Tuple  []*Type
 	LLType types.Type
 	Width  int64

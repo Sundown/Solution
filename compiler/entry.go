@@ -28,8 +28,6 @@ func (state *State) Compile(IR *parse.State) {
 	state.Module = ir.NewModule()
 	state.Module.SourceFilename = *state.IR.PackageIdent
 
-	state.InitCalloc()
-
 	for _, fn := range state.IR.Functions {
 		if fn.Special {
 			// Special form, internally defined
