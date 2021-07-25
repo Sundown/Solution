@@ -23,3 +23,17 @@ $ sndy run Example.xx
 ---
 #### Running
 `go build sndy.go` provided dependancies are installed.
+
+---
+
+#### TODO
+- [ ] Named tuple fields
+- [ ] Algebraic types
+- [ ] Parametric polymorphism
+- [ ] Boxed data/explicit heap allocation
+- [ ] CFFI
+- [ ] Multiple files with seperate namespaces
+
+far future
+
+- [ ] Closures, exceptions, coroutines
