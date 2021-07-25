@@ -29,10 +29,12 @@ func (f *Function) String() string {
 	return sig + " : " + f.Takes.String() + " -> " + f.Gives.String() + body
 }
 
+// Name to be used within LLVM IR for ease of reading
 func (i *Function) ToLLVMName() string {
 	return *i.Ident.Namespace + "::" + *i.Ident.Ident + " " + i.Takes.String() + "->" + i.Gives.String()
 }
 
+// Essentially declaration string
 func (f *Function) SigString() string {
 	return *f.Ident.Namespace + "::" + *f.Ident.Ident + " : " +
 		f.Takes.String() + " -> " + f.Gives.String()

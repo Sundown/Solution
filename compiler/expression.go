@@ -3,6 +3,7 @@ package compiler
 import (
 	"sundown/sunday/parse"
 
+	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/enum"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
@@ -54,14 +55,16 @@ func (state *State) CompileApplication(app *parse.Application) value.Value {
 
 		return element
 	case "Print":
-		if app.Argument.Atom.Vector == nil {
-			panic("Argument must be [Char]")
-		}
-
 		header := state.CompileExpression(app.Argument)
 
-		return state.Block.NewCall(state.GetPrintf(),
+		if !header.Type().Equal(types.NewPointer(parse.StringType.AsLLType())) {
+			panic("Print requires String")
+		}
 
+		format := state.Module.NewGlobalDef("", constant.NewCharArrayFromString("%s\x00"))
+
+		return state.Block.NewCall(state.GetPrintf(),
+			state.Block.NewGetElementPtr(types.NewArray(3, types.I8), format, I32(0), I32(0)),
 			state.Block.NewLoad(types.I8Ptr, state.Block.NewGetElementPtr(
 				header.Type().(*types.PointerType).ElemType,
 				header,
@@ -74,36 +77,23 @@ func (state *State) CompileApplication(app *parse.Application) value.Value {
 	}
 }
 
-/*
-// Not needed currently but leaving for later impl
-func ShouldLoad(e *ir.InstGetElementPtr) bool {
-	typ := e.Type().(*types.PointerType).ElemType
-	switch {
-	case typ.Equal(types.NewInt(8)):
-	case typ.Equal(types.Double):
-		return true
-	default:
-		return false
-	}
-} */
-
 func (state *State) ValidateVectorIndex(src value.Value, index value.Value) {
 	btrue := state.CurrentFunction.NewBlock("")
 	bfalse := state.CurrentFunction.NewBlock("")
-	bfalse.NewCall(state.GetExit(), I32(1))
+	bfalse.NewCall(state.GetExit(), I32(10))
 	bend := state.CurrentFunction.NewBlock("")
 	btrue.NewBr(bend)
 	bfalse.NewUnreachable()
 
 	state.Block.NewCondBr(
 		state.Block.NewICmp(
-			enum.IPredEQ,
+			enum.IPredSLE,
 			state.Block.NewLoad(types.I64, state.Block.NewGetElementPtr(
 				src.Type().(*types.PointerType).ElemType,
 				src,
 				I32(0), I32(0))),
 			index),
-		btrue, bfalse)
+		bfalse, btrue)
 
 	state.Block = bend
 }

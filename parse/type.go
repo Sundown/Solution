@@ -24,6 +24,11 @@ func (t *Type) String() string {
 	case t.Atomic != nil:
 		return *t.Atomic
 	case t.Vector != nil:
+		// String is [Char] but should be printed "String" for convenience
+		if t.Vector.Atomic != nil && *t.Vector.Atomic == "String" {
+			return "String"
+		}
+
 		return "[" + t.Vector.String() + "]"
 	case t.Tuple != nil:
 		var str string
@@ -48,7 +53,9 @@ func (a *Type) Equals(b *Type) bool {
 		return a.Vector.Equals(b.Vector)
 	} else if a.Tuple != nil && b.Tuple != nil {
 		for i := range a.Tuple {
-			if a.Tuple[i] == nil || b.Tuple[i] == nil || !a.Tuple[i].Equals(b.Tuple[i]) {
+			if a.Tuple[i] == nil ||
+				b.Tuple[i] == nil ||
+				!a.Tuple[i].Equals(b.Tuple[i]) {
 				return false
 			}
 		}
@@ -64,8 +71,9 @@ func (state *State) AnalyseTypeDecl(typ *lex.TypeDecl) {
 		panic("Trying to assign type to reserved name")
 	}
 
-	if state.TypeDefs[IdentKey{Namespace: *state.PackageIdent, Ident: *typ.Ident}] == nil {
-		state.TypeDefs[IdentKey{Namespace: *state.PackageIdent, Ident: *typ.Ident}] = state.AnalyseType(typ.Type)
+	key := IdentKey{Namespace: *state.PackageIdent, Ident: *typ.Ident}
+	if state.TypeDefs[key] == nil {
+		state.TypeDefs[key] = state.AnalyseType(typ.Type)
 	} else {
 		panic("Type already defined")
 	}

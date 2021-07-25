@@ -76,13 +76,14 @@ func (state *State) AnalyseAtom(primary *lex.Primary) (a *Atom) {
 		a = &Atom{TypeOf: &Type{Tuple: types}, Tuple: strct}
 	case primary.Vec != nil:
 		var vec []*Expression
-		for _, expr := range primary.Vec {
+		for index, expr := range primary.Vec {
 			e := state.AnalyseExpression(expr)
-			/* all elements must be of same type */
-			// Can't compare types properly yet
-			/* if index > 0 && vec[index-1].TypeOf != e.TypeOf {
-				panic("parse: Atom: Vector: divergent type at position: " + fmt.Sprint(index) + "\n" + e.TypeOf.String() + " & " + vec[index-1].TypeOf.String())
-			} */
+			// all elements must be of same type
+
+			if index > 0 && !vec[index-1].TypeOf.AsLLType().Equal(e.TypeOf.AsLLType()) {
+				panic("Parse: Atom: Vector: divergent type at position: " + fmt.Sprint(index) +
+					"\n" + e.TypeOf.String() + " and " + vec[index-1].TypeOf.String())
+			}
 
 			vec = append(vec, e)
 		}

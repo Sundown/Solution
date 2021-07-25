@@ -23,11 +23,21 @@ func (state *State) Compile(IR *parse.State) {
 	state.Specials = make(map[string]*ir.Func)
 	state.Functions = make(map[string]*ir.Func)
 
+	// Root reference of IR still useful at some points
 	state.IR = IR
 
 	state.Module = ir.NewModule()
 	state.Module.SourceFilename = *state.IR.PackageIdent
 
+	state.
+		DeclareFunctions().
+		CompileFunctions().
+		InitMain()
+
+	ioutil.WriteFile("out.ll", []byte(state.Module.String()), 0644)
+}
+
+func (state *State) DeclareFunctions() *State {
 	for _, fn := range state.IR.Functions {
 		if fn.Special {
 			// Special form, internally defined
@@ -37,6 +47,10 @@ func (state *State) Compile(IR *parse.State) {
 		state.Functions[fn.ToLLVMName()] = state.DeclareFunction(fn)
 	}
 
+	return state
+}
+
+func (state *State) CompileFunctions() *State {
 	for _, fn := range state.IR.Functions {
 		if fn.Special {
 			// Special form, internally defined
@@ -46,10 +60,14 @@ func (state *State) Compile(IR *parse.State) {
 		state.Functions[fn.ToLLVMName()] = state.CompileFunction(fn)
 	}
 
+	return state
+}
+
+func (state *State) InitMain() *State {
 	state.CurrentFunction = state.Module.NewFunc("main", types.I32)
 	state.Block = state.CurrentFunction.NewBlock("entry")
 	state.Block.NewCall(state.Functions[state.IR.EntryFunction.ToLLVMName()])
 	state.Block.NewRet(constant.NewInt(types.I32, 0))
 
-	ioutil.WriteFile("out.ll", []byte(state.Module.String()), 0644)
+	return state
 }

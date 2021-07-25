@@ -9,7 +9,6 @@ type Application struct {
 }
 
 func (a *Application) String() string {
-
 	var sig string
 
 	if a.Function.Ident.IsFoundational() {
@@ -23,7 +22,7 @@ func (a *Application) String() string {
 
 func (state *State) AnalyseApplication(application *lex.Application) (s *Application) {
 	s = &Application{
-		// TODO: change function to expression type for currying purposes in the future
+		// TODO: change function to expression type for currying purposes in the (far) future
 		Function: state.AnalyseFunction(application.Function),
 		Argument: state.AnalyseExpression(application.Parameter),
 	}

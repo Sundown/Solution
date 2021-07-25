@@ -35,12 +35,10 @@ func (state *State) PrintFunctions() {
 }
 
 func (state *State) Parse(program *lex.State) *State {
-	state.Functions = make(map[IdentKey]*Function)
-	state.TypeDefs = make(map[IdentKey]*Type)
-	state.NounDefs = make(map[IdentKey]*Atom)
-	state.PopulateTypes(BaseTypes)
+	state.BuildParserEnv()
 
 	// Temporary
+	/* ---------- */
 	und := "_"
 	ret := "Return"
 	retid := Ident{Namespace: &und, Ident: &ret}
@@ -53,16 +51,48 @@ func (state *State) Parse(program *lex.State) *State {
 	prn := "Print"
 	prnid := Ident{Namespace: &und, Ident: &prn}
 	state.Functions[prnid.AsKey()] = &Function{Ident: &prnid, Takes: AtomicType("T"), Gives: AtomicType("T"), Body: nil, Special: true}
+	/* ---------- */
 
-	for _, statement := range program.Statements {
+	state.
+		CollectDirectives(program).
+		ForkStatements(program).
+		CollectFunctions(program)
+
+	entry := state.GetFunction(&Ident{Namespace: state.PackageIdent, Ident: state.EntryIdent})
+
+	if entry == nil {
+		panic("Entry function not defined")
+	} else {
+		state.EntryFunction = entry
+
+	}
+
+	return state
+}
+
+func (state *State) BuildParserEnv() *State {
+	state.Functions = make(map[IdentKey]*Function)
+	state.TypeDefs = make(map[IdentKey]*Type)
+	state.NounDefs = make(map[IdentKey]*Atom)
+	state.PopulateTypes(BaseTypes)
+
+	return state
+}
+
+func (state *State) CollectDirectives(p *lex.State) *State {
+	for _, statement := range p.Statements {
 		if statement.Directive != nil {
 			state.AnalyseDirective(statement.Directive)
 		}
 	}
 
+	return state
+}
+
+func (state *State) ForkStatements(p *lex.State) *State {
 	// Add types, nouns, and function DECLARATIONS to the state before
 	// parsing function bodies to allow referencing before declaration
-	for _, statement := range program.Statements {
+	for _, statement := range p.Statements {
 		if statement.TypeDecl != nil {
 			state.AnalyseTypeDecl(statement.TypeDecl)
 		} else if statement.NounDecl != nil {
@@ -72,19 +102,14 @@ func (state *State) Parse(program *lex.State) *State {
 		}
 	}
 
-	for _, statement := range program.Statements {
+	return state
+}
+
+func (state *State) CollectFunctions(p *lex.State) *State {
+	for _, statement := range p.Statements {
 		if statement.FnDecl != nil {
 			state.AnalyseFnDef(statement.FnDecl)
 		}
-	}
-
-	entry := state.GetFunction(&Ident{Namespace: state.PackageIdent, Ident: state.EntryIdent})
-
-	if entry == nil {
-		panic("Entry function not defined")
-	} else {
-		state.EntryFunction = entry
-
 	}
 
 	return state

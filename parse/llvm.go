@@ -9,7 +9,10 @@ func (t *Type) AsLLType() types.Type {
 	} else if t.Vector != nil {
 		// Recurse until atomic type(s) found
 		// Vectors are always of the form <length | capacity | *data>
-		return types.NewStruct(types.I64, types.I64, types.NewPointer(t.Vector.AsLLType()))
+		return types.NewStruct(
+			types.I64,                             // length
+			types.I64,                             // capacity
+			types.NewPointer(t.Vector.AsLLType())) // *data
 	} else if t.Tuple != nil {
 		// Recurse each item in tuple
 		var lltypes []types.Type
@@ -23,6 +26,7 @@ func (t *Type) AsLLType() types.Type {
 	}
 }
 
+// Used for calloc'ing vectors
 func (t *Type) WidthInBytes() int64 {
 	if t.Atomic != nil {
 		return t.Width

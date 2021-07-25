@@ -4,17 +4,22 @@ import (
 	"sundown/sunday/lex"
 )
 
+// Tries to find noun in order (defined_namespace or foundation) then package
+// order may change in future such that foundation is last
 func (state *State) GetNoun(key *Ident) *Atom {
-	if key.Namespace == nil {
-		noun := state.NounDefs[IdentKey{Namespace: "_", Ident: *key.Ident}]
+	noun := state.NounDefs[key.AsKey()]
+
+	if noun == nil {
+		noun = state.NounDefs[IdentKey{
+			Namespace: *state.PackageIdent,
+			Ident:     *key.Ident,
+		}]
 		if noun == nil {
-			return state.NounDefs[IdentKey{Namespace: *state.PackageIdent, Ident: *key.Ident}]
-		} else {
-			return noun
+			panic("Noun not defined")
 		}
-	} else {
-		return state.NounDefs[IdentKey{Namespace: *key.Namespace, Ident: *key.Ident}]
 	}
+
+	return noun
 }
 
 func (state *State) AnalyseNounDecl(noun *lex.NounDecl) {
@@ -32,8 +37,9 @@ func (state *State) AnalyseNounDecl(noun *lex.NounDecl) {
 		temp = state.AnalyseAtom(noun.Value)
 	}
 
-	if state.NounDefs[IdentKey{Namespace: *state.PackageIdent, Ident: *noun.Ident}] == nil {
-		state.NounDefs[IdentKey{Namespace: *state.PackageIdent, Ident: *noun.Ident}] = temp
+	key := IdentKey{Namespace: *state.PackageIdent, Ident: *noun.Ident}
+	if state.NounDefs[key] == nil {
+		state.NounDefs[key] = temp
 	} else {
 		panic("Noun already defined")
 	}

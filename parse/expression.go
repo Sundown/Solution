@@ -29,11 +29,10 @@ func (e *Expression) String() string {
 }
 
 func (state *State) AnalyseExpression(expression *lex.Expression) (e *Expression) {
-	switch {
-	case expression.Primary != nil:
+	if expression.Primary != nil {
 		e = &Expression{Atom: state.AnalyseAtom(expression.Primary)}
 		e.TypeOf = e.Atom.TypeOf
-	case expression.Application != nil:
+	} else if expression.Application != nil {
 		e = &Expression{Application: state.AnalyseApplication(expression.Application)}
 		e.TypeOf = e.Application.Function.Gives
 	}
