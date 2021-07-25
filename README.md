@@ -32,7 +32,7 @@ $ sndy run Example.xx
 - [ ] Parametric polymorphism
 - [ ] Boxed data/explicit heap allocation
 - [ ] CFFI
-- [ ] Multiple files with seperate namespaces
+- [ ] Multiple files with separate namespaces
 
 far future
 
