@@ -1,8 +1,0 @@
-#!/bin/bash
-printf "Compiling.... "
-go run ./sndy.go code.sy
-printf "Linking.... "
-clang out.ll -o exec -Wno-override-module
-printf "Done\n"
-echo "<---------------------------->"
-./exec

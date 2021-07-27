@@ -3,6 +3,7 @@ package compiler
 import (
 	"sundown/sunday/parse"
 
+	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/enum"
 	"github.com/llir/llvm/ir/types"
@@ -27,9 +28,7 @@ func (state *State) CompileApplication(app *parse.Application) value.Value {
 	case "GEP":
 		expr := app.Argument
 		if expr.Atom == nil || expr.Atom.Tuple == nil ||
-			expr.Atom.Tuple[0].TypeOf.Vector == nil ||
-			expr.Atom.Tuple[1].TypeOf.Atomic == nil ||
-			*expr.Atom.Tuple[1].TypeOf.Atomic != "Int" {
+			expr.Atom.Tuple[0].TypeOf.Vector == nil {
 			panic("Index requires tuple: ([T], Int | Nat)")
 		}
 
@@ -69,7 +68,49 @@ func (state *State) CompileApplication(app *parse.Application) value.Value {
 				header.Type().(*types.PointerType).ElemType,
 				header,
 				I32(0), I32(2))))
+	case "Sum":
+		if app.Argument.TypeOf.Vector == nil {
+			panic("Sum requires Vector")
+		}
 
+		accum := state.Block.NewAlloca(types.I64)
+		state.Block.NewStore(I64(0), accum)
+		if *app.Argument.TypeOf.Vector.Atomic == "Int" {
+			vec := app.Argument
+			llvec := state.CompileExpression(vec)
+			pbody := state.Block.NewGetElementPtr(
+				llvec.Type().(*types.PointerType).ElemType,
+				llvec, I32(0), I32(2))
+
+			//body := state.Block.NewLoad(types.I64Ptr, pbody)
+
+			leng := state.Block.NewLoad(
+				types.I64,
+				state.Block.NewGetElementPtr(
+					llvec.Type().(*types.PointerType).ElemType,
+					llvec,
+					I32(0), I32(0)))
+
+			loopblock := state.CurrentFunction.NewBlock("")
+			state.Block.NewBr(loopblock)
+			first := loopblock.NewPhi(ir.NewIncoming(I64(0), state.Block))
+			first.Incs = append(first.Incs, ir.NewIncoming(loopblock.NewAdd(first, I64(1)), loopblock))
+			leaveblock := state.CurrentFunction.NewBlock("")
+
+			a := loopblock.NewLoad(types.I64, loopblock.NewLoad(types.I64Ptr, loopblock.NewGetElementPtr(types.I64Ptr, pbody, first)))
+
+			loopblock.NewStore(loopblock.NewAdd(a, loopblock.NewLoad(types.I64, accum)), accum)
+
+			cond := loopblock.NewICmp(enum.IPredEQ, leng, first)
+
+			loopblock.NewCondBr(cond, leaveblock, loopblock)
+
+			state.Block = leaveblock
+		} else if *app.Argument.TypeOf.Vector.Atomic == "Real" {
+
+		}
+
+		return state.Block.NewLoad(types.I64, accum)
 	default:
 		return state.Block.NewCall(
 			state.Functions[app.Function.ToLLVMName()],

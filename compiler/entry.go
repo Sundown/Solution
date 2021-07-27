@@ -27,6 +27,7 @@ func (state *State) Compile(IR *parse.State) {
 	state.IR = IR
 
 	state.Module = ir.NewModule()
+
 	state.Module.SourceFilename = *state.IR.PackageIdent
 
 	state.

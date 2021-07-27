@@ -51,6 +51,11 @@ func (state *State) Parse(program *lex.State) *State {
 	prn := "Print"
 	prnid := Ident{Namespace: &und, Ident: &prn}
 	state.Functions[prnid.AsKey()] = &Function{Ident: &prnid, Takes: AtomicType("T"), Gives: AtomicType("T"), Body: nil, Special: true}
+
+	sum := "Sum"
+	sumid := Ident{Namespace: &und, Ident: &sum}
+	state.Functions[sumid.AsKey()] = &Function{Ident: &sumid, Takes: AtomicType("T"), Gives: AtomicType("T"), Body: nil, Special: true}
+
 	/* ---------- */
 
 	state.
