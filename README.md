@@ -1,5 +1,7 @@
 ## Compiler :dove:</h3>
 
+Currently an active work in progress.
+
 A minimalist, compiled, functional language.
 
 ---
@@ -23,15 +25,3 @@ $ compiler run Example.xx
 `go build main.go` provided dependancies are installed.
 
 ---
-
-#### TODO
-- [ ] Named tuple fields
-- [ ] Algebraic types
-- [ ] Parametric polymorphism
-- [ ] Boxed data/explicit heap allocation
-- [ ] CFFI
-- [ ] Multiple files with separate namespaces
-
-far future
-
-- [ ] Closures, exceptions, coroutines
