@@ -56,18 +56,23 @@ func (state *State) CompileApplication(app *parse.Application) value.Value {
 	case "Print":
 		header := state.CompileExpression(app.Argument)
 
-		if !header.Type().Equal(types.NewPointer(parse.StringType.AsLLType())) {
-			panic("Print requires String")
+		var format *ir.Global
+
+		if header.Type().Equal(types.NewPointer(parse.StringType.AsLLType())) {
+			format = state.Module.NewGlobalDef("", constant.NewCharArrayFromString("%s\x00"))
+
+			return state.Block.NewCall(state.GetPrintf(),
+				state.Block.NewGetElementPtr(types.NewArray(3, types.I8), format, I32(0), I32(0)),
+				state.Block.NewLoad(types.I8Ptr, state.Block.NewGetElementPtr(
+					header.Type().(*types.PointerType).ElemType,
+					header,
+					I32(0), I32(2))))
+		} else {
+			format = state.Module.NewGlobalDef("", constant.NewCharArrayFromString("%d\x00"))
+			return state.Block.NewCall(state.GetPrintf(),
+				state.Block.NewGetElementPtr(types.NewArray(3, types.I8), format, I32(0), I32(0)),
+				header)
 		}
-
-		format := state.Module.NewGlobalDef("", constant.NewCharArrayFromString("%s\x00"))
-
-		return state.Block.NewCall(state.GetPrintf(),
-			state.Block.NewGetElementPtr(types.NewArray(3, types.I8), format, I32(0), I32(0)),
-			state.Block.NewLoad(types.I8Ptr, state.Block.NewGetElementPtr(
-				header.Type().(*types.PointerType).ElemType,
-				header,
-				I32(0), I32(2))))
 	case "Len":
 		if app.Argument.TypeOf.Vector == nil {
 			panic("Can't take Len of non-vector")
@@ -86,31 +91,34 @@ func (state *State) CompileApplication(app *parse.Application) value.Value {
 		if *app.Argument.TypeOf.Vector.Atomic == "Int" {
 			vec := app.Argument
 			llvec := state.CompileExpression(vec)
-			pbody := state.Block.NewGetElementPtr(
-				llvec.Type().(*types.PointerType).ElemType,
-				llvec, I32(0), I32(2))
-
-			//body := state.Block.NewLoad(types.I64Ptr, pbody)
-
-			leng := state.Block.NewLoad(
-				types.I64,
-				state.Block.NewGetElementPtr(app.Argument.TypeOf.AsLLType(), llvec, I32(0), I32(0)))
-
-			loopblock := state.CurrentFunction.NewBlock("")
+			vec_len := state.Block.NewLoad(types.I64, state.Block.NewGetElementPtr(
+				llvec.Type().(*types.PointerType).ElemType, llvec, I32(0), I32(0)))
+			vec_len.SetName("len")
+			vec_body := state.Block.NewLoad(types.I64Ptr, state.Block.NewGetElementPtr(
+				llvec.Type().(*types.PointerType).ElemType, llvec, I32(0), I32(2)))
+			counter := state.Block.NewAlloca(types.I64)
+			state.Block.NewStore(I64(0), counter)
+			counter.SetName("counter_ptr")
+			accum := state.Block.NewAlloca(types.I64)
+			state.Block.NewStore(I64(0), accum)
+			accum.SetName("accum")
+			// Body
+			// Get elem, add to accum, increment counter, conditional jump to body
+			loopblock := state.CurrentFunction.NewBlock("loop_body")
 			state.Block.NewBr(loopblock)
-			first := loopblock.NewPhi(ir.NewIncoming(I64(0), state.Block))
-			first.Incs = append(first.Incs, ir.NewIncoming(loopblock.NewAdd(first, I64(1)), loopblock))
-			leaveblock := state.CurrentFunction.NewBlock("")
-
-			a := loopblock.NewLoad(types.I64, loopblock.NewLoad(types.I64Ptr, loopblock.NewGetElementPtr(types.I64Ptr, pbody, first)))
-
-			loopblock.NewStore(loopblock.NewAdd(a, loopblock.NewLoad(types.I64, accum)), accum)
-
-			cond := loopblock.NewICmp(enum.IPredEQ, leng, first)
-
-			loopblock.NewCondBr(cond, leaveblock, loopblock)
-
-			state.Block = leaveblock
+			// Add to accum
+			cur_counter := loopblock.NewLoad(types.I64, counter)
+			cur_counter.SetName("counter")
+			cur_elm := loopblock.NewLoad(types.I64, loopblock.NewGetElementPtr(types.I64, vec_body, cur_counter))
+			cur_elm.SetName("elm")
+			loopblock.NewStore(loopblock.NewAdd(loopblock.NewLoad(types.I64, accum), cur_elm), accum)
+			// Increment counter
+			loopblock.NewStore(loopblock.NewAdd(loopblock.NewLoad(types.I64, counter), I64(1)), counter)
+			cond := loopblock.NewICmp(enum.IPredSLT, cur_counter, vec_len)
+			exitblock := state.CurrentFunction.NewBlock("exit_loop")
+			loopblock.NewCondBr(cond, loopblock, exitblock)
+			state.Block = exitblock
+			return state.Block.NewLoad(types.I64, accum)
 		} else if *app.Argument.TypeOf.Vector.Atomic == "Real" {
 
 		}
