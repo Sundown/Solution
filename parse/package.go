@@ -3,6 +3,7 @@ package parse
 import (
 	"fmt"
 	"sundown/sunday/lex"
+	"sundown/sunday/util"
 )
 
 type State struct {
@@ -34,29 +35,28 @@ func (state *State) PrintFunctions() {
 	fmt.Println(str)
 }
 
+func (state *State) AddSpecialForm(ident string, takes *Type, gives *Type) *State {
+	k := Ident{Namespace: util.Ref("_"), Ident: &ident}
+	state.Functions[k.AsKey()] = &Function{
+		Ident:   &k,
+		Takes:   takes,
+		Gives:   gives,
+		Body:    nil,
+		Special: true,
+	}
+
+	return state
+}
+
 func (state *State) Parse(program *lex.State) *State {
 	state.BuildParserEnv()
 
-	// Temporary
-	/* ---------- */
-	und := "_"
-	ret := "Return"
-	retid := Ident{Namespace: &und, Ident: &ret}
-	state.Functions[retid.AsKey()] = &Function{Ident: &retid, Takes: AtomicType("T"), Gives: AtomicType("T"), Body: nil, Special: true}
-
-	gep := "GEP"
-	gepid := Ident{Namespace: &und, Ident: &gep}
-	state.Functions[gepid.AsKey()] = &Function{Ident: &gepid, Takes: AtomicType("T"), Gives: AtomicType("T"), Body: nil, Special: true}
-
-	prn := "Print"
-	prnid := Ident{Namespace: &und, Ident: &prn}
-	state.Functions[prnid.AsKey()] = &Function{Ident: &prnid, Takes: AtomicType("T"), Gives: AtomicType("T"), Body: nil, Special: true}
-
-	sum := "Sum"
-	sumid := Ident{Namespace: &und, Ident: &sum}
-	state.Functions[sumid.AsKey()] = &Function{Ident: &sumid, Takes: AtomicType("T"), Gives: AtomicType("T"), Body: nil, Special: true}
-
-	/* ---------- */
+	state.
+		AddSpecialForm("Return", AtomicType("T"), AtomicType("T")).
+		AddSpecialForm("GEP", AtomicType("T"), AtomicType("T")).
+		AddSpecialForm("Print", AtomicType("T"), AtomicType("T")).
+		AddSpecialForm("Sum", AtomicType("T"), AtomicType("T")).
+		AddSpecialForm("Len", AtomicType("[T]"), AtomicType("Int"))
 
 	state.
 		CollectDirectives(program).

@@ -68,6 +68,14 @@ func (state *State) CompileApplication(app *parse.Application) value.Value {
 				header.Type().(*types.PointerType).ElemType,
 				header,
 				I32(0), I32(2))))
+	case "Len":
+		if app.Argument.TypeOf.Vector == nil {
+			panic("Can't take Len of non-vector")
+		}
+
+		vec := state.CompileExpression(app.Argument)
+
+		return state.Block.NewLoad(types.I64, state.Block.NewGetElementPtr(app.Argument.TypeOf.AsLLType(), vec, I32(0), I32(0)))
 	case "Sum":
 		if app.Argument.TypeOf.Vector == nil {
 			panic("Sum requires Vector")
@@ -86,10 +94,7 @@ func (state *State) CompileApplication(app *parse.Application) value.Value {
 
 			leng := state.Block.NewLoad(
 				types.I64,
-				state.Block.NewGetElementPtr(
-					llvec.Type().(*types.PointerType).ElemType,
-					llvec,
-					I32(0), I32(0)))
+				state.Block.NewGetElementPtr(app.Argument.TypeOf.AsLLType(), llvec, I32(0), I32(0)))
 
 			loopblock := state.CurrentFunction.NewBlock("")
 			state.Block.NewBr(loopblock)
