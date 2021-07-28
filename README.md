@@ -1,4 +1,4 @@
-## Sunday :dove:</h3>
+## Compiler :dove:</h3>
 
 A minimalist, compiled, functional language.
 
@@ -15,12 +15,12 @@ Inverse : Real -> Real = Return Quotient (1, @); // @ refers to param
 ```
 
 ```sh
-$ sndy run Example.xx
+$ compiler run Example.xx
 1/7 = 0.143
 ```
 ---
 #### Running
-`go build sndy.go` provided dependancies are installed.
+`go build main.go` provided dependancies are installed.
 
 ---
 
