@@ -59,8 +59,8 @@ type Application struct {
 type Primary struct {
 	Tuple  []*Expression `	"(" (@@ ("," @@)*)? ")"`
 	Vec    []*Expression `| "[" (@@ ("," @@)*)? "]"`
-	Int    *int64        `| @Int`
-	Real   *float64      `| @Float`
+	Int    *int64        `| @('-'? Int)`
+	Real   *float64      `| @('-'? Float)`
 	Nil    *string       `| @"Nil"`
 	String *string       `| @String`
 	Char   *string       `| @Char`

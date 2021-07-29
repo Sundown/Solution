@@ -34,3 +34,19 @@ func (t *Type) WidthInBytes() int64 {
 		return 8
 	}
 }
+
+func (e *Expression) Type() *Type {
+	if e.Atom != nil {
+		return e.Atom.TypeOf
+	} else if a := e.Application; a != nil {
+		// Implement T -> T transfer
+		// ([T], Int) -> T i.e. ([Char], Int) -> Char
+		if a.Argument.TypeOf.Atomic != nil && *a.Argument.TypeOf.Atomic == "T" {
+			// Poly
+		} else {
+
+		}
+	}
+
+	return nil
+}
