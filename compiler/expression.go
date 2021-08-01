@@ -25,6 +25,8 @@ func (state *State) CompileApplication(app *parse.Application) value.Value {
 		return nil
 	case "GEP":
 		return state.CompileInlineIndex(app)
+	case "Println":
+		return state.CompileInlinePrintln(app)
 	case "Print":
 		return state.CompileInlinePrint(app)
 	case "Len":

@@ -10,6 +10,41 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
+func (state *State) CompileInlinePrintln(app *parse.Application) value.Value {
+	header := state.CompileExpression(app.Argument)
+
+	var format *ir.Global
+
+	if header.Type().Equal(types.NewPointer(parse.StringType.AsLLType())) {
+		format = state.Module.NewGlobalDef("", constant.NewCharArrayFromString("%s\n\x00"))
+
+		return state.Block.NewCall(state.GetPrintf(),
+			state.Block.NewGetElementPtr(types.NewArray(3, types.I8), format, I32(0), I32(0)),
+			state.Block.NewLoad(types.I8Ptr, state.Block.NewGetElementPtr(
+				header.Type().(*types.PointerType).ElemType,
+				header,
+				I32(0), I32(2))))
+	} else if header.Type().Equal(types.I64) {
+		format = state.Module.NewGlobalDef("", constant.NewCharArrayFromString("%d\n\x00"))
+		return state.Block.NewCall(state.GetPrintf(),
+			state.Block.NewGetElementPtr(types.NewArray(4, types.I8), format, I32(0), I32(0)),
+			header)
+	} else if header.Type().Equal(types.Double) {
+		format = state.Module.NewGlobalDef("", constant.NewCharArrayFromString("%f\n\x00"))
+		return state.Block.NewCall(state.GetPrintf(),
+			state.Block.NewGetElementPtr(types.NewArray(4, types.I8), format, I32(0), I32(0)),
+			header)
+	} else if header.Type().Equal(types.I8) {
+		format = state.Module.NewGlobalDef("", constant.NewCharArrayFromString("%c\n\x00"))
+		return state.Block.NewCall(state.GetPrintf(),
+			state.Block.NewGetElementPtr(types.NewArray(4, types.I8), format, I32(0), I32(0)),
+			header)
+	} else {
+		format = state.Module.NewGlobalDef("", constant.NewCharArrayFromString("\n\x00"))
+		return state.Block.NewCall(state.GetPrintf(),
+			state.Block.NewGetElementPtr(types.NewArray(2, types.I8), format, I32(0), I32(0)))
+	}
+}
 func (state *State) CompileInlinePrint(app *parse.Application) value.Value {
 	header := state.CompileExpression(app.Argument)
 
@@ -31,6 +66,11 @@ func (state *State) CompileInlinePrint(app *parse.Application) value.Value {
 			header)
 	} else if header.Type().Equal(types.Double) {
 		format = state.Module.NewGlobalDef("", constant.NewCharArrayFromString("%f\x00"))
+		return state.Block.NewCall(state.GetPrintf(),
+			state.Block.NewGetElementPtr(types.NewArray(3, types.I8), format, I32(0), I32(0)),
+			header)
+	} else if header.Type().Equal(types.I8) {
+		format = state.Module.NewGlobalDef("", constant.NewCharArrayFromString("%c\x00"))
 		return state.Block.NewCall(state.GetPrintf(),
 			state.Block.NewGetElementPtr(types.NewArray(3, types.I8), format, I32(0), I32(0)),
 			header)
