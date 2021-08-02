@@ -1,8 +1,6 @@
 <div align="center">
 <h1>Solution</h1>
 
----
-
 *The compiler of a functional language*
 
 </div>
