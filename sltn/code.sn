@@ -1,0 +1,6 @@
+@Package Solution
+@Entry Start
+
+Start : Void -> Void =
+	Println 'a';
+	Print '\n';

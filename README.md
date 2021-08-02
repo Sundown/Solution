@@ -1,27 +1,17 @@
-## Compiler :dove:</h3>
+<div align="center">
+<h1>Solution</h1>
 
-Currently an active work in progress.
+*The compiler of a functional language*
 
-A minimalist, compiled, functional language.
+</div>
+
+Current work on this compiler is focused primarily on low-level language features. Developments of a standard library and other luxuries will be implemented at a later date.
+
 
 ---
-#### Sample
 
-```java
-@Package Example
-@Entry Start
+## WARNING
 
-Start : Void -> Void = Print ["1/7 = ", String Inverse 7];
-
-Inverse : Real -> Real = Return Quotient (1, @); // @ refers to param
-```
-
-```sh
-$ compiler run Example.xx
-1/7 = 0.143
-```
----
-#### Running
-`go build main.go` provided dependancies are installed.
+This compiler is not ready for general use.
 
 ---
