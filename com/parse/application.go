@@ -1,6 +1,9 @@
 package parse
 
-import "sundown/solution/lex"
+import (
+	"sundown/solution/lex"
+	"sundown/solution/util"
+)
 
 type Application struct {
 	TypeOf   *Type
@@ -27,7 +30,20 @@ func (state *State) AnalyseApplication(application *lex.Application) (s *Applica
 		Argument: state.AnalyseExpression(application.Parameter),
 	}
 
+	if !s.Argument.TypeOf.Equals(s.Function.Takes) {
+		util.Error("Trying to call", s.Function.SigString(), "with", s.Argument.TypeOf.String()).Exit()
+	}
+
 	s.TypeOf = s.Function.Gives
+
+	if *s.Function.Ident.Ident == "Return" {
+		if !s.Argument.TypeOf.Equals(state.CurrentFunction.Gives) {
+			util.Error("Value of type",
+				s.Argument.TypeOf.String(),
+				"does not match function's return type:",
+				state.CurrentFunction.Gives.String()).Exit()
+		}
+	}
 
 	return s
 }

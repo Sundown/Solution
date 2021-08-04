@@ -47,6 +47,10 @@ func AtomicType(s string) *Type {
 }
 
 func (a *Type) Equals(b *Type) bool {
+	if a.Atomic != nil && *a.Atomic == "T" || b.Atomic != nil && *b.Atomic == "T" {
+		return true /* ;) */
+	}
+
 	if a.Atomic != nil && b.Atomic != nil {
 		return *a.Atomic == *b.Atomic
 	} else if a.Vector != nil && b.Vector != nil {

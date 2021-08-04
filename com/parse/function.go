@@ -50,17 +50,6 @@ func (state *State) AnalyseFunction(function *lex.Ident) (f *Function) {
 	return f
 }
 
-func (state *State) AnalyseBlock(block []*lex.Expression) (b *Expression) {
-	var body []*Expression
-	for index, elm := range block {
-		body[index] = state.AnalyseExpression(elm)
-	}
-
-	// TODO: need some way to calculate typeof
-	b = &Expression{Block: body}
-	return b
-}
-
 func (state *State) GetFunction(key *Ident) *Function {
 	if key.Namespace == nil {
 		noun := state.Functions[IdentKey{Namespace: "_", Ident: *key.Ident}]
@@ -71,5 +60,51 @@ func (state *State) GetFunction(key *Ident) *Function {
 		}
 	} else {
 		return state.Functions[IdentKey{Namespace: *key.Namespace, Ident: *key.Ident}]
+	}
+}
+
+func (state *State) AnalyseFnDef(statement *lex.FnDecl) {
+	decl := state.Functions[IdentKey{
+		Namespace: *state.PackageIdent,
+		Ident:     *statement.Ident,
+	}]
+
+	// Somehow function hasn't been declared, or it already has a body
+	if decl == nil || decl.Body != nil {
+		panic("Not sure how you got here...")
+	}
+
+	e := Expression{TypeOf: decl.Gives}
+
+	decl.Body = &e
+
+	state.CurrentFunction = decl
+
+	for _, expr := range statement.Expressions {
+		e.Block = append(e.Block, state.AnalyseExpression(expr))
+	}
+
+	state.CurrentFunction = nil
+}
+
+func (state *State) AnalyseFnDecl(statement *lex.FnDecl) {
+	// Key is used for existential verification and/or definition
+	key := IdentKey{
+		Namespace: *state.PackageIdent,
+		Ident:     *statement.Ident,
+	}
+
+	if state.Functions[key] == nil {
+		state.Functions[key] = &Function{
+			Ident: &Ident{
+				Namespace: state.PackageIdent,
+				Ident:     statement.Ident,
+			},
+			Takes:   state.AnalyseType(statement.Takes),
+			Gives:   state.AnalyseType(statement.Gives),
+			Special: false,
+		}
+	} else {
+		panic(*statement.Ident + " is already declared")
 	}
 }
