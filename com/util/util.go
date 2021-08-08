@@ -20,6 +20,10 @@ func Ref(s string) *string {
 	return &s
 }
 
+func Bene(parts ...string) {
+	fmt.Println("[]" + strings.Join(parts, " "))
+}
+
 func Error(parts ...string) E {
 	fmt.Println(bold + "Solution: " + colorRed + "error: " + colorReset + strings.Join(parts, " "))
 	return E{code: 1}

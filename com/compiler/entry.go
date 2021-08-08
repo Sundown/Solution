@@ -3,6 +3,7 @@ package compiler
 import (
 	"io/ioutil"
 	"sundown/solution/parse"
+	"sundown/solution/util"
 
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/constant"
@@ -10,6 +11,7 @@ import (
 )
 
 type State struct {
+	Runtime           *util.Runtime
 	IR                *parse.State
 	Module            *ir.Module
 	Block             *ir.Block
@@ -35,7 +37,7 @@ func (state *State) Compile(IR *parse.State) {
 		CompileFunctions().
 		InitMain()
 
-	ioutil.WriteFile("out.ll", []byte(state.Module.String()), 0644)
+	ioutil.WriteFile(*state.IR.PackageIdent+".ll", []byte(state.Module.String()), 0644)
 }
 
 func (state *State) DeclareFunctions() *State {

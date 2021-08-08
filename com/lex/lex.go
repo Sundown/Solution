@@ -2,23 +2,21 @@ package lex
 
 import (
 	"os"
-	"runtime"
 
 	"github.com/alecthomas/participle/v2"
 )
 
 var Parser = participle.MustBuild(&State{}, participle.UseLookahead(4), participle.Unquote())
 
-func (prog *State) Lex(args []string) *State {
-	file, err := os.Open(args[1])
+func (prog *State) Lex(args string) *State {
+	file, err := os.Open(args)
 	if err != nil {
 		panic(err)
 	}
 
 	defer file.Close()
-	defer runtime.GC()
 
-	err = Parser.Parse(args[1], file, prog)
+	err = Parser.Parse(args, file, prog)
 
 	if err != nil {
 		panic(err)
