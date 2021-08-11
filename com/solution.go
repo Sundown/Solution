@@ -9,10 +9,12 @@ import (
 )
 
 func main() {
+	util.Bene("Solution version " + util.GetSolutionVersion())
 	util.VerifyClangVersion()
+
 	rt := &util.Runtime{}
 	if len(os.Args) == 1 {
-		util.Error("no files input").Exit()
+		util.Error("No files input").Exit()
 	}
 
 	for i, s := range os.Args {

@@ -183,3 +183,77 @@ func (state *State) CompileInlineSum(app *parse.Application) value.Value {
 
 	return state.Block.NewLoad(types.I64, accum)
 }
+
+func (state *State) CompileInlineMap(app *parse.Application) value.Value {
+	if app.Argument.TypeOf.Tuple == nil {
+		panic("Map requires Tuple")
+	}
+
+	accum := state.Block.NewAlloca(types.I64)
+	state.Block.NewStore(I64(0), accum)
+	if *app.Argument.TypeOf.Vector.Atomic == "Int" {
+		vec := app.Argument
+		llvec := state.CompileExpression(vec)
+		vec_len := state.Block.NewLoad(types.I64, state.Block.NewGetElementPtr(
+			llvec.Type().(*types.PointerType).ElemType, llvec, I32(0), I32(0)))
+
+		vec_body := state.Block.NewLoad(types.I64Ptr, state.Block.NewGetElementPtr(
+			llvec.Type().(*types.PointerType).ElemType, llvec, I32(0), I32(2)))
+		counter := state.Block.NewAlloca(types.I64)
+		state.Block.NewStore(I64(0), counter)
+
+		accum := state.Block.NewAlloca(types.I64)
+		state.Block.NewStore(I64(0), accum)
+
+		// Body
+		// Get elem, add to accum, increment counter, conditional jump to body
+		loopblock := state.CurrentFunction.NewBlock("")
+		state.Block.NewBr(loopblock)
+		// Add to accum
+		cur_counter := loopblock.NewLoad(types.I64, counter)
+
+		cur_elm := loopblock.NewLoad(types.I64, loopblock.NewGetElementPtr(types.I64, vec_body, cur_counter))
+
+		loopblock.NewStore(loopblock.NewAdd(loopblock.NewLoad(types.I64, accum), cur_elm), accum)
+		// Increment counter
+		loopblock.NewStore(loopblock.NewAdd(loopblock.NewLoad(types.I64, counter), I64(1)), counter)
+		cond := loopblock.NewICmp(enum.IPredSLT, cur_counter, vec_len)
+		exitblock := state.CurrentFunction.NewBlock("")
+		loopblock.NewCondBr(cond, loopblock, exitblock)
+		state.Block = exitblock
+		return state.Block.NewLoad(types.I64, accum)
+	} else if *app.Argument.TypeOf.Vector.Atomic == "Real" {
+		vec := app.Argument
+		llvec := state.CompileExpression(vec)
+		vec_len := state.Block.NewLoad(types.I64, state.Block.NewGetElementPtr(
+			llvec.Type().(*types.PointerType).ElemType, llvec, I32(0), I32(0)))
+
+		vec_body := state.Block.NewLoad(types.NewPointer(types.Double), state.Block.NewGetElementPtr(
+			llvec.Type().(*types.PointerType).ElemType, llvec, I32(0), I32(2)))
+		counter := state.Block.NewAlloca(types.I64)
+		state.Block.NewStore(I64(0), counter)
+
+		accum := state.Block.NewAlloca(types.Double)
+		state.Block.NewStore(constant.NewFloat(types.Double, 0), accum)
+
+		// Body
+		// Get elem, add to accum, increment counter, conditional jump to body
+		loopblock := state.CurrentFunction.NewBlock("")
+		state.Block.NewBr(loopblock)
+		// Add to accum
+		cur_counter := loopblock.NewLoad(types.I64, counter)
+
+		cur_elm := loopblock.NewLoad(types.Double, loopblock.NewGetElementPtr(types.Double, vec_body, cur_counter))
+
+		loopblock.NewStore(loopblock.NewFAdd(loopblock.NewLoad(types.Double, accum), cur_elm), accum)
+		// Increment counter
+		loopblock.NewStore(loopblock.NewAdd(loopblock.NewLoad(types.I64, counter), I64(1)), counter)
+		cond := loopblock.NewICmp(enum.IPredSLT, cur_counter, vec_len)
+		exitblock := state.CurrentFunction.NewBlock("")
+		loopblock.NewCondBr(cond, loopblock, exitblock)
+		state.Block = exitblock
+		return state.Block.NewLoad(types.Double, accum)
+	}
+
+	return state.Block.NewLoad(types.I64, accum)
+}

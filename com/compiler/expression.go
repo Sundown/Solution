@@ -39,6 +39,8 @@ func (state *State) CompileApplication(app *parse.Application) value.Value {
 				app.Argument.TypeOf.AsLLType(),
 				state.CompileExpression(app.Argument),
 				I32(0), I32(0)))
+	case "Map":
+		return state.CompileInlineMap(app)
 	case "Sum":
 		return state.CompileInlineSum(app)
 	default:

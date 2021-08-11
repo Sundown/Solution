@@ -8,6 +8,7 @@ import (
 
 var colorReset = "\033[0m"
 var colorRed = "\033[31m"
+var colorGreen = "\033[32m"
 var colorYellow = "\033[33m"
 var bold = "\033[1m"
 
@@ -15,17 +16,21 @@ type E struct {
 	code int
 }
 
+var counter = 0
+
 // Heaps of them!
 func Ref(s string) *string {
 	return &s
 }
 
 func Bene(parts ...string) {
-	fmt.Println("[]" + strings.Join(parts, " "))
+	counter++
+	fmt.Printf("%04d   %s[OKAY]%s   %s\n", counter, colorGreen, colorReset, strings.Join(parts, " "))
 }
 
 func Error(parts ...string) E {
-	fmt.Println(bold + "Solution: " + colorRed + "error: " + colorReset + strings.Join(parts, " "))
+	counter++
+	fmt.Printf("%04d   %s[ERRO]%s   %s\n", counter, colorRed, colorReset, strings.Join(parts, " "))
 	return E{code: 1}
 }
 
@@ -34,6 +39,6 @@ func (e E) Exit() {
 }
 
 func Warn(parts ...string) E {
-	fmt.Println(bold + "Solution: " + colorYellow + "warning: " + colorReset + strings.Join(parts, " "))
+	fmt.Printf("%04d   %s[WARN]%s   %s\n", counter, colorYellow, colorReset, strings.Join(parts, " "))
 	return E{code: 1}
 }
