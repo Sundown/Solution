@@ -7,7 +7,6 @@
 
 Current work on this compiler is focused primarily on low-level language features. Developments of a standard library and other luxuries will be implemented at a later date.
 
-
 ---
 
 ## WARNING

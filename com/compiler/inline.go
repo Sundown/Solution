@@ -227,8 +227,10 @@ func (state *State) CompileInlineMap(app *parse.Application) value.Value {
 				state.Block.NewTrunc(state.Block.NewLoad(types.I64, cap), types.I32)), // How much memory to alloc
 			types.NewPointer(elm_type)) // Cast alloc'd memory to typ
 	}
-	/* ----------------------------------------------------------------*/
 
+	// -------------
+	// # LOOP BODY #
+	// -------------
 	if app.Argument.Atom.Tuple[1].TypeOf.Vector != nil {
 		vec_body := state.Block.NewLoad(
 			types.NewPointer(elm_type),
