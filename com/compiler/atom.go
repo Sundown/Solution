@@ -24,6 +24,8 @@ func (state *State) CompileAtom(atom *parse.Atom) value.Value {
 		return state.CompileVector(atom)
 	case atom.Tuple != nil:
 		return state.CompileTuple(atom)
+	case atom.Function != nil:
+		return state.Functions[atom.Function.ToLLVMName()]
 	default:
 		panic("unreachable")
 	}

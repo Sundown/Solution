@@ -189,21 +189,45 @@ func (state *State) CompileInlineMap(app *parse.Application) value.Value {
 		panic("Map requires Tuple")
 	}
 
-	accum := state.Block.NewAlloca(types.I64)
-	state.Block.NewStore(I64(0), accum)
-	if *app.Argument.TypeOf.Vector.Atomic == "Int" {
-		vec := app.Argument
-		llvec := state.CompileExpression(vec)
-		vec_len := state.Block.NewLoad(types.I64, state.Block.NewGetElementPtr(
-			llvec.Type().(*types.PointerType).ElemType, llvec, I32(0), I32(0)))
+	// The vector in AST
+	vec := app.Argument.Atom.Tuple[1]
+	// The vector in LLVM
+	llvec := state.CompileExpression(vec)
 
-		vec_body := state.Block.NewLoad(types.I64Ptr, state.Block.NewGetElementPtr(
-			llvec.Type().(*types.PointerType).ElemType, llvec, I32(0), I32(2)))
+	head_type := vec.TypeOf.AsLLType()
+	elm_type := vec.Atom.Vector[0].TypeOf.AsLLType()
+
+	// Map is 1:1 so leng and cap are just copied from input vector
+	leng := state.Block.NewGetElementPtr(head_type, llvec, I32(0), I32(0))
+	cap := state.Block.NewGetElementPtr(head_type, llvec, I32(0), I32(1))
+
+	head := state.BuildVectorHeader(head_type)
+
+	// Copy length
+	state.Block.NewStore(
+		state.Block.NewLoad(types.I64, leng),
+		state.Block.NewGetElementPtr(head_type, llvec, I32(0), I32(0)))
+
+	// Copy capacity
+	state.Block.NewStore(
+		state.Block.NewLoad(types.I64, cap),
+		state.Block.NewGetElementPtr(head_type, llvec, I32(0), I32(1)))
+
+	// Allocate a body of capacity * element width, and cast to element type
+	body := state.Block.NewBitCast(
+		state.Block.NewCall(state.GetCalloc(),
+			I32(vec.Atom.Vector[0].TypeOf.WidthInBytes()),                         // Byte size of elements
+			state.Block.NewTrunc(state.Block.NewLoad(types.I64, cap), types.I32)), // How much memory to alloc
+		types.NewPointer(elm_type)) // Cast alloc'd memory to typ
+	/* ----------------------------------------------------------------*/
+
+	if app.Argument.Atom.Tuple[1].TypeOf.Vector != nil {
+		vec_body := state.Block.NewLoad(
+			types.NewPointer(elm_type),
+			state.Block.NewGetElementPtr(head_type, llvec, I32(0), I32(2)))
+
 		counter := state.Block.NewAlloca(types.I64)
 		state.Block.NewStore(I64(0), counter)
-
-		accum := state.Block.NewAlloca(types.I64)
-		state.Block.NewStore(I64(0), accum)
 
 		// Body
 		// Get elem, add to accum, increment counter, conditional jump to body
@@ -212,48 +236,25 @@ func (state *State) CompileInlineMap(app *parse.Application) value.Value {
 		// Add to accum
 		cur_counter := loopblock.NewLoad(types.I64, counter)
 
-		cur_elm := loopblock.NewLoad(types.I64, loopblock.NewGetElementPtr(types.I64, vec_body, cur_counter))
+		cur_elm := loopblock.NewLoad(elm_type, loopblock.NewGetElementPtr(elm_type, vec_body, cur_counter))
 
-		loopblock.NewStore(loopblock.NewAdd(loopblock.NewLoad(types.I64, accum), cur_elm), accum)
+		loopblock.NewStore(
+			loopblock.NewCall(
+				state.CompileExpression(app.Argument.Atom.Tuple[0]),
+				cur_elm),
+			loopblock.NewGetElementPtr(elm_type, body, cur_counter))
+
 		// Increment counter
 		loopblock.NewStore(loopblock.NewAdd(loopblock.NewLoad(types.I64, counter), I64(1)), counter)
-		cond := loopblock.NewICmp(enum.IPredSLT, cur_counter, vec_len)
+		cond := loopblock.NewICmp(enum.IPredSLT, cur_counter, loopblock.NewLoad(types.I64, leng))
 		exitblock := state.CurrentFunction.NewBlock("")
 		loopblock.NewCondBr(cond, loopblock, exitblock)
 		state.Block = exitblock
-		return state.Block.NewLoad(types.I64, accum)
-	} else if *app.Argument.TypeOf.Vector.Atomic == "Real" {
-		vec := app.Argument
-		llvec := state.CompileExpression(vec)
-		vec_len := state.Block.NewLoad(types.I64, state.Block.NewGetElementPtr(
-			llvec.Type().(*types.PointerType).ElemType, llvec, I32(0), I32(0)))
 
-		vec_body := state.Block.NewLoad(types.NewPointer(types.Double), state.Block.NewGetElementPtr(
-			llvec.Type().(*types.PointerType).ElemType, llvec, I32(0), I32(2)))
-		counter := state.Block.NewAlloca(types.I64)
-		state.Block.NewStore(I64(0), counter)
+		state.Block.NewStore(body, state.Block.NewGetElementPtr(vec.TypeOf.AsLLType(), head, I32(0), I32(2)))
 
-		accum := state.Block.NewAlloca(types.Double)
-		state.Block.NewStore(constant.NewFloat(types.Double, 0), accum)
-
-		// Body
-		// Get elem, add to accum, increment counter, conditional jump to body
-		loopblock := state.CurrentFunction.NewBlock("")
-		state.Block.NewBr(loopblock)
-		// Add to accum
-		cur_counter := loopblock.NewLoad(types.I64, counter)
-
-		cur_elm := loopblock.NewLoad(types.Double, loopblock.NewGetElementPtr(types.Double, vec_body, cur_counter))
-
-		loopblock.NewStore(loopblock.NewFAdd(loopblock.NewLoad(types.Double, accum), cur_elm), accum)
-		// Increment counter
-		loopblock.NewStore(loopblock.NewAdd(loopblock.NewLoad(types.I64, counter), I64(1)), counter)
-		cond := loopblock.NewICmp(enum.IPredSLT, cur_counter, vec_len)
-		exitblock := state.CurrentFunction.NewBlock("")
-		loopblock.NewCondBr(cond, loopblock, exitblock)
-		state.Block = exitblock
-		return state.Block.NewLoad(types.Double, accum)
+		return head
+	} else {
+		panic("Map needs (F, [T])")
 	}
-
-	return state.Block.NewLoad(types.I64, accum)
 }

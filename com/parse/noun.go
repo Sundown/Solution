@@ -14,8 +14,15 @@ func (state *State) GetNoun(key *Ident) *Atom {
 			Namespace: *state.PackageIdent,
 			Ident:     *key.Ident,
 		}]
+
 		if noun == nil {
-			panic("Noun not defined")
+			fn := state.GetFunction(key)
+			if fn != nil {
+				noun = &Atom{TypeOf: fn.Gives, Function: fn}
+
+			} else {
+				panic("Noun not defined")
+			}
 		}
 	}
 

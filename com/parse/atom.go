@@ -7,16 +7,17 @@ import (
 )
 
 type Atom struct {
-	TypeOf *Type
-	Tuple  []*Expression
-	Vector []*Expression
-	Param  *bool // unused
-	Int    *int64
-	Nat    *uint64
-	Real   *float64
-	Bool   *bool
-	Char   *int8
-	Noun   *Ident
+	TypeOf   *Type
+	Tuple    []*Expression
+	Vector   []*Expression
+	Param    *bool // unused
+	Function *Function
+	Int      *int64
+	Nat      *uint64
+	Real     *float64
+	Bool     *bool
+	Char     *int8
+	Noun     *Ident
 }
 
 func (a *Atom) String() string {
@@ -53,6 +54,8 @@ func (a *Atom) String() string {
 		}
 
 		return "(" + str[2:] + ")"
+	case a.Function != nil:
+		return a.Function.SigString()
 	}
 
 	return "_"
