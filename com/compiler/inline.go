@@ -197,6 +197,11 @@ func (state *State) CompileInlineMap(app *parse.Application) value.Value {
 	head_type := vec.TypeOf.AsLLType()
 	elm_type := vec.Atom.Vector[0].TypeOf.AsLLType()
 
+	should_store := true
+	if app.Argument.Atom.Tuple[0].Atom.Function.Gives.Equals(parse.AtomicType("Void")) {
+		should_store = false
+	}
+
 	// Map is 1:1 so leng and cap are just copied from input vector
 	leng := state.Block.NewGetElementPtr(head_type, llvec, I32(0), I32(0))
 	cap := state.Block.NewGetElementPtr(head_type, llvec, I32(0), I32(1))
@@ -213,12 +218,15 @@ func (state *State) CompileInlineMap(app *parse.Application) value.Value {
 		state.Block.NewLoad(types.I64, cap),
 		state.Block.NewGetElementPtr(head_type, llvec, I32(0), I32(1)))
 
-	// Allocate a body of capacity * element width, and cast to element type
-	body := state.Block.NewBitCast(
-		state.Block.NewCall(state.GetCalloc(),
-			I32(vec.Atom.Vector[0].TypeOf.WidthInBytes()),                         // Byte size of elements
-			state.Block.NewTrunc(state.Block.NewLoad(types.I64, cap), types.I32)), // How much memory to alloc
-		types.NewPointer(elm_type)) // Cast alloc'd memory to typ
+	var body *ir.InstBitCast
+	if should_store {
+		// Allocate a body of capacity * element width, and cast to element type
+		body = state.Block.NewBitCast(
+			state.Block.NewCall(state.GetCalloc(),
+				I32(vec.Atom.Vector[0].TypeOf.WidthInBytes()),                         // Byte size of elements
+				state.Block.NewTrunc(state.Block.NewLoad(types.I64, cap), types.I32)), // How much memory to alloc
+			types.NewPointer(elm_type)) // Cast alloc'd memory to typ
+	}
 	/* ----------------------------------------------------------------*/
 
 	if app.Argument.Atom.Tuple[1].TypeOf.Vector != nil {
@@ -238,12 +246,15 @@ func (state *State) CompileInlineMap(app *parse.Application) value.Value {
 
 		cur_elm := loopblock.NewLoad(elm_type, loopblock.NewGetElementPtr(elm_type, vec_body, cur_counter))
 
-		loopblock.NewStore(
-			loopblock.NewCall(
-				state.CompileExpression(app.Argument.Atom.Tuple[0]),
-				cur_elm),
-			loopblock.NewGetElementPtr(elm_type, body, cur_counter))
+		call := loopblock.NewCall(
+			state.CompileExpression(app.Argument.Atom.Tuple[0]),
+			cur_elm)
 
+		if should_store {
+			loopblock.NewStore(
+				call,
+				loopblock.NewGetElementPtr(elm_type, body, cur_counter))
+		}
 		// Increment counter
 		loopblock.NewStore(loopblock.NewAdd(loopblock.NewLoad(types.I64, counter), I64(1)), counter)
 		cond := loopblock.NewICmp(enum.IPredSLT, cur_counter, loopblock.NewLoad(types.I64, leng))
@@ -251,9 +262,13 @@ func (state *State) CompileInlineMap(app *parse.Application) value.Value {
 		loopblock.NewCondBr(cond, loopblock, exitblock)
 		state.Block = exitblock
 
-		state.Block.NewStore(body, state.Block.NewGetElementPtr(vec.TypeOf.AsLLType(), head, I32(0), I32(2)))
+		if should_store {
+			state.Block.NewStore(body, state.Block.NewGetElementPtr(vec.TypeOf.AsLLType(), head, I32(0), I32(2)))
+			return head
+		} else {
+			return nil
+		}
 
-		return head
 	} else {
 		panic("Map needs (F, [T])")
 	}

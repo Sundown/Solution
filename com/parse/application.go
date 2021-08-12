@@ -30,19 +30,27 @@ func (state *State) AnalyseApplication(application *lex.Application) (s *Applica
 		Argument: state.AnalyseExpression(application.Parameter),
 	}
 
-	/* if !s.Argument.TypeOf.Equals(s.Function.Takes) {
+	if !s.Argument.TypeOf.Equals(s.Function.Takes) {
 		util.Error("Trying to call", s.Function.SigString(), "with", s.Argument.TypeOf.String()).Exit()
-	} */
+	}
 
 	s.TypeOf = s.Function.Gives
 
-	if *s.Function.Ident.Ident == "Return" {
+	switch *s.Function.Ident.Ident {
+	case "Return":
 		if !s.Argument.TypeOf.Equals(state.CurrentFunction.Gives) {
 			util.Error("Value of type",
 				s.Argument.TypeOf.String(),
 				"does not match function's return type:",
 				state.CurrentFunction.Gives.String()).Exit()
 		}
+	case "Map":
+		if s.Argument.TypeOf.Tuple == nil || s.Argument.Atom.Tuple == nil || s.Argument.Atom.Tuple[0].Atom == nil || s.Argument.Atom.Tuple[0].Atom.Function == nil || s.Argument.Atom.Tuple[1].Atom.Vector == nil {
+			panic("Malformed call to map")
+		}
+
+		s.TypeOf = s.Argument.Atom.Tuple[0].Atom.Function.Gives
+		s.Function.Gives = s.TypeOf
 	}
 
 	return s

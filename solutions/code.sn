@@ -1,9 +1,8 @@
 @Package Solution
 @Entry Start
 
-F : Char -> Char =
+F : Char -> Void =
 	Println @;
-	Return @;
 
 Start : Void -> Void =
 	Map (F, "Vertical");
