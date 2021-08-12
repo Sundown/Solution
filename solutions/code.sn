@@ -1,8 +1,17 @@
 @Package Solution
 @Entry Start
 
-F : Char -> Void =
-	Println @;
+V = [
+	"nice",
+	"and",
+	"epic",
+	"and",
+	"cool"
+];
+
+F : String -> Void = Println @;
 
 Start : Void -> Void =
-	Map (F, "Vertical");
+	Println Len V;
+	Println Cap V;
+	Map (F, V);

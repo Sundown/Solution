@@ -39,6 +39,16 @@ func (state *State) CompileApplication(app *parse.Application) value.Value {
 				app.Argument.TypeOf.AsLLType(),
 				state.CompileExpression(app.Argument),
 				I32(0), I32(0)))
+	case "Cap":
+		if app.Argument.TypeOf.Vector == nil {
+			panic("Can't take Cap of non-vector")
+		}
+
+		return state.Block.NewLoad(types.I64,
+			state.Block.NewGetElementPtr(
+				app.Argument.TypeOf.AsLLType(),
+				state.CompileExpression(app.Argument),
+				I32(0), I32(1)))
 	case "Map":
 		return state.CompileInlineMap(app)
 	case "Sum":

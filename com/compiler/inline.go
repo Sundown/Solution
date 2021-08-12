@@ -45,6 +45,7 @@ func (state *State) CompileInlinePrintln(app *parse.Application) value.Value {
 			state.Block.NewGetElementPtr(types.NewArray(2, types.I8), format, I32(0), I32(0)))
 	}
 }
+
 func (state *State) CompileInlinePrint(app *parse.Application) value.Value {
 	header := state.CompileExpression(app.Argument)
 
@@ -92,19 +93,20 @@ func (state *State) CompileInlineIndex(app *parse.Application) value.Value {
 
 	state.ValidateVectorIndex(src, index)
 
-	elem_typ := app.Argument.Atom.Tuple[0].TypeOf.Vector.AsLLType()
+	head_typ := app.Argument.Atom.Tuple[0].TypeOf
+	elem_typ := head_typ.Vector.AsLLType()
 
 	element := state.Block.NewGetElementPtr(
 		elem_typ, state.Block.NewLoad(
 			types.NewPointer(elem_typ),
 			state.Block.NewGetElementPtr(
-				src.Type().(*types.PointerType).ElemType,
+				head_typ.AsLLType(),
 				src,
 				I32(0), I32(2))),
 		index)
 
 	if app.Argument.Atom.Tuple[0].TypeOf.Vector.Atomic != nil {
-		return state.Block.NewLoad(element.Type().(*types.PointerType).ElemType, element)
+		return state.Block.NewLoad(elem_typ, element)
 	}
 
 	return element
@@ -246,7 +248,12 @@ func (state *State) CompileInlineMap(app *parse.Application) value.Value {
 		// Add to accum
 		cur_counter := loopblock.NewLoad(types.I64, counter)
 
-		cur_elm := loopblock.NewLoad(elm_type, loopblock.NewGetElementPtr(elm_type, vec_body, cur_counter))
+		var cur_elm value.Value
+		cur_elm = loopblock.NewGetElementPtr(elm_type, vec_body, cur_counter)
+
+		if vec.Atom.Vector[0].TypeOf.Atomic != nil {
+			cur_elm = loopblock.NewLoad(elm_type, cur_elm)
+		}
 
 		call := loopblock.NewCall(
 			state.CompileExpression(app.Argument.Atom.Tuple[0]),
