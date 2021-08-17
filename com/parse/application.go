@@ -49,7 +49,10 @@ func (state *State) AnalyseApplication(application *lex.Application) (s *Applica
 			panic("Malformed call to map")
 		}
 
-		s.TypeOf = s.Argument.Atom.Tuple[0].Atom.Function.Gives
+		s.TypeOf = s.Argument.Atom.Tuple[0].Atom.Function.Gives.AsVector()
+		s.Function.Gives = s.TypeOf
+	case "GEP":
+		s.TypeOf = s.Argument.Atom.Tuple[0].Atom.TypeOf.Vector
 		s.Function.Gives = s.TypeOf
 	}
 

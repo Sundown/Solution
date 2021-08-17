@@ -14,12 +14,10 @@ func (state *State) CompileVector(vector *parse.Atom) value.Value {
 	}
 
 	leng, cap := CalculateVectorSizes(vector.Vector)
-
-	elm_type, elm_width := vector.Vector[0].TypeOf.AsLLType(), vector.Vector[0].TypeOf.WidthInBytes()
-
+	elm_type := vector.Vector[0].TypeOf.AsLLType()
+	elm_width := vector.Vector[0].TypeOf.WidthInBytes()
 	head_type := vector.TypeOf.AsLLType()
-
-	head := state.BuildVectorHeader(head_type)
+	head := state.Block.NewAlloca(head_type)
 
 	// Store vector length
 	state.WriteVectorLength(head, leng, head_type)
@@ -66,10 +64,6 @@ func (state *State) WriteVectorPointer(
 		constructed_body,
 		state.Block.NewGetElementPtr(
 			vector_header_type, vector_header, I32(0), I32(2)))
-}
-
-func (state *State) BuildVectorHeader(typ types.Type) *ir.InstAlloca {
-	return state.Block.NewAlloca(typ)
 }
 
 func (state *State) BuildVectorBody(typ types.Type, cap int64, width int64) *ir.InstBitCast {

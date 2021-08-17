@@ -15,7 +15,7 @@ func I32(v int64) constant.Constant {
 	return constant.NewInt(types.I32, int64(int32(v)))
 }
 
-// Abstract llir's really stupid get implementation
+// Abstract LLIR's stupid GEP implementation
 func (state *State) GEP(source *ir.InstAlloca, indices ...value.Value) *ir.InstGetElementPtr {
 	return state.Block.NewGetElementPtr(source.Typ.ElemType, source, indices...)
 }
