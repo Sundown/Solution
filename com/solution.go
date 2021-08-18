@@ -43,5 +43,7 @@ func main() {
 	p := &parse.State{}
 	c := &compiler.State{}
 
-	c.Compile(p.Parse(l.Lex(os.Args[1])))
+	t := p.Parse(l.Lex(os.Args[1]))
+	//fmt.Println(t.String())
+	c.Compile(t)
 }

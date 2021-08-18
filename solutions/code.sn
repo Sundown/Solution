@@ -1,8 +1,9 @@
 @Package Solution
 @Entry Start
 
-F : [Int] -> Void =
-	Println Sum [GEP (@, 0), GEP (@, 1)];
+F : [Int] -> Void= P Sum [GEP (@, 0), GEP (@, 1)];
+
+P : Int -> Void = Println @;
 
 Start : Void -> Void =
-	Map (F, [[3, 2], [3, 4]]);
+	Map (F, [[2, 3], [5, 7], [2, 3], [2, 3], [2, 3], [2, 3]]);

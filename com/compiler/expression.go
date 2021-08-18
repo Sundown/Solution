@@ -31,6 +31,14 @@ func (state *State) CompileApplication(app *parse.Application) value.Value {
 		return state.CompileInlinePrintln(app)
 	case "Print":
 		return state.CompileInlinePrint(app)
+	case "Panic":
+		if app.Argument.TypeOf.Equals(parse.AtomicType("Int")) {
+			state.Block.NewCall(state.GetExit(), state.Block.NewTrunc(state.CompileExpression(app.Argument), types.I32))
+			state.Block.NewUnreachable()
+			return nil
+		} else {
+			panic("Cannot call Panic with non-int")
+		}
 	case "Len":
 		if app.Argument.TypeOf.Vector == nil {
 			panic("Can't take Len of non-vector")

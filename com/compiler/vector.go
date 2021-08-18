@@ -8,6 +8,12 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
+var (
+	vectorLenOffset  = I32(int64(0))
+	vectorCapOffset  = I32(int64(1))
+	vectorBodyOffset = I32(int64(2))
+)
+
 func (state *State) CompileVector(vector *parse.Atom) value.Value {
 	if vector.Vector == nil {
 		panic("Unreachable")
@@ -63,7 +69,7 @@ func (state *State) WriteVectorPointer(
 	state.Block.NewStore(
 		constructed_body,
 		state.Block.NewGetElementPtr(
-			vector_header_type, vector_header, I32(0), I32(2)))
+			vector_header_type, vector_header, I32(0), vectorBodyOffset))
 }
 
 func (state *State) BuildVectorBody(typ types.Type, cap int64, width int64) *ir.InstBitCast {
@@ -77,13 +83,13 @@ func (state *State) BuildVectorBody(typ types.Type, cap int64, width int64) *ir.
 func (state *State) WriteVectorLength(vector_struct *ir.InstAlloca, len int64, typ types.Type) {
 	state.Block.NewStore(
 		I64(len),
-		state.Block.NewGetElementPtr(typ, vector_struct, I32(0), I32(0)))
+		state.Block.NewGetElementPtr(typ, vector_struct, I32(0), vectorLenOffset))
 }
 
 func (state *State) WriteVectorCapacity(vector_struct *ir.InstAlloca, cap int64, typ types.Type) {
 	state.Block.NewStore(
 		I64(cap),
-		state.Block.NewGetElementPtr(typ, vector_struct, I32(0), I32(1)))
+		state.Block.NewGetElementPtr(typ, vector_struct, I32(0), vectorCapOffset))
 }
 
 func CalculateVectorSizes(vector []*parse.Expression) (leng int64, cap int64) {

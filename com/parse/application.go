@@ -45,14 +45,17 @@ func (state *State) AnalyseApplication(application *lex.Application) (s *Applica
 				state.CurrentFunction.Gives.String()).Exit()
 		}
 	case "Map":
-		if s.Argument.TypeOf.Tuple == nil || s.Argument.Atom.Tuple == nil || s.Argument.Atom.Tuple[0].Atom == nil || s.Argument.Atom.Tuple[0].Atom.Function == nil || s.Argument.Atom.Tuple[1].Atom.Vector == nil {
+		if s.Argument.TypeOf.Tuple == nil ||
+			s.Argument.Atom.Tuple == nil || s.Argument.Atom.Tuple[0].Atom == nil ||
+			s.Argument.Atom.Tuple[0].Atom.Function == nil ||
+			s.Argument.Atom.Tuple[1].Atom.Vector == nil {
 			panic("Malformed call to map")
 		}
 
 		s.TypeOf = s.Argument.Atom.Tuple[0].Atom.Function.Gives.AsVector()
 		s.Function.Gives = s.TypeOf
 	case "GEP":
-		s.TypeOf = s.Argument.Atom.Tuple[0].Atom.TypeOf.Vector
+		s.TypeOf = s.Argument.Atom.Tuple[0].TypeOf.Vector
 		s.Function.Gives = s.TypeOf
 	}
 

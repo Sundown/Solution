@@ -34,8 +34,8 @@ func (state *State) CompileInlineMap(app *parse.Application) value.Value {
 	}
 
 	// Map is 1:1 so leng and cap are just copied from input vector
-	leng := state.Block.NewGetElementPtr(head_type, llvec, I32(0), I32(0))
-	cap := state.Block.NewGetElementPtr(head_type, llvec, I32(0), I32(1))
+	leng := state.Block.NewGetElementPtr(head_type, llvec, I32(0), vectorLenOffset)
+	cap := state.Block.NewGetElementPtr(head_type, llvec, I32(0), vectorCapOffset)
 
 	var head *ir.InstAlloca
 	var body *ir.InstBitCast
@@ -44,12 +44,12 @@ func (state *State) CompileInlineMap(app *parse.Application) value.Value {
 		// Copy length
 		state.Block.NewStore(
 			state.Block.NewLoad(types.I64, leng),
-			state.Block.NewGetElementPtr(to_head_type, llvec, I32(0), I32(0)))
+			state.Block.NewGetElementPtr(to_head_type, llvec, I32(0), vectorLenOffset))
 
 		// Copy capacity
 		state.Block.NewStore(
 			state.Block.NewLoad(types.I64, cap),
-			state.Block.NewGetElementPtr(to_head_type, llvec, I32(0), I32(1)))
+			state.Block.NewGetElementPtr(to_head_type, llvec, I32(0), vectorCapOffset))
 		// Allocate a body of capacity * element width, and cast to element type
 		body = state.Block.NewBitCast(
 			state.Block.NewCall(state.GetCalloc(),
@@ -66,7 +66,7 @@ func (state *State) CompileInlineMap(app *parse.Application) value.Value {
 	if app.Argument.Atom.Tuple[1].TypeOf.Vector != nil {
 		vec_body := state.Block.NewLoad(
 			types.NewPointer(elm_type),
-			state.Block.NewGetElementPtr(head_type, llvec, I32(0), I32(2)))
+			state.Block.NewGetElementPtr(head_type, llvec, I32(0), vectorBodyOffset))
 
 		counter := state.Block.NewAlloca(types.I64)
 		state.Block.NewStore(I64(0), counter)
@@ -95,17 +95,24 @@ func (state *State) CompileInlineMap(app *parse.Application) value.Value {
 		}
 
 		// Increment counter
-		loopblock.NewStore(loopblock.NewAdd(loopblock.NewLoad(types.I64, counter), I64(1)), counter)
+		loopblock.NewStore(
+			loopblock.NewAdd(
+				loopblock.NewLoad(types.I64, counter),
+				I64(1)),
+			counter)
 
 		// Possibly change load to another add or something, probably expensive
-		cond := loopblock.NewICmp(enum.IPredSLT, loopblock.NewLoad(types.I64, counter), loopblock.NewLoad(types.I64, leng))
+		cond := loopblock.NewICmp(enum.IPredSLT,
+			loopblock.NewLoad(types.I64, counter),
+			loopblock.NewLoad(types.I64, leng))
 
 		exitblock := state.CurrentFunction.NewBlock("")
 		loopblock.NewCondBr(cond, loopblock, exitblock)
 		state.Block = exitblock
 
 		if should_store {
-			state.Block.NewStore(body, state.Block.NewGetElementPtr(to_head_type, head, I32(0), I32(2)))
+			state.Block.NewStore(body,
+				state.Block.NewGetElementPtr(to_head_type, head, I32(0), vectorBodyOffset))
 			return head
 		} else {
 			return nil

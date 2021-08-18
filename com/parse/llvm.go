@@ -1,6 +1,10 @@
 package parse
 
-import "github.com/llir/llvm/ir/types"
+import (
+	"sundown/solution/util"
+
+	"github.com/llir/llvm/ir/types"
+)
 
 func (t *Type) AsLLType() types.Type {
 	if t.Atomic != nil {
@@ -30,7 +34,10 @@ func (t *Type) AsLLType() types.Type {
 func (t *Type) WidthInBytes() int64 {
 	if t.Atomic != nil {
 		return t.Width
+	} else if t.Vector != nil {
+		return 24
 	} else {
+		util.Warn("Using 8bytes for unknown type")
 		return 8
 	}
 }
