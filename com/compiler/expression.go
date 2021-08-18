@@ -5,7 +5,6 @@ import (
 
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/constant"
-	"github.com/llir/llvm/ir/enum"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
 )
@@ -29,8 +28,6 @@ func (state *State) CompileApplication(app *parse.Application) value.Value {
 		return state.CompileInlineIndex(app)
 	case "Println":
 		return state.CompileInlinePrintln(app)
-	case "Print":
-		return state.CompileInlinePrint(app)
 	case "Panic":
 		if app.Argument.TypeOf.Equals(parse.AtomicType("Int")) {
 			state.Block.NewCall(state.GetExit(), state.Block.NewTrunc(state.CompileExpression(app.Argument), types.I32))
@@ -68,30 +65,6 @@ func (state *State) CompileApplication(app *parse.Application) value.Value {
 			state.Functions[app.Function.ToLLVMName()],
 			state.CompileExpression(app.Argument))
 	}
-}
-
-func (state *State) ValidateVectorIndex(src value.Value, index value.Value) {
-	btrue := state.CurrentFunction.NewBlock("")
-	bfalse := state.CurrentFunction.NewBlock("")
-	leng := state.Block.NewLoad(types.I64, state.Block.NewGetElementPtr(
-		src.Type().(*types.PointerType).ElemType,
-		src,
-		I32(0), I32(0)))
-
-	state.LLVMPanic(bfalse, "Panic: index %d out of bounds [%d]\n", index, leng)
-
-	bend := state.CurrentFunction.NewBlock("")
-	btrue.NewBr(bend)
-	bfalse.NewUnreachable()
-
-	state.Block.NewCondBr(
-		state.Block.NewICmp(
-			enum.IPredSLE,
-			leng,
-			index),
-		bfalse, btrue)
-
-	state.Block = bend
 }
 
 // Supply the block in which to generate message and exit call, a printf formatter, and variadic params

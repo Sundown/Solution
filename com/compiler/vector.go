@@ -4,14 +4,15 @@ import (
 	"sundown/solution/parse"
 
 	"github.com/llir/llvm/ir"
+	"github.com/llir/llvm/ir/enum"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
 )
 
 var (
-	vectorLenOffset  = I32(int64(0))
-	vectorCapOffset  = I32(int64(1))
-	vectorBodyOffset = I32(int64(2))
+	vectorLenOffset  = I32(0)
+	vectorCapOffset  = I32(1)
+	vectorBodyOffset = I32(2)
 )
 
 func (state *State) CompileVector(vector *parse.Atom) value.Value {
@@ -21,7 +22,6 @@ func (state *State) CompileVector(vector *parse.Atom) value.Value {
 
 	leng, cap := CalculateVectorSizes(vector.Vector)
 	elm_type := vector.Vector[0].TypeOf.AsLLType()
-	elm_width := vector.Vector[0].TypeOf.WidthInBytes()
 	head_type := vector.TypeOf.AsLLType()
 	head := state.Block.NewAlloca(head_type)
 
@@ -31,7 +31,7 @@ func (state *State) CompileVector(vector *parse.Atom) value.Value {
 	// Store vector capacity
 	state.WriteVectorCapacity(head, cap, head_type)
 
-	body := state.BuildVectorBody(elm_type, cap, elm_width)
+	body := state.BuildVectorBody(elm_type, cap, vector.Vector[0].TypeOf.WidthInBytes())
 
 	state.PopulateBody(body, elm_type, vector.Vector)
 
@@ -83,13 +83,19 @@ func (state *State) BuildVectorBody(typ types.Type, cap int64, width int64) *ir.
 func (state *State) WriteVectorLength(vector_struct *ir.InstAlloca, len int64, typ types.Type) {
 	state.Block.NewStore(
 		I64(len),
-		state.Block.NewGetElementPtr(typ, vector_struct, I32(0), vectorLenOffset))
+		state.Block.NewGetElementPtr(
+			typ,
+			vector_struct,
+			I32(0), vectorLenOffset))
 }
 
 func (state *State) WriteVectorCapacity(vector_struct *ir.InstAlloca, cap int64, typ types.Type) {
 	state.Block.NewStore(
 		I64(cap),
-		state.Block.NewGetElementPtr(typ, vector_struct, I32(0), vectorCapOffset))
+		state.Block.NewGetElementPtr(
+			typ,
+			vector_struct,
+			I32(0), vectorCapOffset))
 }
 
 func CalculateVectorSizes(vector []*parse.Expression) (leng int64, cap int64) {
@@ -101,4 +107,28 @@ func CalculateVectorSizes(vector []*parse.Expression) (leng int64, cap int64) {
 	}
 
 	return leng, cap
+}
+
+func (state *State) ValidateVectorIndex(src value.Value, index value.Value) {
+	btrue := state.CurrentFunction.NewBlock("")
+	bfalse := state.CurrentFunction.NewBlock("")
+	leng := state.Block.NewLoad(types.I64, state.Block.NewGetElementPtr(
+		src.Type().(*types.PointerType).ElemType,
+		src,
+		I32(0), I32(0)))
+
+	state.LLVMPanic(bfalse, "Panic: index %d out of bounds [%d]\n", index, leng)
+
+	bend := state.CurrentFunction.NewBlock("")
+	btrue.NewBr(bend)
+	bfalse.NewUnreachable()
+
+	state.Block.NewCondBr(
+		state.Block.NewICmp(
+			enum.IPredSLE,
+			leng,
+			index),
+		bfalse, btrue)
+
+	state.Block = bend
 }

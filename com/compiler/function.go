@@ -7,6 +7,13 @@ import (
 	"github.com/llir/llvm/ir/types"
 )
 
+func (state *State) CompileBlock(body *parse.Expression) {
+	// Block is just an expression[]
+	for _, stmt := range body.Block {
+		state.CompileExpression(stmt)
+	}
+}
+
 func (state *State) DeclareFunction(fn *parse.Function) *ir.Func {
 	state.CurrentFunction = state.Module.NewFunc(
 		fn.ToLLVMName(),
