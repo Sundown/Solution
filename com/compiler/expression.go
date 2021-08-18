@@ -3,8 +3,6 @@ package compiler
 import (
 	"sundown/solution/parse"
 
-	"github.com/llir/llvm/ir"
-	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
 )
@@ -65,13 +63,4 @@ func (state *State) CompileApplication(app *parse.Application) value.Value {
 			state.Functions[app.Function.ToLLVMName()],
 			state.CompileExpression(app.Argument))
 	}
-}
-
-// Supply the block in which to generate message and exit call, a printf formatter, and variadic params
-func (state *State) LLVMPanic(block *ir.Block, format string, args ...value.Value) {
-	var fmt value.Value = block.NewGetElementPtr(
-		types.NewArray(uint64(len(format)+1), types.I8),
-		state.Module.NewGlobalDef("", constant.NewCharArrayFromString(format+"\x00")), I32(0), I32(0))
-	block.NewCall(state.GetPrintf(), append([]value.Value{fmt}, args...)...)
-	block.NewCall(state.GetExit(), I32(1))
 }

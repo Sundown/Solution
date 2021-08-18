@@ -62,3 +62,12 @@ func (state *State) GetFormatString(t *parse.Type) value.Value {
 		return state.Block.NewGetElementPtr(types.NewArray(2, types.I8), state.Module.NewGlobalDef("", constant.NewCharArrayFromString("\x0A\x00")), I32(0), I32(0))
 	}
 }
+
+// Supply the block in which to generate message and exit call, a printf formatter, and variadic params
+func (state *State) LLVMPanic(block *ir.Block, format string, args ...value.Value) {
+	var fmt value.Value = block.NewGetElementPtr(
+		types.NewArray(uint64(len(format)+1), types.I8),
+		state.Module.NewGlobalDef("", constant.NewCharArrayFromString(format+"\x00")), I32(0), I32(0))
+	block.NewCall(state.GetPrintf(), append([]value.Value{fmt}, args...)...)
+	block.NewCall(state.GetExit(), I32(1))
+}
