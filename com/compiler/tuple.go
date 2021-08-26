@@ -7,8 +7,7 @@ import (
 )
 
 func (state *State) CompileTuple(tuple *parse.Atom) value.Value {
-	tuple_type := tuple.TypeOf.AsLLType()
-	ll_tuple := state.Block.NewAlloca(tuple_type)
+	ll_tuple := state.Block.NewAlloca(tuple.TypeOf.AsLLType())
 
 	for index, expr := range tuple.Tuple {
 		val := state.CompileExpression(expr)

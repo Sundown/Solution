@@ -65,7 +65,7 @@ func (state *State) CompileInlineSum(app *parse.Application) value.Value {
 
 	// Increment counter
 	loopblock.NewStore(
-		loopblock.NewAdd(loopblock.NewLoad(lltyp, counter), I64(1)),
+		loopblock.NewAdd(loopblock.NewLoad(types.I64, counter), I64(1)),
 		counter)
 
 	cond := loopblock.NewICmp(

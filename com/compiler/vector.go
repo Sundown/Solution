@@ -15,12 +15,33 @@ var (
 	vectorBodyOffset = I32(2)
 )
 
+func (state *State) CompileDiscreteVector(typ *parse.Type, vector []value.Value) value.Value {
+	leng, cap := CalculateVectorSizes(len(vector))
+	head_type := typ.AsVector().AsLLType()
+	head := state.Block.NewAlloca(head_type)
+
+	// Store vector length
+	state.WriteVectorLength(head, leng, head_type)
+
+	// Store vector capacity
+	state.WriteVectorCapacity(head, cap, head_type)
+
+	body := state.BuildVectorBody(typ.AsLLType(), cap, typ.WidthInBytes())
+
+	state.PopulateDiscreteBody(body, typ, vector)
+
+	// Point the vector header to alloc'd body
+	state.WriteVectorPointer(head, head_type, body)
+
+	return head
+}
+
 func (state *State) CompileVector(vector *parse.Atom) value.Value {
 	if vector.Vector == nil {
 		panic("Unreachable")
 	}
 
-	leng, cap := CalculateVectorSizes(vector.Vector)
+	leng, cap := CalculateVectorSizes(len(vector.Vector))
 	elm_type := vector.Vector[0].TypeOf.AsLLType()
 	head_type := vector.TypeOf.AsLLType()
 	head := state.Block.NewAlloca(head_type)
@@ -50,6 +71,7 @@ func (state *State) PopulateBody(
 	for index, element := range expr_vec {
 		v := state.CompileExpression(element)
 
+		// I'm 50% sure this is wrong
 		if ir_elm_type.Atomic == nil {
 			v = state.Block.NewLoad(element_type, v)
 		}
@@ -57,6 +79,25 @@ func (state *State) PopulateBody(
 		state.Block.NewStore(v,
 			state.Block.NewGetElementPtr(
 				element_type,
+				allocated_body,
+				I32(int64(index))))
+	}
+}
+
+// Maps from value.Value[] to vector in LLVM
+func (state *State) PopulateDiscreteBody(
+	allocated_body *ir.InstBitCast,
+	element_type_ir *parse.Type,
+	expr_vec []value.Value) {
+
+	for index, element := range expr_vec {
+		if element_type_ir.Atomic == nil {
+			element = state.Block.NewLoad(element_type_ir.AsLLType(), element)
+		}
+
+		state.Block.NewStore(element,
+			state.Block.NewGetElementPtr(
+				element_type_ir.AsLLType(),
 				allocated_body,
 				I32(int64(index))))
 	}
@@ -98,8 +139,8 @@ func (state *State) WriteVectorCapacity(vector_struct *ir.InstAlloca, cap int64,
 			I32(0), vectorCapOffset))
 }
 
-func CalculateVectorSizes(vector []*parse.Expression) (leng int64, cap int64) {
-	leng = int64(len(vector))
+func CalculateVectorSizes(l int) (leng int64, cap int64) {
+	leng = int64(l)
 	if leng < 4 {
 		cap = 8
 	} else {
