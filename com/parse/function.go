@@ -2,6 +2,7 @@ package parse
 
 import (
 	"sundown/solution/lex"
+	"sundown/solution/util"
 )
 
 type Function struct {
@@ -44,7 +45,7 @@ func (state *State) AnalyseFunction(function *lex.Ident) (f *Function) {
 	f = state.GetFunction(IRIdent(function))
 
 	if f == nil {
-		panic(*function.Ident + " not found in " + *state.PackageIdent + " or Foundation")
+		util.Error("ident \"" + *function.Ident + "\" is undefined in scope and Foundation.\n" + function.Pos.String()).Exit()
 	}
 
 	return f

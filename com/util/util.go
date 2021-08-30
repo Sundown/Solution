@@ -6,39 +6,35 @@ import (
 	"strings"
 )
 
-var colorReset = "\033[0m"
-var colorRed = "\033[31m"
-var colorGreen = "\033[32m"
-var colorYellow = "\033[33m"
-var bold = "\033[1m"
+var Reset = "\033[0m"
+var Red = "\033[31m"
+var Green = "\033[32m"
+var Yellow = "\033[33m"
+var Bold = "\033[1m"
 
 type E struct {
 	code int
 }
 
-var counter = 0
-
-// Heaps of them!
 func Ref(s string) *string {
+	// Heaps of them!
 	return &s
 }
 
 func Bene(parts ...string) {
-	counter++
-	fmt.Printf("%04d   %s[OKAY]%s   %s\n", counter, colorGreen, colorReset, strings.Join(parts, " "))
+	fmt.Printf("%s[ ]%s %s\n", Green, Reset, strings.Join(parts, " "))
 }
 
 func Error(parts ...string) E {
-	counter++
-	fmt.Printf("%04d   %s[ERRO]%s   %s\n", counter, colorRed, colorReset, strings.Join(parts, " "))
+	fmt.Printf("%s[X]%s %s\n", Red, Reset, strings.Join(parts, " "))
+	return E{code: 1}
+}
+
+func Warn(parts ...string) E {
+	fmt.Printf("%s[-]%s %s\n", Yellow, Reset, strings.Join(parts, " "))
 	return E{code: 1}
 }
 
 func (e E) Exit() {
 	os.Exit(e.code)
-}
-
-func Warn(parts ...string) E {
-	fmt.Printf("%04d   %s[WARN]%s   %s\n", counter, colorYellow, colorReset, strings.Join(parts, " "))
-	return E{code: 1}
 }

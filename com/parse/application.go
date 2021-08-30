@@ -31,7 +31,7 @@ func (state *State) AnalyseApplication(application *lex.Application) (s *Applica
 	}
 
 	if !s.Argument.TypeOf.Equals(s.Function.Takes) {
-		util.Error("Trying to call", s.Function.SigString(), "with", s.Argument.TypeOf.String()).Exit()
+		util.Error("Trying to call", s.Function.SigString(), "with", s.Argument.TypeOf.String()+"\n"+application.Parameter.Pos.String()).Exit()
 	}
 
 	s.TypeOf = s.Function.Gives

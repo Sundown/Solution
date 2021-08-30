@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"strconv"
 	"sundown/solution/lex"
+	"sundown/solution/util"
 )
 
 type Atom struct {
@@ -84,8 +85,7 @@ func (state *State) AnalyseAtom(primary *lex.Primary) (a *Atom) {
 			// all elements must be of same type
 
 			if index > 0 && !vec[index-1].TypeOf.AsLLType().Equal(e.TypeOf.AsLLType()) {
-				panic("Parse: Atom: Vector: divergent type at position: " + fmt.Sprint(index) +
-					"\n" + e.TypeOf.String() + " and " + vec[index-1].TypeOf.String())
+				util.Error("Type " + util.Yellow + e.TypeOf.String() + util.Reset + " diverges from vector type of " + util.Yellow + vec[index-1].TypeOf.String() + util.Reset + "\n" + expr.Pos.String()).Exit()
 			}
 
 			vec = append(vec, e)

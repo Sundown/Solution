@@ -20,6 +20,7 @@ var BitsType = Type{
 	Atomic: util.Ref("Bits"),
 	LLType: types.NewStruct(types.I32, types.I32Ptr), Width: 8, // Pointer
 }
+
 var StringType = Type{
 	Vector: &Type{Atomic: util.Ref("String"), LLType: types.I8},
 	LLType: types.NewStruct(types.I32, types.I32, types.I8Ptr), Width: 8, // Pointers
