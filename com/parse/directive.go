@@ -3,6 +3,7 @@ package parse
 import (
 	"fmt"
 	"sundown/solution/lex"
+	"sundown/solution/util"
 )
 
 type Directive struct {
@@ -41,7 +42,7 @@ func (state *State) AnalyseDirective(directive *lex.Directive) {
 	switch *d.Class {
 	case "Package":
 		if state.PackageIdent != nil {
-			panic("Packagename already defined")
+			util.Error("Packagename already defined\n" + directive.Pos.String()).Exit()
 		}
 
 		if d.Instruction.Ident == nil {
