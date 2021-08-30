@@ -14,6 +14,14 @@ type IdentKey struct {
 	Ident     string
 }
 
+func (i *Ident) String() string {
+	if i.Namespace == nil {
+		return *i.Ident
+	} else {
+		return *i.Namespace + "::" + *i.Ident
+	}
+}
+
 // Dereferences strings so they AREN'T unique, used for key within maps
 func (i *Ident) AsKey() IdentKey {
 	var n string

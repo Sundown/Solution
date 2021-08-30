@@ -68,7 +68,7 @@ func (state *State) Parse(program *lex.State) *State {
 	entry := state.GetFunction(&Ident{Namespace: state.PackageIdent, Ident: state.EntryIdent})
 
 	if entry == nil {
-		panic("Entry function not defined")
+		util.Warn("Define program entry with directive: " + util.Yellow("@Entry <fn>") + ".\n").Exit()
 	} else {
 		state.EntryFunction = entry
 

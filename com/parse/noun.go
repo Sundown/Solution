@@ -2,12 +2,14 @@ package parse
 
 import (
 	"sundown/solution/lex"
+	"sundown/solution/util"
 )
 
 // Tries to find noun in order (defined_namespace or foundation) then package
 // order may change in future such that foundation is last
-func (state *State) GetNoun(key *Ident) *Atom {
-	noun := state.NounDefs[key.AsKey()]
+func (state *State) GetNoun(key *lex.Ident) *Atom {
+	k := IRIdent(key)
+	noun := state.NounDefs[k.AsKey()]
 
 	if noun == nil {
 		noun = state.NounDefs[IdentKey{
@@ -16,12 +18,12 @@ func (state *State) GetNoun(key *Ident) *Atom {
 		}]
 
 		if noun == nil {
-			fn := state.GetFunction(key)
+			fn := state.GetFunction(k)
 			if fn != nil {
 				noun = &Atom{TypeOf: fn.Gives, Function: fn}
 
 			} else {
-				panic("Noun not defined")
+				util.Error("Identifier \"" + util.Yellow(k.String()) + "\" is not defined in scope or Foundation.\n" + key.Pos.String()).Exit()
 			}
 		}
 	}
@@ -31,15 +33,16 @@ func (state *State) GetNoun(key *Ident) *Atom {
 
 func (state *State) AnalyseNounDecl(noun *lex.NounDecl) {
 	if IsReserved(*noun.Ident) {
-		panic("Trying to assign noun to a reserved name")
+		util.Error("Identifier \"" + util.Yellow(*noun.Ident) + "\" is reserved by the compiler.\n" + noun.Pos.String()).Exit()
 	}
 
 	var temp *Atom
 
 	if noun.Value.Noun != nil {
-		temp = state.GetNoun(IRIdent(noun.Value.Noun))
+		temp = state.GetNoun(noun.Value.Noun)
 	} else if noun.Value.Param != nil {
-		panic("Trying to define noun to param")
+		// ... why
+		util.Error("Cannot use \"" + util.Yellow("@") + "\" (parameter figurative) as R-value in definition.\n" + noun.Pos.String()).Exit()
 	} else {
 		temp = state.AnalyseAtom(noun.Value)
 	}
@@ -48,6 +51,6 @@ func (state *State) AnalyseNounDecl(noun *lex.NounDecl) {
 	if state.NounDefs[key] == nil {
 		state.NounDefs[key] = temp
 	} else {
-		panic("Noun already defined")
+		util.Error("Noun \"" + util.Yellow(*noun.Ident) + "\" is already defined as " + util.Yellow(state.NounDefs[key].String()) + ".\n" + noun.Pos.String()).Exit()
 	}
 }

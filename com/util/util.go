@@ -7,10 +7,22 @@ import (
 )
 
 var Reset = "\033[0m"
-var Red = "\033[31m"
-var Green = "\033[32m"
-var Yellow = "\033[33m"
-var Bold = "\033[1m"
+
+func Red(s ...string) string {
+	return fmt.Sprintf("%s%s%s", "\033[31m", strings.Join(s, " "), Reset)
+}
+
+func Green(s ...string) string {
+	return fmt.Sprintf("%s%s%s", "\033[32m", strings.Join(s, " "), Reset)
+}
+
+func Yellow(s ...string) string {
+	return fmt.Sprintf("%s%s%s", "\033[33m", strings.Join(s, " "), Reset)
+}
+
+func Bold(s ...string) string {
+	return fmt.Sprintf("%s%s%s", "\033[1m", strings.Join(s, " "), Reset)
+}
 
 type E struct {
 	code int
@@ -21,17 +33,18 @@ func Ref(s string) *string {
 	return &s
 }
 
-func Bene(parts ...string) {
-	fmt.Printf("%s[ ]%s %s\n", Green, Reset, strings.Join(parts, " "))
+func Notify(parts ...string) E {
+	fmt.Println(Green("[^]"), strings.Join(parts, " "))
+	return E{code: 0}
 }
 
 func Error(parts ...string) E {
-	fmt.Printf("%s[X]%s %s\n", Red, Reset, strings.Join(parts, " "))
+	fmt.Println(Red("[!]"), strings.Join(parts, " "))
 	return E{code: 1}
 }
 
 func Warn(parts ...string) E {
-	fmt.Printf("%s[-]%s %s\n", Yellow, Reset, strings.Join(parts, " "))
+	fmt.Println(Yellow("[?]"), strings.Join(parts, " "))
 	return E{code: 1}
 }
 

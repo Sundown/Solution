@@ -37,7 +37,7 @@ func (t *Type) WidthInBytes() int64 {
 	} else if t.Vector != nil {
 		return 24
 	} else {
-		util.Warn("Using 8bytes for unknown type")
+		util.Warn("Using 8 bytes for unknown type " + t.String())
 		return 8
 	}
 }
@@ -46,7 +46,7 @@ func (e *Expression) Type() *Type {
 	if e.Atom != nil {
 		return e.Atom.TypeOf
 	} else if a := e.Application; a != nil {
-		// Implement T -> T transfer
+		// Implement T -> T transform
 		// ([T], Int) -> T i.e. ([Char], Int) -> Char
 		if a.Argument.TypeOf.Atomic != nil && *a.Argument.TypeOf.Atomic == "T" {
 			// Poly

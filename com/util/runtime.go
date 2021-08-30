@@ -35,7 +35,7 @@ func VerifyClangVersion() {
 		Error(`Requires clang version 12+`).Exit()
 	}
 
-	Bene("Clang version " + strconv.FormatFloat(ver, 'f', -1, 32))
+	Notify("Clang version " + strconv.FormatFloat(ver, 'f', -1, 32))
 }
 
 func GetSolutionVersion() string {

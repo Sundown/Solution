@@ -106,6 +106,6 @@ func (state *State) AnalyseFnDecl(statement *lex.FnDecl) {
 			Special: false,
 		}
 	} else {
-		panic(*statement.Ident + " is already declared")
+		util.Error(*statement.Ident + " is already declared as " + state.Functions[key].SigString() + ".\n" + statement.Pos.String()).Exit()
 	}
 }

@@ -85,7 +85,7 @@ func (state *State) AnalyseAtom(primary *lex.Primary) (a *Atom) {
 			// all elements must be of same type
 
 			if index > 0 && !vec[index-1].TypeOf.AsLLType().Equal(e.TypeOf.AsLLType()) {
-				util.Error("Type " + util.Yellow + e.TypeOf.String() + util.Reset + " diverges from vector type of " + util.Yellow + vec[index-1].TypeOf.String() + util.Reset + "\n" + expr.Pos.String()).Exit()
+				util.Error("Element of type " + util.Yellow(e.TypeOf.String()) + " diverges from vector type of " + util.Yellow(vec[index-1].TypeOf.String()) + "\n" + expr.Pos.String()).Exit()
 			}
 
 			vec = append(vec, e)
@@ -122,7 +122,7 @@ func (state *State) AnalyseAtom(primary *lex.Primary) (a *Atom) {
 			p = false
 			a = &Atom{TypeOf: BaseType("Bool"), Bool: &p}
 		} else {
-			a = state.GetNoun(IRIdent(primary.Noun))
+			a = state.GetNoun(primary.Noun)
 		}
 	case primary.Param != nil:
 		b := true

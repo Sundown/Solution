@@ -6,6 +6,7 @@ import (
 	"sundown/solution/compiler"
 	"sundown/solution/lex"
 	"sundown/solution/parse"
+	"sundown/solution/util"
 
 	"github.com/alecthomas/kong"
 )
@@ -45,7 +46,7 @@ func main() {
 	   			}
 	   		}
 	   	} */
-
+	util.Notify("Solution (" + util.GetSolutionVersion() + ") startup")
 	ctx := kong.Parse(&cli)
 	if cli.EBNF {
 		fmt.Println("Something")
