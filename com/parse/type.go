@@ -2,6 +2,7 @@ package parse
 
 import (
 	"sundown/solution/lex"
+	"sundown/solution/util"
 
 	"github.com/llir/llvm/ir/types"
 )
@@ -72,14 +73,14 @@ func (a *Type) Equals(b *Type) bool {
 
 func (state *State) AnalyseTypeDecl(typ *lex.TypeDecl) {
 	if IsReserved(*typ.Ident) {
-		panic("Trying to assign type to reserved name")
+		util.Error("Identifier \"" + util.Yellow(*typ.Ident) + "\" is reserved by the compiler.\n" + typ.Pos.String()).Exit()
 	}
 
 	key := IdentKey{Namespace: *state.PackageIdent, Ident: *typ.Ident}
 	if state.TypeDefs[key] == nil {
 		state.TypeDefs[key] = state.AnalyseType(typ.Type)
 	} else {
-		panic("Type already defined")
+		util.Error("Type \"" + util.Yellow(*typ.Ident) + "\" is already defined as " + util.Yellow(state.TypeDefs[key].String()) + ".\n" + typ.Pos.String()).Exit()
 	}
 }
 
@@ -100,7 +101,7 @@ func (state *State) AnalyseType(typ *lex.Type) (t *Type) {
 		}
 
 		if temp == nil {
-			panic(`Type "` + *typ.Primative.Ident + `" not found `)
+			util.Error("Type " + util.Yellow(*typ.Primative.Ident) + " undefined in current scope and Foundation.\n" + typ.Pos.String()).Exit()
 		}
 
 		t = temp

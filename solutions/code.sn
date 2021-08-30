@@ -1,9 +1,5 @@
-@Package Solution
+@Package _
 @Entry Start
 
-F : [Char] -> Char =
-	Println GEP(@, 0);
-	Println GEP(@, 1);
-	Return Sum @;
-
-Start : Void -> Void = Println Reduce (F, ['B', 'A']);
+Start : Void -> Void =
+	Println 1;

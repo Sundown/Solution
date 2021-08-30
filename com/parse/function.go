@@ -60,6 +60,10 @@ func (state *State) GetFunction(key *Ident) *Function {
 			return noun
 		}
 	} else {
+		if key.Ident == nil {
+			return nil
+		}
+
 		return state.Functions[IdentKey{Namespace: *key.Namespace, Ident: *key.Ident}]
 	}
 }

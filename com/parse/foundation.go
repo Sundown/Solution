@@ -53,10 +53,8 @@ func (state *State) PopulateTypes(tarr []Type) {
 }
 
 func IsReserved(s string) bool {
-	for _, r := range Reserved {
-		if r == s {
-			return true
-		}
+	if s == "_" || s == "foundation" {
+		return true
 	}
 
 	return false

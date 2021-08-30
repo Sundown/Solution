@@ -85,7 +85,12 @@ func (state *State) AnalyseAtom(primary *lex.Primary) (a *Atom) {
 			// all elements must be of same type
 
 			if index > 0 && !vec[index-1].TypeOf.AsLLType().Equal(e.TypeOf.AsLLType()) {
-				util.Error("Element of type " + util.Yellow(e.TypeOf.String()) + " diverges from vector type of " + util.Yellow(vec[index-1].TypeOf.String()) + "\n" + expr.Pos.String()).Exit()
+				util.Error(
+					"Element of type " +
+						util.Yellow(e.TypeOf.String()) +
+						" diverges from vector type of " +
+						util.Yellow(vec[index-1].TypeOf.String()) +
+						"\n" + expr.Pos.String()).Exit()
 			}
 
 			vec = append(vec, e)
@@ -99,7 +104,9 @@ func (state *State) AnalyseAtom(primary *lex.Primary) (a *Atom) {
 	case primary.Char != nil:
 		v, err := strconv.Unquote(*primary.Char)
 		if err != nil {
-			panic(err)
+			util.Error("Invalid character literal '" +
+				util.Yellow(*primary.Char) +
+				"'.\n" + primary.Pos.String()).Exit()
 		}
 
 		t := int8(v[0])

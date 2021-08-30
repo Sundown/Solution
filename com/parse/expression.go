@@ -25,7 +25,7 @@ func (e *Expression) String() string {
 		return str
 	}
 
-	return ""
+	return "//"
 }
 
 func (state *State) AnalyseExpression(expression *lex.Expression) (e *Expression) {

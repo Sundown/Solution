@@ -42,15 +42,23 @@ func (state *State) AnalyseDirective(directive *lex.Directive) {
 	switch *d.Class {
 	case "Package":
 		if state.PackageIdent != nil {
-			util.Error("Packagename already defined\n" + directive.Pos.String()).Exit()
+			util.Error(
+				"Packagename already defined\n" +
+					directive.Pos.String()).Exit()
 		}
 
 		if d.Instruction.Ident == nil {
-			panic("Package defined with wrong type")
+			util.Error(
+				util.Yellow("@Package") +
+					" requires ident.\n" +
+					directive.Pos.String()).Exit()
 		}
 
 		if IsReserved(*d.Instruction.Ident) {
-			panic(`"` + *d.Instruction.Ident + `" is a reserved package name`)
+			util.Error("Identifier \"" +
+				util.Yellow(*d.Instruction.Ident) +
+				"\" is reserved by the compiler.\n" +
+				directive.Pos.String()).Exit()
 		}
 
 		state.PackageIdent = d.Instruction.Ident

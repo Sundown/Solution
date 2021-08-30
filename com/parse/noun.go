@@ -23,7 +23,7 @@ func (state *State) GetNoun(key *lex.Ident) *Atom {
 				noun = &Atom{TypeOf: fn.Gives, Function: fn}
 
 			} else {
-				util.Error("Identifier \"" + util.Yellow(k.String()) + "\" is not defined in scope or Foundation.\n" + key.Pos.String()).Exit()
+				util.Error("Identifier \"" + util.Yellow(k.String()) + "\" is not defined in current scope or Foundation.\n" + key.Pos.String()).Exit()
 			}
 		}
 	}

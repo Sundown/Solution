@@ -68,10 +68,9 @@ func (state *State) Parse(program *lex.State) *State {
 	entry := state.GetFunction(&Ident{Namespace: state.PackageIdent, Ident: state.EntryIdent})
 
 	if entry == nil {
-		util.Warn("Define program entry with directive: " + util.Yellow("@Entry <fn>") + ".\n").Exit()
+		util.Warn("Define program entry-point with directive: " + util.Yellow("@Entry <fn>") + ".").Exit()
 	} else {
 		state.EntryFunction = entry
-
 	}
 
 	return state

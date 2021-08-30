@@ -1,8 +1,9 @@
 *out*
-sndy
+*sndy*
 *.DS_Store*
 *.ll
 *.xx
 *.s
 *.yml
-*.sy
+*exec*
+*sd*

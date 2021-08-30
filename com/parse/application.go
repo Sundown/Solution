@@ -49,7 +49,7 @@ func (state *State) AnalyseApplication(application *lex.Application) (s *Applica
 			s.Argument.Atom.Tuple == nil || s.Argument.Atom.Tuple[0].Atom == nil ||
 			s.Argument.Atom.Tuple[0].Atom.Function == nil ||
 			s.Argument.Atom.Tuple[1].Atom.Vector == nil {
-			panic("Malformed call to map")
+			util.Error("Malformed call to " + util.Yellow("Map") + ".\n" + application.Pos.String()).Exit()
 		}
 
 		s.TypeOf = s.Argument.Atom.Tuple[0].Atom.Function.Gives.AsVector()
