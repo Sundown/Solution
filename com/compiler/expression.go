@@ -56,8 +56,6 @@ func (state *State) CompileApplication(app *parse.Application) value.Value {
 				I32(0), I32(1)))
 	case "Map":
 		return state.CompileInlineMap(app)
-	case "Reduce":
-		return state.CompileInlineReduce(app)
 	case "Sum":
 		return state.CompileInlineSum(app)
 	default:
