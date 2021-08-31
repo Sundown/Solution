@@ -47,6 +47,14 @@ func AtomicType(s string) *Type {
 	return &Type{Atomic: &s}
 }
 
+func VectorType(t *Type) *Type {
+	return &Type{Vector: t}
+}
+
+func StructType(t ...*Type) *Type {
+	return &Type{Tuple: t}
+}
+
 func (a *Type) Equals(b *Type) bool {
 	if a.Atomic != nil && *a.Atomic == "T" || b.Atomic != nil && *b.Atomic == "T" {
 		return true /* ;) */

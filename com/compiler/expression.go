@@ -27,28 +27,16 @@ func (state *State) CompileApplication(app *parse.Application) value.Value {
 	case "Println":
 		return state.CompileInlinePrintln(app)
 	case "Panic":
-		if app.Argument.TypeOf.Equals(parse.AtomicType("Int")) {
-			state.Block.NewCall(state.GetExit(), state.Block.NewTrunc(state.CompileExpression(app.Argument), types.I32))
-			state.Block.NewUnreachable()
-			return nil
-		} else {
-			panic("Cannot call Panic with non-int")
-		}
+		state.Block.NewCall(state.GetExit(), state.Block.NewTrunc(state.CompileExpression(app.Argument), types.I32))
+		state.Block.NewUnreachable()
+		return nil
 	case "Len":
-		if app.Argument.TypeOf.Vector == nil {
-			panic("Can't take Len of non-vector")
-		}
-
 		return state.Block.NewLoad(types.I64,
 			state.Block.NewGetElementPtr(
 				app.Argument.TypeOf.AsLLType(),
 				state.CompileExpression(app.Argument),
 				I32(0), I32(0)))
 	case "Cap":
-		if app.Argument.TypeOf.Vector == nil {
-			panic("Can't take Cap of non-vector")
-		}
-
 		return state.Block.NewLoad(types.I64,
 			state.Block.NewGetElementPtr(
 				app.Argument.TypeOf.AsLLType(),

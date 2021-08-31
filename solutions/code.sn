@@ -1,5 +1,5 @@
-@Package _
+@Package Dev
 @Entry Start
 
 Start : Void -> Void =
-	Println 1;
+	Len 1;

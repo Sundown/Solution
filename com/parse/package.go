@@ -57,9 +57,9 @@ func (state *State) Parse(program *lex.State) *State {
 		AddSpecialForm("Print", AtomicType("T"), AtomicType("T")).
 		AddSpecialForm("Println", AtomicType("T"), AtomicType("T")).
 		AddSpecialForm("Sum", AtomicType("T"), AtomicType("T")).
-		AddSpecialForm("Len", AtomicType("T"), AtomicType("Int")).
-		AddSpecialForm("Map", AtomicType("T"), AtomicType("[T]")).
-		AddSpecialForm("Cap", AtomicType("T"), AtomicType("[T]")).
+		AddSpecialForm("Len", VectorType(AtomicType("T")), AtomicType("Int")).
+		AddSpecialForm("Cap", VectorType(AtomicType("T")), AtomicType("Int")).
+		AddSpecialForm("Map", StructType(AtomicType("T"), VectorType(AtomicType("T"))), AtomicType("[T]")).
 		AddSpecialForm("Panic", AtomicType("Int"), AtomicType("Void")).
 		CollectDirectives(program).
 		ForkStatements(program).

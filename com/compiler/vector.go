@@ -15,27 +15,6 @@ var (
 	vectorBodyOffset = I32(2)
 )
 
-func (state *State) CompileDiscreteVector(typ *parse.Type, vector []value.Value) value.Value {
-	leng, cap := CalculateVectorSizes(len(vector))
-	head_type := typ.AsVector().AsLLType()
-	head := state.Block.NewAlloca(head_type)
-
-	// Store vector length
-	state.WriteVectorLength(head, leng, head_type)
-
-	// Store vector capacity
-	state.WriteVectorCapacity(head, cap, head_type)
-
-	body := state.BuildVectorBody(typ.AsLLType(), cap, typ.WidthInBytes())
-
-	state.PopulateDiscreteBody(body, typ, vector)
-
-	// Point the vector header to alloc'd body
-	state.WriteVectorPointer(head, head_type, body)
-
-	return head
-}
-
 func (state *State) CompileVector(vector *parse.Atom) value.Value {
 	if vector.Vector == nil {
 		panic("Unreachable")
