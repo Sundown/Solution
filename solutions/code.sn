@@ -1,5 +1,8 @@
-@Package Dev
+@Package Solution
 @Entry Start
 
+F : (String, String) -> Void = Append @;
+
 Start : Void -> Void =
-	Len 1;
+	F ("a", "b");
+	Println "Nice";

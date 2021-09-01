@@ -22,7 +22,7 @@ var BitsType = Type{
 }
 
 var StringType = Type{
-	Vector: &Type{Atomic: util.Ref("String"), LLType: types.I8},
+	Vector: &Type{Atomic: util.Ref("Char"), LLType: types.I8},
 	LLType: types.NewStruct(types.I32, types.I32, types.I8Ptr), Width: 8, // Pointers
 }
 

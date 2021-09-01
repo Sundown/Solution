@@ -8,6 +8,16 @@ import (
 )
 
 func (state *State) CompileInlinePrintln(app *parse.Application) value.Value {
+	if app.Argument.TypeOf.Equals(&parse.StringType) {
+		return state.Block.NewCall(
+			state.GetPrintf(),
+			state.GetFormatString(app.Argument.TypeOf),
+			state.Block.NewLoad(types.I8Ptr, state.Block.NewGetElementPtr(
+				app.Argument.TypeOf.AsLLType(),
+				state.CompileExpression(app.Argument),
+				I32(0), vectorBodyOffset)))
+	}
+
 	return state.Block.NewCall(
 		state.GetPrintf(),
 		state.GetFormatString(app.Argument.TypeOf),

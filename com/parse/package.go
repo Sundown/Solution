@@ -49,9 +49,8 @@ func (state *State) AddSpecialForm(ident string, takes *Type, gives *Type) *Stat
 }
 
 func (state *State) Parse(program *lex.State) *State {
-	state.BuildParserEnv()
-
-	state.
+	entry := state.
+		BuildParserEnv().
 		AddSpecialForm("Return", AtomicType("T"), AtomicType("T")).
 		AddSpecialForm("GEP", AtomicType("T"), AtomicType("T")).
 		AddSpecialForm("Print", AtomicType("T"), AtomicType("T")).
@@ -59,13 +58,13 @@ func (state *State) Parse(program *lex.State) *State {
 		AddSpecialForm("Sum", AtomicType("T"), AtomicType("T")).
 		AddSpecialForm("Len", VectorType(AtomicType("T")), AtomicType("Int")).
 		AddSpecialForm("Cap", VectorType(AtomicType("T")), AtomicType("Int")).
+		AddSpecialForm("Append", StructType(VectorType(AtomicType("T")), VectorType(AtomicType("T"))), VectorType(AtomicType("T"))).
 		AddSpecialForm("Map", StructType(AtomicType("T"), VectorType(AtomicType("T"))), AtomicType("[T]")).
 		AddSpecialForm("Panic", AtomicType("Int"), AtomicType("Void")).
 		CollectDirectives(program).
 		ForkStatements(program).
-		CollectFunctions(program)
-
-	entry := state.GetFunction(&Ident{Namespace: state.PackageIdent, Ident: state.EntryIdent})
+		CollectFunctions(program).
+		GetFunction(&Ident{Namespace: state.PackageIdent, Ident: state.EntryIdent})
 
 	if entry == nil {
 		util.Warn("Define program entry-point with directive: " + util.Yellow("@Entry <fn>") + ".").Exit()

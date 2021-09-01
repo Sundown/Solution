@@ -63,25 +63,6 @@ func (state *State) PopulateBody(
 	}
 }
 
-// Maps from value.Value[] to vector in LLVM
-func (state *State) PopulateDiscreteBody(
-	allocated_body *ir.InstBitCast,
-	element_type_ir *parse.Type,
-	expr_vec []value.Value) {
-
-	for index, element := range expr_vec {
-		if element_type_ir.Atomic == nil {
-			element = state.Block.NewLoad(element_type_ir.AsLLType(), element)
-		}
-
-		state.Block.NewStore(element,
-			state.Block.NewGetElementPtr(
-				element_type_ir.AsLLType(),
-				allocated_body,
-				I32(int64(index))))
-	}
-}
-
 func (state *State) WriteVectorPointer(
 	vector_header *ir.InstAlloca,
 	vector_header_type types.Type,

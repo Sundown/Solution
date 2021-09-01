@@ -46,6 +46,8 @@ func (state *State) CompileApplication(app *parse.Application) value.Value {
 		return state.CompileInlineMap(app)
 	case "Sum":
 		return state.CompileInlineSum(app)
+	case "Append":
+		return state.CompileInlineAppend(app)
 	default:
 		return state.Block.NewCall(
 			state.Functions[app.Function.ToLLVMName()],
