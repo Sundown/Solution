@@ -20,7 +20,7 @@ func (state *State) GetCalloc() *ir.Func {
 func (state *State) GetMemcpy() *ir.Func {
 	if state.Specials["memcpy"] == nil {
 		state.Specials["memcpy"] = state.Module.NewFunc(
-			"@llvm.memcpy.p0i8.p0i8.i64",
+			"llvm.memcpy",
 			types.Void,
 			ir.NewParam("dest", types.I8Ptr),
 			ir.NewParam("src", types.I8Ptr),
@@ -28,7 +28,7 @@ func (state *State) GetMemcpy() *ir.Func {
 			ir.NewParam("isvolatile", types.I1))
 	}
 
-	return state.Specials["calloc"]
+	return state.Specials["memcpy"]
 }
 
 func (state *State) GetExit() *ir.Func {

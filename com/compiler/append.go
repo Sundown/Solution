@@ -9,12 +9,13 @@ import (
 )
 
 func (state *State) CompileInlineAppend(app *parse.Application) value.Value {
-	greater_vector := state.CompileExpression(app.Argument)
-	vec_head_typ := app.Argument.Atom.Tuple[0].TypeOf.AsLLType()
-	vec_elem_typ := app.Argument.Atom.Tuple[0].TypeOf.Vector.AsLLType() // might not work
 
-	vec_a := state.Block.NewGetElementPtr(types.NewPointer(vec_head_typ), greater_vector, I32(0), I32(0))
-	vec_b := state.Block.NewGetElementPtr(types.NewPointer(vec_head_typ), greater_vector, I32(0), I32(1))
+	vec_head_typ := app.Argument.Atom.TypeOf.Tuple[0].AsLLType()
+	vec_elem_typ := app.Argument.Atom.TypeOf.Tuple[0].Vector.AsLLType() // might not work
+	greater_vector := state.CompileExpression(app.Argument)
+
+	vec_a := state.Block.NewGetElementPtr(app.Argument.TypeOf.AsLLType(), greater_vector, I32(0), I32(0))
+	vec_b := state.Block.NewGetElementPtr(app.Argument.TypeOf.AsLLType(), greater_vector, I32(0), I32(1))
 
 	len_a := state.Block.NewLoad(types.I64,
 		state.Block.NewGetElementPtr(
@@ -73,10 +74,10 @@ func (state *State) CompileInlineAppend(app *parse.Application) value.Value {
 
 	body := state.Block.NewBitCast(state.Block.NewCall(
 		state.GetCalloc(),
-		I32(app.Argument.Atom.Tuple[0].TypeOf.Vector.WidthInBytes()),
-		cap_f), types.NewPointer(vec_elem_typ))
+		I32(app.Argument.Atom.TypeOf.Tuple[0].WidthInBytes()),
+		state.Block.NewTrunc(cap_f, types.I32)), types.NewPointer(vec_elem_typ))
 
-	state.Block.NewCall(state.GetMemcpy(), body, body_a, len_a, constant.NewBool(false))
+	state.Block.NewCall(state.GetMemcpy(), state.Block.NewBitCast(body, types.I8Ptr), state.Block.NewBitCast(body_a, types.I8Ptr), len_a, constant.NewBool(false))
 	//state.PopulateBody(body, vec_elem_typ, vector.Vector)
 
 	// Point the vector header to alloc'd body

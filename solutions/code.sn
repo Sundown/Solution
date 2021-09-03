@@ -4,5 +4,4 @@
 F : (String, String) -> Void = Append @;
 
 Start : Void -> Void =
-	F ("a", "b");
-	Println "Nice";
+	F ("A", "B");
