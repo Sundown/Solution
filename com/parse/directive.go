@@ -60,7 +60,6 @@ func (state *State) AnalyseDirective(directive *lex.Directive) {
 				"\" is reserved by the compiler.\n" +
 				directive.Pos.String()).Exit()
 		}
-
 		state.PackageIdent = d.Instruction.Ident
 	case "Entry":
 		if state.EntryFunction != nil {

@@ -2,4 +2,6 @@
 @Entry Start
 
 Start : Void -> Void =
-	Println Append ("C", ['o', 'c', 'k']);
+	Println Append (
+		GEP (["A", "B", "C"], Sum [-2, 5, 43, -44]),
+		GEP ([['o', 'c', 'k'], "abc"], 0));

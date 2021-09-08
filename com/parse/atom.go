@@ -98,9 +98,9 @@ func (state *State) AnalyseAtom(primary *lex.Primary) (a *Atom) {
 
 		a = &Atom{TypeOf: vec[0].TypeOf.AsVector(), Vector: vec}
 	case primary.Int != nil:
-		a = &Atom{TypeOf: BaseType("Int"), Int: primary.Int}
+		a = &Atom{TypeOf: &IntType, Int: primary.Int}
 	case primary.Real != nil:
-		a = &Atom{TypeOf: BaseType("Real"), Real: primary.Real}
+		a = &Atom{TypeOf: &RealType, Real: primary.Real}
 	case primary.Char != nil:
 		v, err := strconv.Unquote(*primary.Char)
 		if err != nil {
@@ -110,24 +110,24 @@ func (state *State) AnalyseAtom(primary *lex.Primary) (a *Atom) {
 		}
 
 		t := int8(v[0])
-		a = &Atom{TypeOf: BaseType("Char"), Char: &t}
+		a = &Atom{TypeOf: &CharType, Char: &t}
 	case primary.String != nil:
 		arr := []*Expression{}
 		for _, char := range *primary.String {
 			t := int8(char)
-			a := &Atom{TypeOf: BaseType("Char"), Char: &t}
-			arr = append(arr, &Expression{TypeOf: BaseType("Char"), Atom: a})
+			a := &Atom{TypeOf: &CharType, Char: &t}
+			arr = append(arr, &Expression{TypeOf: &CharType, Atom: a})
 		}
 
-		a = &Atom{TypeOf: BaseType("Char").AsVector(), Vector: arr}
+		a = &Atom{TypeOf: (&CharType).AsVector(), Vector: arr}
 	case primary.Noun != nil:
 		var p bool
 		if *primary.Noun.Ident == "True" {
 			p = true
-			a = &Atom{TypeOf: BaseType("Bool"), Bool: &p}
+			a = &Atom{TypeOf: &BoolType, Bool: &p}
 		} else if *primary.Noun.Ident == "False" {
 			p = false
-			a = &Atom{TypeOf: BaseType("Bool"), Bool: &p}
+			a = &Atom{TypeOf: &BoolType, Bool: &p}
 		} else {
 			a = state.GetNoun(primary.Noun)
 		}
