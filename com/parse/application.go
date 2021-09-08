@@ -31,7 +31,10 @@ func (state *State) AnalyseApplication(application *lex.Application) (s *Applica
 	}
 
 	if !s.Argument.TypeOf.Equals(s.Function.Takes) {
-		util.Error("Trying to call", util.Yellow(s.Function.SigString()), "with", util.Yellow(s.Argument.TypeOf.String())+".\n"+application.Parameter.Pos.String()).Exit()
+		util.Error("Trying to call",
+			util.Yellow(s.Function.SigString()), "with",
+			util.Yellow(s.Argument.TypeOf.String())+".\n"+
+				application.Parameter.Pos.String()).Exit()
 	}
 
 	s.TypeOf = s.Function.Gives
@@ -56,6 +59,9 @@ func (state *State) AnalyseApplication(application *lex.Application) (s *Applica
 		s.Function.Gives = s.TypeOf
 	case "GEP":
 		s.TypeOf = s.Argument.Atom.Tuple[0].TypeOf.Vector
+		s.Function.Gives = s.TypeOf
+	case "Append":
+		s.TypeOf = s.Argument.Atom.Tuple[0].TypeOf
 		s.Function.Gives = s.TypeOf
 	}
 

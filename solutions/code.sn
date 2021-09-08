@@ -1,7 +1,5 @@
 @Package Solution
 @Entry Start
 
-F : (String, String) -> Void = Append @;
-
 Start : Void -> Void =
-	F ("A", "B");
+	Println Append ("C", ['o', 'c', 'k']);
