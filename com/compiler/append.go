@@ -8,10 +8,10 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-// 
+//
 func (state *State) CompileInlineAppend(app *parse.Application) value.Value {
 	vec_head_typ := app.Argument.Atom.TypeOf.Tuple[0].AsLLType()
-	vec_elem_typ := app.Argument.Atom.TypeOf.Tuple[0].Vector.AsLLType()
+	vec_elem_typ := types.NewPointer(app.Argument.Atom.TypeOf.Tuple[0].Vector.AsLLType())
 	greater_vector := state.CompileExpression(app.Argument)
 	vec_a := state.Block.NewGetElementPtr(
 		app.Argument.TypeOf.AsLLType(), greater_vector, I32(0), I32(0))
@@ -38,12 +38,12 @@ func (state *State) CompileInlineAppend(app *parse.Application) value.Value {
 	body := state.Block.NewBitCast(
 		state.Block.NewCall(state.GetCalloc(), I32(app.Argument.Atom.TypeOf.Tuple[0].WidthInBytes()),
 			state.Block.NewTrunc(cap_f, types.I32)),
-		types.NewPointer(vec_elem_typ))
+		vec_elem_typ)
 
 	state.Block.NewCall(state.GetMemcpy(), state.Block.NewBitCast(body, types.I8Ptr),
 		state.Block.NewBitCast(
 			state.Block.NewLoad(
-				types.NewPointer(vec_elem_typ),
+				vec_elem_typ,
 				state.Block.NewGetElementPtr(vec_head_typ, vec_a, I32(0), vectorBodyOffset)),
 			types.I8Ptr),
 		len_a, constant.NewBool(false))
@@ -53,7 +53,7 @@ func (state *State) CompileInlineAppend(app *parse.Application) value.Value {
 			state.Block.NewAdd(len_a, state.Block.NewPtrToInt(body, types.I64)), types.I8Ptr),
 		state.Block.NewBitCast(
 			state.Block.NewLoad(
-				types.NewPointer(vec_elem_typ),
+				vec_elem_typ,
 				state.Block.NewGetElementPtr(vec_head_typ, vec_b, I32(0), vectorBodyOffset)),
 			types.I8Ptr),
 		len_b, constant.NewBool(false))

@@ -31,6 +31,10 @@ func (i *Ident) AsKey() IdentKey {
 		n = *i.Namespace
 	}
 
+	if i.Ident == nil {
+		panic("Unreachable")
+	}
+
 	return IdentKey{
 		Namespace: n,
 		Ident:     *i.Ident,

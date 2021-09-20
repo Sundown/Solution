@@ -26,7 +26,9 @@ func (state *State) PopulateTypes() {
 	state.gulpType(BoolType)
 	state.gulpType(CharType)
 	state.gulpType(VoidType)
-	state.gulpType(StringType)
+
+	id := Ident{Namespace: &und, Ident: util.Ref("String")}
+	state.TypeDefs[(&id).AsKey()] = &StringType
 }
 
 func (state *State) gulpType(t Type) {
