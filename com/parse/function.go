@@ -1,7 +1,7 @@
 package parse
 
 import (
-	"sundown/solution/lex"
+	"sundown/solution/lexer"
 	"sundown/solution/util"
 )
 
@@ -41,7 +41,7 @@ func (f *Function) SigString() string {
 		f.Takes.String() + " -> " + f.Gives.String()
 }
 
-func (state *State) AnalyseFunction(function *lex.Ident) (f *Function) {
+func (state *State) AnalyseFunction(function *lexer.Ident) (f *Function) {
 	f = state.GetFunction(IRIdent(function))
 
 	if f == nil {
@@ -68,7 +68,7 @@ func (state *State) GetFunction(key *Ident) *Function {
 	}
 }
 
-func (state *State) AnalyseFnDef(statement *lex.FnDecl) {
+func (state *State) AnalyseFnDef(statement *lexer.FnDecl) {
 	decl := state.Functions[IdentKey{
 		Namespace: *state.PackageIdent,
 		Ident:     *statement.Ident,
@@ -92,7 +92,7 @@ func (state *State) AnalyseFnDef(statement *lex.FnDecl) {
 	state.CurrentFunction = nil
 }
 
-func (state *State) AnalyseFnDecl(statement *lex.FnDecl) {
+func (state *State) AnalyseFnDecl(statement *lexer.FnDecl) {
 	// Key is used for existential verification and/or definition
 	key := IdentKey{
 		Namespace: *state.PackageIdent,

@@ -1,7 +1,7 @@
 package parse
 
 import (
-	"sundown/solution/lex"
+	"sundown/solution/lexer"
 )
 
 type Expression struct {
@@ -28,7 +28,7 @@ func (e *Expression) String() string {
 	return "//"
 }
 
-func (state *State) AnalyseExpression(expression *lex.Expression) (e *Expression) {
+func (state *State) AnalyseExpression(expression *lexer.Expression) (e *Expression) {
 	if expression.Primary != nil {
 		e = &Expression{Atom: state.AnalyseAtom(expression.Primary)}
 		e.TypeOf = e.Atom.TypeOf

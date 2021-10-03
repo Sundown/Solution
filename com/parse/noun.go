@@ -1,13 +1,13 @@
 package parse
 
 import (
-	"sundown/solution/lex"
+	"sundown/solution/lexer"
 	"sundown/solution/util"
 )
 
 // Tries to find noun in order (defined_namespace or foundation) then package
 // order may change in future such that foundation is last
-func (state *State) GetNoun(key *lex.Ident) *Atom {
+func (state *State) GetNoun(key *lexer.Ident) *Atom {
 	k := IRIdent(key)
 	noun := state.NounDefs[k.AsKey()]
 
@@ -31,7 +31,7 @@ func (state *State) GetNoun(key *lex.Ident) *Atom {
 	return noun
 }
 
-func (state *State) AnalyseNounDecl(noun *lex.NounDecl) {
+func (state *State) AnalyseNounDecl(noun *lexer.NounDecl) {
 	if IsReserved(*noun.Ident) {
 		util.Error("Identifier \"" + util.Yellow(*noun.Ident) + "\" is reserved by the compiler.\n" + noun.Pos.String()).Exit()
 	}

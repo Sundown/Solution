@@ -1,7 +1,7 @@
 package parse
 
 import (
-	"sundown/solution/lex"
+	"sundown/solution/lexer"
 	"sundown/solution/util"
 
 	"github.com/llir/llvm/ir/types"
@@ -79,7 +79,7 @@ func (a *Type) Equals(b *Type) bool {
 	}
 }
 
-func (state *State) AnalyseTypeDecl(typ *lex.TypeDecl) {
+func (state *State) AnalyseTypeDecl(typ *lexer.TypeDecl) {
 	if IsReserved(*typ.Ident) {
 		util.Error("Identifier \"" + util.Yellow(*typ.Ident) + "\" is reserved by the compiler.\n" + typ.Pos.String()).Exit()
 	}
@@ -92,7 +92,7 @@ func (state *State) AnalyseTypeDecl(typ *lex.TypeDecl) {
 	}
 }
 
-func (state *State) AnalyseType(typ *lex.Type) (t *Type) {
+func (state *State) AnalyseType(typ *lexer.Type) (t *Type) {
 	switch {
 	case typ.Primative != nil:
 		var namespace string

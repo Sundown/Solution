@@ -1,7 +1,7 @@
 package parse
 
 import (
-	"sundown/solution/lex"
+	"sundown/solution/lexer"
 )
 
 type Ident struct {
@@ -46,8 +46,8 @@ func (i *Ident) IsFoundational() bool {
 	return *i.Namespace == "_" || *i.Namespace == "foundation" || *i.Namespace == "se"
 }
 
-// Transform lex identifier to parse identifier
-func IRIdent(i *lex.Ident) *Ident {
+// Transform lexer identifier to parse identifier
+func IRIdent(i *lexer.Ident) *Ident {
 	return &Ident{
 		Namespace: i.Namespace,
 		Ident:     i.Ident,

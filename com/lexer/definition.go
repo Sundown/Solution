@@ -1,4 +1,4 @@
-package lex
+package lexer
 
 import "github.com/alecthomas/participle/v2/lexer"
 

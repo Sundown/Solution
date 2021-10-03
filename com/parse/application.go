@@ -1,7 +1,7 @@
 package parse
 
 import (
-	"sundown/solution/lex"
+	"sundown/solution/lexer"
 	"sundown/solution/util"
 )
 
@@ -23,7 +23,7 @@ func (a *Application) String() string {
 	return sig + " " + a.Argument.String()
 }
 
-func (state *State) AnalyseApplication(application *lex.Application) (s *Application) {
+func (state *State) AnalyseApplication(application *lexer.Application) (s *Application) {
 	s = &Application{
 		// TODO: change function to expression type for currying purposes in the (far) future
 		Function: state.AnalyseFunction(application.Function),

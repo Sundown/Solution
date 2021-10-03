@@ -3,7 +3,7 @@ package parse
 import (
 	"fmt"
 	"strings"
-	"sundown/solution/lex"
+	"sundown/solution/lexer"
 	"sundown/solution/util"
 )
 
@@ -28,7 +28,7 @@ func (d *Directive) String() string {
 	return "@" + *d.Class + " " + instr + ";"
 }
 
-func (state *State) AnalyseDirective(directive *lex.Directive) {
+func (state *State) AnalyseDirective(directive *lexer.Directive) {
 	d := &Directive{Class: directive.Class}
 
 	/* professional gopher moment */

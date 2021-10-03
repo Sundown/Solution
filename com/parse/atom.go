@@ -3,7 +3,7 @@ package parse
 import (
 	"fmt"
 	"strconv"
-	"sundown/solution/lex"
+	"sundown/solution/lexer"
 	"sundown/solution/util"
 )
 
@@ -66,7 +66,7 @@ func (t *Type) AsVector() *Type {
 	return &Type{Vector: t}
 }
 
-func (state *State) AnalyseAtom(primary *lex.Primary) (a *Atom) {
+func (state *State) AnalyseAtom(primary *lexer.Primary) (a *Atom) {
 	switch {
 	case primary.Tuple != nil:
 		var types []*Type

@@ -21,6 +21,7 @@ type State struct {
 }
 
 func (state *State) Compile(IR *parse.State) *ir.Module {
+	util.Verbose("Init compiler")
 	state.Specials = make(map[string]*ir.Func)
 	state.Functions = make(map[string]*ir.Func)
 
@@ -35,6 +36,10 @@ func (state *State) Compile(IR *parse.State) *ir.Module {
 		DeclareFunctions().
 		CompileFunctions().
 		InitMain()
+
+	if state.Runtime.Output == "" {
+		state.Runtime.Output = *state.IR.PackageIdent
+	}
 
 	return state.Module
 }

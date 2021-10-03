@@ -2,7 +2,7 @@ package parse
 
 import (
 	"fmt"
-	"sundown/solution/lex"
+	"sundown/solution/lexer"
 	"sundown/solution/util"
 )
 
@@ -49,7 +49,8 @@ func (state *State) AddSpecialForm(ident string, takes *Type, gives *Type) *Stat
 	return state
 }
 
-func (state *State) Parse(program *lex.State) *State {
+func (state *State) Parse(program *lexer.State) *State {
+	util.Verbose("Init parser")
 	entry := state.
 		BuildParserEnv().
 		AddSpecialForm("Return", AtomicType("T"), AtomicType("T")).
@@ -85,7 +86,7 @@ func (state *State) BuildParserEnv() *State {
 	return state
 }
 
-func (state *State) CollectDirectives(p *lex.State) *State {
+func (state *State) CollectDirectives(p *lexer.State) *State {
 	for _, statement := range p.Statements {
 		if statement.Directive != nil {
 			state.AnalyseDirective(statement.Directive)
@@ -95,7 +96,7 @@ func (state *State) CollectDirectives(p *lex.State) *State {
 	return state
 }
 
-func (state *State) ForkStatements(p *lex.State) *State {
+func (state *State) ForkStatements(p *lexer.State) *State {
 	// Add types, nouns, and function DECLARATIONS to the state before
 	// parsing function bodies to allow referencing before declaration
 	for _, statement := range p.Statements {
@@ -111,7 +112,7 @@ func (state *State) ForkStatements(p *lex.State) *State {
 	return state
 }
 
-func (state *State) CollectFunctions(p *lex.State) *State {
+func (state *State) CollectFunctions(p *lexer.State) *State {
 	for _, statement := range p.Statements {
 		if statement.FnDecl != nil {
 			state.AnalyseFnDef(statement.FnDecl)
