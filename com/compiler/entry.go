@@ -1,7 +1,6 @@
 package compiler
 
 import (
-	"io/ioutil"
 	"sundown/solution/parse"
 	"sundown/solution/util"
 
@@ -21,7 +20,7 @@ type State struct {
 	CurrentFunctionIR *parse.Function
 }
 
-func (state *State) Compile(IR *parse.State) {
+func (state *State) Compile(IR *parse.State) *ir.Module {
 	state.Specials = make(map[string]*ir.Func)
 	state.Functions = make(map[string]*ir.Func)
 
@@ -37,7 +36,7 @@ func (state *State) Compile(IR *parse.State) {
 		CompileFunctions().
 		InitMain()
 
-	ioutil.WriteFile(state.Runtime.Output+".ll", []byte(state.Module.String()), 0644)
+	return state.Module
 }
 
 func (state *State) DeclareFunctions() *State {

@@ -16,6 +16,10 @@ func Green(s ...string) string {
 	return fmt.Sprintf("%s%s%s", "\033[32m", strings.Join(s, " "), Reset)
 }
 
+func Blue(s ...string) string {
+	return fmt.Sprintf("%s%s%s", "\033[34m", strings.Join(s, " "), Reset)
+}
+
 func Yellow(s ...string) string {
 	return fmt.Sprintf("%s%s%s", "\033[33m", strings.Join(s, " "), Reset)
 }
@@ -33,8 +37,14 @@ func Ref(s string) *string {
 	return &s
 }
 
+func Verbose(parts ...string) E {
+	// TODO, if verbose...
+	fmt.Println(Blue(" - "), strings.Join(parts, " "))
+	return E{code: 0}
+}
+
 func Notify(parts ...string) E {
-	fmt.Println(Green("[^]"), strings.Join(parts, " "))
+	fmt.Println(Green("[ ]"), strings.Join(parts, " "))
 	return E{code: 0}
 }
 

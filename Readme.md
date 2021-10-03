@@ -1,9 +1,9 @@
 <div align="center">
 <h1>Solution</h1>
 
-*The compiler of a functional language*
+*The compiler for a functional language*
 
-Language Reference: [Notion](https://sundown.notion.site/Solution-d6e20e08892e46809175c1854c71ffe2)
+Reference: [Notion](https://sundown.notion.site/Solution-d6e20e08892e46809175c1854c71ffe2)
 
 </div>
 

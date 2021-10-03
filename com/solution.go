@@ -1,6 +1,9 @@
 package main
 
 import (
+	"crypto/sha256"
+	"encoding/hex"
+	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -13,7 +16,6 @@ import (
 func main() {
 	rt := &util.Runtime{}
 	util.Notify("Solution init...")
-	util.VerifyClangVersion()
 
 	if len(os.Args) == 1 {
 		util.Error("No files input").Exit()
@@ -27,8 +29,9 @@ func main() {
 				if len(os.Args) > i+1 {
 					i++
 					rt.Emit = os.Args[i]
+					util.Verbose("Emitting", rt.Emit)
 				} else {
-					util.Error("emit expected one of [bc, llvm, binary, asm]").Exit()
+					util.Error("emit expected one of llvm, asm.").Exit()
 				}
 
 			case "o":
@@ -49,17 +52,21 @@ func main() {
 	}
 
 	l := &lex.State{}
+	util.Verbose("Opening", rt.File)
 	r, err := os.Open(rt.File)
+	defer r.Close()
 
 	if err != nil {
 		util.Error(err.Error()).Exit()
 	}
 
+	util.Verbose("Init lexer")
 	err = lex.Parser.Parse(rt.File, r, l)
 	r.Close()
 
 	p := &parse.State{}
 
+	util.Verbose("Init parser")
 	t := p.Parse(l)
 	c := &compiler.State{Runtime: rt}
 
@@ -67,13 +74,39 @@ func main() {
 		rt.Output = *p.PackageIdent
 	}
 
-	c.Compile(t)
+	util.Verbose("Init compiler")
+	mod := c.Compile(t)
 
-	_, err = exec.Command("clang", rt.Output+".ll", "-o", rt.Output).Output()
-	_, err = exec.Command("rm", "-f", rt.Output+".ll").Output()
+	out := []byte(mod.String())
+
+	var sum [32]byte = sha256.Sum256(out)
+	temp_name := rt.Output + "_" + hex.EncodeToString(sum[:]) + ".ll"
+	util.Verbose("Temp file", temp_name)
+
+	if rt.Emit == "llvm" {
+		ioutil.WriteFile(rt.Output+".ll", out, 0644)
+		util.Notify("Compiled", rt.Output, "to LLVM").Exit()
+	} else {
+		ioutil.WriteFile(temp_name, out, 0644)
+	}
+
+	util.VerifyClangVersion()
+
+	if rt.Emit == "asm" {
+		err = exec.Command("clang", temp_name, "-o", rt.Output+".s", "-S").Run()
+		exec.Command("rm", "-f", temp_name).Run()
+		if err != nil {
+			util.Error(err.Error()).Exit()
+		}
+
+		util.Notify("Compiled", rt.Output, "to Assembly").Exit()
+	}
+
+	err = exec.Command("clang", "-03", temp_name, "-o", rt.Output).Run()
+	exec.Command("rm", "-f", temp_name).Run()
 	if err != nil {
 		util.Error(err.Error()).Exit()
 	} else {
-		util.Notify(rt.Output, "compiled")
+		util.Notify("Compiled", rt.Output, "to executable")
 	}
 }
