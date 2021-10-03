@@ -2,6 +2,7 @@ package parse
 
 import (
 	"fmt"
+	"strings"
 	"sundown/solution/lex"
 	"sundown/solution/util"
 )
@@ -60,7 +61,7 @@ func (state *State) AnalyseDirective(directive *lex.Directive) {
 				"\" is reserved by the compiler.\n" +
 				directive.Pos.String()).Exit()
 		}
-		state.PackageIdent = d.Instruction.Ident
+		state.PackageIdent = util.Ref(strings.TrimSpace(*d.Instruction.Ident))
 	case "Entry":
 		if state.EntryFunction != nil {
 			panic("Entry already defined")

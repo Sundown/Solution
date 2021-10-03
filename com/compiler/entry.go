@@ -37,7 +37,7 @@ func (state *State) Compile(IR *parse.State) {
 		CompileFunctions().
 		InitMain()
 
-	ioutil.WriteFile(*state.IR.PackageIdent+".ll", []byte(state.Module.String()), 0644)
+	ioutil.WriteFile(state.Runtime.Output+".ll", []byte(state.Module.String()), 0644)
 }
 
 func (state *State) DeclareFunctions() *State {

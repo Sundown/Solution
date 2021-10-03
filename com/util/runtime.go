@@ -8,8 +8,10 @@ import (
 )
 
 type Runtime struct {
-	Emit   *string
-	Output *string
+	Emit    string
+	Output  string
+	Verbose *bool
+	File    string
 }
 
 func VerifyClangVersion() {
