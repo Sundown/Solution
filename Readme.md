@@ -13,6 +13,6 @@ Current work on this compiler is focused primarily on low-level language feature
 
 This compiler is not ready for general use.
 
-Significant lifting is done by pointers within generated code, these are treated as 64-bit integers. If this is a problem for anyone, I'm very curious as to why. :slight_smile:
+Untested certainty of serious problems on 32-bit systems.
 
 ---
