@@ -60,6 +60,13 @@ func (state *State) AnalyseApplication(application *lexer.Application) (s *Appli
 	case "GEP":
 		s.TypeOf = s.Argument.Atom.Tuple[0].TypeOf.Vector
 		s.Function.Gives = s.TypeOf
+	case "Sum":
+		s.TypeOf = s.Argument.Atom.TypeOf.Vector
+		s.Function.Gives = s.TypeOf
+	case "Product":
+		//s.TypeOf = s.Argument.Atom.TypeOf.Vector
+		s.TypeOf = &IntType
+		s.Function.Gives = s.TypeOf
 	case "Append":
 		s.TypeOf = s.Argument.Atom.Tuple[0].TypeOf
 		s.Function.Gives = s.TypeOf

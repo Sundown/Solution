@@ -1,7 +1,5 @@
 @Package Solution
 @Entry Start
 
-Rec : Int -> Int = Return Rec @;
-
-Start : Void -> Void =
-	Rec 0;
+Start :: Void -> Void
+Start = Println Product [1, 2, 3];

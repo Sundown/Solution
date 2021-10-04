@@ -58,6 +58,7 @@ func (state *State) Parse(program *lexer.State) *State {
 		AddSpecialForm("Print", AtomicType("T"), AtomicType("T")).
 		AddSpecialForm("Println", AtomicType("T"), AtomicType("T")).
 		AddSpecialForm("Sum", AtomicType("T"), AtomicType("T")).
+		AddSpecialForm("Product", AtomicType("T"), AtomicType("T")).
 		AddSpecialForm("Len", VectorType(AtomicType("T")), AtomicType("Int")).
 		AddSpecialForm("Cap", VectorType(AtomicType("T")), AtomicType("Int")).
 		AddSpecialForm("Append", StructType(VectorType(AtomicType("T")), VectorType(AtomicType("T"))), VectorType(AtomicType("T"))).
@@ -104,8 +105,8 @@ func (state *State) ForkStatements(p *lexer.State) *State {
 			state.AnalyseTypeDecl(statement.TypeDecl)
 		} else if statement.NounDecl != nil {
 			state.AnalyseNounDecl(statement.NounDecl)
-		} else if statement.FnDecl != nil {
-			state.AnalyseFnDecl(statement.FnDecl)
+		} else if statement.FnSig != nil {
+			state.AnalyseFnDecl(statement.FnSig)
 		}
 	}
 
@@ -114,8 +115,8 @@ func (state *State) ForkStatements(p *lexer.State) *State {
 
 func (state *State) CollectFunctions(p *lexer.State) *State {
 	for _, statement := range p.Statements {
-		if statement.FnDecl != nil {
-			state.AnalyseFnDef(statement.FnDecl)
+		if statement.FnDef != nil {
+			state.AnalyseFnDef(statement.FnDef)
 		}
 	}
 

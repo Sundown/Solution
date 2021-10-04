@@ -22,11 +22,15 @@ func (rt *Runtime) ParseArgs() {
 			switch s[1:] {
 			case "emit":
 				if len(os.Args) > i+1 {
+					if os.Args[i+1] != "llvm" && os.Args[i+1] != "asm" {
+						Error("emit expected one of llvm, asm.").Exit()
+					}
+
 					i++
 					rt.Emit = os.Args[i]
 					Verbose("Emitting", rt.Emit)
 				} else {
-					Error("emit expected one of llvm, asm.").Exit()
+					Error("emit requires argument").Exit()
 				}
 
 			case "o":
@@ -36,7 +40,10 @@ func (rt *Runtime) ParseArgs() {
 				} else {
 					Error("output expected filename").Exit()
 				}
+			case "verbose":
+				Quietp = false
 			}
+
 		} else {
 			rt.File, err = filepath.Abs(os.Args[1])
 			if err != nil {

@@ -8,6 +8,8 @@ import (
 
 var Reset = "\033[0m"
 
+var Quietp = true
+
 func Red(s ...string) string {
 	return fmt.Sprintf("%s%s%s", "\033[31m", strings.Join(s, " "), Reset)
 }
@@ -38,23 +40,25 @@ func Ref(s string) *string {
 }
 
 func Verbose(parts ...string) E {
-	// TODO, if verbose...
-	fmt.Println(Blue(" - "), strings.Join(parts, " "))
+	if !Quietp {
+		fmt.Println(Blue(" - "), strings.Join(parts, " "))
+	}
+
 	return E{code: 0}
 }
 
 func Notify(parts ...string) E {
-	fmt.Println(Green("[ ]"), strings.Join(parts, " "))
+	fmt.Println(Green(" + "), strings.Join(parts, " "))
 	return E{code: 0}
 }
 
 func Error(parts ...string) E {
-	fmt.Println(Red("[!]"), strings.Join(parts, " "))
+	fmt.Println(Red(" ! "), strings.Join(parts, " "))
 	return E{code: 1}
 }
 
 func Warn(parts ...string) E {
-	fmt.Println(Yellow("[?]"), strings.Join(parts, " "))
+	fmt.Println(Yellow(" ? "), strings.Join(parts, " "))
 	return E{code: 1}
 }
 

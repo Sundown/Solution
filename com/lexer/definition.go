@@ -8,7 +8,8 @@ type State struct {
 		Directive *Directive `"@" @@`
 		TypeDecl  *TypeDecl  `| @@`
 		NounDecl  *NounDecl  `| @@`
-		FnDecl    *FnDecl    `| @@`
+		FnSig     *FnSig     `| @@`
+		FnDef     *FnDef     `| @@`
 	} `@@*`
 }
 
@@ -40,11 +41,16 @@ type NounDecl struct {
 	Value *Primary `@@ ";"`
 }
 
-type FnDecl struct {
+type FnSig struct {
+	Pos   lexer.Position
+	Ident *string `@Ident ":"":"`
+	Takes *Type   `@@ "-"`
+	Gives *Type   `">" @@`
+}
+
+type FnDef struct {
 	Pos         lexer.Position
-	Ident       *string       `@Ident ":"`
-	Takes       *Type         `@@ "-"`
-	Gives       *Type         `">" @@ "="`
+	Ident       *string       `@Ident "="`
 	Expressions []*Expression `(@@ ";")+`
 }
 

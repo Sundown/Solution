@@ -68,7 +68,7 @@ func (state *State) GetFunction(key *Ident) *Function {
 	}
 }
 
-func (state *State) AnalyseFnDef(statement *lexer.FnDecl) {
+func (state *State) AnalyseFnDef(statement *lexer.FnDef) {
 	decl := state.Functions[IdentKey{
 		Namespace: *state.PackageIdent,
 		Ident:     *statement.Ident,
@@ -92,7 +92,7 @@ func (state *State) AnalyseFnDef(statement *lexer.FnDecl) {
 	state.CurrentFunction = nil
 }
 
-func (state *State) AnalyseFnDecl(statement *lexer.FnDecl) {
+func (state *State) AnalyseFnDecl(statement *lexer.FnSig) {
 	// Key is used for existential verification and/or definition
 	key := IdentKey{
 		Namespace: *state.PackageIdent,

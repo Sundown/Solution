@@ -37,6 +37,21 @@ func (state *State) DefaultValue(t *parse.Type) value.Value {
 	}
 }
 
+// Will work for vectors too once they can be mutated
+func (state *State) Number(t *parse.Type, n float64) value.Value {
+	if t.Equals(&parse.IntType) {
+		return I64(int64(n))
+	} else if t.Equals(&parse.RealType) {
+		return constant.NewFloat(types.Double, n)
+	} else if t.Equals(&parse.CharType) {
+		return constant.NewInt(types.I8, int64(n))
+	} else if t.Equals(&parse.BoolType) {
+		return constant.NewBool(false)
+	} else {
+		panic("Not yet implemented")
+	}
+}
+
 func (state *State) AgnosticAdd(t *parse.Type, x, y value.Value) value.Value {
 	if t.Equals(&parse.IntType) {
 		return state.Block.NewAdd(x, y)
@@ -44,6 +59,18 @@ func (state *State) AgnosticAdd(t *parse.Type, x, y value.Value) value.Value {
 		return state.Block.NewFAdd(x, y)
 	} else if t.Equals(&parse.CharType) {
 		return state.Block.NewAdd(x, y)
+	} else {
+		panic("Not yet implemented")
+	}
+}
+
+func (state *State) AgnosticMult(t *parse.Type, x, y value.Value) value.Value {
+	if t.Equals(&parse.IntType) {
+		return state.Block.NewMul(x, y)
+	} else if t.Equals(&parse.RealType) {
+		return state.Block.NewFMul(x, y)
+	} else if t.Equals(&parse.CharType) {
+		return state.Block.NewMul(x, y)
 	} else {
 		panic("Not yet implemented")
 	}
