@@ -60,6 +60,35 @@ func (state *State) AnalyseApplication(application *lexer.Application) (s *Appli
 	case "GEP":
 		s.TypeOf = s.Argument.Atom.Tuple[0].TypeOf.Vector
 		s.Function.Gives = s.TypeOf
+	case "Foldl":
+		if s.Argument.TypeOf.Tuple == nil ||
+			s.Argument.Atom.Tuple == nil || s.Argument.Atom.Tuple[0].Atom == nil ||
+			s.Argument.Atom.Tuple[0].Atom.Function == nil ||
+			s.Argument.Atom.Tuple[0].Atom.Function.Takes.Tuple == nil ||
+			s.Argument.Atom.Tuple[1].Atom == nil ||
+			s.Argument.Atom.Tuple[2].Atom.Vector == nil {
+			util.Error("Malformed call to " + util.Yellow("Foldl") + ".\n" + application.Pos.String()).Exit()
+		}
+
+		fn_t := s.Argument.Atom.Tuple[0].Atom.Function.Takes.Tuple
+		fn_g := s.Argument.Atom.Tuple[0].Atom.Function.Gives
+		id_i := s.Argument.Atom.Tuple[1].Atom.TypeOf
+		vect := s.Argument.Atom.Tuple[2].Atom.TypeOf
+
+		if !fn_t[0].Equals(id_i) {
+			util.Error("Mapping function cannot accept identity in " + util.Yellow("Foldl") + ".\n" + application.Pos.String()).Exit()
+		}
+
+		if !fn_t[0].Equals(fn_g) {
+			util.Error("Mapping function does not return the identity type " + util.Yellow("Foldl") + ".\n" + application.Pos.String()).Exit()
+		}
+
+		if !fn_t[1].Equals(vect) {
+			util.Error("Mapping function cannot accept vector element type in " + util.Yellow("Foldl") + ".\n" + application.Pos.String()).Exit()
+		}
+
+		s.TypeOf = fn_g
+		s.Function.Gives = s.TypeOf
 	case "Sum":
 		s.TypeOf = s.Argument.Atom.TypeOf.Vector
 		s.Function.Gives = s.TypeOf
@@ -69,6 +98,15 @@ func (state *State) AnalyseApplication(application *lexer.Application) (s *Appli
 		s.Function.Gives = s.TypeOf
 	case "Append":
 		s.TypeOf = s.Argument.Atom.Tuple[0].TypeOf
+		s.Function.Gives = s.TypeOf
+	case "First":
+		s.TypeOf = s.Argument.Atom.Tuple[0].TypeOf
+		s.Function.Gives = s.TypeOf
+	case "Second":
+		s.TypeOf = s.Argument.Atom.Tuple[1].TypeOf
+		s.Function.Gives = s.TypeOf
+	case "Third":
+		s.TypeOf = s.Argument.Atom.Tuple[2].TypeOf
 		s.Function.Gives = s.TypeOf
 	}
 

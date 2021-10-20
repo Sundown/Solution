@@ -21,3 +21,36 @@ func (state *State) CompileTuple(tuple *parse.Atom) value.Value {
 
 	return ll_tuple
 }
+
+func (state *State) InlineFirst(arg *parse.Expression) value.Value {
+	val := state.Block.NewGetElementPtr(arg.TypeOf.AsLLType(),
+		state.CompileExpression(arg), I32(0), I32(0))
+
+	if arg.TypeOf.Tuple[0].Atomic != nil {
+		return state.Block.NewLoad(arg.TypeOf.Tuple[0].AsLLType(), val)
+	}
+
+	return val
+}
+
+func (state *State) InlineSecond(arg *parse.Expression) value.Value {
+	val := state.Block.NewGetElementPtr(arg.TypeOf.AsLLType(),
+		state.CompileExpression(arg), I32(0), I32(1))
+
+	if arg.TypeOf.Tuple[1].Atomic != nil {
+		return state.Block.NewLoad(arg.TypeOf.Tuple[1].AsLLType(), val)
+	}
+
+	return val
+}
+
+func (state *State) InlineThird(arg *parse.Expression) value.Value {
+	val := state.Block.NewGetElementPtr(arg.TypeOf.AsLLType(),
+		state.CompileExpression(arg), I32(0), I32(2))
+
+	if arg.TypeOf.Tuple[2].Atomic != nil {
+		return state.Block.NewLoad(arg.TypeOf.Tuple[2].AsLLType(), val)
+	}
+
+	return val
+}

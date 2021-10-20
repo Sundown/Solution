@@ -55,6 +55,9 @@ func (state *State) Parse(program *lexer.State) *State {
 		BuildParserEnv().
 		AddSpecialForm("Return", AtomicType("T"), AtomicType("T")).
 		AddSpecialForm("GEP", AtomicType("T"), AtomicType("T")).
+		AddSpecialForm("First", AtomicType("T"), AtomicType("T")).
+		AddSpecialForm("Second", AtomicType("T"), AtomicType("T")).
+		AddSpecialForm("Third", AtomicType("T"), AtomicType("T")).
 		AddSpecialForm("Print", AtomicType("T"), AtomicType("T")).
 		AddSpecialForm("Println", AtomicType("T"), AtomicType("T")).
 		AddSpecialForm("Sum", AtomicType("T"), AtomicType("T")).
@@ -63,6 +66,7 @@ func (state *State) Parse(program *lexer.State) *State {
 		AddSpecialForm("Cap", VectorType(AtomicType("T")), AtomicType("Int")).
 		AddSpecialForm("Append", StructType(VectorType(AtomicType("T")), VectorType(AtomicType("T"))), VectorType(AtomicType("T"))).
 		AddSpecialForm("Map", StructType(AtomicType("T"), VectorType(AtomicType("T"))), AtomicType("[T]")).
+		AddSpecialForm("Foldl", StructType(AtomicType("T"), AtomicType("T"), VectorType(AtomicType("T"))), AtomicType("T")).
 		AddSpecialForm("Panic", AtomicType("Int"), AtomicType("Void")).
 		CollectDirectives(program).
 		ForkStatements(program).

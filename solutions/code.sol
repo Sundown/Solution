@@ -1,5 +1,5 @@
 @Package Solution
 @Entry Start
-
+t = ("str1", 2, "str3");
 Start :: Void -> Void
-Start = Println Product [1, 2, 3];
+Start = Println First t; Println Second t; Println Third t;

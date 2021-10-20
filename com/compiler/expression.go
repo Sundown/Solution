@@ -44,12 +44,20 @@ func (state *State) CompileApplication(app *parse.Application) value.Value {
 				I32(0), I32(1)))
 	case "Map":
 		return state.CompileInlineMap(app)
+	case "Foldl":
+		return state.CompileInlineFoldl(app)
 	case "Sum":
 		return state.CompileInlineSum(app)
 	case "Product":
 		return state.CompileInlineProduct(app)
 	case "Append":
-		return state.CompileInlineAppend(app)
+		return state.CompileInlineAppend(app.Argument)
+	case "First":
+		return state.InlineFirst(app.Argument)
+	case "Second":
+		return state.InlineSecond(app.Argument)
+	case "Third":
+		return state.InlineThird(app.Argument)
 	default:
 		return state.Block.NewCall(
 			state.Functions[app.Function.ToLLVMName()],
