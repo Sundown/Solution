@@ -18,12 +18,14 @@ type State struct {
 	Specials          map[string]*ir.Func
 	CurrentFunction   *ir.Func
 	CurrentFunctionIR *parse.Function
+	PanicStrings      map[string]*ir.Global
 }
 
 func (state *State) Compile(IR *parse.State) *ir.Module {
 	util.Verbose("Init compiler")
 	state.Specials = make(map[string]*ir.Func)
 	state.Functions = make(map[string]*ir.Func)
+	state.PanicStrings = make(map[string]*ir.Global)
 
 	// Root reference of IR still useful at some points
 	state.IR = IR

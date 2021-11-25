@@ -52,6 +52,8 @@ func (state *State) CompileApplication(app *parse.Application) value.Value {
 		return state.CompileInlineProduct(app)
 	case "Append":
 		return state.CompileInlineAppend(app.Argument)
+	case "Equals":
+		return state.CompileInlineEqual(app.Argument)
 	case "First":
 		return state.InlineFirst(app.Argument)
 	case "Second":

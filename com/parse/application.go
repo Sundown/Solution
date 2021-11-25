@@ -92,6 +92,9 @@ func (state *State) AnalyseApplication(application *lexer.Application) (s *Appli
 	case "Sum":
 		s.TypeOf = s.Argument.Atom.TypeOf.Vector
 		s.Function.Gives = s.TypeOf
+	case "Equals":
+		s.TypeOf = AtomicType("Bool")
+		s.Function.Gives = s.TypeOf
 	case "Product":
 		//s.TypeOf = s.Argument.Atom.TypeOf.Vector
 		s.TypeOf = &IntType

@@ -2,5 +2,4 @@
 @Entry Start
 
 Start :: Void -> Void
-Start =
-	Println Product [1, 2, 3, 4, 5];
+Start = Println Equals (1, 2);
