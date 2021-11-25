@@ -37,6 +37,22 @@ func (state *State) CompileInlineSum(app *parse.Application) value.Value {
 
 	// Body
 	// Get elem, add to accum, increment counter, conditional jump to body
+	cond_rhs := state.Block.NewLoad(
+		types.I64,
+		state.Block.NewGetElementPtr(
+			typ.AsVector().AsLLType(),
+			llvec,
+			I32(0),
+			vectorLenOffset))
+
+	ll_body_actual := state.Block.NewLoad(
+		types.NewPointer(lltyp),
+		state.Block.NewGetElementPtr(
+			typ.AsVector().AsLLType(),
+			llvec,
+			I32(0),
+			vectorBodyOffset))
+
 	loopblock := state.CurrentFunction.NewBlock("")
 	state.Block.NewBr(loopblock)
 	state.Block = loopblock
@@ -53,13 +69,7 @@ func (state *State) CompileInlineSum(app *parse.Application) value.Value {
 				lltyp,
 				loopblock.NewGetElementPtr(
 					lltyp,
-					state.Block.NewLoad(
-						types.NewPointer(lltyp),
-						state.Block.NewGetElementPtr(
-							typ.AsVector().AsLLType(),
-							llvec,
-							I32(0),
-							vectorBodyOffset)),
+					ll_body_actual,
 					cur_counter))),
 		accum)
 
@@ -71,20 +81,13 @@ func (state *State) CompileInlineSum(app *parse.Application) value.Value {
 	cond := loopblock.NewICmp(
 		enum.IPredSLT,
 		loopblock.NewAdd(cur_counter, I64(1)),
-		state.Block.NewLoad(
-			types.I64,
-			state.Block.NewGetElementPtr(
-				typ.AsVector().AsLLType(),
-				llvec,
-				I32(0),
-				vectorLenOffset))) // TODO: this doesn't need to be re-loaded every time!
+		cond_rhs)
 
 	exitblock := state.CurrentFunction.NewBlock("")
 	loopblock.NewCondBr(cond, loopblock, exitblock)
 	state.Block = exitblock
 
 	return state.Block.NewLoad(lltyp, accum)
-
 }
 
 func (state *State) CompileInlineProduct(app *parse.Application) value.Value {
@@ -115,6 +118,23 @@ func (state *State) CompileInlineProduct(app *parse.Application) value.Value {
 
 	// Body
 	// Get elem, add to accum, increment counter, conditional jump to body
+
+	cond_rhs := state.Block.NewLoad(
+		types.I64,
+		state.Block.NewGetElementPtr(
+			typ.AsVector().AsLLType(),
+			llvec,
+			I32(0),
+			vectorLenOffset))
+
+	ll_body_actual := state.Block.NewLoad(
+		types.NewPointer(lltyp),
+		state.Block.NewGetElementPtr(
+			typ.AsVector().AsLLType(),
+			llvec,
+			I32(0),
+			vectorBodyOffset))
+
 	loopblock := state.CurrentFunction.NewBlock("")
 	state.Block.NewBr(loopblock)
 	state.Block = loopblock
@@ -131,26 +151,14 @@ func (state *State) CompileInlineProduct(app *parse.Application) value.Value {
 				lltyp,
 				loopblock.NewGetElementPtr(
 					lltyp,
-					state.Block.NewLoad(
-						types.NewPointer(lltyp),
-						state.Block.NewGetElementPtr(
-							typ.AsVector().AsLLType(),
-							llvec,
-							I32(0),
-							vectorBodyOffset)),
+					ll_body_actual,
 					cur_counter))),
 		accum)
 
 	cond := loopblock.NewICmp(
 		enum.IPredSLT,
 		loopblock.NewAdd(cur_counter, I64(1)),
-		loopblock.NewLoad(
-			types.I64,
-			loopblock.NewGetElementPtr(
-				typ.AsVector().AsLLType(),
-				llvec,
-				I32(0),
-				vectorLenOffset))) // TODO: this doesn't need to be re-loaded every time!
+		cond_rhs)
 
 	// Increment counter
 	loopblock.NewStore(

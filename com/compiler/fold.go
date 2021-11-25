@@ -28,9 +28,20 @@ func (state *State) CompileInlineFoldl(app *parse.Application) value.Value {
 
 	// Body
 	// Get elem, add to accum, increment counter, conditional jump to body
+
+	cond_rhs := state.Block.NewLoad(
+		types.I64,
+		state.Block.NewGetElementPtr(
+			typ.AsVector().AsLLType(),
+			llvec,
+			I32(0),
+			vectorLenOffset))
+
+	// This is a bit messy
 	loopblock := state.CurrentFunction.NewBlock("")
 	state.Block.NewBr(loopblock)
 	state.Block = loopblock
+	// ---
 
 	// Add to accum
 	cur_counter := loopblock.NewLoad(types.I64, counter)
@@ -58,13 +69,7 @@ func (state *State) CompileInlineFoldl(app *parse.Application) value.Value {
 	cond := loopblock.NewICmp(
 		enum.IPredSLT,
 		loopblock.NewAdd(cur_counter, I64(1)),
-		loopblock.NewLoad(
-			types.I64,
-			loopblock.NewGetElementPtr(
-				typ.AsVector().AsLLType(),
-				llvec,
-				I32(0),
-				vectorLenOffset))) // TODO: this doesn't need to be re-loaded every time!
+		cond_rhs)
 
 	// Increment counter
 	loopblock.NewStore(
