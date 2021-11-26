@@ -2,7 +2,7 @@ package parse
 
 import (
 	"sundown/solution/lexer"
-	"sundown/solution/util"
+	"sundown/solution/oversight"
 )
 
 type Application struct {
@@ -31,9 +31,9 @@ func (state *State) AnalyseApplication(application *lexer.Application) (s *Appli
 	}
 
 	if !s.Argument.TypeOf.Equals(s.Function.Takes) {
-		util.Error("Trying to call",
-			util.Yellow(s.Function.SigString()), "with",
-			util.Yellow(s.Argument.TypeOf.String())+".\n"+
+		oversight.Error("Trying to call",
+			oversight.Yellow(s.Function.SigString()), "with",
+			oversight.Yellow(s.Argument.TypeOf.String())+".\n"+
 				application.Parameter.Pos.String()).Exit()
 	}
 
@@ -42,17 +42,17 @@ func (state *State) AnalyseApplication(application *lexer.Application) (s *Appli
 	switch *s.Function.Ident.Ident {
 	case "Return":
 		if !s.Argument.TypeOf.Equals(state.CurrentFunction.Gives) {
-			util.Error("Value of type",
+			oversight.Error("Value of type",
 				s.Argument.TypeOf.String(),
 				"does not match function's return type:",
 				state.CurrentFunction.Gives.String()).Exit()
 		}
 	case "Map":
-		if s.Argument.TypeOf.Tuple == nil ||
+		if s.Argument.TypeOf.Tuple == nil { /*||
 			s.Argument.Atom.Tuple == nil || s.Argument.Atom.Tuple[0].Atom == nil ||
 			s.Argument.Atom.Tuple[0].Atom.Function == nil ||
-			s.Argument.Atom.Tuple[1].Atom.Vector == nil {
-			util.Error("Malformed call to " + util.Yellow("Map") + ".\n" + application.Pos.String()).Exit()
+			s.Argument.Atom.Tuple[1].Atom.Vector == nil {*/
+			oversight.Error("Malformed call to " + oversight.Yellow("Map") + ".\n" + application.Pos.String()).Exit()
 		}
 
 		s.TypeOf = s.Argument.Atom.Tuple[0].Atom.Function.Gives.AsVector()
@@ -67,7 +67,7 @@ func (state *State) AnalyseApplication(application *lexer.Application) (s *Appli
 			s.Argument.Atom.Tuple[0].Atom.Function.Takes.Tuple == nil ||
 			s.Argument.Atom.Tuple[1].Atom == nil ||
 			s.Argument.Atom.Tuple[2].Atom.Vector == nil {
-			util.Error("Malformed call to " + util.Yellow("Foldl") + ".\n" + application.Pos.String()).Exit()
+			oversight.Error("Malformed call to " + oversight.Yellow("Foldl") + ".\n" + application.Pos.String()).Exit()
 		}
 
 		fn_t := s.Argument.Atom.Tuple[0].Atom.Function.Takes.Tuple
@@ -76,15 +76,15 @@ func (state *State) AnalyseApplication(application *lexer.Application) (s *Appli
 		vect := s.Argument.Atom.Tuple[2].Atom.TypeOf
 
 		if !fn_t[0].Equals(id_i) {
-			util.Error("Mapping function cannot accept identity in " + util.Yellow("Foldl") + ".\n" + application.Pos.String()).Exit()
+			oversight.Error("Mapping function cannot accept identity in " + oversight.Yellow("Foldl") + ".\n" + application.Pos.String()).Exit()
 		}
 
 		if !fn_t[0].Equals(fn_g) {
-			util.Error("Mapping function does not return the identity type " + util.Yellow("Foldl") + ".\n" + application.Pos.String()).Exit()
+			oversight.Error("Mapping function does not return the identity type " + oversight.Yellow("Foldl") + ".\n" + application.Pos.String()).Exit()
 		}
 
 		if !fn_t[1].Equals(vect) {
-			util.Error("Mapping function cannot accept vector element type in " + util.Yellow("Foldl") + ".\n" + application.Pos.String()).Exit()
+			oversight.Error("Mapping function cannot accept vector element type in " + oversight.Yellow("Foldl") + ".\n" + application.Pos.String()).Exit()
 		}
 
 		s.TypeOf = fn_g

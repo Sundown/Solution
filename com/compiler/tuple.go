@@ -1,6 +1,7 @@
 package compiler
 
 import (
+	"sundown/solution/oversight"
 	"sundown/solution/parse"
 
 	"github.com/llir/llvm/ir/value"
@@ -22,35 +23,18 @@ func (state *State) CompileTuple(tuple *parse.Atom) value.Value {
 	return ll_tuple
 }
 
-func (state *State) InlineFirst(arg *parse.Expression) value.Value {
-	val := state.Block.NewGetElementPtr(arg.TypeOf.AsLLType(),
-		state.CompileExpression(arg), I32(0), I32(0))
-
-	if arg.TypeOf.Tuple[0].Atomic != nil {
-		return state.Block.NewLoad(arg.TypeOf.Tuple[0].AsLLType(), val)
+func (state *State) TupleGet(temporal *parse.Expression, real value.Value, index int) value.Value {
+	if len(temporal.TypeOf.Tuple) < index {
+		oversight.Panic(oversight.CT_OOB, index, temporal.TypeOf.String(), len(temporal.TypeOf.Tuple))
 	}
 
-	return val
-}
-
-func (state *State) InlineSecond(arg *parse.Expression) value.Value {
-	val := state.Block.NewGetElementPtr(arg.TypeOf.AsLLType(),
-		state.CompileExpression(arg), I32(0), I32(1))
-
-	if arg.TypeOf.Tuple[1].Atomic != nil {
-		return state.Block.NewLoad(arg.TypeOf.Tuple[1].AsLLType(), val)
+	if temporal.TypeOf.Tuple == nil {
+		oversight.Panic(oversight.CT_Unexpected, oversight.Yellow("tuple"), oversight.Yellow(temporal.TypeOf.String()))
 	}
 
-	return val
-}
-
-func (state *State) InlineThird(arg *parse.Expression) value.Value {
-	val := state.Block.NewGetElementPtr(arg.TypeOf.AsLLType(),
-		state.CompileExpression(arg), I32(0), I32(2))
-
-	if arg.TypeOf.Tuple[2].Atomic != nil {
-		return state.Block.NewLoad(arg.TypeOf.Tuple[2].AsLLType(), val)
-	}
-
-	return val
+	return state.Block.NewLoad(
+		temporal.TypeOf.Tuple[index].AsLLType(),
+		state.Block.NewGetElementPtr(
+			temporal.TypeOf.AsLLType(), real,
+			I32(0), I32(int64(index))))
 }

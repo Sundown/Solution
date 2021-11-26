@@ -1,5 +1,11 @@
 @Package Solution
 @Entry Start
 
+F :: (Int, Int) -> Bool
+F = Return Equals @;
+
+P :: Bool -> Void
+P = Println @;
+
 Start :: Void -> Void
-Start = Println Equals (1, 2);
+Start = Map (F, [(1, 1)]);

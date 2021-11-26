@@ -3,7 +3,7 @@ package parse
 import (
 	"fmt"
 	"sundown/solution/lexer"
-	"sundown/solution/util"
+	"sundown/solution/oversight"
 )
 
 type State struct {
@@ -37,7 +37,7 @@ func (state *State) PrintFunctions() {
 }
 
 func (state *State) AddSpecialForm(ident string, takes *Type, gives *Type) *State {
-	k := Ident{Namespace: util.Ref("_"), Ident: &ident}
+	k := Ident{Namespace: oversight.Ref("_"), Ident: &ident}
 	state.Functions[k.AsKey()] = &Function{
 		Ident:   &k,
 		Takes:   takes,
@@ -50,7 +50,7 @@ func (state *State) AddSpecialForm(ident string, takes *Type, gives *Type) *Stat
 }
 
 func (state *State) Parse(program *lexer.State) *State {
-	util.Verbose("Init parser")
+	oversight.Verbose("Init parser")
 	entry := state.
 		BuildParserEnv().
 		AddSpecialForm("Return", AtomicType("T"), AtomicType("T")).
@@ -68,14 +68,14 @@ func (state *State) Parse(program *lexer.State) *State {
 		AddSpecialForm("Map", StructType(AtomicType("T"), VectorType(AtomicType("T"))), AtomicType("[T]")).
 		AddSpecialForm("Foldl", StructType(AtomicType("T"), AtomicType("T"), VectorType(AtomicType("T"))), AtomicType("T")).
 		AddSpecialForm("Panic", AtomicType("Int"), AtomicType("Void")).
-		AddSpecialForm("Equals", StructType(AtomicType("T"), AtomicType("T")), AtomicType("T")).
+		AddSpecialForm("Equals", StructType(AtomicType("Int"), AtomicType("Int")), AtomicType("Bool")).
 		CollectDirectives(program).
 		ForkStatements(program).
 		CollectFunctions(program).
 		GetFunction(&Ident{Namespace: state.PackageIdent, Ident: state.EntryIdent})
 
 	if entry == nil {
-		util.Warn("Define program entry-point with directive: " + util.Yellow("@Entry <fn>") + ".").Exit()
+		oversight.Warn("Define program entry-point with directive: " + oversight.Yellow("@Entry <fn>") + ".").Exit()
 	} else {
 		state.EntryFunction = entry
 	}

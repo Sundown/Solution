@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strconv"
 	"sundown/solution/lexer"
-	"sundown/solution/util"
+	"sundown/solution/oversight"
 )
 
 type Atom struct {
@@ -85,11 +85,11 @@ func (state *State) AnalyseAtom(primary *lexer.Primary) (a *Atom) {
 			// all elements must be of same type
 
 			if index > 0 && !vec[index-1].TypeOf.AsLLType().Equal(e.TypeOf.AsLLType()) {
-				util.Error(
+				oversight.Error(
 					"Element of type " +
-						util.Yellow(e.TypeOf.String()) +
+						oversight.Yellow(e.TypeOf.String()) +
 						" diverges from vector type of " +
-						util.Yellow(vec[index-1].TypeOf.String()) +
+						oversight.Yellow(vec[index-1].TypeOf.String()) +
 						"\n" + expr.Pos.String()).Exit()
 			}
 
@@ -104,8 +104,8 @@ func (state *State) AnalyseAtom(primary *lexer.Primary) (a *Atom) {
 	case primary.Char != nil:
 		v, err := strconv.Unquote(*primary.Char)
 		if err != nil {
-			util.Error("Invalid character literal '" +
-				util.Yellow(*primary.Char) +
+			oversight.Error("Invalid character literal '" +
+				oversight.Yellow(*primary.Char) +
 				"'.\n" + primary.Pos.String()).Exit()
 		}
 

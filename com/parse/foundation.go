@@ -1,21 +1,21 @@
 package parse
 
 import (
-	"sundown/solution/util"
+	"sundown/solution/oversight"
 
 	"github.com/llir/llvm/ir/types"
 )
 
 var und = "_"
 
-var IntType = Type{Atomic: util.Ref("Int"), LLType: types.I64, Width: 8}
-var NatType = Type{Atomic: util.Ref("Nat"), LLType: types.I64, Width: 8}
-var RealType = Type{Atomic: util.Ref("Real"), LLType: types.Double, Width: 8}
-var BoolType = Type{Atomic: util.Ref("Bool"), LLType: types.I1, Width: 1}
-var CharType = Type{Atomic: util.Ref("Char"), LLType: types.I8, Width: 4}
-var VoidType = Type{Atomic: util.Ref("Void"), LLType: types.Void, Width: 0}
+var IntType = Type{Atomic: oversight.Ref("Int"), LLType: types.I64, Width: 8}
+var NatType = Type{Atomic: oversight.Ref("Nat"), LLType: types.I64, Width: 8}
+var RealType = Type{Atomic: oversight.Ref("Real"), LLType: types.Double, Width: 8}
+var BoolType = Type{Atomic: oversight.Ref("Bool"), LLType: types.I1, Width: 1}
+var CharType = Type{Atomic: oversight.Ref("Char"), LLType: types.I8, Width: 4}
+var VoidType = Type{Atomic: oversight.Ref("Void"), LLType: types.Void, Width: 0}
 var StringType = Type{
-	Vector: &Type{Atomic: util.Ref("Char"), LLType: types.I8},
+	Vector: &Type{Atomic: oversight.Ref("Char"), LLType: types.I8},
 	LLType: types.NewStruct(types.I32, types.I32, types.I8Ptr), Width: 8,
 }
 
@@ -27,7 +27,7 @@ func (state *State) PopulateTypes() {
 	state.gulpType(CharType)
 	state.gulpType(VoidType)
 
-	id := Ident{Namespace: &und, Ident: util.Ref("String")}
+	id := Ident{Namespace: &und, Ident: oversight.Ref("String")}
 	state.TypeDefs[(&id).AsKey()] = &StringType
 }
 

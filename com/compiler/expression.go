@@ -55,11 +55,11 @@ func (state *State) CompileApplication(app *parse.Application) value.Value {
 	case "Equals":
 		return state.CompileInlineEqual(app.Argument)
 	case "First":
-		return state.InlineFirst(app.Argument)
+		return state.TupleGet(app.Argument, state.CompileExpression(app.Argument), 0)
 	case "Second":
-		return state.InlineSecond(app.Argument)
+		return state.TupleGet(app.Argument, state.CompileExpression(app.Argument), 1)
 	case "Third":
-		return state.InlineThird(app.Argument)
+		return state.TupleGet(app.Argument, state.CompileExpression(app.Argument), 2)
 	default:
 		return state.Block.NewCall(
 			state.Functions[app.Function.ToLLVMName()],

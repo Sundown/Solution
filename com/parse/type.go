@@ -2,7 +2,7 @@ package parse
 
 import (
 	"sundown/solution/lexer"
-	"sundown/solution/util"
+	"sundown/solution/oversight"
 
 	"github.com/llir/llvm/ir/types"
 )
@@ -81,14 +81,14 @@ func (a *Type) Equals(b *Type) bool {
 
 func (state *State) AnalyseTypeDecl(typ *lexer.TypeDecl) {
 	if IsReserved(*typ.Ident) {
-		util.Error("Identifier \"" + util.Yellow(*typ.Ident) + "\" is reserved by the compiler.\n" + typ.Pos.String()).Exit()
+		oversight.Error("Identifier \"" + oversight.Yellow(*typ.Ident) + "\" is reserved by the compiler.\n" + typ.Pos.String()).Exit()
 	}
 
 	key := IdentKey{Namespace: *state.PackageIdent, Ident: *typ.Ident}
 	if state.TypeDefs[key] == nil {
 		state.TypeDefs[key] = state.AnalyseType(typ.Type)
 	} else {
-		util.Error("Type \"" + util.Yellow(*typ.Ident) + "\" is already defined as " + util.Yellow(state.TypeDefs[key].String()) + ".\n" + typ.Pos.String()).Exit()
+		oversight.Error("Type \"" + oversight.Yellow(*typ.Ident) + "\" is already defined as " + oversight.Yellow(state.TypeDefs[key].String()) + ".\n" + typ.Pos.String()).Exit()
 	}
 }
 
@@ -109,7 +109,7 @@ func (state *State) AnalyseType(typ *lexer.Type) (t *Type) {
 		}
 
 		if temp == nil {
-			util.Error("Type " + util.Yellow(*typ.Primative.Ident) + " undefined in current scope and Foundation.\n" + typ.Pos.String()).Exit()
+			oversight.Error("Type " + oversight.Yellow(*typ.Primative.Ident) + " undefined in current scope and Foundation.\n" + typ.Pos.String()).Exit()
 		}
 
 		t = temp

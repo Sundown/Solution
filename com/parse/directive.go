@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 	"sundown/solution/lexer"
-	"sundown/solution/util"
+	"sundown/solution/oversight"
 )
 
 type Directive struct {
@@ -43,25 +43,25 @@ func (state *State) AnalyseDirective(directive *lexer.Directive) {
 	switch *d.Class {
 	case "Package":
 		if state.PackageIdent != nil {
-			util.Error(
+			oversight.Error(
 				"Packagename already defined\n" +
 					directive.Pos.String()).Exit()
 		}
 
 		if d.Instruction.Ident == nil {
-			util.Error(
-				util.Yellow("@Package") +
+			oversight.Error(
+				oversight.Yellow("@Package") +
 					" requires ident.\n" +
 					directive.Pos.String()).Exit()
 		}
 
 		if IsReserved(*d.Instruction.Ident) {
-			util.Error("Identifier \"" +
-				util.Yellow(*d.Instruction.Ident) +
+			oversight.Error("Identifier \"" +
+				oversight.Yellow(*d.Instruction.Ident) +
 				"\" is reserved by the compiler.\n" +
 				directive.Pos.String()).Exit()
 		}
-		state.PackageIdent = util.Ref(strings.TrimSpace(*d.Instruction.Ident))
+		state.PackageIdent = oversight.Ref(strings.TrimSpace(*d.Instruction.Ident))
 	case "Entry":
 		if state.EntryFunction != nil {
 			panic("Entry already defined")

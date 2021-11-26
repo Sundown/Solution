@@ -2,7 +2,7 @@ package parse
 
 import (
 	"sundown/solution/lexer"
-	"sundown/solution/util"
+	"sundown/solution/oversight"
 )
 
 type Function struct {
@@ -45,7 +45,7 @@ func (state *State) AnalyseFunction(function *lexer.Ident) (f *Function) {
 	f = state.GetFunction(IRIdent(function))
 
 	if f == nil {
-		util.Error("ident \"" + *function.Ident + "\" is undefined in scope and Foundation.\n" + function.Pos.String()).Exit()
+		oversight.Error("ident \"" + *function.Ident + "\" is undefined in scope and Foundation.\n" + function.Pos.String()).Exit()
 	}
 
 	return f
@@ -110,6 +110,6 @@ func (state *State) AnalyseFnDecl(statement *lexer.FnSig) {
 			Special: false,
 		}
 	} else {
-		util.Error(*statement.Ident + " is already declared as " + state.Functions[key].SigString() + ".\n" + statement.Pos.String()).Exit()
+		oversight.Error(*statement.Ident + " is already declared as " + state.Functions[key].SigString() + ".\n" + statement.Pos.String()).Exit()
 	}
 }

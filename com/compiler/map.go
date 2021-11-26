@@ -24,7 +24,7 @@ func (state *State) CompileInlineMap(app *parse.Application) value.Value {
 	llvec := state.CompileExpression(vec)
 
 	head_type := vec.TypeOf.AsLLType()
-	elm_type := vec.Atom.Vector[0].TypeOf.AsLLType()
+	elm_type := vec.TypeOf.Vector.AsLLType()
 	to_head_type := fn.Gives.AsVector().AsLLType()
 	to_elm_type := fn.Gives.AsLLType()
 
@@ -44,12 +44,12 @@ func (state *State) CompileInlineMap(app *parse.Application) value.Value {
 		// Copy length
 		state.Block.NewStore(
 			state.Block.NewLoad(types.I64, leng),
-			state.Block.NewGetElementPtr(to_head_type, llvec, I32(0), vectorLenOffset))
+			state.Block.NewGetElementPtr(head_type, llvec, I32(0), vectorLenOffset))
 
 		// Copy capacity
 		state.Block.NewStore(
 			state.Block.NewLoad(types.I64, cap),
-			state.Block.NewGetElementPtr(to_head_type, llvec, I32(0), vectorCapOffset))
+			state.Block.NewGetElementPtr(head_type, llvec, I32(0), vectorCapOffset))
 		// Allocate a body of capacity * element width, and cast to element type
 		body = state.Block.NewBitCast(
 			state.Block.NewCall(state.GetCalloc(),
@@ -80,7 +80,7 @@ func (state *State) CompileInlineMap(app *parse.Application) value.Value {
 
 		var cur_elm value.Value = loopblock.NewGetElementPtr(elm_type, vec_body, cur_counter)
 
-		if vec.Atom.Vector[0].TypeOf.Atomic != nil {
+		if vec.TypeOf.Vector.Atomic != nil {
 			cur_elm = loopblock.NewLoad(elm_type, cur_elm)
 		}
 

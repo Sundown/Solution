@@ -1,7 +1,7 @@
 package parse
 
 import (
-	"sundown/solution/util"
+	"sundown/solution/oversight"
 
 	"github.com/llir/llvm/ir/types"
 )
@@ -37,7 +37,7 @@ func (t *Type) WidthInBytes() int64 {
 	} else if t.Vector != nil {
 		return 24
 	} else {
-		util.Warn("Using 8 bytes for unknown type " + t.String())
+		oversight.Warn("Using 8 bytes for unknown type " + t.String())
 		return 8
 	}
 }

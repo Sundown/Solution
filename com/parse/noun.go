@@ -2,7 +2,7 @@ package parse
 
 import (
 	"sundown/solution/lexer"
-	"sundown/solution/util"
+	"sundown/solution/oversight"
 )
 
 // Tries to find noun in order (defined_namespace or foundation) then package
@@ -23,7 +23,7 @@ func (state *State) GetNoun(key *lexer.Ident) *Atom {
 				noun = &Atom{TypeOf: fn.Gives, Function: fn}
 
 			} else {
-				util.Error("Identifier \"" + util.Yellow(k.String()) + "\" is not defined in current scope or Foundation.\n" + key.Pos.String()).Exit()
+				oversight.Error("Identifier \"" + oversight.Yellow(k.String()) + "\" is not defined in current scope or Foundation.\n" + key.Pos.String()).Exit()
 			}
 		}
 	}
@@ -33,7 +33,7 @@ func (state *State) GetNoun(key *lexer.Ident) *Atom {
 
 func (state *State) AnalyseNounDecl(noun *lexer.NounDecl) {
 	if IsReserved(*noun.Ident) {
-		util.Error("Identifier \"" + util.Yellow(*noun.Ident) + "\" is reserved by the compiler.\n" + noun.Pos.String()).Exit()
+		oversight.Error("Identifier \"" + oversight.Yellow(*noun.Ident) + "\" is reserved by the compiler.\n" + noun.Pos.String()).Exit()
 	}
 
 	var temp *Atom
@@ -42,7 +42,7 @@ func (state *State) AnalyseNounDecl(noun *lexer.NounDecl) {
 		temp = state.GetNoun(noun.Value.Noun)
 	} else if noun.Value.Param != nil {
 		// ... why
-		util.Error("Cannot use \"" + util.Yellow("@") + "\" (parameter figurative) as R-value in definition.\n" + noun.Pos.String()).Exit()
+		oversight.Error("Cannot use \"" + oversight.Yellow("@") + "\" (parameter figurative) as R-value in definition.\n" + noun.Pos.String()).Exit()
 	} else {
 		temp = state.AnalyseAtom(noun.Value)
 	}
@@ -51,6 +51,6 @@ func (state *State) AnalyseNounDecl(noun *lexer.NounDecl) {
 	if state.NounDefs[key] == nil {
 		state.NounDefs[key] = temp
 	} else {
-		util.Error("Noun \"" + util.Yellow(*noun.Ident) + "\" is already defined as " + util.Yellow(state.NounDefs[key].String()) + ".\n" + noun.Pos.String()).Exit()
+		oversight.Error("Noun \"" + oversight.Yellow(*noun.Ident) + "\" is already defined as " + oversight.Yellow(state.NounDefs[key].String()) + ".\n" + noun.Pos.String()).Exit()
 	}
 }
