@@ -5,4 +5,4 @@
 //F = Return Equals @;
 
 Start :: Void -> Void
-Start = Println GEP ([69], 0);
+Start = Map (Println, [69]);

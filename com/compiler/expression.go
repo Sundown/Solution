@@ -28,6 +28,22 @@ func (state *State) GetSpecialCallable(ident *temporal.Ident) Callable {
 	}
 }
 
+func (state *State) CompileInlinePanic(_ *temporal.Type, val value.Value) value.Value {
+	state.Block.NewCall(state.GetExit(), state.Block.NewTrunc(val, types.I32))
+	state.Block.NewUnreachable()
+	return nil
+}
+
+func (state *State) CompileInlineLen(typ *temporal.Type, val value.Value) value.Value {
+	return state.Block.NewLoad(types.I64,
+		state.Block.NewGetElementPtr(typ.AsLLType(), val, I32(0), vectorLenOffset))
+}
+
+func (state *State) CompileInlineCap(typ *temporal.Type, val value.Value) value.Value {
+	return state.Block.NewLoad(types.I64,
+		state.Block.NewGetElementPtr(typ.AsLLType(), val, I32(0), vectorCapOffset))
+}
+
 func (state *State) CompileApplication(app *temporal.Application) value.Value {
 	switch *app.Function.Ident.Ident {
 	case "Return":
@@ -38,23 +54,13 @@ func (state *State) CompileApplication(app *temporal.Application) value.Value {
 	case "Println":
 		return state.CompileInlinePrintln(app.Argument.TypeOf, state.CompileExpression(app.Argument))
 	case "Panic":
-		state.Block.NewCall(state.GetExit(), state.Block.NewTrunc(state.CompileExpression(app.Argument), types.I32))
-		state.Block.NewUnreachable()
-		return nil
+		return state.CompileInlinePanic(nil, state.CompileExpression(app.Argument))
 	case "Len":
-		return state.Block.NewLoad(types.I64,
-			state.Block.NewGetElementPtr(
-				app.Argument.TypeOf.AsLLType(),
-				state.CompileExpression(app.Argument),
-				I32(0), I32(0)))
+		return state.CompileInlineLen(app.Argument.TypeOf, state.CompileExpression(app.Argument))
 	case "Cap":
-		return state.Block.NewLoad(types.I64,
-			state.Block.NewGetElementPtr(
-				app.Argument.TypeOf.AsLLType(),
-				state.CompileExpression(app.Argument),
-				I32(0), I32(1)))
+		return state.CompileInlineCap(app.Argument.TypeOf, state.CompileExpression(app.Argument))
 	case "Map":
-		return state.CompileInlineMap(app)
+		return state.CompileInlineMap(app.Argument)
 	case "Foldl":
 		return state.CompileInlineFoldl(app)
 	case "Sum":

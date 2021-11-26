@@ -9,19 +9,22 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-func (state *State) CompileInlineMap(app *temporal.Application) value.Value {
-	if app.Argument.TypeOf.Tuple == nil {
+func (state *State) CompileInlineMap(arg *temporal.Expression) value.Value {
+	if arg.TypeOf.Tuple == nil {
 		panic("Map requires Tuple")
 	}
 
 	// Return type of function to be mapped
-	f_returns := app.Argument.TypeOf.Tuple[0]
+	f_returns := arg.TypeOf.Tuple[0]
 
 	// The vector in AST
-	vec := app.Argument.Atom.Tuple[1]
+	vec := arg.Atom.Tuple[1]
+
+	//val := state.CompileExpression(arg)
 
 	// The vector in LLVM
 	llvec := state.CompileExpression(vec)
+	//llvec := state.TupleGet(vec.TypeOf, val, 1)
 
 	head_type := vec.TypeOf.AsLLType()
 	elm_type := vec.TypeOf.Vector.AsLLType()
@@ -63,7 +66,7 @@ func (state *State) CompileInlineMap(app *temporal.Application) value.Value {
 	// -------------
 	// # LOOP BODY #
 	// -------------
-	if app.Argument.Atom.Tuple[1].TypeOf.Vector != nil {
+	if arg.Atom.Tuple[1].TypeOf.Vector != nil {
 		vec_body := state.Block.NewLoad(
 			types.NewPointer(elm_type),
 			state.Block.NewGetElementPtr(head_type, llvec, I32(0), vectorBodyOffset))
@@ -87,11 +90,11 @@ func (state *State) CompileInlineMap(app *temporal.Application) value.Value {
 
 		var call value.Value
 
-		if app.Argument.Atom.Tuple[0].Atom.Function.Special {
-			call = state.GetSpecialCallable(app.Argument.Atom.Tuple[0].Atom.Function.Ident)(vec.TypeOf.Vector, cur_elm)
+		if arg.Atom.Tuple[0].Atom.Function.Special {
+			call = state.GetSpecialCallable(arg.Atom.Tuple[0].Atom.Function.Ident)(vec.TypeOf.Vector, cur_elm)
 		} else {
 			call = loopblock.NewCall(
-				state.CompileExpression(app.Argument.Atom.Tuple[0]),
+				state.CompileExpression(arg.Atom.Tuple[0]),
 				cur_elm)
 
 		}
