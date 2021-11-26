@@ -3,13 +3,11 @@ package compiler
 import (
 	"sundown/solution/temporal"
 
-	"github.com/alecthomas/repr"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
 )
 
 func (state *State) CompileExpression(expr *temporal.Expression) value.Value {
-	repr.Println(expr)
 	if expr.Application != nil {
 		return state.CompileApplication(expr.Application)
 	} else if expr.Atom != nil {
@@ -36,7 +34,7 @@ func (state *State) CompileApplication(app *temporal.Application) value.Value {
 		state.Block.NewRet(state.CompileExpression(app.Argument))
 		return nil
 	case "GEP":
-		return state.CompileInlineIndex(app)
+		return state.CompileInlineIndex(app.Argument.TypeOf, state.CompileExpression(app.Argument))
 	case "Println":
 		return state.CompileInlinePrintln(app.Argument.TypeOf, state.CompileExpression(app.Argument))
 	case "Panic":
@@ -68,11 +66,11 @@ func (state *State) CompileApplication(app *temporal.Application) value.Value {
 	case "Equals":
 		return state.CompileInlineEqual(app.Argument)
 	case "First":
-		return state.TupleGet(app.Argument, state.CompileExpression(app.Argument), 0)
+		return state.TupleGet(app.Argument.TypeOf, state.CompileExpression(app.Argument), 0)
 	case "Second":
-		return state.TupleGet(app.Argument, state.CompileExpression(app.Argument), 1)
+		return state.TupleGet(app.Argument.TypeOf, state.CompileExpression(app.Argument), 1)
 	case "Third":
-		return state.TupleGet(app.Argument, state.CompileExpression(app.Argument), 2)
+		return state.TupleGet(app.Argument.TypeOf, state.CompileExpression(app.Argument), 2)
 	default:
 		return state.Block.NewCall(
 			state.Functions[app.Function.ToLLVMName()],

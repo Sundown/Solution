@@ -10,6 +10,6 @@ import (
 func (state *State) CompileInlineEqual(arg *temporal.Expression) value.Value {
 	p := state.CompileExpression(arg)
 	return state.Block.NewICmp(enum.IPredEQ,
-		state.TupleGet(arg, p, 0),
-		state.TupleGet(arg, p, 1))
+		state.TupleGet(arg.TypeOf, p, 0),
+		state.TupleGet(arg.TypeOf, p, 1))
 }

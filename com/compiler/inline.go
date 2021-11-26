@@ -24,19 +24,14 @@ func (state *State) CompileInlinePrintln(typ *temporal.Type, val value.Value) va
 		val)
 }
 
-func (state *State) CompileInlineIndex(app *temporal.Application) value.Value {
-	if app.Argument.Atom == nil || app.Argument.Atom.Tuple == nil ||
-		app.Argument.Atom.Tuple[0].TypeOf.Vector == nil {
-		panic("Index requires tuple: ([T], Int | Nat)")
-	}
+func (state *State) CompileInlineIndex(typ *temporal.Type, val value.Value) value.Value {
+	src := state.TupleGet(typ, val, 0)
+	index := state.TupleGet(typ, val, 1)
 
-	index := state.CompileExpression(app.Argument.Atom.Tuple[1])
-	src := state.CompileExpression(app.Argument.Atom.Tuple[0])
+	state.ValidateVectorIndex(typ.Tuple[0], src, index)
 
-	state.ValidateVectorIndex(src, index)
-
-	head_typ := app.Argument.Atom.Tuple[0].TypeOf
-	elem_typ := head_typ.Vector.AsLLType()
+	head_typ := typ.Tuple[0]
+	elem_typ := typ.Tuple[0].Vector.AsLLType()
 
 	element := state.Block.NewGetElementPtr(
 		elem_typ, state.Block.NewLoad(
@@ -47,7 +42,7 @@ func (state *State) CompileInlineIndex(app *temporal.Application) value.Value {
 				I32(0), I32(2))),
 		index)
 
-	if app.Argument.Atom.Tuple[0].TypeOf.Vector.Atomic != nil {
+	if typ.Tuple[0].Vector.Atomic != nil {
 		return state.Block.NewLoad(elem_typ, element)
 	}
 

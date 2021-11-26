@@ -23,18 +23,22 @@ func (state *State) CompileTuple(tuple *temporal.Atom) value.Value {
 	return ll_tuple
 }
 
-func (state *State) TupleGet(temporal *temporal.Expression, real value.Value, index int) value.Value {
-	if len(temporal.TypeOf.Tuple) < index {
-		oversight.Panic(oversight.CT_OOB, index, temporal.TypeOf.String(), len(temporal.TypeOf.Tuple))
+func (state *State) TupleGet(typ *temporal.Type, real value.Value, index int) value.Value {
+	if len(typ.Tuple) < index {
+		oversight.Panic(oversight.CT_OOB, index, typ.String(), len(typ.Tuple))
 	}
 
-	if temporal.TypeOf.Tuple == nil {
-		oversight.Panic(oversight.CT_Unexpected, oversight.Yellow("tuple"), oversight.Yellow(temporal.TypeOf.String()))
+	if typ.Tuple == nil {
+		oversight.Panic(oversight.CT_Unexpected, oversight.Yellow("tuple"), oversight.Yellow(typ.String()))
 	}
 
-	return state.Block.NewLoad(
-		temporal.TypeOf.Tuple[index].AsLLType(),
-		state.Block.NewGetElementPtr(
-			temporal.TypeOf.AsLLType(), real,
-			I32(0), I32(int64(index))))
+	ptr := state.Block.NewGetElementPtr(
+		typ.AsLLType(), real,
+		I32(0), I32(int64(index)))
+
+	if typ.Tuple[index].Atomic == nil {
+		return ptr
+	} else {
+		return state.Block.NewLoad(typ.Tuple[index].AsLLType(), ptr)
+	}
 }

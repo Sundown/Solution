@@ -110,13 +110,15 @@ func CalculateVectorSizes(l int) (leng int64, cap int64) {
 	return leng, cap
 }
 
-func (state *State) ValidateVectorIndex(src value.Value, index value.Value) {
+func (state *State) ValidateVectorIndex(typ *temporal.Type, src value.Value, index value.Value) {
 	btrue := state.CurrentFunction.NewBlock("")
 	bfalse := state.CurrentFunction.NewBlock("")
-	leng := state.Block.NewLoad(types.I64, state.Block.NewGetElementPtr(
-		src.Type().(*types.PointerType).ElemType,
-		src,
-		I32(0), I32(0)))
+
+	leng := state.Block.NewLoad(types.I64,
+		state.Block.NewGetElementPtr(
+			typ.AsLLType(),
+			src,
+			I32(0), vectorLenOffset))
 
 	state.LLVMPanic(bfalse, "Panic: index %d out of bounds [%d]\n", index, leng)
 
