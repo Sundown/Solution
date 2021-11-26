@@ -1,7 +1,7 @@
 package compiler
 
 import (
-	"sundown/solution/parse"
+	"sundown/solution/temporal"
 
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/constant"
@@ -23,14 +23,14 @@ func (state *State) GEP(source *ir.InstAlloca, indices ...value.Value) *ir.InstG
 }
 
 // Will work for vectors too once they can be mutated
-func (state *State) DefaultValue(t *parse.Type) value.Value {
-	if t.Equals(&parse.IntType) {
+func (state *State) DefaultValue(t *temporal.Type) value.Value {
+	if t.Equals(&temporal.IntType) {
 		return I64(0)
-	} else if t.Equals(&parse.RealType) {
+	} else if t.Equals(&temporal.RealType) {
 		return constant.NewFloat(types.Double, 0)
-	} else if t.Equals(&parse.CharType) {
+	} else if t.Equals(&temporal.CharType) {
 		return constant.NewInt(types.I8, 0)
-	} else if t.Equals(&parse.BoolType) {
+	} else if t.Equals(&temporal.BoolType) {
 		return constant.NewBool(false)
 	} else {
 		panic("Not yet implemented")
@@ -38,54 +38,54 @@ func (state *State) DefaultValue(t *parse.Type) value.Value {
 }
 
 // Will work for vectors too once they can be mutated
-func (state *State) Number(t *parse.Type, n float64) value.Value {
-	if t.Equals(&parse.IntType) {
+func (state *State) Number(t *temporal.Type, n float64) value.Value {
+	if t.Equals(&temporal.IntType) {
 		return I64(int64(n))
-	} else if t.Equals(&parse.RealType) {
+	} else if t.Equals(&temporal.RealType) {
 		return constant.NewFloat(types.Double, n)
-	} else if t.Equals(&parse.CharType) {
+	} else if t.Equals(&temporal.CharType) {
 		return constant.NewInt(types.I8, int64(n))
-	} else if t.Equals(&parse.BoolType) {
+	} else if t.Equals(&temporal.BoolType) {
 		return constant.NewBool(false)
 	} else {
 		panic("Not yet implemented")
 	}
 }
 
-func (state *State) AgnosticAdd(t *parse.Type, x, y value.Value) value.Value {
-	if t.Equals(&parse.IntType) {
+func (state *State) AgnosticAdd(t *temporal.Type, x, y value.Value) value.Value {
+	if t.Equals(&temporal.IntType) {
 		return state.Block.NewAdd(x, y)
-	} else if t.Equals(&parse.RealType) {
+	} else if t.Equals(&temporal.RealType) {
 		return state.Block.NewFAdd(x, y)
-	} else if t.Equals(&parse.CharType) {
+	} else if t.Equals(&temporal.CharType) {
 		return state.Block.NewAdd(x, y)
 	} else {
 		panic("Not yet implemented")
 	}
 }
 
-func (state *State) AgnosticMult(t *parse.Type, x, y value.Value) value.Value {
-	if t.Equals(&parse.IntType) {
+func (state *State) AgnosticMult(t *temporal.Type, x, y value.Value) value.Value {
+	if t.Equals(&temporal.IntType) {
 		return state.Block.NewMul(x, y)
-	} else if t.Equals(&parse.RealType) {
+	} else if t.Equals(&temporal.RealType) {
 		return state.Block.NewFMul(x, y)
-	} else if t.Equals(&parse.CharType) {
+	} else if t.Equals(&temporal.CharType) {
 		return state.Block.NewMul(x, y)
 	} else {
 		panic("Not yet implemented")
 	}
 }
 
-func (state *State) GetFormatString(t *parse.Type) value.Value {
-	if t.Equals(&parse.StringType) {
+func (state *State) GetFormatString(t *temporal.Type) value.Value {
+	if t.Equals(&temporal.StringType) {
 		return state.Block.NewGetElementPtr(types.NewArray(4, types.I8), state.Module.NewGlobalDef("", constant.NewCharArrayFromString("%s\x0A\x00")), I32(0), I32(0))
-	} else if t.Equals(&parse.IntType) {
+	} else if t.Equals(&temporal.IntType) {
 		return state.Block.NewGetElementPtr(types.NewArray(4, types.I8), state.Module.NewGlobalDef("", constant.NewCharArrayFromString("%d\x0A\x00")), I32(0), I32(0))
-	} else if t.Equals(&parse.RealType) {
+	} else if t.Equals(&temporal.RealType) {
 		return state.Block.NewGetElementPtr(types.NewArray(4, types.I8), state.Module.NewGlobalDef("", constant.NewCharArrayFromString("%f\x0A\x00")), I32(0), I32(0))
-	} else if t.Equals(&parse.CharType) {
+	} else if t.Equals(&temporal.CharType) {
 		return state.Block.NewGetElementPtr(types.NewArray(4, types.I8), state.Module.NewGlobalDef("", constant.NewCharArrayFromString("%c\x0A\x00")), I32(0), I32(0))
-	} else if t.Equals(&parse.BoolType) {
+	} else if t.Equals(&temporal.BoolType) {
 		return state.Block.NewGetElementPtr(types.NewArray(4, types.I8), state.Module.NewGlobalDef("", constant.NewCharArrayFromString("%d\x0A\x00")), I32(0), I32(0))
 	} else {
 		return state.Block.NewGetElementPtr(types.NewArray(2, types.I8), state.Module.NewGlobalDef("", constant.NewCharArrayFromString("\x0A\x00")), I32(0), I32(0))

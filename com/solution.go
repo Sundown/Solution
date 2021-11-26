@@ -4,7 +4,7 @@ import (
 	"sundown/solution/compiler"
 	"sundown/solution/lexer"
 	"sundown/solution/oversight"
-	"sundown/solution/parse"
+	"sundown/solution/temporal"
 )
 
 func main() {
@@ -12,7 +12,7 @@ func main() {
 
 	r := &oversight.Runtime{}
 	l := &lexer.State{}
-	p := &parse.State{}
+	p := &temporal.State{}
 	c := &compiler.State{Runtime: r}
 
 	r.ParseArgs()

@@ -1,7 +1,7 @@
 package compiler
 
 import (
-	"sundown/solution/parse"
+	"sundown/solution/temporal"
 
 	"github.com/llir/llvm/ir/enum"
 	"github.com/llir/llvm/ir/types"
@@ -9,7 +9,7 @@ import (
 )
 
 // Need tuple element access before this is useful, ignore for now
-func (state *State) CompileInlineFoldl(app *parse.Application) value.Value {
+func (state *State) CompileInlineFoldl(app *temporal.Application) value.Value {
 	fn := app.Argument.Atom.Tuple[0]
 	llfn := state.CompileExpression(fn)
 	typ := app.Argument.TypeOf.Vector

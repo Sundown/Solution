@@ -1,11 +1,8 @@
 @Package Solution
 @Entry Start
 
-F :: (Int, Int) -> Bool
-F = Return Equals @;
-
-P :: Bool -> Void
-P = Println @;
+//F :: (Int, Int) -> Bool
+//F = Return Equals @;
 
 Start :: Void -> Void
-Start = Map (F, [(1, 1)]);
+Start = Map (Println, [69, 420, ]);

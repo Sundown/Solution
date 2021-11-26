@@ -1,20 +1,20 @@
 package compiler
 
 import (
-	"sundown/solution/parse"
+	"sundown/solution/temporal"
 
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/types"
 )
 
-func (state *State) CompileBlock(body *parse.Expression) {
+func (state *State) CompileBlock(body *temporal.Expression) {
 	// Block is just an expression[]
 	for _, stmt := range body.Block {
 		state.CompileExpression(stmt)
 	}
 }
 
-func (state *State) DeclareFunction(fn *parse.Function) *ir.Func {
+func (state *State) DeclareFunction(fn *temporal.Function) *ir.Func {
 	state.CurrentFunction = state.Module.NewFunc(
 		fn.ToLLVMName(),
 		ToReturn(fn.Gives),
@@ -23,7 +23,7 @@ func (state *State) DeclareFunction(fn *parse.Function) *ir.Func {
 	return state.CurrentFunction
 }
 
-func (state *State) CompileFunction(fn *parse.Function) *ir.Func {
+func (state *State) CompileFunction(fn *temporal.Function) *ir.Func {
 	state.CurrentFunction = state.Functions[fn.ToLLVMName()]
 	state.CurrentFunctionIR = fn
 
@@ -38,7 +38,7 @@ func (state *State) CompileFunction(fn *parse.Function) *ir.Func {
 }
 
 // Complex types decay to pointers, atomic types do not
-func ToReturn(t *parse.Type) (typ types.Type) {
+func ToReturn(t *temporal.Type) (typ types.Type) {
 	if t.LLType == types.Void {
 		typ = types.Void
 	} else if t.Vector != nil || t.Tuple != nil {
@@ -51,7 +51,7 @@ func ToReturn(t *parse.Type) (typ types.Type) {
 }
 
 // Handle void parameters and add pointers to complex types
-func ToParam(t *parse.Type) (typ []*ir.Param) {
+func ToParam(t *temporal.Type) (typ []*ir.Param) {
 	if t.LLType == types.Void {
 		typ = []*ir.Param{}
 	} else if t.Vector != nil || t.Tuple != nil {

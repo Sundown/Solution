@@ -1,23 +1,36 @@
 package compiler
 
 import (
-	"sundown/solution/parse"
+	"sundown/solution/temporal"
 
+	"github.com/alecthomas/repr"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
 )
 
-func (state *State) CompileExpression(expr *parse.Expression) value.Value {
-	if expr.Atom != nil {
-		return state.CompileAtom(expr.Atom)
-	} else if expr.Application != nil {
+func (state *State) CompileExpression(expr *temporal.Expression) value.Value {
+	repr.Println(expr)
+	if expr.Application != nil {
 		return state.CompileApplication(expr.Application)
+	} else if expr.Atom != nil {
+		return state.CompileAtom(expr.Atom)
 	} else {
 		panic("unreachable")
 	}
 }
 
-func (state *State) CompileApplication(app *parse.Application) value.Value {
+type Callable func(*temporal.Type, value.Value) value.Value
+
+func (state *State) GetSpecialCallable(ident *temporal.Ident) Callable {
+	switch *ident.Ident {
+	case "Println":
+		return state.CompileInlinePrintln
+	default:
+		panic("unreachable")
+	}
+}
+
+func (state *State) CompileApplication(app *temporal.Application) value.Value {
 	switch *app.Function.Ident.Ident {
 	case "Return":
 		state.Block.NewRet(state.CompileExpression(app.Argument))
@@ -25,7 +38,7 @@ func (state *State) CompileApplication(app *parse.Application) value.Value {
 	case "GEP":
 		return state.CompileInlineIndex(app)
 	case "Println":
-		return state.CompileInlinePrintln(app)
+		return state.CompileInlinePrintln(app.Argument.TypeOf, state.CompileExpression(app.Argument))
 	case "Panic":
 		state.Block.NewCall(state.GetExit(), state.Block.NewTrunc(state.CompileExpression(app.Argument), types.I32))
 		state.Block.NewUnreachable()

@@ -1,4 +1,4 @@
-package parse
+package temporal
 
 func IsReserved(s string) bool {
 	if s == "_" || s == "foundation" {

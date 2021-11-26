@@ -1,4 +1,4 @@
-package parse
+package temporal
 
 import (
 	"sundown/solution/lexer"
@@ -91,6 +91,9 @@ func (state *State) AnalyseApplication(application *lexer.Application) (s *Appli
 		s.Function.Gives = s.TypeOf
 	case "Sum":
 		s.TypeOf = s.Argument.Atom.TypeOf.Vector
+		s.Function.Gives = s.TypeOf
+	case "Println":
+		s.TypeOf = AtomicType("Void")
 		s.Function.Gives = s.TypeOf
 	case "Equals":
 		s.TypeOf = AtomicType("Bool")

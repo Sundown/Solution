@@ -1,4 +1,4 @@
-package parse
+package temporal
 
 import (
 	"fmt"

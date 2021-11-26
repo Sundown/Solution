@@ -2,14 +2,14 @@ package compiler
 
 import (
 	"fmt"
-	"sundown/solution/parse"
+	"sundown/solution/temporal"
 
 	"github.com/llir/llvm/ir/enum"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
 )
 
-func (state *State) CompileInlineSum(app *parse.Application) value.Value {
+func (state *State) CompileInlineSum(app *temporal.Application) value.Value {
 	if app.Argument.TypeOf.Vector == nil {
 		fmt.Println(app.Argument.TypeOf.String())
 		panic("Sum requires Vector")
@@ -17,9 +17,9 @@ func (state *State) CompileInlineSum(app *parse.Application) value.Value {
 
 	typ := app.Argument.TypeOf.Vector
 
-	if !typ.Equals(&parse.IntType) &&
-		!typ.Equals(&parse.RealType) &&
-		!typ.Equals(&parse.CharType) {
+	if !typ.Equals(&temporal.IntType) &&
+		!typ.Equals(&temporal.RealType) &&
+		!typ.Equals(&temporal.CharType) {
 		panic("Sum requires Int, Real, or Char")
 	}
 
@@ -90,7 +90,7 @@ func (state *State) CompileInlineSum(app *parse.Application) value.Value {
 	return state.Block.NewLoad(lltyp, accum)
 }
 
-func (state *State) CompileInlineProduct(app *parse.Application) value.Value {
+func (state *State) CompileInlineProduct(app *temporal.Application) value.Value {
 	if app.Argument.TypeOf.Vector == nil {
 		fmt.Println(app.Argument.TypeOf.String())
 		panic("Product requires Vector")
@@ -98,9 +98,9 @@ func (state *State) CompileInlineProduct(app *parse.Application) value.Value {
 
 	typ := app.Argument.TypeOf.Vector
 
-	if !typ.Equals(&parse.IntType) &&
-		!typ.Equals(&parse.RealType) &&
-		!typ.Equals(&parse.CharType) {
+	if !typ.Equals(&temporal.IntType) &&
+		!typ.Equals(&temporal.RealType) &&
+		!typ.Equals(&temporal.CharType) {
 		panic("Product requires Int, Real, or Char")
 	}
 

@@ -1,7 +1,7 @@
 package compiler
 
 import (
-	"sundown/solution/parse"
+	"sundown/solution/temporal"
 
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/enum"
@@ -15,7 +15,7 @@ var (
 	vectorBodyOffset = I32(2)
 )
 
-func (state *State) CompileVector(vector *parse.Atom) value.Value {
+func (state *State) CompileVector(vector *temporal.Atom) value.Value {
 	if vector.Vector == nil {
 		panic("Unreachable")
 	}
@@ -45,7 +45,7 @@ func (state *State) CompileVector(vector *parse.Atom) value.Value {
 func (state *State) PopulateBody(
 	allocated_body *ir.InstBitCast,
 	element_type types.Type,
-	expr_vec []*parse.Expression) {
+	expr_vec []*temporal.Expression) {
 	ir_elm_type := expr_vec[0].TypeOf
 	for index, element := range expr_vec {
 		v := state.CompileExpression(element)

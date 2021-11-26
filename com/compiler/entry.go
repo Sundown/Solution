@@ -2,7 +2,7 @@ package compiler
 
 import (
 	"sundown/solution/oversight"
-	"sundown/solution/parse"
+	"sundown/solution/temporal"
 
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/constant"
@@ -11,17 +11,17 @@ import (
 
 type State struct {
 	Runtime           *oversight.Runtime
-	IR                *parse.State
+	IR                *temporal.State
 	Module            *ir.Module
 	Block             *ir.Block
 	Functions         map[string]*ir.Func
 	Specials          map[string]*ir.Func
 	CurrentFunction   *ir.Func
-	CurrentFunctionIR *parse.Function
+	CurrentFunctionIR *temporal.Function
 	PanicStrings      map[string]*ir.Global
 }
 
-func (state *State) Compile(IR *parse.State) *ir.Module {
+func (state *State) Compile(IR *temporal.State) *ir.Module {
 	oversight.Verbose("Init compiler")
 	state.Specials = make(map[string]*ir.Func)
 	state.Functions = make(map[string]*ir.Func)

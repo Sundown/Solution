@@ -1,30 +1,30 @@
 package compiler
 
 import (
-	"sundown/solution/parse"
+	"sundown/solution/temporal"
 
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
 )
 
-func (state *State) CompileInlinePrintln(app *parse.Application) value.Value {
-	if app.Argument.TypeOf.Equals(&parse.StringType) {
+func (state *State) CompileInlinePrintln(typ *temporal.Type, val value.Value) value.Value {
+	if typ.Equals(&temporal.StringType) {
 		return state.Block.NewCall(
 			state.GetPrintf(),
-			state.GetFormatString(app.Argument.TypeOf),
+			state.GetFormatString(typ),
 			state.Block.NewLoad(types.I8Ptr, state.Block.NewGetElementPtr(
-				app.Argument.TypeOf.AsLLType(),
-				state.CompileExpression(app.Argument),
+				typ.AsLLType(),
+				val,
 				I32(0), vectorBodyOffset)))
 	}
 
 	return state.Block.NewCall(
 		state.GetPrintf(),
-		state.GetFormatString(app.Argument.TypeOf),
-		state.CompileExpression(app.Argument))
+		state.GetFormatString(typ),
+		val)
 }
 
-func (state *State) CompileInlineIndex(app *parse.Application) value.Value {
+func (state *State) CompileInlineIndex(app *temporal.Application) value.Value {
 	if app.Argument.Atom == nil || app.Argument.Atom.Tuple == nil ||
 		app.Argument.Atom.Tuple[0].TypeOf.Vector == nil {
 		panic("Index requires tuple: ([T], Int | Nat)")

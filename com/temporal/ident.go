@@ -1,4 +1,4 @@
-package parse
+package temporal
 
 import (
 	"sundown/solution/lexer"
@@ -46,7 +46,7 @@ func (i *Ident) IsFoundational() bool {
 	return *i.Namespace == "_" || *i.Namespace == "foundation" || *i.Namespace == "se"
 }
 
-// Transform lexer identifier to parse identifier
+// Transform lexer identifier to temporal identifier
 func IRIdent(i *lexer.Ident) *Ident {
 	return &Ident{
 		Namespace: i.Namespace,

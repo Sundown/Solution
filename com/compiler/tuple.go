@@ -2,12 +2,12 @@ package compiler
 
 import (
 	"sundown/solution/oversight"
-	"sundown/solution/parse"
+	"sundown/solution/temporal"
 
 	"github.com/llir/llvm/ir/value"
 )
 
-func (state *State) CompileTuple(tuple *parse.Atom) value.Value {
+func (state *State) CompileTuple(tuple *temporal.Atom) value.Value {
 	ll_tuple := state.Block.NewAlloca(tuple.TypeOf.AsLLType())
 
 	for index, expr := range tuple.Tuple {
@@ -23,7 +23,7 @@ func (state *State) CompileTuple(tuple *parse.Atom) value.Value {
 	return ll_tuple
 }
 
-func (state *State) TupleGet(temporal *parse.Expression, real value.Value, index int) value.Value {
+func (state *State) TupleGet(temporal *temporal.Expression, real value.Value, index int) value.Value {
 	if len(temporal.TypeOf.Tuple) < index {
 		oversight.Panic(oversight.CT_OOB, index, temporal.TypeOf.String(), len(temporal.TypeOf.Tuple))
 	}

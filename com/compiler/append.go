@@ -1,7 +1,7 @@
 package compiler
 
 import (
-	"sundown/solution/parse"
+	"sundown/solution/temporal"
 
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
@@ -9,7 +9,7 @@ import (
 )
 
 //
-func (state *State) CompileInlineAppend(arg *parse.Expression) value.Value {
+func (state *State) CompileInlineAppend(arg *temporal.Expression) value.Value {
 	vec_head_typ := arg.Atom.TypeOf.Tuple[0].AsLLType()
 	vec_elem_typ := types.NewPointer(arg.Atom.TypeOf.Tuple[0].Vector.AsLLType())
 	greater_vector := state.CompileExpression(arg)

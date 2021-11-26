@@ -1,7 +1,7 @@
 package compiler
 
 import (
-	"sundown/solution/parse"
+	"sundown/solution/temporal"
 
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/enum"
@@ -9,13 +9,13 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-func (state *State) CompileInlineMap(app *parse.Application) value.Value {
+func (state *State) CompileInlineMap(app *temporal.Application) value.Value {
 	if app.Argument.TypeOf.Tuple == nil {
 		panic("Map requires Tuple")
 	}
 
-	// Function to be mapped
-	fn := app.Argument.Atom.Tuple[0].Atom.Function
+	// Return type of function to be mapped
+	f_returns := app.Argument.TypeOf.Tuple[0]
 
 	// The vector in AST
 	vec := app.Argument.Atom.Tuple[1]
@@ -25,11 +25,11 @@ func (state *State) CompileInlineMap(app *parse.Application) value.Value {
 
 	head_type := vec.TypeOf.AsLLType()
 	elm_type := vec.TypeOf.Vector.AsLLType()
-	to_head_type := fn.Gives.AsVector().AsLLType()
-	to_elm_type := fn.Gives.AsLLType()
+	to_head_type := f_returns.AsVector().AsLLType()
+	to_elm_type := f_returns.AsLLType()
 
 	should_store := true
-	if fn.Gives.Equals(parse.AtomicType("Void")) {
+	if f_returns.Equals(temporal.AtomicType("Void")) {
 		should_store = false
 	}
 
@@ -75,6 +75,7 @@ func (state *State) CompileInlineMap(app *parse.Application) value.Value {
 		// Get elem, add to accum, increment counter, conditional jump to body
 		loopblock := state.CurrentFunction.NewBlock("")
 		state.Block.NewBr(loopblock)
+		state.Block = loopblock
 		// Add to accum
 		cur_counter := loopblock.NewLoad(types.I64, counter)
 
@@ -84,9 +85,16 @@ func (state *State) CompileInlineMap(app *parse.Application) value.Value {
 			cur_elm = loopblock.NewLoad(elm_type, cur_elm)
 		}
 
-		call := loopblock.NewCall(
-			state.CompileExpression(app.Argument.Atom.Tuple[0]), // fn
-			cur_elm)
+		var call value.Value
+
+		if app.Argument.Atom.Tuple[0].Atom.Function.Special {
+			call = state.GetSpecialCallable(app.Argument.Atom.Tuple[0].Atom.Function.Ident)(vec.TypeOf.Vector, cur_elm)
+		} else {
+			call = loopblock.NewCall(
+				state.CompileExpression(app.Argument.Atom.Tuple[0]),
+				cur_elm)
+
+		}
 
 		if should_store {
 			loopblock.NewStore(

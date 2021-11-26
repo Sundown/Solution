@@ -1,14 +1,15 @@
 package compiler
 
 import (
-	"sundown/solution/parse"
+	"fmt"
+	"sundown/solution/temporal"
 
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
 )
 
-func (state *State) CompileAtom(atom *parse.Atom) value.Value {
+func (state *State) CompileAtom(atom *temporal.Atom) value.Value {
 	switch {
 	case atom.Param != nil:
 		return state.CurrentFunction.Params[0]
@@ -25,6 +26,7 @@ func (state *State) CompileAtom(atom *parse.Atom) value.Value {
 	case atom.Tuple != nil:
 		return state.CompileTuple(atom)
 	case atom.Function != nil:
+		fmt.Println("fn", atom)
 		return state.Functions[atom.Function.ToLLVMName()]
 	default:
 		panic("unreachable")

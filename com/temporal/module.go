@@ -1,4 +1,4 @@
-package parse
+package temporal
 
 import (
 	"fmt"
@@ -58,8 +58,8 @@ func (state *State) Parse(program *lexer.State) *State {
 		AddSpecialForm("First", AtomicType("T"), AtomicType("T")).
 		AddSpecialForm("Second", AtomicType("T"), AtomicType("T")).
 		AddSpecialForm("Third", AtomicType("T"), AtomicType("T")).
-		AddSpecialForm("Print", AtomicType("T"), AtomicType("T")).
-		AddSpecialForm("Println", AtomicType("T"), AtomicType("T")).
+		AddSpecialForm("Print", AtomicType("T"), AtomicType("Void")).
+		AddSpecialForm("Println", AtomicType("T"), AtomicType("Void")).
 		AddSpecialForm("Sum", AtomicType("T"), AtomicType("T")).
 		AddSpecialForm("Product", AtomicType("T"), AtomicType("T")).
 		AddSpecialForm("Len", VectorType(AtomicType("T")), AtomicType("Int")).
