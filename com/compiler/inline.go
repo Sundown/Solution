@@ -25,26 +25,14 @@ func (state *State) CompileInlinePrintln(typ *temporal.Type, val value.Value) va
 }
 
 func (state *State) CompileInlineIndex(typ *temporal.Type, val value.Value) value.Value {
-	src := state.TupleGet(typ, val, 0)
-	index := state.TupleGet(typ, val, 1)
+	return state.ReadVectorElement(
+		typ.Tuple[0],                // Vector type
+		state.TupleGet(typ, val, 0), // Vector in LLVM
+		state.TupleGet(typ, val, 1)) // Index in LLVM
+}
 
-	state.ValidateVectorIndex(typ.Tuple[0], src, index)
-
-	head_typ := typ.Tuple[0]
-	elem_typ := typ.Tuple[0].Vector.AsLLType()
-
-	element := state.Block.NewGetElementPtr(
-		elem_typ, state.Block.NewLoad(
-			types.NewPointer(elem_typ),
-			state.Block.NewGetElementPtr(
-				head_typ.AsLLType(),
-				src,
-				I32(0), I32(2))),
-		index)
-
-	if typ.Tuple[0].Vector.Atomic != nil {
-		return state.Block.NewLoad(elem_typ, element)
-	}
-
-	return element
+func (state *State) CompileInlinePanic(_ *temporal.Type, val value.Value) value.Value {
+	state.Block.NewCall(state.GetExit(), state.Block.NewTrunc(val, types.I32))
+	state.Block.NewUnreachable()
+	return nil
 }

@@ -8,35 +8,32 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-//
-func (state *State) CompileInlineAppend(arg *temporal.Expression) value.Value {
-	vec_head_typ := arg.Atom.TypeOf.Tuple[0].AsLLType()
-	vec_elem_typ := types.NewPointer(arg.Atom.TypeOf.Tuple[0].Vector.AsLLType())
-	greater_vector := state.CompileExpression(arg)
-	vec_a := state.Block.NewGetElementPtr(
-		arg.TypeOf.AsLLType(), greater_vector, I32(0), I32(0))
-	vec_b := state.Block.NewGetElementPtr(
-		arg.TypeOf.AsLLType(), greater_vector, I32(0), I32(1))
-	len_a := state.Block.NewLoad(types.I64,
-		state.Block.NewGetElementPtr(vec_head_typ, vec_a, I32(0), vectorLenOffset))
-	len_b := state.Block.NewLoad(types.I64,
-		state.Block.NewGetElementPtr(vec_head_typ, vec_b, I32(0), vectorLenOffset))
+func (state *State) CompileInlineAppend(typ *temporal.Type, val value.Value) value.Value {
+	width := typ.Tuple[0].WidthInBytes()
+	vec_head_typ := typ.Tuple[0].AsLLType()
+	vec_elem_typ := types.NewPointer(typ.Tuple[0].Vector.AsLLType())
+
+	vec_a := state.Block.NewGetElementPtr(typ.AsLLType(), val, I32(0), I32(0))
+	vec_b := state.Block.NewGetElementPtr(typ.AsLLType(), val, I32(0), I32(1))
+
+	len_a := state.ReadVectorLength(typ.Tuple[0], vec_a)
+	len_b := state.ReadVectorLength(typ.Tuple[1], vec_b)
 
 	cap_f := state.Block.NewAdd(
-		state.Block.NewLoad(types.I64,
-			state.Block.NewGetElementPtr(vec_head_typ, vec_a, I32(0), vectorCapOffset)),
-		state.Block.NewLoad(types.I64,
-			state.Block.NewGetElementPtr(vec_head_typ, vec_b, I32(0), vectorCapOffset)))
+		state.ReadVectorCapacity(typ.Tuple[0], vec_a),
+		state.ReadVectorCapacity(typ.Tuple[1], vec_b))
 
 	head := state.Block.NewAlloca(vec_head_typ)
+
 	state.Block.NewStore(
 		state.Block.NewAdd(len_a, len_b),
 		state.Block.NewGetElementPtr(vec_head_typ, head, I32(0), vectorLenOffset))
+
 	state.Block.NewStore(cap_f,
 		state.Block.NewGetElementPtr(vec_head_typ, head, I32(0), vectorCapOffset))
 
 	body := state.Block.NewBitCast(
-		state.Block.NewCall(state.GetCalloc(), I32(arg.Atom.TypeOf.Tuple[0].WidthInBytes()),
+		state.Block.NewCall(state.GetCalloc(), I32(width),
 			state.Block.NewTrunc(cap_f, types.I32)),
 		vec_elem_typ)
 
@@ -57,6 +54,7 @@ func (state *State) CompileInlineAppend(arg *temporal.Expression) value.Value {
 				state.Block.NewGetElementPtr(vec_head_typ, vec_b, I32(0), vectorBodyOffset)),
 			types.I8Ptr),
 		len_b, constant.NewBool(false))
+
 	state.WriteVectorPointer(head, vec_head_typ, body)
 
 	return head

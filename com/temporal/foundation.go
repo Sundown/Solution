@@ -12,7 +12,7 @@ var IntType = Type{Atomic: oversight.Ref("Int"), LLType: types.I64, Width: 8}
 var NatType = Type{Atomic: oversight.Ref("Nat"), LLType: types.I64, Width: 8}
 var RealType = Type{Atomic: oversight.Ref("Real"), LLType: types.Double, Width: 8}
 var BoolType = Type{Atomic: oversight.Ref("Bool"), LLType: types.I1, Width: 1}
-var CharType = Type{Atomic: oversight.Ref("Char"), LLType: types.I8, Width: 4}
+var CharType = Type{Atomic: oversight.Ref("Char"), LLType: types.I8, Width: 1}
 var VoidType = Type{Atomic: oversight.Ref("Void"), LLType: types.Void, Width: 0}
 var StringType = Type{
 	Vector: &Type{Atomic: oversight.Ref("Char"), LLType: types.I8},

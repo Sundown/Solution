@@ -1,6 +1,7 @@
 package compiler
 
 import (
+	"sundown/solution/oversight"
 	"sundown/solution/temporal"
 
 	"github.com/llir/llvm/ir"
@@ -97,6 +98,47 @@ func (state *State) WriteVectorCapacity(vector_struct *ir.InstAlloca, cap int64,
 			typ,
 			vector_struct,
 			I32(0), vectorCapOffset))
+}
+
+func (state *State) ReadVectorLength(typ *temporal.Type, vec value.Value) value.Value {
+	return state.Block.NewLoad(types.I64,
+		state.Block.NewGetElementPtr(
+			typ.AsLLType(),
+			vec,
+			I32(0), vectorLenOffset))
+}
+
+func (state *State) ReadVectorCapacity(typ *temporal.Type, vec value.Value) value.Value {
+	return state.Block.NewLoad(types.I64,
+		state.Block.NewGetElementPtr(
+			typ.AsLLType(),
+			vec,
+			I32(0), vectorCapOffset))
+}
+
+func (state *State) ReadVectorElement(head_typ *temporal.Type, src value.Value, index value.Value) value.Value {
+	if head_typ.Vector == nil {
+		oversight.Panic(
+			oversight.CT_Unexpected,
+			oversight.Yellow("vector"),
+			oversight.Yellow(head_typ.String()))
+	}
+
+	state.ValidateVectorIndex(head_typ, src, index)
+
+	elm := state.Block.NewGetElementPtr(
+		head_typ.Vector.AsLLType(), state.Block.NewLoad(
+			types.NewPointer(head_typ.Vector.AsLLType()),
+			state.Block.NewGetElementPtr(
+				head_typ.AsLLType(),
+				src,
+				I32(0), vectorBodyOffset)), index)
+
+	if head_typ.Vector.Atomic != nil {
+		return state.Block.NewLoad(head_typ.Vector.AsLLType(), elm)
+	}
+
+	return elm
 }
 
 func CalculateVectorSizes(l int) (leng int64, cap int64) {

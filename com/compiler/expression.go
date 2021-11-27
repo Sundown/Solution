@@ -3,7 +3,6 @@ package compiler
 import (
 	"sundown/solution/temporal"
 
-	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
 )
 
@@ -23,25 +22,25 @@ func (state *State) GetSpecialCallable(ident *temporal.Ident) Callable {
 	switch *ident.Ident {
 	case "Println":
 		return state.CompileInlinePrintln
+	case "GEP":
+		return state.CompileInlineIndex
+	case "Panic":
+		return state.CompileInlinePanic
+	case "Len":
+		return state.ReadVectorLength
+	case "Cap":
+		return state.ReadVectorCapacity
+	case "Sum":
+		return state.CompileInlineSum
+	case "Product":
+		return state.CompileInlineProduct
+	case "Append":
+		return state.CompileInlineAppend
+	case "Equals":
+		return state.CompileInlineEqual
 	default:
 		panic("unreachable")
 	}
-}
-
-func (state *State) CompileInlinePanic(_ *temporal.Type, val value.Value) value.Value {
-	state.Block.NewCall(state.GetExit(), state.Block.NewTrunc(val, types.I32))
-	state.Block.NewUnreachable()
-	return nil
-}
-
-func (state *State) CompileInlineLen(typ *temporal.Type, val value.Value) value.Value {
-	return state.Block.NewLoad(types.I64,
-		state.Block.NewGetElementPtr(typ.AsLLType(), val, I32(0), vectorLenOffset))
-}
-
-func (state *State) CompileInlineCap(typ *temporal.Type, val value.Value) value.Value {
-	return state.Block.NewLoad(types.I64,
-		state.Block.NewGetElementPtr(typ.AsLLType(), val, I32(0), vectorCapOffset))
 }
 
 func (state *State) CompileApplication(app *temporal.Application) value.Value {
@@ -56,21 +55,21 @@ func (state *State) CompileApplication(app *temporal.Application) value.Value {
 	case "Panic":
 		return state.CompileInlinePanic(nil, state.CompileExpression(app.Argument))
 	case "Len":
-		return state.CompileInlineLen(app.Argument.TypeOf, state.CompileExpression(app.Argument))
+		return state.ReadVectorLength(app.Argument.TypeOf, state.CompileExpression(app.Argument))
 	case "Cap":
-		return state.CompileInlineCap(app.Argument.TypeOf, state.CompileExpression(app.Argument))
+		return state.ReadVectorCapacity(app.Argument.TypeOf, state.CompileExpression(app.Argument))
 	case "Map":
 		return state.CompileInlineMap(app.Argument)
 	case "Foldl":
 		return state.CompileInlineFoldl(app)
 	case "Sum":
-		return state.CompileInlineSum(app)
+		return state.CompileInlineSum(app.Argument.TypeOf, state.CompileExpression(app.Argument))
 	case "Product":
-		return state.CompileInlineProduct(app)
+		return state.CompileInlineProduct(app.Argument.TypeOf, state.CompileExpression(app.Argument))
 	case "Append":
-		return state.CompileInlineAppend(app.Argument)
+		return state.CompileInlineAppend(app.Argument.TypeOf, state.CompileExpression(app.Argument))
 	case "Equals":
-		return state.CompileInlineEqual(app.Argument)
+		return state.CompileInlineEqual(app.Argument.TypeOf, state.CompileExpression(app.Argument))
 	case "First":
 		return state.TupleGet(app.Argument.TypeOf, state.CompileExpression(app.Argument), 0)
 	case "Second":

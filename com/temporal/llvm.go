@@ -1,6 +1,7 @@
 package temporal
 
 import (
+	"fmt"
 	"sundown/solution/oversight"
 
 	"github.com/llir/llvm/ir/types"
@@ -36,8 +37,15 @@ func (t *Type) WidthInBytes() int64 {
 		return t.Width
 	} else if t.Vector != nil {
 		return 24
+	} else if t.Tuple != nil {
+		var sum int64
+		for _, t := range t.Tuple {
+			sum += t.WidthInBytes()
+		}
+		fmt.Println(t, "-<", sum)
+		return sum
 	} else {
-		oversight.Warn("Using 8 bytes for unknown type " + t.String())
+		oversight.Warn("Using 32 bytes for unknown type " + t.String())
 		return 8
 	}
 }

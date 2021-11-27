@@ -67,8 +67,8 @@ func (state *State) Parse(program *lexer.State) *State {
 		AddSpecialForm("Append", StructType(VectorType(AtomicType("T")), VectorType(AtomicType("T"))), VectorType(AtomicType("T"))).
 		AddSpecialForm("Map", StructType(AtomicType("T"), VectorType(AtomicType("T"))), AtomicType("[T]")).
 		AddSpecialForm("Foldl", StructType(AtomicType("T"), AtomicType("T"), VectorType(AtomicType("T"))), AtomicType("T")).
-		AddSpecialForm("Panic", AtomicType("Int"), AtomicType("Void")).
-		AddSpecialForm("Equals", StructType(AtomicType("Int"), AtomicType("Int")), AtomicType("Bool")).
+		AddSpecialForm("Panic", &IntType, AtomicType("Void")).
+		AddSpecialForm("Equals", StructType(&IntType, &IntType), &BoolType).
 		CollectDirectives(program).
 		ForkStatements(program).
 		CollectFunctions(program).

@@ -48,10 +48,9 @@ func (state *State) AnalyseApplication(application *lexer.Application) (s *Appli
 				state.CurrentFunction.Gives.String()).Exit()
 		}
 	case "Map":
-		if s.Argument.TypeOf.Tuple == nil { /*||
-			s.Argument.Atom.Tuple == nil || s.Argument.Atom.Tuple[0].Atom == nil ||
-			s.Argument.Atom.Tuple[0].Atom.Function == nil ||
-			s.Argument.Atom.Tuple[1].Atom.Vector == nil {*/
+		if s.Argument.TypeOf.Tuple == nil ||
+			s.Argument.TypeOf.Tuple[0] == nil ||
+			s.Argument.TypeOf.Tuple[1].Vector == nil {
 			oversight.Error("Malformed call to " + oversight.Yellow("Map") + ".\n" + application.Pos.String()).Exit()
 		}
 
@@ -93,10 +92,11 @@ func (state *State) AnalyseApplication(application *lexer.Application) (s *Appli
 		s.TypeOf = s.Argument.Atom.TypeOf.Vector
 		s.Function.Gives = s.TypeOf
 	case "Println":
-		s.TypeOf = AtomicType("Void")
+		s.TypeOf = &VoidType
 		s.Function.Gives = s.TypeOf
 	case "Equals":
-		s.TypeOf = AtomicType("Bool")
+		s.TypeOf = &BoolType
+		s.Function.Takes = StructType(&IntType, &IntType)
 		s.Function.Gives = s.TypeOf
 	case "Product":
 		//s.TypeOf = s.Argument.Atom.TypeOf.Vector

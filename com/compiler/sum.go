@@ -1,7 +1,6 @@
 package compiler
 
 import (
-	"fmt"
 	"sundown/solution/temporal"
 
 	"github.com/llir/llvm/ir/enum"
@@ -9,25 +8,9 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-func (state *State) CompileInlineSum(app *temporal.Application) value.Value {
-	if app.Argument.TypeOf.Vector == nil {
-		fmt.Println(app.Argument.TypeOf.String())
-		panic("Sum requires Vector")
-	}
-
-	typ := app.Argument.TypeOf.Vector
-
-	if !typ.Equals(&temporal.IntType) &&
-		!typ.Equals(&temporal.RealType) &&
-		!typ.Equals(&temporal.CharType) {
-		panic("Sum requires Int, Real, or Char")
-	}
-
+func (state *State) CompileInlineSum(head_typ *temporal.Type, val value.Value) value.Value {
+	typ := head_typ.Vector
 	lltyp := typ.AsLLType()
-
-	vec := app.Argument
-
-	llvec := state.CompileExpression(vec)
 
 	counter := state.Block.NewAlloca(types.I64)
 	state.Block.NewStore(I64(0), counter)
@@ -41,7 +24,7 @@ func (state *State) CompileInlineSum(app *temporal.Application) value.Value {
 		types.I64,
 		state.Block.NewGetElementPtr(
 			typ.AsVector().AsLLType(),
-			llvec,
+			val,
 			I32(0),
 			vectorLenOffset))
 
@@ -49,7 +32,7 @@ func (state *State) CompileInlineSum(app *temporal.Application) value.Value {
 		types.NewPointer(lltyp),
 		state.Block.NewGetElementPtr(
 			typ.AsVector().AsLLType(),
-			llvec,
+			val,
 			I32(0),
 			vectorBodyOffset))
 
@@ -90,25 +73,9 @@ func (state *State) CompileInlineSum(app *temporal.Application) value.Value {
 	return state.Block.NewLoad(lltyp, accum)
 }
 
-func (state *State) CompileInlineProduct(app *temporal.Application) value.Value {
-	if app.Argument.TypeOf.Vector == nil {
-		fmt.Println(app.Argument.TypeOf.String())
-		panic("Product requires Vector")
-	}
-
-	typ := app.Argument.TypeOf.Vector
-
-	if !typ.Equals(&temporal.IntType) &&
-		!typ.Equals(&temporal.RealType) &&
-		!typ.Equals(&temporal.CharType) {
-		panic("Product requires Int, Real, or Char")
-	}
-
+func (state *State) CompileInlineProduct(head_typ *temporal.Type, val value.Value) value.Value {
+	typ := head_typ.Vector
 	lltyp := typ.AsLLType()
-
-	vec := app.Argument
-
-	llvec := state.CompileExpression(vec)
 
 	counter := state.Block.NewAlloca(types.I64)
 	state.Block.NewStore(I64(0), counter)
@@ -123,7 +90,7 @@ func (state *State) CompileInlineProduct(app *temporal.Application) value.Value 
 		types.I64,
 		state.Block.NewGetElementPtr(
 			typ.AsVector().AsLLType(),
-			llvec,
+			val,
 			I32(0),
 			vectorLenOffset))
 
@@ -131,7 +98,7 @@ func (state *State) CompileInlineProduct(app *temporal.Application) value.Value 
 		types.NewPointer(lltyp),
 		state.Block.NewGetElementPtr(
 			typ.AsVector().AsLLType(),
-			llvec,
+			val,
 			I32(0),
 			vectorBodyOffset))
 
