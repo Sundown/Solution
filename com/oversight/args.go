@@ -12,7 +12,7 @@ import (
 	"github.com/llir/llvm/ir"
 )
 
-func (rt *Runtime) ParseArgs() {
+func (rt *Runtime) ParseArgs() *Runtime {
 	if len(os.Args) == 1 {
 		Error("No files input").Exit()
 	}
@@ -72,6 +72,8 @@ func (rt *Runtime) ParseArgs() {
 
 		}
 	}
+
+	return rt
 }
 
 func (rt *Runtime) HandleEmit(mod *ir.Module) {
