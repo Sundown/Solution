@@ -11,6 +11,23 @@ func (state *State) CompileInlinePrintln(typ *temporal.Type, val value.Value) va
 	if typ.Equals(&temporal.StringType) {
 		return state.Block.NewCall(
 			state.GetPrintf(),
+			state.GetFormatStringln(typ),
+			state.Block.NewLoad(types.I8Ptr, state.Block.NewGetElementPtr(
+				typ.AsLLType(),
+				val,
+				I32(0), vectorBodyOffset)))
+	}
+
+	return state.Block.NewCall(
+		state.GetPrintf(),
+		state.GetFormatStringln(typ),
+		val)
+}
+
+func (state *State) CompileInlinePrint(typ *temporal.Type, val value.Value) value.Value {
+	if typ.Equals(&temporal.StringType) {
+		return state.Block.NewCall(
+			state.GetPrintf(),
 			state.GetFormatString(typ),
 			state.Block.NewLoad(types.I8Ptr, state.Block.NewGetElementPtr(
 				typ.AsLLType(),

@@ -7,6 +7,7 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
 
 	"github.com/llir/llvm/ir"
 )
@@ -18,8 +19,8 @@ func (rt *Runtime) ParseArgs() {
 
 	var err error
 	for i, s := range os.Args {
-		if s[0] == '-' {
-			switch s[1:] {
+		if s[0:2] == "--" {
+			switch s[2:] {
 			case "emit":
 				if len(os.Args) > i+1 {
 					if os.Args[i+1] != "llvm" && os.Args[i+1] != "asm" {
@@ -42,6 +43,25 @@ func (rt *Runtime) ParseArgs() {
 				}
 			case "verbose":
 				Quietp = false
+			case "optimisation", "optimization":
+				if len(os.Args) > i+1 {
+					i++
+					switch os.Args[i] {
+					case "0", "1", "2", "3":
+						l, err := strconv.ParseInt(os.Args[i], 10, 32)
+						if err != nil {
+							Error("optimisation expected integer (0, 1, 3) or \"fast\"").Exit()
+						}
+
+						rt.Optimisation = &l
+
+					case "fast":
+						l := int64(4)
+						rt.Optimisation = &l
+					}
+				} else {
+					Error("optimisation expected level").Exit()
+				}
 			}
 
 		} else {
@@ -80,7 +100,14 @@ func (rt *Runtime) HandleEmit(mod *ir.Module) {
 		Notify("Compiled", rt.Output, "to Assembly").Exit()
 	}
 
-	err := exec.Command("clang", temp_name, "-o", rt.Output).Run()
+	opt := ""
+	if rt.Optimisation != nil {
+		f := strconv.FormatInt(*rt.Optimisation, 10)
+		Verbose("Optimisation level", f)
+		opt = "-O" + f
+	}
+
+	err := exec.Command("clang", temp_name, opt, "-o", rt.Output).Run()
 	exec.Command("rm", "-f", temp_name).Run()
 	if err != nil {
 		Error(err.Error()).Exit()

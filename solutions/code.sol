@@ -1,5 +1,19 @@
 @Package Solution
 @Entry Start
 
+Printandspace :: Int -> Void
+Printandspace =
+	Print @;
+	Print ", ";
+
+Printintvec :: [Int] -> Void
+Printintvec =
+	Print "[";
+	Map (Printandspace, @);
+	Print "]";
+
+
 Start :: Void -> Void
-Start = Map (Println, Map (Equals, [(1, 1), (2, 2), (3, 3), (4, 4), (5, 5), (6, 6), (7, 7), (8, 8), (9, 9), (10, 10)]));
+Start =
+	Printintvec [1, 2, 3, 4];
+	Println "";

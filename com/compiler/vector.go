@@ -22,7 +22,7 @@ func (state *State) CompileVector(vector *temporal.Atom) value.Value {
 	}
 
 	leng, cap := CalculateVectorSizes(len(vector.Vector))
-	elm_type := vector.Vector[0].TypeOf.AsLLType()
+	elm_type := vector.TypeOf.Vector.AsLLType()
 	head_type := vector.TypeOf.AsLLType()
 	head := state.Block.NewAlloca(head_type)
 
@@ -32,11 +32,13 @@ func (state *State) CompileVector(vector *temporal.Atom) value.Value {
 	// Store vector capacity
 	state.WriteVectorCapacity(head, cap, head_type)
 
-	body := state.BuildVectorBody(elm_type, cap, vector.Vector[0].TypeOf.WidthInBytes())
+	body := state.BuildVectorBody(elm_type, cap, vector.TypeOf.Vector.WidthInBytes())
 
-	state.PopulateBody(body, elm_type, vector.Vector)
+	if len(vector.Vector) > 0 {
+		state.PopulateBody(body, elm_type, vector.Vector)
+	}
 
-	// Point the vector header to alloc'd body
+	// Probably broken for 0-length vectors because this pointer is gonna be garbage
 	state.WriteVectorPointer(head, head_type, body)
 
 	return head
@@ -47,6 +49,7 @@ func (state *State) PopulateBody(
 	allocated_body *ir.InstBitCast,
 	element_type types.Type,
 	expr_vec []*temporal.Expression) {
+
 	ir_elm_type := expr_vec[0].TypeOf
 	for index, element := range expr_vec {
 		v := state.CompileExpression(element)

@@ -22,6 +22,8 @@ func (state *State) GetSpecialCallable(ident *temporal.Ident) Callable {
 	switch *ident.Ident {
 	case "Println":
 		return state.CompileInlinePrintln
+	case "Print":
+		return state.CompileInlinePrint
 	case "GEP":
 		return state.CompileInlineIndex
 	case "Panic":
@@ -52,6 +54,8 @@ func (state *State) CompileApplication(app *temporal.Application) value.Value {
 		return state.CompileInlineIndex(app.Argument.TypeOf, state.CompileExpression(app.Argument))
 	case "Println":
 		return state.CompileInlinePrintln(app.Argument.TypeOf, state.CompileExpression(app.Argument))
+	case "Print":
+		return state.CompileInlinePrint(app.Argument.TypeOf, state.CompileExpression(app.Argument))
 	case "Panic":
 		return state.CompileInlinePanic(nil, state.CompileExpression(app.Argument))
 	case "Len":

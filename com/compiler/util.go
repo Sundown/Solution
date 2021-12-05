@@ -76,7 +76,7 @@ func (state *State) AgnosticMult(t *temporal.Type, x, y value.Value) value.Value
 	}
 }
 
-func (state *State) GetFormatString(t *temporal.Type) value.Value {
+func (state *State) GetFormatStringln(t *temporal.Type) value.Value {
 	if t.Equals(&temporal.StringType) {
 		return state.Block.NewGetElementPtr(types.NewArray(4, types.I8), state.Module.NewGlobalDef("", constant.NewCharArrayFromString("%s\x0A\x00")), I32(0), I32(0))
 	} else if t.Equals(&temporal.IntType) {
@@ -89,6 +89,22 @@ func (state *State) GetFormatString(t *temporal.Type) value.Value {
 		return state.Block.NewGetElementPtr(types.NewArray(4, types.I8), state.Module.NewGlobalDef("", constant.NewCharArrayFromString("%d\x0A\x00")), I32(0), I32(0))
 	} else {
 		return state.Block.NewGetElementPtr(types.NewArray(2, types.I8), state.Module.NewGlobalDef("", constant.NewCharArrayFromString("\x0A\x00")), I32(0), I32(0))
+	}
+}
+
+func (state *State) GetFormatString(t *temporal.Type) value.Value {
+	if t.Equals(&temporal.StringType) {
+		return state.Block.NewGetElementPtr(types.NewArray(3, types.I8), state.Module.NewGlobalDef("", constant.NewCharArrayFromString("%s\x00")), I32(0), I32(0))
+	} else if t.Equals(&temporal.IntType) {
+		return state.Block.NewGetElementPtr(types.NewArray(3, types.I8), state.Module.NewGlobalDef("", constant.NewCharArrayFromString("%d\x00")), I32(0), I32(0))
+	} else if t.Equals(&temporal.RealType) {
+		return state.Block.NewGetElementPtr(types.NewArray(3, types.I8), state.Module.NewGlobalDef("", constant.NewCharArrayFromString("%f\x00")), I32(0), I32(0))
+	} else if t.Equals(&temporal.CharType) {
+		return state.Block.NewGetElementPtr(types.NewArray(3, types.I8), state.Module.NewGlobalDef("", constant.NewCharArrayFromString("%c\x00")), I32(0), I32(0))
+	} else if t.Equals(&temporal.BoolType) {
+		return state.Block.NewGetElementPtr(types.NewArray(3, types.I8), state.Module.NewGlobalDef("", constant.NewCharArrayFromString("%d\x00")), I32(0), I32(0))
+	} else {
+		return state.Block.NewGetElementPtr(types.NewArray(1, types.I8), state.Module.NewGlobalDef("", constant.NewCharArrayFromString("\x00")), I32(0), I32(0))
 	}
 }
 
