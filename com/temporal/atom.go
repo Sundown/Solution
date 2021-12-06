@@ -11,7 +11,7 @@ type Atom struct {
 	TypeOf   *Type
 	Tuple    []*Expression
 	Vector   []*Expression
-	Param    *bool // unused
+	Param    *bool
 	Function *Function
 	Int      *int64
 	Nat      *uint64
@@ -131,11 +131,23 @@ func (state *State) AnalyseAtom(primary *lexer.Primary) (a *Atom) {
 		} else {
 			a = state.GetNoun(primary.Noun)
 		}
-	case primary.Param != nil:
+	case primary.ParamAlpha != nil:
 		b := true
 		a = &Atom{
-			TypeOf: state.CurrentFunction.Takes,
+			TypeOf: state.CurrentFunction.TakesAlpha,
 			Param:  &b,
+		}
+	case primary.ParamOmega != nil:
+		b := true
+		a = &Atom{
+			TypeOf: state.CurrentFunction.TakesOmega,
+			Param:  &b,
+		}
+	case primary.Nil != nil:
+		b := int64(0)
+		a = &Atom{
+			Int:    &b,
+			TypeOf: &VoidType,
 		}
 	default:
 		panic("Was a new type added?")

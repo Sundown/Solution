@@ -8,20 +8,20 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-func (state *State) CompileInlineAppend(typ *temporal.Type, val value.Value) value.Value {
-	width := typ.Tuple[0].WidthInBytes()
-	vec_head_typ := typ.Tuple[0].AsLLType()
-	vec_elem_typ := types.NewPointer(typ.Tuple[0].Vector.AsLLType())
+func (state *State) CompileInlineAppend(
+	typAlpha *temporal.Type, valAlpha value.Value,
+	typOmega *temporal.Type, valOmega value.Value) value.Value {
+	width := typAlpha.WidthInBytes()
 
-	vec_a := state.Block.NewGetElementPtr(typ.AsLLType(), val, I32(0), I32(0))
-	vec_b := state.Block.NewGetElementPtr(typ.AsLLType(), val, I32(0), I32(1))
+	vec_head_typ := typAlpha.AsLLType()
+	vec_elem_typ := types.NewPointer(typAlpha.Vector.AsLLType())
 
-	len_a := state.ReadVectorLength(typ.Tuple[0], vec_a)
-	len_b := state.ReadVectorLength(typ.Tuple[1], vec_b)
+	len_a := state.ReadVectorLength(typAlpha, valAlpha)
+	len_b := state.ReadVectorLength(typOmega, valOmega)
 
 	cap_f := state.Block.NewAdd(
-		state.ReadVectorCapacity(typ.Tuple[0], vec_a),
-		state.ReadVectorCapacity(typ.Tuple[1], vec_b))
+		state.ReadVectorCapacity(typAlpha, valAlpha),
+		state.ReadVectorCapacity(typOmega, valOmega))
 
 	head := state.Block.NewAlloca(vec_head_typ)
 
@@ -41,7 +41,7 @@ func (state *State) CompileInlineAppend(typ *temporal.Type, val value.Value) val
 		state.Block.NewBitCast(
 			state.Block.NewLoad(
 				vec_elem_typ,
-				state.Block.NewGetElementPtr(vec_head_typ, vec_a, I32(0), vectorBodyOffset)),
+				state.Block.NewGetElementPtr(vec_head_typ, valAlpha, I32(0), vectorBodyOffset)),
 			types.I8Ptr),
 		len_a, constant.NewBool(false))
 
@@ -51,7 +51,7 @@ func (state *State) CompileInlineAppend(typ *temporal.Type, val value.Value) val
 		state.Block.NewBitCast(
 			state.Block.NewLoad(
 				vec_elem_typ,
-				state.Block.NewGetElementPtr(vec_head_typ, vec_b, I32(0), vectorBodyOffset)),
+				state.Block.NewGetElementPtr(vec_head_typ, valOmega, I32(0), vectorBodyOffset)),
 			types.I8Ptr),
 		len_b, constant.NewBool(false))
 

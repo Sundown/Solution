@@ -36,10 +36,6 @@ func (state *State) GetSpecialCallable(ident *temporal.Ident) Callable {
 		return state.CompileInlineSum
 	case "Product":
 		return state.CompileInlineProduct
-	case "Append":
-		return state.CompileInlineAppend
-	case "Equals":
-		return state.CompileInlineEqual
 	default:
 		panic("unreachable")
 	}
@@ -48,41 +44,45 @@ func (state *State) GetSpecialCallable(ident *temporal.Ident) Callable {
 func (state *State) CompileApplication(app *temporal.Application) value.Value {
 	switch *app.Function.Ident.Ident {
 	case "Return":
-		state.Block.NewRet(state.CompileExpression(app.Argument))
+		state.Block.NewRet(state.CompileExpression(app.ArgumentAlpha))
 		return nil
 	case "GEP":
-		return state.CompileInlineIndex(app.Argument.TypeOf, state.CompileExpression(app.Argument))
+		return state.CompileInlineIndex(app.ArgumentAlpha.TypeOf, state.CompileExpression(app.ArgumentAlpha))
 	case "Println":
-		return state.CompileInlinePrintln(app.Argument.TypeOf, state.CompileExpression(app.Argument))
+		return state.CompileInlinePrintln(app.ArgumentAlpha.TypeOf, state.CompileExpression(app.ArgumentAlpha))
 	case "Print":
-		return state.CompileInlinePrint(app.Argument.TypeOf, state.CompileExpression(app.Argument))
+		return state.CompileInlinePrint(app.ArgumentAlpha.TypeOf, state.CompileExpression(app.ArgumentAlpha))
 	case "Panic":
-		return state.CompileInlinePanic(nil, state.CompileExpression(app.Argument))
+		return state.CompileInlinePanic(nil, state.CompileExpression(app.ArgumentAlpha))
 	case "Len":
-		return state.ReadVectorLength(app.Argument.TypeOf, state.CompileExpression(app.Argument))
+		return state.ReadVectorLength(app.ArgumentAlpha.TypeOf, state.CompileExpression(app.ArgumentAlpha))
 	case "Cap":
-		return state.ReadVectorCapacity(app.Argument.TypeOf, state.CompileExpression(app.Argument))
+		return state.ReadVectorCapacity(app.ArgumentAlpha.TypeOf, state.CompileExpression(app.ArgumentAlpha))
 	case "Map":
-		return state.CompileInlineMap(app.Argument)
+		return state.CompileInlineMap(app.ArgumentAlpha)
 	case "Foldl":
 		return state.CompileInlineFoldl(app)
 	case "Sum":
-		return state.CompileInlineSum(app.Argument.TypeOf, state.CompileExpression(app.Argument))
+		return state.CompileInlineSum(app.ArgumentAlpha.TypeOf, state.CompileExpression(app.ArgumentAlpha))
 	case "Product":
-		return state.CompileInlineProduct(app.Argument.TypeOf, state.CompileExpression(app.Argument))
+		return state.CompileInlineProduct(app.ArgumentAlpha.TypeOf, state.CompileExpression(app.ArgumentAlpha))
 	case "Append":
-		return state.CompileInlineAppend(app.Argument.TypeOf, state.CompileExpression(app.Argument))
+		return state.CompileInlineAppend(
+			app.ArgumentAlpha.TypeOf, state.CompileExpression(app.ArgumentAlpha),
+			app.ArgumentOmega.TypeOf, state.CompileExpression(app.ArgumentOmega))
 	case "Equals":
-		return state.CompileInlineEqual(app.Argument.TypeOf, state.CompileExpression(app.Argument))
+		return state.CompileInlineEqual(
+			app.ArgumentAlpha.TypeOf, state.CompileExpression(app.ArgumentAlpha),
+			app.ArgumentOmega.TypeOf, state.CompileExpression(app.ArgumentOmega))
 	case "First":
-		return state.TupleGet(app.Argument.TypeOf, state.CompileExpression(app.Argument), 0)
+		return state.TupleGet(app.ArgumentAlpha.TypeOf, state.CompileExpression(app.ArgumentAlpha), 0)
 	case "Second":
-		return state.TupleGet(app.Argument.TypeOf, state.CompileExpression(app.Argument), 1)
+		return state.TupleGet(app.ArgumentAlpha.TypeOf, state.CompileExpression(app.ArgumentAlpha), 1)
 	case "Third":
-		return state.TupleGet(app.Argument.TypeOf, state.CompileExpression(app.Argument), 2)
+		return state.TupleGet(app.ArgumentAlpha.TypeOf, state.CompileExpression(app.ArgumentAlpha), 2)
 	default:
 		return state.Block.NewCall(
 			state.Functions[app.Function.ToLLVMName()],
-			state.CompileExpression(app.Argument))
+			state.CompileExpression(app.ArgumentAlpha))
 	}
 }

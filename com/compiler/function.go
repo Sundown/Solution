@@ -15,10 +15,19 @@ func (state *State) CompileBlock(body *temporal.Expression) {
 }
 
 func (state *State) DeclareFunction(fn *temporal.Function) *ir.Func {
+	args := []*ir.Param{ToParam(fn.TakesAlpha), ToParam(fn.TakesOmega)}
+	if args[1] == nil {
+		if args[0] != nil {
+			args = []*ir.Param{ToParam(fn.TakesAlpha)}
+		} else {
+			args = []*ir.Param{}
+		}
+	} // I hope this is me being stupid, otherwise Go is broken
+
 	state.CurrentFunction = state.Module.NewFunc(
 		fn.ToLLVMName(),
 		ToReturn(fn.Gives),
-		ToParam(fn.Takes)...)
+		args...)
 
 	return state.CurrentFunction
 }
@@ -51,13 +60,13 @@ func ToReturn(t *temporal.Type) (typ types.Type) {
 }
 
 // Handle void parameters and add pointers to complex types
-func ToParam(t *temporal.Type) (typ []*ir.Param) {
+func ToParam(t *temporal.Type) (typ *ir.Param) {
 	if t.LLType == types.Void {
-		typ = []*ir.Param{}
+		typ = nil
 	} else if t.Vector != nil || t.Tuple != nil {
-		typ = []*ir.Param{ir.NewParam("@", types.NewPointer(t.LLType))}
+		typ = ir.NewParam("@", types.NewPointer(t.LLType))
 	} else {
-		typ = []*ir.Param{ir.NewParam("@", t.LLType)}
+		typ = ir.NewParam("@", t.LLType)
 	}
 
 	return typ

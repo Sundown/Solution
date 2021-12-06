@@ -36,14 +36,15 @@ func (state *State) PrintFunctions() {
 	fmt.Println(str)
 }
 
-func (state *State) AddSpecialForm(ident string, takes *Type, gives *Type) *State {
+func (state *State) AddSpecialForm(ident string, takesAlpha *Type, takesOmega *Type, gives *Type) *State {
 	k := Ident{Namespace: oversight.Ref("_"), Ident: &ident}
 	state.Functions[k.AsKey()] = &Function{
-		Ident:   &k,
-		Takes:   takes,
-		Gives:   gives,
-		Body:    nil,
-		Special: true,
+		Ident:      &k,
+		TakesAlpha: takesAlpha,
+		TakesOmega: takesOmega,
+		Gives:      gives,
+		Body:       nil,
+		Special:    true,
 	}
 
 	return state
@@ -53,22 +54,22 @@ func (state *State) Parse(program *lexer.State) *State {
 	oversight.Verbose("Init parser")
 	entry := state.
 		BuildParserEnv().
-		AddSpecialForm("Return", AtomicType("T"), AtomicType("T")).
-		AddSpecialForm("GEP", AtomicType("T"), AtomicType("T")).
-		AddSpecialForm("First", AtomicType("T"), AtomicType("T")).
-		AddSpecialForm("Second", AtomicType("T"), AtomicType("T")).
-		AddSpecialForm("Third", AtomicType("T"), AtomicType("T")).
-		AddSpecialForm("Print", AtomicType("T"), AtomicType("Void")).
-		AddSpecialForm("Println", AtomicType("T"), AtomicType("Void")).
-		AddSpecialForm("Sum", AtomicType("T"), AtomicType("T")).
-		AddSpecialForm("Product", AtomicType("T"), AtomicType("T")).
-		AddSpecialForm("Len", VectorType(AtomicType("T")), AtomicType("Int")).
-		AddSpecialForm("Cap", VectorType(AtomicType("T")), AtomicType("Int")).
-		AddSpecialForm("Append", StructType(VectorType(AtomicType("T")), VectorType(AtomicType("T"))), VectorType(AtomicType("T"))).
-		AddSpecialForm("Map", StructType(AtomicType("T"), VectorType(AtomicType("T"))), AtomicType("[T]")).
-		AddSpecialForm("Foldl", StructType(AtomicType("T"), AtomicType("T"), VectorType(AtomicType("T"))), AtomicType("T")).
-		AddSpecialForm("Panic", &IntType, AtomicType("Void")).
-		AddSpecialForm("Equals", StructType(&IntType, &IntType), &BoolType).
+		AddSpecialForm("Return", AtomicType("T"), &VoidType, AtomicType("T")).
+		AddSpecialForm("GEP", AtomicType("T"), &VoidType, AtomicType("T")).
+		AddSpecialForm("First", AtomicType("T"), &VoidType, AtomicType("T")).
+		AddSpecialForm("Second", AtomicType("T"), &VoidType, AtomicType("T")).
+		AddSpecialForm("Third", AtomicType("T"), &VoidType, AtomicType("T")).
+		AddSpecialForm("Print", AtomicType("T"), &VoidType, AtomicType("Void")).
+		AddSpecialForm("Println", AtomicType("T"), &VoidType, AtomicType("Void")).
+		AddSpecialForm("Sum", AtomicType("T"), &VoidType, AtomicType("T")).
+		AddSpecialForm("Product", AtomicType("T"), &VoidType, AtomicType("T")).
+		AddSpecialForm("Len", VectorType(AtomicType("T")), &VoidType, AtomicType("Int")).
+		AddSpecialForm("Cap", VectorType(AtomicType("T")), &VoidType, AtomicType("Int")).
+		AddSpecialForm("Append", StructType(VectorType(AtomicType("T")), VectorType(AtomicType("T"))), &VoidType, VectorType(AtomicType("T"))).
+		AddSpecialForm("Map", StructType(AtomicType("T"), VectorType(AtomicType("T"))), &VoidType, AtomicType("[T]")).
+		//AddSpecialForm("Foldl", StructType(AtomicType("T"), AtomicType("T"), VectorType(AtomicType("T"))), AtomicType("T")).
+		AddSpecialForm("Panic", &IntType, &VoidType, AtomicType("Void")).
+		AddSpecialForm("Equals", &IntType, &IntType, &BoolType).
 		CollectDirectives(program).
 		ForkStatements(program).
 		CollectFunctions(program).

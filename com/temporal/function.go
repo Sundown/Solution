@@ -6,11 +6,12 @@ import (
 )
 
 type Function struct {
-	Ident   *Ident
-	Takes   *Type
-	Gives   *Type
-	Body    *Expression
-	Special bool
+	Ident      *Ident
+	TakesAlpha *Type
+	TakesOmega *Type
+	Gives      *Type
+	Body       *Expression
+	Special    bool
 }
 
 func (f *Function) String() string {
@@ -27,18 +28,18 @@ func (f *Function) String() string {
 		sig = *f.Ident.Namespace + "::" + *f.Ident.Ident
 	}
 
-	return sig + " : " + f.Takes.String() + " -> " + f.Gives.String() + body
+	return sig + " : " + f.TakesAlpha.String() + ", " + f.TakesOmega.String() + " -> " + f.Gives.String() + body
 }
 
 // Name to be used within LLVM IR for ease of reading
 func (i *Function) ToLLVMName() string {
-	return *i.Ident.Namespace + "::" + *i.Ident.Ident + " " + i.Takes.String() + "->" + i.Gives.String()
+	return *i.Ident.Namespace + "::" + *i.Ident.Ident + " " + i.TakesAlpha.String() + ", " + /*  i.TakesOmega.String() + */ "->" + i.Gives.String()
 }
 
 // Essentially declaration string
 func (f *Function) SigString() string {
 	return *f.Ident.Namespace + "::" + *f.Ident.Ident + " : " +
-		f.Takes.String() + " -> " + f.Gives.String()
+		f.TakesAlpha.String() + ", " + f.TakesOmega.String() + " -> " + f.Gives.String()
 }
 
 func (state *State) AnalyseFunction(function *lexer.Ident) (f *Function) {
@@ -105,9 +106,10 @@ func (state *State) AnalyseFnDecl(statement *lexer.FnSig) {
 				Namespace: state.PackageIdent,
 				Ident:     statement.Ident,
 			},
-			Takes:   state.AnalyseType(statement.Takes),
-			Gives:   state.AnalyseType(statement.Gives),
-			Special: false,
+			TakesAlpha: state.AnalyseType(statement.TakesAlpha),
+			TakesOmega: state.AnalyseType(statement.TakesOmega),
+			Gives:      state.AnalyseType(statement.Gives),
+			Special:    false,
 		}
 	} else {
 		oversight.Error(*statement.Ident + " is already declared as " + state.Functions[key].SigString() + ".\n" + statement.Pos.String()).Exit()

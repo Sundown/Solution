@@ -7,8 +7,8 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-func (state *State) CompileInlineEqual(typ *temporal.Type, val value.Value) value.Value {
-	return state.Block.NewICmp(enum.IPredEQ,
-		state.TupleGet(typ, val, 0),
-		state.TupleGet(typ, val, 1))
+func (state *State) CompileInlineEqual(
+	typAlpha *temporal.Type, valAlpha value.Value,
+	typOmega *temporal.Type, valOmega value.Value) value.Value {
+	return state.Block.NewICmp(enum.IPredEQ, valAlpha, valOmega)
 }

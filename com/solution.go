@@ -15,5 +15,9 @@ func main() {
 	p := &temporal.State{}
 	c := &compiler.State{Runtime: r}
 
-	r.HandleEmit(c.Compile(p.Parse(l.Lex(r.ParseArgs()))))
+	lexed := l.Lex(r.ParseArgs())
+
+	//repr.Println(lexed)
+
+	r.HandleEmit(c.Compile(p.Parse(lexed)))
 }

@@ -10,13 +10,13 @@ import (
 
 // Need tuple element access before this is useful, ignore for now
 func (state *State) CompileInlineFoldl(app *temporal.Application) value.Value {
-	fn := app.Argument.Atom.Tuple[0]
+	fn := app.ArgumentAlpha.Atom.Tuple[0]
 	llfn := state.CompileExpression(fn)
-	typ := app.Argument.TypeOf.Vector
+	typ := app.ArgumentAlpha.TypeOf.Vector
 
 	lltyp := typ.AsLLType()
 
-	vec := app.Argument
+	vec := app.ArgumentAlpha
 
 	llvec := state.CompileExpression(vec)
 

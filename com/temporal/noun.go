@@ -40,7 +40,7 @@ func (state *State) AnalyseNounDecl(noun *lexer.NounDecl) {
 
 	if noun.Value.Noun != nil {
 		temp = state.GetNoun(noun.Value.Noun)
-	} else if noun.Value.Param != nil {
+	} else if noun.Value.ParamAlpha != nil {
 		// ... why
 		oversight.Error("Cannot use \"" + oversight.Yellow("@") + "\" (parameter figurative) as R-value in definition.\n" + noun.Pos.String()).Exit()
 	} else {

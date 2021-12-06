@@ -1,4 +1,4 @@
-package lexer
+package altlexer
 
 import "github.com/alecthomas/participle/v2/lexer"
 
@@ -42,11 +42,10 @@ type NounDecl struct {
 }
 
 type FnSig struct {
-	Pos        lexer.Position
-	Ident      *string `@Ident ":"":"`
-	TakesAlpha *Type   `@@ ","`
-	TakesOmega *Type   `@@ "-"`
-	Gives      *Type   `">" @@`
+	Pos   lexer.Position
+	Ident *string `@Ident ":"":"`
+	Takes *Type   `@@ "-"`
+	Gives *Type   `">" @@`
 }
 
 type FnDef struct {
@@ -69,22 +68,20 @@ type Type struct {
 }
 
 type Application struct {
-	Pos            lexer.Position
-	Function       *Ident      `@@`
-	ParameterAlpha *Expression `@@ ","`
-	ParameterOmega *Expression `@@`
+	Pos       lexer.Position
+	Function  *Ident      `@@`
+	Parameter *Expression `@@`
 }
 
 type Primary struct {
-	Pos        lexer.Position
-	Tuple      []*Expression `	"(" (@@ ("," @@)*)? ")"`
-	Vec        []*Expression `| "[" (@@ ("," @@)*)? "]"`
-	Int        *int64        `| @('-'? Int)`
-	Real       *float64      `| @('-'? Float)`
-	Nil        *string       `| @"Nil"`
-	String     *string       `| @String`
-	Char       *string       `| @Char`
-	ParamAlpha *string       `| @"Alpha"`
-	ParamOmega *string       `| @"Omega"`
-	Noun       *Ident        `| @@`
+	Pos    lexer.Position
+	Tuple  []*Expression `	"(" (@@ ("," @@)*)? ")"`
+	Vec    []*Expression `| "[" (@@ ("," @@)*)? "]"`
+	Int    *int64        `| @('-'? Int)`
+	Real   *float64      `| @('-'? Float)`
+	Nil    *string       `| @"Nil"`
+	String *string       `| @String`
+	Char   *string       `| @Char`
+	Param  *string       `| @"@"`
+	Noun   *Ident        `| @@`
 }

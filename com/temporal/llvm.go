@@ -54,11 +54,13 @@ func (e *Expression) Type() *Type {
 	} else if a := e.Application; a != nil {
 		// Implement T -> T transform
 		// ([T], Int) -> T i.e. ([Char], Int) -> Char
-		if a.Argument.TypeOf.Atomic != nil && *a.Argument.TypeOf.Atomic == "T" {
+		/*if a.Argument.TypeOf.Atomic != nil && *a.Argument.TypeOf.Atomic == "T" {
 			// Poly
 		} else {
 
-		}
+		}*/
+
+		//lmfao this is completely broken
 	}
 
 	return nil
