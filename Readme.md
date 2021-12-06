@@ -1,8 +1,5 @@
-<div align="center">
-<h1>Solution</h1>
-</div>
 
-The compiler.
+### Solution
 
 This repository is to be ignored for the foreseeable future.
 
