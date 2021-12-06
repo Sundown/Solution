@@ -7,7 +7,7 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-func (state *State) CompileTuple(tuple *temporal.Atom) value.Value {
+func (state *State) CompileTuple(tuple *temporal.Morpheme) value.Value {
 	ll_tuple := state.Block.NewAlloca(tuple.TypeOf.AsLLType())
 
 	for index, expr := range tuple.Tuple {

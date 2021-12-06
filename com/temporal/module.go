@@ -12,7 +12,7 @@ type State struct {
 	EntryFunction   *Function
 	CurrentFunction *Function
 	Functions       map[IdentKey]*Function
-	NounDefs        map[IdentKey]*Atom
+	NounDefs        map[IdentKey]*Morpheme
 	TypeDefs        map[IdentKey]*Type
 	Imports         []string
 }
@@ -87,7 +87,7 @@ func (state *State) Parse(program *lexer.State) *State {
 func (state *State) BuildParserEnv() *State {
 	state.Functions = make(map[IdentKey]*Function)
 	state.TypeDefs = make(map[IdentKey]*Type)
-	state.NounDefs = make(map[IdentKey]*Atom)
+	state.NounDefs = make(map[IdentKey]*Morpheme)
 	state.PopulateTypes()
 
 	return state

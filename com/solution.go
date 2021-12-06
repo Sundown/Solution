@@ -1,10 +1,10 @@
 package main
 
 import (
-	"sundown/solution/compiler"
 	"sundown/solution/lexer"
 	"sundown/solution/oversight"
-	"sundown/solution/temporal"
+
+	"github.com/alecthomas/repr"
 )
 
 func main() {
@@ -12,12 +12,12 @@ func main() {
 
 	r := &oversight.Runtime{}
 	l := &lexer.State{}
-	p := &temporal.State{}
-	c := &compiler.State{Runtime: r}
+	//p := &temporal.State{}
+	//c := &compiler.State{Runtime: r}
 
 	lexed := l.Lex(r.ParseArgs())
 
-	//repr.Println(lexed)
+	repr.Println(lexed)
 
-	r.HandleEmit(c.Compile(p.Parse(lexed)))
+	//r.HandleEmit(c.Compile(p.Parse(lexed)))
 }

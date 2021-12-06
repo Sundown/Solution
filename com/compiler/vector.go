@@ -16,7 +16,7 @@ var (
 	vectorBodyOffset = I32(2)
 )
 
-func (state *State) CompileVector(vector *temporal.Atom) value.Value {
+func (state *State) CompileVector(vector *temporal.Morpheme) value.Value {
 	if vector.Vector == nil {
 		panic("Unreachable")
 	}

@@ -9,8 +9,8 @@ import (
 func (state *State) CompileExpression(expr *temporal.Expression) value.Value {
 	if expr.Application != nil {
 		return state.CompileApplication(expr.Application)
-	} else if expr.Atom != nil {
-		return state.CompileAtom(expr.Atom)
+	} else if expr.Morpheme != nil {
+		return state.CompileAtom(expr.Morpheme)
 	} else {
 		panic("unreachable")
 	}

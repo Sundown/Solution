@@ -9,25 +9,25 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-func (state *State) CompileAtom(atom *temporal.Atom) value.Value {
+func (state *State) CompileAtom(morpheme *temporal.Morpheme) value.Value {
 	switch {
-	case atom.Param != nil:
+	case morpheme.Param != nil:
 		return state.CurrentFunction.Params[0]
-	case atom.Int != nil:
-		return constant.NewInt(types.I64, *atom.Int)
-	case atom.Real != nil:
-		return constant.NewFloat(types.Double, *atom.Real)
-	case atom.Char != nil:
-		return constant.NewInt(types.I8, int64(*atom.Char))
-	case atom.Bool != nil:
-		return constant.NewBool(*atom.Bool)
-	case atom.Vector != nil:
-		return state.CompileVector(atom)
-	case atom.Tuple != nil:
-		return state.CompileTuple(atom)
-	case atom.Function != nil:
-		fmt.Println("fn", atom)
-		return state.Functions[atom.Function.ToLLVMName()]
+	case morpheme.Int != nil:
+		return constant.NewInt(types.I64, *morpheme.Int)
+	case morpheme.Real != nil:
+		return constant.NewFloat(types.Double, *morpheme.Real)
+	case morpheme.Char != nil:
+		return constant.NewInt(types.I8, int64(*morpheme.Char))
+	case morpheme.Bool != nil:
+		return constant.NewBool(*morpheme.Bool)
+	case morpheme.Vector != nil:
+		return state.CompileVector(morpheme)
+	case morpheme.Tuple != nil:
+		return state.CompileTuple(morpheme)
+	case morpheme.Function != nil:
+		fmt.Println("fn", morpheme)
+		return state.Functions[morpheme.Function.ToLLVMName()]
 	default:
 		panic("unreachable")
 	}

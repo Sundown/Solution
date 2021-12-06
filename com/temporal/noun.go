@@ -7,7 +7,7 @@ import (
 
 // Tries to find noun in order (defined_namespace or foundation) then package
 // order may change in future such that foundation is last
-func (state *State) GetNoun(key *lexer.Ident) *Atom {
+func (state *State) GetNoun(key *lexer.Ident) *Morpheme {
 	k := IRIdent(key)
 	noun := state.NounDefs[k.AsKey()]
 
@@ -20,7 +20,7 @@ func (state *State) GetNoun(key *lexer.Ident) *Atom {
 		if noun == nil {
 			fn := state.GetFunction(k)
 			if fn != nil {
-				noun = &Atom{TypeOf: fn.Gives, Function: fn}
+				noun = &Morpheme{TypeOf: fn.Gives, Function: fn}
 
 			} else {
 				oversight.Error("Identifier \"" + oversight.Yellow(k.String()) + "\" is not defined in current scope or Foundation.\n" + key.Pos.String()).Exit()
@@ -36,7 +36,7 @@ func (state *State) AnalyseNounDecl(noun *lexer.NounDecl) {
 		oversight.Error("Identifier \"" + oversight.Yellow(*noun.Ident) + "\" is reserved by the compiler.\n" + noun.Pos.String()).Exit()
 	}
 
-	var temp *Atom
+	var temp *Morpheme
 
 	if noun.Value.Noun != nil {
 		temp = state.GetNoun(noun.Value.Noun)
@@ -44,7 +44,7 @@ func (state *State) AnalyseNounDecl(noun *lexer.NounDecl) {
 		// ... why
 		oversight.Error("Cannot use \"" + oversight.Yellow("@") + "\" (parameter figurative) as R-value in definition.\n" + noun.Pos.String()).Exit()
 	} else {
-		temp = state.AnalyseAtom(noun.Value)
+		temp = state.AnalyseMorpheme(noun.Value)
 	}
 
 	key := IdentKey{Namespace: *state.PackageIdent, Ident: *noun.Ident}

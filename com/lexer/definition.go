@@ -7,9 +7,9 @@ type State struct {
 	Statements []*struct {
 		Directive *Directive `"@" @@`
 		TypeDecl  *TypeDecl  `| @@`
-		NounDecl  *NounDecl  `| @@`
-		FnSig     *FnSig     `| @@`
-		FnDef     *FnDef     `| @@`
+		//NounDecl  *NounDecl  `| @@`
+		FnSig *FnSig `| @@`
+		FnDef *FnDef `| @@`
 	} `@@*`
 }
 
@@ -35,11 +35,11 @@ type TypeDecl struct {
 	Type  *Type   `@@`
 }
 
-type NounDecl struct {
+/* type NounDecl struct {
 	Pos   lexer.Position
 	Ident *string  `@Ident "="`
-	Value *Primary `@@ ";"`
-}
+	Value *Morpheme `@@ ";"`
+} */
 
 type FnSig struct {
 	Pos        lexer.Position
@@ -55,36 +55,9 @@ type FnDef struct {
 	Expressions []*Expression `(@@ ";")+`
 }
 
-type Expression struct {
-	Pos         lexer.Position
-	Application *Application `( @@`
-	Primary     *Primary     `| @@ )`
-}
-
 type Type struct {
 	Pos       lexer.Position
 	Primative *Ident  ` @@`
 	Vector    *Type   `| "[" @@ "]"`
 	Tuple     []*Type `| "(" (@@ ("," @@)*)? ")"`
-}
-
-type Application struct {
-	Pos            lexer.Position
-	Function       *Ident      `@@`
-	ParameterAlpha *Expression `@@ ","`
-	ParameterOmega *Expression `@@`
-}
-
-type Primary struct {
-	Pos        lexer.Position
-	Tuple      []*Expression `	"(" (@@ ("," @@)*)? ")"`
-	Vec        []*Expression `| "[" (@@ ("," @@)*)? "]"`
-	Int        *int64        `| @('-'? Int)`
-	Real       *float64      `| @('-'? Float)`
-	Nil        *string       `| @"Nil"`
-	String     *string       `| @String`
-	Char       *string       `| @Char`
-	ParamAlpha *string       `| @"Alpha"`
-	ParamOmega *string       `| @"Omega"`
-	Noun       *Ident        `| @@`
 }

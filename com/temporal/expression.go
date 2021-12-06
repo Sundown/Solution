@@ -5,17 +5,18 @@ import (
 )
 
 type Expression struct {
-	TypeOf      *Type
-	Application *Application
-	Atom        *Atom
-	Block       []*Expression
+	TypeOf   *Type
+	Monadic  *MonadicApplication
+	Dyadic   *DyadicApplication
+	Morpheme *Morpheme
+	Block    []*Expression
 }
 
 func (e *Expression) String() string {
 	if e.Application != nil {
 		return e.Application.String()
-	} else if e.Atom != nil {
-		return e.Atom.String()
+	} else if e.Morpheme != nil {
+		return e.Morpheme.String()
 	} else if e.Block != nil {
 		var str string
 		for _, v := range e.Block {
@@ -28,14 +29,20 @@ func (e *Expression) String() string {
 	return "//"
 }
 
-func (state *State) AnalyseExpression(expression *lexer.Expression) (e *Expression) {
-	if expression.Primary != nil {
-		e = &Expression{Atom: state.AnalyseAtom(expression.Primary)}
-		e.TypeOf = e.Atom.TypeOf
+func (state *State) AnalyseExpression(expr *lexer.Expression) (e *Expression) {
+	if expr.Dyadic.Next == nil {
+		m := state.AnalyseMonadicApplication(expr.Monadic)
+		//e = &Expression{
+
+	}
+	/* if expression.Morpheme != nil {
+		e = &Expression{Morpheme: state.AnalyseMorpheme(expression.Morpheme)}
+		e.TypeOf = e.Morpheme.TypeOf
 	} else if expression.Application != nil {
 		e = &Expression{Application: state.AnalyseApplication(expression.Application)}
 		e.TypeOf = e.Application.Function.Gives
 	}
 
-	return e
+	return e */
+	return nil
 }

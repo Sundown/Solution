@@ -58,25 +58,25 @@ func (state *State) AnalyseApplication(application *lexer.Application) (s *Appli
 			oversight.Error("Malformed call to " + oversight.Yellow("Map") + ".\n" + application.Pos.String()).Exit()
 		}
 
-		s.TypeOf = s.ArgumentAlpha.Atom.Tuple[0].Atom.Function.Gives.AsVector()
+		s.TypeOf = s.ArgumentAlpha.Morpheme.Tuple[0].Morpheme.Function.Gives.AsVector()
 		s.Function.Gives = s.TypeOf
 	case "GEP":
-		s.TypeOf = s.ArgumentAlpha.Atom.Tuple[0].TypeOf.Vector
+		s.TypeOf = s.ArgumentAlpha.Morpheme.Tuple[0].TypeOf.Vector
 		s.Function.Gives = s.TypeOf
 	/*case "Foldl":
 	if s.Argument.TypeOf.Tuple == nil ||
-		s.Argument.Atom.Tuple == nil || s.Argument.Atom.Tuple[0].Atom == nil ||
-		s.Argument.Atom.Tuple[0].Atom.Function == nil ||
-		s.Argument.Atom.Tuple[0].Atom.Function.Takes.Tuple == nil ||
-		s.Argument.Atom.Tuple[1].Atom == nil ||
-		s.Argument.Atom.Tuple[2].Atom.Vector == nil {
+		s.Argument.Morpheme.Tuple == nil || s.Argument.Morpheme.Tuple[0].Morpheme == nil ||
+		s.Argument.Morpheme.Tuple[0].Morpheme.Function == nil ||
+		s.Argument.Morpheme.Tuple[0].Morpheme.Function.Takes.Tuple == nil ||
+		s.Argument.Morpheme.Tuple[1].Morpheme == nil ||
+		s.Argument.Morpheme.Tuple[2].Morpheme.Vector == nil {
 		oversight.Error("Malformed call to " + oversight.Yellow("Foldl") + ".\n" + application.Pos.String()).Exit()
 	}
 
-	fn_t := s.Argument.Atom.Tuple[0].Atom.Function.Takes.Tuple
-	fn_g := s.Argument.Atom.Tuple[0].Atom.Function.Gives
-	id_i := s.Argument.Atom.Tuple[1].Atom.TypeOf
-	vect := s.Argument.Atom.Tuple[2].Atom.TypeOf
+	fn_t := s.Argument.Morpheme.Tuple[0].Morpheme.Function.Takes.Tuple
+	fn_g := s.Argument.Morpheme.Tuple[0].Morpheme.Function.Gives
+	id_i := s.Argument.Morpheme.Tuple[1].Morpheme.TypeOf
+	vect := s.Argument.Morpheme.Tuple[2].Morpheme.TypeOf
 
 	if !fn_t[0].Equals(id_i) {
 		oversight.Error("Mapping function cannot accept identity in " + oversight.Yellow("Foldl") + ".\n" + application.Pos.String()).Exit()
@@ -93,7 +93,7 @@ func (state *State) AnalyseApplication(application *lexer.Application) (s *Appli
 	s.TypeOf = fn_g
 	s.Function.Gives = s.TypeOf*/
 	case "Sum":
-		s.TypeOf = s.ArgumentAlpha.Atom.TypeOf.Vector
+		s.TypeOf = s.ArgumentAlpha.Morpheme.TypeOf.Vector
 		s.Function.Gives = s.TypeOf
 	case "Println":
 		s.TypeOf = &VoidType
@@ -104,20 +104,20 @@ func (state *State) AnalyseApplication(application *lexer.Application) (s *Appli
 		s.Function.TakesOmega = &IntType
 		s.Function.Gives = s.TypeOf
 	case "Product":
-		//s.TypeOf = s.Argument.Atom.TypeOf.Vector
+		//s.TypeOf = s.Argument.Morpheme.TypeOf.Vector
 		s.TypeOf = &IntType
 		s.Function.Gives = s.TypeOf
 	case "Append":
-		s.TypeOf = s.ArgumentAlpha.Atom.Tuple[0].TypeOf
+		s.TypeOf = s.ArgumentAlpha.Morpheme.Tuple[0].TypeOf
 		s.Function.Gives = s.TypeOf
 	case "First":
-		s.TypeOf = s.ArgumentAlpha.Atom.Tuple[0].TypeOf
+		s.TypeOf = s.ArgumentAlpha.Morpheme.Tuple[0].TypeOf
 		s.Function.Gives = s.TypeOf
 	case "Second":
-		s.TypeOf = s.ArgumentAlpha.Atom.Tuple[1].TypeOf
+		s.TypeOf = s.ArgumentAlpha.Morpheme.Tuple[1].TypeOf
 		s.Function.Gives = s.TypeOf
 	case "Third":
-		s.TypeOf = s.ArgumentAlpha.Atom.Tuple[2].TypeOf
+		s.TypeOf = s.ArgumentAlpha.Morpheme.Tuple[2].TypeOf
 		s.Function.Gives = s.TypeOf
 	}
 

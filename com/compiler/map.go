@@ -18,7 +18,7 @@ func (state *State) CompileInlineMap(arg *temporal.Expression) value.Value {
 	f_returns := arg.TypeOf.Tuple[0]
 
 	// The vector in AST
-	vec := arg.Atom.Tuple[1]
+	vec := arg.Morpheme.Tuple[1]
 
 	// The vector in LLVM
 	llvec := state.CompileExpression(vec)
@@ -81,11 +81,11 @@ func (state *State) CompileInlineMap(arg *temporal.Expression) value.Value {
 
 	var call value.Value
 
-	if arg.Atom.Tuple[0].Atom.Function.Special {
-		call = state.GetSpecialCallable(arg.Atom.Tuple[0].Atom.Function.Ident)(vec.TypeOf.Vector, cur_elm)
+	if arg.Morpheme.Tuple[0].Morpheme.Function.Special {
+		call = state.GetSpecialCallable(arg.Morpheme.Tuple[0].Morpheme.Function.Ident)(vec.TypeOf.Vector, cur_elm)
 	} else {
 		call = loopblock.NewCall(
-			state.CompileExpression(arg.Atom.Tuple[0]),
+			state.CompileExpression(arg.Morpheme.Tuple[0]),
 			cur_elm)
 
 	}

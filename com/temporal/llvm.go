@@ -49,8 +49,8 @@ func (t *Type) WidthInBytes() int64 {
 }
 
 func (e *Expression) Type() *Type {
-	if e.Atom != nil {
-		return e.Atom.TypeOf
+	if e.Morpheme != nil {
+		return e.Morpheme.TypeOf
 	} else if a := e.Application; a != nil {
 		// Implement T -> T transform
 		// ([T], Int) -> T i.e. ([Char], Int) -> Char
