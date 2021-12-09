@@ -1,17 +1,16 @@
-package lexer
+package altlexer
 
 import "github.com/alecthomas/participle/v2/lexer"
 
 type State struct {
-	Pos         lexer.Position
-	Expressions []*Expression `(@@ ";")+`
-	/*Statements []*struct {
+	Pos        lexer.Position
+	Statements []*struct {
 		Directive *Directive `"@" @@`
 		TypeDecl  *TypeDecl  `| @@`
-		//NounDecl  *NounDecl  `| @@`
-		FnSig *FnSig `| @@`
-		FnDef *FnDef `| @@`
-	} `@@*`*/
+		NounDecl  *NounDecl  `| @@`
+		FnSig     *FnSig     `| @@`
+		FnDef     *FnDef     `| @@`
+	} `@@*`
 }
 
 type Directive struct {
@@ -25,7 +24,7 @@ type Directive struct {
 }
 
 type Ident struct {
-	//Pos       lexer.Position
+	Pos       lexer.Position
 	Namespace *string `(@Ident ":" ":")?`
 	Ident     *string `@Ident`
 }
@@ -36,11 +35,11 @@ type TypeDecl struct {
 	Type  *Type   `@@`
 }
 
-/* type NounDecl struct {
+type NounDecl struct {
 	Pos   lexer.Position
-	Ident *string  `@Ident "="`
+	Ident *string   `@Ident "="`
 	Value *Morpheme `@@ ";"`
-} */
+}
 
 type FnSig struct {
 	Pos        lexer.Position
@@ -56,9 +55,36 @@ type FnDef struct {
 	Expressions []*Expression `(@@ ";")+`
 }
 
+type Expression struct {
+	Pos         lexer.Position
+	Application *Application `( @@`
+	Morpheme    *Morpheme    `| @@ )`
+}
+
 type Type struct {
 	Pos       lexer.Position
 	Primative *Ident  ` @@`
 	Vector    *Type   `| "[" @@ "]"`
 	Tuple     []*Type `| "(" (@@ ("," @@)*)? ")"`
+}
+
+type Application struct {
+	Pos            lexer.Position
+	Function       *Ident      `@@`
+	ParameterAlpha *Expression `@@ ","`
+	ParameterOmega *Expression `@@`
+}
+
+type Morpheme struct {
+	Pos        lexer.Position
+	Tuple      []*Expression `	"(" (@@ ("," @@)*)? ")"`
+	Vec        []*Expression `| "[" (@@ ("," @@)*)? "]"`
+	Int        *int64        `| @('-'? Int)`
+	Real       *float64      `| @('-'? Float)`
+	Nil        *string       `| @"Nil"`
+	String     *string       `| @String`
+	Char       *string       `| @Char`
+	ParamAlpha *string       `| @"Alpha"`
+	ParamOmega *string       `| @"Omega"`
+	Noun       *Ident        `| @@`
 }

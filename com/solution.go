@@ -3,8 +3,7 @@ package main
 import (
 	"sundown/solution/lexer"
 	"sundown/solution/oversight"
-
-	"github.com/alecthomas/repr"
+	"sundown/solution/reform"
 )
 
 func main() {
@@ -14,10 +13,13 @@ func main() {
 	l := &lexer.State{}
 	//p := &temporal.State{}
 	//c := &compiler.State{Runtime: r}
+	m := reform.State{}
 
 	lexed := l.Lex(r.ParseArgs())
 
-	repr.Println(lexed)
+	//repr.Println(lexed)
+
+	m.Init(lexed)
 
 	//r.HandleEmit(c.Compile(p.Parse(lexed)))
 }
