@@ -10,6 +10,6 @@ type Subexpression struct {
 }
 
 type Morpheme struct {
-	Ident *Ident `@@`
-	Int   *int64 `| @Int`
+	Ident *string `@Ident`
+	Int   *int64  `| @Int`
 }

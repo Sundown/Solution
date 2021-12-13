@@ -41,13 +41,13 @@ type TypeDecl struct {
 	Ident *string  `@Ident "="`
 	Value *Morpheme `@@ ";"`
 } */
-
+// Δ∇
 type FnSig struct {
 	Pos        lexer.Position
-	Ident      *string `@Ident ":"":"`
-	TakesAlpha *Type   `@@ ","`
-	TakesOmega *Type   `@@ "-"`
-	Gives      *Type   `">" @@`
+	TakesAlpha *Type  `"Δ" @@`
+	Ident      *Ident `@Ident `
+	TakesOmega *Type  `@@ "->"`
+	Gives      *Type  `">" @@`
 }
 
 type FnDef struct {
