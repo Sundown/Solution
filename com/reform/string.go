@@ -21,3 +21,27 @@ func (i Ident) String() string {
 func (e EOF) String() string {
 	return "EOF"
 }
+
+func (s Subexpression) String() string {
+	return "(" + s.Expression.String() + ")"
+}
+
+func (r Real) String() string {
+	return fmt.Sprintf("%f", r.Value)
+}
+
+func (s String) String() string {
+	return "\"" + s.Value + "\""
+}
+
+func (c Char) String() string {
+	return "'" + string(c.Value) + "'"
+}
+
+func (a Alpha) String() string {
+	return "α"
+}
+
+func (o Omega) String() string {
+	return "ω"
+}

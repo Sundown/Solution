@@ -5,65 +5,16 @@ import (
 	"sundown/solution/lexer"
 )
 
+// Dummy environment for testing
 var unaries = []string{"u"}
 var variables = []string{"v"}
-
-type State struct{}
-
-type Expression interface {
-	String() string
-}
-
-type Application struct {
-	Operator string
-	Operand  Expression
-}
-
-type Dangle struct {
-	Outer Expression
-	Inner Expression
-}
-
-type Int struct {
-	Value int64
-}
-
-type Ident struct {
-	Value string
-}
-
-type EOF struct{}
-
-type SubState struct {
-	mutablePos     int
-	mutableSubPos  int
-	Subexpressions []*lexer.Subexpression
-}
-
-func (s SubState) Next() *lexer.Subexpression {
-	s.mutablePos++
-	return s.Subexpressions[s.mutablePos]
-}
-
-func (s SubState) Forward() SubState {
-	s.mutablePos++
-	return s
-}
-
-func (s SubState) Peek() *lexer.Subexpression {
-	return s.Subexpressions[s.mutablePos+1]
-}
-
-func (s SubState) Cur() *lexer.Subexpression {
-	return s.Subexpressions[s.mutablePos]
-}
 
 func (state *State) Init(lex *lexer.State) (expr Expression) {
 	for _, s := range lex.Expressions {
 		s := SubState{
 			mutablePos:     0,
 			mutableSubPos:  0,
-			Subexpressions: append(s.Singletons, &lexer.Subexpression{nil, nil}),
+			Subexpressions: append(s.Singletons, &lexer.Subexpression{Morpheme: nil, Sub: nil}),
 		}
 
 		expr = s.HandleSingleton()
@@ -89,26 +40,40 @@ func (s SubState) HandleSingleton() Expression {
 			return Dangle{
 				Outer: Int{Value: *s.Cur().Morpheme.Int},
 				Inner: s.Forward().HandleSingleton()}
+		} else if s.Cur().Morpheme.String != nil {
+			return Dangle{
+				Outer: String{Value: *s.Cur().Morpheme.String},
+				Inner: s.Forward().HandleSingleton()}
+		} else if s.Cur().Morpheme.Real != nil {
+			return Dangle{
+				Outer: Real{Value: *s.Cur().Morpheme.Real},
+				Inner: s.Forward().HandleSingleton(),
+			}
+		} else if s.Cur().Morpheme.Char != nil {
+			return Dangle{
+				Outer: Char{Value: *s.Cur().Morpheme.Char},
+				Inner: s.Forward().HandleSingleton(),
+			}
+		} else if s.Cur().Morpheme.Alpha != nil {
+			return Dangle{
+				Outer: Alpha{},
+				Inner: s.Forward().HandleSingleton(),
+			}
+		} else if s.Cur().Morpheme.Omega != nil {
+			return Dangle{
+				Outer: Omega{},
+				Inner: s.Forward().HandleSingleton(),
+			}
 		}
+	} else if s.Cur().Sub != nil {
+		ns := SubState{
+			mutablePos:     0,
+			mutableSubPos:  0,
+			Subexpressions: append(s.Cur().Sub.Singletons, &lexer.Subexpression{Morpheme: nil, Sub: nil}),
+		}
+
+		return Dangle{Outer: Subexpression{Expression: ns.HandleSingleton()}, Inner: s.Forward().HandleSingleton()}
 	}
 
 	return EOF{}
-}
-
-func isApplicationIdent(s *string) bool {
-	for _, v := range unaries {
-		if v == *s {
-			return true
-		}
-	}
-	return false
-}
-
-func isVariable(s *string) bool {
-	for _, v := range variables {
-		if v == *s {
-			return true
-		}
-	}
-	return false
 }

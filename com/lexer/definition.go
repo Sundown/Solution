@@ -43,11 +43,12 @@ type TypeDecl struct {
 } */
 // Δ∇
 type FnSig struct {
-	Pos        lexer.Position
-	TakesAlpha *Type  `"Δ" @@`
-	Ident      *Ident `@Ident `
-	TakesOmega *Type  `@@ "->"`
-	Gives      *Type  `">" @@`
+	Pos         lexer.Position
+	TakesAlpha  *Type         `"Δ" @@`
+	Ident       *Ident        `@Ident `
+	TakesOmega  *Type         `@@ "->"`
+	Gives       *Type         `@@ + ":"`
+	Expressions []*Expression `(@@ ";")+ "∇"`
 }
 
 type FnDef struct {
