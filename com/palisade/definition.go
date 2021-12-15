@@ -6,9 +6,9 @@ type State struct {
 	Pos        lexer.Position
 	Statements []*struct {
 		//	Directive *Directive `"@" @@`
-		//	TypeDecl  *TypeDecl  `| @@`
+		TypeDecl *TypeDecl `@@`
 		//NounDecl  *NounDecl  `| @@`
-		FnDef *FnDef `@@`
+		FnDef *FnDef `| @@`
 	} `@@*`
 }
 
@@ -30,8 +30,8 @@ type Ident struct {
 
 type TypeDecl struct {
 	Pos   lexer.Position
-	Ident *string `@Ident "~"`
-	Type  *Type   `@@`
+	Ident *Ident `@@ "~"`
+	Type  *Type  `@@`
 }
 
 /* type NounDecl struct {

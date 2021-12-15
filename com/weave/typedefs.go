@@ -1,8 +1,13 @@
-package reform
+package weave
 
-import "sundown/solution/palisade"
+import (
+	"sundown/solution/palisade"
+	"sundown/solution/prism"
+)
 
-type State struct{}
+type State struct {
+	TypeDefinitions map[prism.Ident]prism.Type
+}
 
 type Expression interface {
 	String() string
