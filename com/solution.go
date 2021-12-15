@@ -1,8 +1,8 @@
 package main
 
 import (
-	"sundown/solution/lexer"
 	"sundown/solution/oversight"
+	"sundown/solution/palisade"
 	"sundown/solution/reform"
 )
 
@@ -10,8 +10,8 @@ func main() {
 	oversight.Notify("Solution init...")
 
 	r := &oversight.Runtime{}
-	l := &lexer.State{}
-	//p := &temporal.State{}
+	l := &palisade.State{}
+	//p := &subtle.State{}
 	//c := &compiler.State{Runtime: r}
 	m := reform.State{}
 
