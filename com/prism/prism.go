@@ -2,7 +2,6 @@ package prism
 
 import (
 	"github.com/llir/llvm/ir/types"
-	"github.com/llir/llvm/ir/value"
 )
 
 type Environment struct {
@@ -23,6 +22,8 @@ const (
 	TypeInt
 	TypeReal
 	TypeChar
+	TypeBool
+	TypeVoid
 )
 
 type Type interface {
@@ -48,10 +49,14 @@ type StructType struct {
 }
 
 type Expression interface {
-	Kind() int
-	Type() Type
+	//Kind() int
+	//Type() Type
 	String() string
-	Realise() value.Value
+	//Realise() value.Value
+}
+
+type Subexpression struct {
+	Expression Expression
 }
 
 type Function struct {
@@ -61,3 +66,44 @@ type Function struct {
 	Returns   Type
 	Body      *[]Expression
 }
+
+/*type Monadic struct {
+	Operator Function
+	Operand  Expression
+}
+
+type Dyadic struct {
+	Operator Function
+	Left     Expression
+	Right    Expression
+}*/ // Later...
+
+type Application struct {
+	Operator Function
+	Operand  Expression
+}
+
+type Dangle struct {
+	Outer Expression
+	Inner Expression
+}
+
+type Int struct {
+	Value int64
+}
+
+type Real struct {
+	Value float64
+}
+
+type String struct {
+	Value string
+}
+
+type Char struct {
+	Value string
+}
+
+type Alpha struct{}
+type Omega struct{}
+type EOF struct{}

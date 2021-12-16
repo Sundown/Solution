@@ -11,6 +11,8 @@ func Init(env *prism.Environment, pali *palisade.PalisadeResult) *prism.Environm
 		oversight.Panic("Palisade state is nil")
 	}
 
+	// nouns and type decls later
+
 	for _, v := range pali.Statements {
 		if v.FnDef != nil {
 			InvokeFunctionDeclaration(v.FnDef, env)
@@ -21,6 +23,7 @@ func Init(env *prism.Environment, pali *palisade.PalisadeResult) *prism.Environm
 }
 
 func InvokeFunctionDeclaration(fd *palisade.FnDef, env *prism.Environment) {
+	// TODO: doesn't handle unaries
 	env.Functions[prism.Intern(*fd.Ident)] = prism.Function{
 		Name:      prism.Intern(*fd.Ident),
 		AlphaType: env.SubstantiateType(*fd.TakesAlpha),

@@ -1,23 +1,13 @@
 package weave
 
-import "sundown/solution/palisade"
+import (
+	"sundown/solution/palisade"
+	"sundown/solution/prism"
+)
 
-func isApplicationIdent(s *string) bool {
-	for _, v := range unaries {
-		if v == *s {
-			return true
-		}
-	}
-	return false
-}
-
-func isVariable(s *string) bool {
-	for _, v := range variables {
-		if v == *s {
-			return true
-		}
-	}
-	return false
+func (state *SubState) isApplicationIdent(i *prism.Ident) bool {
+	_, ok := state.Env.Functions[*i]
+	return ok
 }
 
 func (s SubState) Next() *palisade.Subexpression {

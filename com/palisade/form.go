@@ -14,7 +14,7 @@ type Morpheme struct {
 	Char   *string  `@Char`
 	Alpha  *string  `| @"α"`
 	Omega  *string  `| @"ω"`
-	Ident  *string  `| @Ident`
+	Ident  *Ident   `| @@`
 	Int    *int64   `| @('-'? Int)`
 	Real   *float64 `| @('-'? Float)`
 	String *string  `| @String`

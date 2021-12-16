@@ -17,14 +17,13 @@ func main() {
 	env := prism.NewEnvironment()
 	//p := &subtle.State{}
 	//c := &compiler.State{Runtime: r}
-	m := weave.State{}
 
 	lexed := palisade.Begin(r.ParseArgs())
 
 	oracle := prescience.Init(env, lexed)
 	repr.Println(oracle)
 
-	m.Init(lexed)
+	weave.Init(oracle, lexed)
 
 	//r.HandleEmit(c.Compile(p.Parse(lexed)))
 }
