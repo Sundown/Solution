@@ -40,11 +40,11 @@ type AtomicType struct {
 }
 
 type VectorType struct {
-	ElementType AtomicType
+	ElementType Type
 }
 
 type StructType struct {
-	FieldTypes []AtomicType
+	FieldTypes []Type
 }
 
 type Expression interface {

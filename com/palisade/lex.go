@@ -8,9 +8,9 @@ import (
 )
 
 var Parser = participle.MustBuild(&PalisadeResult{}, participle.UseLookahead(4), participle.Unquote())
-var IdentParser = participle.MustBuild(&Ident{}, participle.UseLookahead(4), participle.Unquote())
 
-func Begin(rt *oversight.Runtime) (l *PalisadeResult) {
+func Begin(rt *oversight.Runtime) *PalisadeResult {
+	var prog PalisadeResult
 	oversight.Verbose("Init palisade")
 	r, err := os.Open(rt.File)
 	defer r.Close()
@@ -19,11 +19,11 @@ func Begin(rt *oversight.Runtime) (l *PalisadeResult) {
 		oversight.Error(err.Error()).Exit()
 	}
 
-	err = Parser.Parse(rt.File, r, l)
+	err = Parser.Parse(rt.File, r, &prog)
 
 	if err != nil {
 		panic(err)
 	}
 
-	return
+	return &prog
 }
