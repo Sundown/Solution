@@ -7,9 +7,10 @@ import (
 	"github.com/alecthomas/participle/v2"
 )
 
-var Parser = participle.MustBuild(&State{}, participle.UseLookahead(4), participle.Unquote())
+var Parser = participle.MustBuild(&PalisadeResult{}, participle.UseLookahead(4), participle.Unquote())
+var IdentParser = participle.MustBuild(&Ident{}, participle.UseLookahead(4), participle.Unquote())
 
-func (prog *State) Lex(rt *oversight.Runtime) *State {
+func Begin(rt *oversight.Runtime) (l *PalisadeResult) {
 	oversight.Verbose("Init palisade")
 	r, err := os.Open(rt.File)
 	defer r.Close()
@@ -18,11 +19,11 @@ func (prog *State) Lex(rt *oversight.Runtime) *State {
 		oversight.Error(err.Error()).Exit()
 	}
 
-	err = Parser.Parse(rt.File, r, prog)
+	err = Parser.Parse(rt.File, r, l)
 
 	if err != nil {
 		panic(err)
 	}
 
-	return prog
+	return
 }

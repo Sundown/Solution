@@ -2,7 +2,7 @@ package palisade
 
 import "github.com/alecthomas/participle/v2/lexer"
 
-type State struct {
+type PalisadeResult struct {
 	Pos        lexer.Position
 	Statements []*struct {
 		//	Directive *Directive `"@" @@`

@@ -9,7 +9,7 @@ import (
 var unaries = []string{"u"}
 var variables = []string{"v"}
 
-func (state *State) Init(lex *palisade.State) (expr Expression) {
+func (state *State) Init(lex *palisade.PalisadeResult) (expr Expression) {
 	for _, f := range lex.Statements {
 		for _, s := range f.FnDef.Expressions {
 			s := SubState{

@@ -1,15 +1,15 @@
 package prism
 
 // These are redundant I think
-func (a *AtomicType) Kind() int {
+func (a AtomicType) Kind() int {
 	return TypeKindAtomic
 }
 
-func (v *VectorType) Kind() int {
+func (v VectorType) Kind() int {
 	return TypeKindVector
 }
 
-func (s *StructType) Kind() int {
+func (s StructType) Kind() int {
 	return TypeKindStruct
 }
 
