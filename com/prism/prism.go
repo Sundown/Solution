@@ -5,7 +5,7 @@ import (
 )
 
 type Environment struct {
-	Functions map[Ident]Function
+	Functions map[Ident]*Function
 	Types     map[Ident]Type
 }
 
@@ -64,6 +64,7 @@ type Function struct {
 	AlphaType Type
 	OmegaType Type
 	Returns   Type
+	PreBody   *[]Expression
 	Body      *[]Expression
 }
 

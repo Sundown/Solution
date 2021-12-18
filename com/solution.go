@@ -1,13 +1,13 @@
 package main
 
 import (
+	"fmt"
 	"sundown/solution/oversight"
 	"sundown/solution/palisade"
 	"sundown/solution/prescience"
 	"sundown/solution/prism"
+	"sundown/solution/subtle"
 	"sundown/solution/weave"
-
-	"github.com/alecthomas/repr"
 )
 
 func main() {
@@ -15,15 +15,22 @@ func main() {
 
 	r := &oversight.Runtime{}
 	env := prism.NewEnvironment()
-	//p := &subtle.State{}
-	//c := &compiler.State{Runtime: r}
 
+	// Short pass: lexing/tokenisation
 	lexed := palisade.Begin(r.ParseArgs())
 
-	oracle := prescience.Init(env, lexed)
-	repr.Println(oracle)
+	// Short pass: intern all function declarations
+	prescience.Init(env, lexed)
 
-	weave.Init(oracle, lexed)
+	// Long pass: analyse all function declarations
+	weave.Init(env, lexed)
 
-	//r.HandleEmit(c.Compile(p.Parse(lexed)))
+	// Long pass: analyse all application
+	subtle.Init(env)
+
+	// Short pass: LLVM code generation
+	// TODO!
+
+	fmt.Println(env.String())
+
 }

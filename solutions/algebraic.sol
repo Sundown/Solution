@@ -1,3 +1,3 @@
 Δ Int union Int → Int:
-	v u ω;
+	1 union 2;
 ∇

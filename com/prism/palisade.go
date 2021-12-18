@@ -34,7 +34,7 @@ func ParseIdent(s string) (p Ident) {
 
 func (env Environment) GetFunction(i Ident) *Function {
 	if f, ok := env.Functions[i]; ok {
-		return &f
+		return f
 	}
 
 	return nil

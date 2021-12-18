@@ -70,12 +70,25 @@ func (s StructType) Realise() types.Type {
 	return types.NewStruct(acc...)
 }
 
-func (f Function) String() string {
-	return f.Name.String()
+func (f Function) String() (s string) {
+	s += "Δ " + f.AlphaType.String() + " " + f.Name.String() + " " +
+		f.OmegaType.String() + " -> " + f.Returns.String() + "\n"
+
+	if f.Body != nil {
+		for _, p := range *f.Body {
+			s += " " + p.String() + "\n"
+		}
+	} else if f.PreBody != nil {
+		for _, p := range *f.PreBody {
+			s += " " + p.String() + "\n\t"
+		}
+	}
+
+	return s + "∇\n"
 }
 
 func (b Application) String() string {
-	return b.Operator.String() + " (" + b.Operand.String() + ")"
+	return b.Operator.Name.String() + " (" + b.Operand.String() + ")"
 }
 
 func (u Dangle) String() string {

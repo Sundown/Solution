@@ -1,13 +1,13 @@
 package weave
 
 import (
-	"fmt"
 	"sundown/solution/palisade"
 	"sundown/solution/prism"
 )
 
-func Init(env *prism.Environment, lex *palisade.PalisadeResult) (expr prism.Expression) {
+func Init(env *prism.Environment, lex *palisade.PalisadeResult) *prism.Environment {
 	for _, f := range lex.Statements {
+		exprs := []prism.Expression{}
 		for _, s := range f.FnDef.Expressions {
 			s := SubState{
 				Env:            env,
@@ -16,12 +16,16 @@ func Init(env *prism.Environment, lex *palisade.PalisadeResult) (expr prism.Expr
 				Subexpressions: append(s.Lexemes, &palisade.Subexpression{Morpheme: nil, Sub: nil}),
 			}
 
-			expr = s.HandleLexeme()
+			exprs = append(exprs, s.HandleLexeme())
+		}
+
+		fn, ok := env.Functions[prism.Intern(*f.FnDef.Ident)]
+		if ok {
+			fn.PreBody = &exprs
 		}
 	}
 
-	fmt.Println(expr.String())
-	return
+	return env
 }
 
 func (s SubState) HandleLexeme() prism.Expression {
