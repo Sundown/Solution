@@ -91,6 +91,14 @@ func (b Application) String() string {
 	return b.Operator.Name.String() + " (" + b.Operand.String() + ")"
 }
 
+func (d Dyadic) String() string {
+	return d.Operator.String() + " (" + d.Left.String() + ", " + d.Right.String() + ")"
+}
+
+func (m Monadic) String() string {
+	return m.Operator.String() + " (" + m.Operand.String() + ")"
+}
+
 func (u Dangle) String() string {
 	return "(" + u.Outer.String() + " " + u.Inner.String() + ")"
 }

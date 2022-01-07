@@ -27,6 +27,12 @@ func NewEnvironment() *Environment {
 		Name:         ParseIdent("Char"),
 		Actual:       types.I8,
 	}
+	env.Types[ParseIdent("String")] = AtomicType{
+		ID:           TypeString,
+		WidthInBytes: 12, // TODO
+		Name:         ParseIdent("String"),
+		Actual:       types.I8Ptr,
+	}
 	env.Types[ParseIdent("Bool")] = AtomicType{
 		ID:           TypeBool,
 		WidthInBytes: 1,

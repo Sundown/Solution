@@ -24,6 +24,7 @@ const (
 	TypeChar
 	TypeBool
 	TypeVoid
+	TypeString
 )
 
 type Type interface {
@@ -49,10 +50,8 @@ type StructType struct {
 }
 
 type Expression interface {
-	//Kind() int
-	//Type() Type
+	Type() Type
 	String() string
-	//Realise() value.Value
 }
 
 type Subexpression struct {
@@ -68,7 +67,7 @@ type Function struct {
 	Body      *[]Expression
 }
 
-/*type Monadic struct {
+type Monadic struct {
 	Operator Function
 	Operand  Expression
 }
@@ -77,7 +76,7 @@ type Dyadic struct {
 	Operator Function
 	Left     Expression
 	Right    Expression
-}*/ // Later...
+}
 
 type Application struct {
 	Operator Function
