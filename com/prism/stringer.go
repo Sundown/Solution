@@ -99,10 +99,6 @@ func (m Monadic) String() string {
 	return m.Operator.String() + " (" + m.Operand.String() + ")"
 }
 
-func (u Dangle) String() string {
-	return "(" + u.Outer.String() + " " + u.Inner.String() + ")"
-}
-
 func (i Int) String() string {
 	return fmt.Sprintf("%d", i.Value)
 }
@@ -125,6 +121,14 @@ func (s String) String() string {
 
 func (c Char) String() string {
 	return "'" + string(c.Value) + "'"
+}
+
+func (b Bool) String() string {
+	if b.Value {
+		return "True"
+	}
+
+	return "False"
 }
 
 func (a Alpha) String() string {

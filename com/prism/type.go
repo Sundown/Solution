@@ -35,46 +35,61 @@ func (a Application) Type() Type {
 	return a.Operator.Type()
 }
 
-func (d Dangle) Type() Type {
-	if ok := d.Inner; ok != nil {
-		return d.Inner.Type()
-	}
-	// Just hanging out, no pun intended
-	return d.Outer.Type()
+func (i Int) Type() Type {
+	return IntType
 }
 
-func (i Int) Type() Type {
-	return AtomicType{
+func (r Real) Type() Type {
+	return RealType
+}
+
+func (c Char) Type() Type {
+	return CharType
+}
+
+func (b Bool) Type() Type {
+	return BoolType
+}
+
+func (s String) Type() Type {
+	return StringType
+}
+
+var (
+	IntType = AtomicType{
 		ID:           TypeInt,
 		WidthInBytes: 8,
 		Name:         ParseIdent("Int"),
 		Actual:       types.I64,
 	}
-}
-
-func (r Real) Type() Type {
-	return AtomicType{
+	RealType = AtomicType{
 		ID:           TypeReal,
 		WidthInBytes: 8,
 		Name:         ParseIdent("Real"),
 		Actual:       types.Double,
 	}
-}
-
-func (c Char) Type() Type {
-	return AtomicType{
+	CharType = AtomicType{
 		ID:           TypeChar,
 		WidthInBytes: 1,
 		Name:         ParseIdent("Char"),
 		Actual:       types.I8,
 	}
-}
-
-func (s String) Type() Type {
-	return AtomicType{
+	StringType = AtomicType{
 		ID:           TypeString,
-		WidthInBytes: 1,
+		WidthInBytes: 12, // TODO
 		Name:         ParseIdent("String"),
-		Actual:       types.I8,
+		Actual:       types.I8Ptr,
 	}
-}
+	BoolType = AtomicType{
+		ID:           TypeBool,
+		WidthInBytes: 1,
+		Name:         ParseIdent("Bool"),
+		Actual:       types.I1,
+	}
+	VoidType = AtomicType{
+		ID:           TypeVoid,
+		WidthInBytes: 0,
+		Name:         ParseIdent("Void"),
+		Actual:       types.Void,
+	}
+)

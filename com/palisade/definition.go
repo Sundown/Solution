@@ -1,56 +1,39 @@
 package palisade
 
-import "github.com/alecthomas/participle/v2/lexer"
-
 type PalisadeResult struct {
-	Pos        lexer.Position
 	Statements []*struct {
-		//	Directive *Directive `"@" @@`
-		TypeDecl *TypeDecl `@@`
-		//NounDecl  *NounDecl  `| @@`
-		FnDef *FnDef `| @@`
+		Function  *Function  `@@`
+		Directive *Directive `| @@`
 	} `@@*`
 }
 
 type Directive struct {
-	Pos   lexer.Position
-	Class *string `@Ident`
-	Instr *struct {
-		Ident  *string  `( @Ident`
-		String *string  `| @String`
-		Number *float64 `| @Float)`
-	} `@@`
+	Ident *string `":" @Ident`
+	Value *string `@String`
 }
 
 type Ident struct {
-	Pos       lexer.Position
 	Namespace *string `(@Ident ":" ":")?`
 	Ident     *string `@Ident`
 }
 
-type TypeDecl struct {
-	Pos   lexer.Position
-	Ident *Ident `@@ "~"`
-	Type  *Type  `@@`
-}
+type Function struct {
+	Dyadic *struct {
+		Alpha *Type  `@@`
+		Ident *Ident `@@`
+		Omega *Type  `@@`
+	} `"Δ" @@`
 
-/* type NounDecl struct {
-	Pos   lexer.Position
-	Ident *string  `@Ident "="`
-	Value *Morpheme `@@ ";"`
-} */
+	Monadic *struct {
+		Ident *Ident `@@`
+		Omega *Type  `@@`
+	} `"Δ" @@`
 
-type FnDef struct {
-	Pos         lexer.Position
-	TakesAlpha  *Type         `"Δ" @@`
-	Ident       *Ident        `@@`
-	TakesOmega  *Type         `@@ "→"`
-	Gives       *Type         `@@ ":"`
-	Expressions []*Expression `(@@ ";")+ "∇"`
+	Gives *Type         `"→" @@ ":"`
+	Body  []*Expression `(@@ ";")+ "∇"`
 }
 
 type Type struct {
-	Pos       lexer.Position
 	Primative *Ident  ` @@`
 	Vector    *Type   `| "[" @@ "]"`
 	Tuple     []*Type `| "(" (@@ ("," @@)*)? ")"`

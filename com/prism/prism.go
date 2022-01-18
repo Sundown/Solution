@@ -5,7 +5,7 @@ import (
 )
 
 type Environment struct {
-	Functions map[Ident]*Function
+	Functions map[Ident]Function
 	Types     map[Ident]Type
 }
 
@@ -102,6 +102,10 @@ type String struct {
 
 type Char struct {
 	Value string
+}
+
+type Bool struct {
+	Value bool
 }
 
 type Alpha struct{}

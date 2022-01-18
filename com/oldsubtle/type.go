@@ -80,10 +80,6 @@ func (a *Type) Equals(b *Type) bool {
 }
 
 func (state *State) AnalyseTypeDecl(typ *palisade.TypeDecl) {
-	if IsReserved(*typ.Ident) {
-		oversight.Error("Identifier \"" + oversight.Yellow(*typ.Ident) + "\" is reserved by the compiler.\n" + typ.Pos.String()).Exit()
-	}
-
 	key := IdentKey{Namespace: *state.PackageIdent, Ident: *typ.Ident}
 	if state.TypeDefs[key] == nil {
 		state.TypeDefs[key] = state.AnalyseType(typ.Type)

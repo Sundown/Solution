@@ -3,11 +3,12 @@ package subtle
 import (
 	"sundown/solution/oversight"
 	"sundown/solution/palisade"
+	"sundown/solution/prism"
 )
 
 // Tries to find noun in order (defined_namespace or foundation) then package
 // order may change in future such that foundation is last
-func (state *State) GetNoun(key *palisade.Ident) *Morpheme {
+func (state *State) GetNoun(key *palisade.Ident) *prism.Expression {
 	k := IRIdent(key)
 	noun := state.NounDefs[k.AsKey()]
 
@@ -20,8 +21,8 @@ func (state *State) GetNoun(key *palisade.Ident) *Morpheme {
 		if noun == nil {
 			fn := state.GetFunction(k)
 			if fn != nil {
-				noun = &Morpheme{TypeOf: fn.Gives, Function: fn}
-
+				//noun = prism.Function{Function: fn}
+				//borked
 			} else {
 				oversight.Error("Identifier \"" + oversight.Yellow(k.String()) + "\" is not defined in current scope or Foundation.\n" + key.Pos.String()).Exit()
 			}

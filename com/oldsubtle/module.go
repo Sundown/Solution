@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"sundown/solution/oversight"
 	"sundown/solution/palisade"
+	"sundown/solution/prism"
 )
 
 type State struct {
@@ -11,10 +12,9 @@ type State struct {
 	EntryIdent      *string
 	EntryFunction   *Function
 	CurrentFunction *Function
-	Functions       map[IdentKey]*Function
-	NounDefs        map[IdentKey]*Morpheme
-	TypeDefs        map[IdentKey]*Type
-	Imports         []string
+	Functions       map[IdentKey]*prism.Function
+	NounDefs        map[IdentKey]*prism.Expression
+	TypeDefs        map[IdentKey]*prism.Type
 }
 
 func (p *State) String() string {
@@ -50,11 +50,11 @@ func (state *State) AddSpecialForm(ident string, takesAlpha *Type, takesOmega *T
 	return state
 }
 
-func (state *State) Parse(program *palisade.State) *State {
+func (state *State) Parse(program *palisade.PalisadeResult) *State {
 	oversight.Verbose("Init parser")
 	entry := state.
 		BuildParserEnv().
-		AddSpecialForm("Return", AtomicType("T"), &VoidType, AtomicType("T")).
+		/* AddSpecialForm("Return", AtomicType("T"), &VoidType, AtomicType("T")).
 		AddSpecialForm("GEP", AtomicType("T"), &VoidType, AtomicType("T")).
 		AddSpecialForm("First", AtomicType("T"), &VoidType, AtomicType("T")).
 		AddSpecialForm("Second", AtomicType("T"), &VoidType, AtomicType("T")).
@@ -69,7 +69,7 @@ func (state *State) Parse(program *palisade.State) *State {
 		AddSpecialForm("Map", StructType(AtomicType("T"), VectorType(AtomicType("T"))), &VoidType, AtomicType("[T]")).
 		//AddSpecialForm("Foldl", StructType(AtomicType("T"), AtomicType("T"), VectorType(AtomicType("T"))), AtomicType("T")).
 		AddSpecialForm("Panic", &IntType, &VoidType, AtomicType("Void")).
-		AddSpecialForm("Equals", &IntType, &IntType, &BoolType).
+		AddSpecialForm("Equals", &IntType, &IntType, &BoolType). */
 		CollectDirectives(program).
 		ForkStatements(program).
 		CollectFunctions(program).
@@ -88,12 +88,11 @@ func (state *State) BuildParserEnv() *State {
 	state.Functions = make(map[IdentKey]*Function)
 	state.TypeDefs = make(map[IdentKey]*Type)
 	state.NounDefs = make(map[IdentKey]*Morpheme)
-	state.PopulateTypes()
 
 	return state
 }
 
-func (state *State) CollectDirectives(p *palisade.State) *State {
+func (state *State) CollectDirectives(p *palisade.PalisadeResult) *State {
 	for _, statement := range p.Statements {
 		if statement.Directive != nil {
 			state.AnalyseDirective(statement.Directive)
@@ -103,23 +102,19 @@ func (state *State) CollectDirectives(p *palisade.State) *State {
 	return state
 }
 
-func (state *State) ForkStatements(p *palisade.State) *State {
+func (state *State) ForkStatements(p *palisade.PalisadeResult) *State {
 	// Add types, nouns, and function DECLARATIONS to the state before
 	// parsing function bodies to allow referencing before declaration
 	for _, statement := range p.Statements {
-		if statement.TypeDecl != nil {
-			state.AnalyseTypeDecl(statement.TypeDecl)
-		} else if statement.NounDecl != nil {
-			state.AnalyseNounDecl(statement.NounDecl)
-		} else if statement.FnSig != nil {
-			state.AnalyseFnDecl(statement.FnSig)
+		if statement.FnDef != nil {
+			state.AnalyseFnDecl(statement.FnDef)
 		}
 	}
 
 	return state
 }
 
-func (state *State) CollectFunctions(p *palisade.State) *State {
+func (state *State) CollectFunctions(p *palisade.PalisadeResult) *State {
 	for _, statement := range p.Statements {
 		if statement.FnDef != nil {
 			state.AnalyseFnDef(statement.FnDef)

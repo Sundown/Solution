@@ -2,6 +2,7 @@ package subtle
 
 import (
 	"sundown/solution/oversight"
+	"sundown/solution/palisade"
 	"sundown/solution/prism"
 )
 
@@ -9,22 +10,31 @@ type Environment struct {
 	*prism.Environment
 }
 
-func Init(env *prism.Environment) *prism.Environment {
-	if env == nil {
-		panic("why")
-	}
+func Init(result *palisade.PalisadeResult) prism.Environment {
+	env := Environment{}
 
-	nenv := &Environment{env}
+	for _, stmt := range result.Statements {
+		if f := stmt.FnDef; f != nil {
+			if f.Body != nil {
+				panic("Body should be empty")
+			}
 
-	for _, f := range env.Functions {
-		if f.Body != nil {
-			panic("Body should be empty")
+			fn := env.InternFunction(*f)
+
+			env.Functions[fn.Name] = fn
+
 		}
-
-		f.Body = nenv.AnalyseBody(f)
 	}
 
-	return env
+	return *env.Environment
+}
+
+func (env Environment) InternFunction(f palisade.FnDef) prism.Function {
+	if f.C != nil {
+		// Dyadic, has 2 types
+		return prism.Function{
+			Name:     f.Name,
+	}
 }
 
 func (env Environment) AnalyseBody(f *prism.Function) *[]prism.Expression {
@@ -36,30 +46,7 @@ func (env Environment) AnalyseBody(f *prism.Function) *[]prism.Expression {
 	return &exprs
 }
 
-func (env Environment) AnalyseExpression(e prism.Expression) prism.Expression {
-	switch e.(type) {
-	case prism.Dangle:
-		return env.AnalyseDangle(e)
-	}
-	return e
-}
-
-func (env Environment) AnalyseDangle(e prism.Expression) prism.Expression {
-	if _, fn := e.(prism.Dangle).Outer.(prism.Function); fn {
-		panic("cant chain yet")
-	}
-
-	if inner := e.(prism.Dangle).Inner; inner != nil {
-		// test dyadic status
-		if app, ok := inner.(prism.Application); ok {
-			return env.AnalyseDyadicApplication(app, inner)
-		}
-
-	}
-	// this should possible be Expression not Atom
-	return env.AnalyseAtom(e)
-
-}
+func (env Environment) AnalyseExpression(e prism.Expression) prism.Expression
 
 func (env Environment) AnalyseDyadicApplication(inner prism.Expression, outer prism.Expression) prism.Expression {
 	fn := inner.(prism.Function)
