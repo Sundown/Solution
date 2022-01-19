@@ -19,7 +19,7 @@ func (state *State) CompileInlineMap(fn, vec prism.Expression) value.Value {
 	head_type := vec.Type().Realise()
 	elm_type := vec.Type().(prism.VectorType).Realise()
 
-	to_head_type := prism.VectorType{f_returns}.Realise()
+	to_head_type := prism.VectorType{Type: f_returns}.Realise()
 	to_elm_type := f_returns.Realise()
 
 	should_store := true

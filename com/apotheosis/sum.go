@@ -24,7 +24,7 @@ func (state *State) CompileInlineSum(val Value) value.Value {
 	cond_rhs := state.Block.NewLoad(
 		types.I64,
 		state.Block.NewGetElementPtr(
-			prism.VectorType{typ}.Realise(),
+			prism.VectorType{Type: typ}.Realise(),
 			val.Value,
 			I32(0),
 			vectorLenOffset))
@@ -32,7 +32,7 @@ func (state *State) CompileInlineSum(val Value) value.Value {
 	ll_body_actual := state.Block.NewLoad(
 		types.NewPointer(lltyp),
 		state.Block.NewGetElementPtr(
-			prism.VectorType{typ}.Realise(),
+			prism.VectorType{Type: typ}.Realise(),
 			val.Value,
 			I32(0),
 			vectorBodyOffset))
@@ -90,7 +90,7 @@ func (state *State) CompileInlineProduct(val Value) value.Value {
 	cond_rhs := state.Block.NewLoad(
 		types.I64,
 		state.Block.NewGetElementPtr(
-			prism.VectorType{typ}.Realise(),
+			prism.VectorType{Type: typ}.Realise(),
 			val.Value,
 			I32(0),
 			vectorLenOffset))
@@ -98,7 +98,7 @@ func (state *State) CompileInlineProduct(val Value) value.Value {
 	ll_body_actual := state.Block.NewLoad(
 		types.NewPointer(lltyp),
 		state.Block.NewGetElementPtr(
-			prism.VectorType{typ}.Realise(),
+			prism.VectorType{Type: typ}.Realise(),
 			val.Value,
 			I32(0),
 			vectorBodyOffset))
