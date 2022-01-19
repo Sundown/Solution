@@ -18,7 +18,7 @@ var (
 
 func (state *State) CompileVector(vector prism.Vector) value.Value {
 	leng, cap := CalculateVectorSizes(len(*vector.Body))
-	elm_type := vector.Type().(prism.VectorType).Realise()
+	elm_type := vector.Type().(prism.VectorType).Type.Realise()
 	head_type := vector.Type().Realise()
 	head := state.Block.NewAlloca(head_type)
 
@@ -34,8 +34,7 @@ func (state *State) CompileVector(vector prism.Vector) value.Value {
 		state.PopulateBody(body, elm_type, *vector.Body)
 	}
 
-	// Probably broken for 0-length vectors because this pointer is gonna be garbage
-	state.WriteVectorPointer(Value{head, vector.Type()}, body)
+	state.WriteVectorPointer(head, body, head_type)
 
 	return head
 }
@@ -62,11 +61,13 @@ func (state *State) PopulateBody(
 	}
 }
 
-func (state *State) WriteVectorPointer(vector Value, constructed_body *ir.InstBitCast) {
+func (state *State) WriteVectorPointer(head *ir.InstAlloca, body *ir.InstBitCast, head_type types.Type) {
+	pt := state.Block.NewGetElementPtr(
+		head_type, head, I32(0), vectorBodyOffset)
+
 	state.Block.NewStore(
-		constructed_body,
-		state.Block.NewGetElementPtr(
-			vector.Type.Realise(), vector.Value, I32(0), vectorBodyOffset))
+		body,
+		pt)
 }
 
 func (state *State) BuildVectorBody(typ types.Type, cap int64, width int64) *ir.InstBitCast {

@@ -28,14 +28,14 @@ func (state *State) GEP(source *ir.InstAlloca, indices ...value.Value) *ir.InstG
 }
 
 // Will work for vectors too once they can be mutated
-func (state *State) DefaultValue(t *prism.Type) value.Value {
-	if prism.EqType(*t, &prism.IntType) {
+func (state *State) DefaultValue(t prism.Type) value.Value {
+	if prism.EqType(t, prism.IntType) {
 		return I64(0)
-	} else if prism.EqType(*t, &prism.RealType) {
+	} else if prism.EqType(t, prism.RealType) {
 		return constant.NewFloat(types.Double, 0)
-	} else if prism.EqType(*t, &prism.CharType) {
+	} else if prism.EqType(t, prism.CharType) {
 		return constant.NewInt(types.I8, 0)
-	} else if prism.EqType(*t, &prism.BoolType) {
+	} else if prism.EqType(t, prism.BoolType) {
 		return constant.NewBool(false)
 	} else {
 		panic("Not yet implemented")

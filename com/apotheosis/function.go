@@ -14,21 +14,18 @@ func (state *State) CompileBlock(body *[]prism.Expression) {
 	}
 }
 
-func (state *State) DeclareFunction(fn prism.Function) *ir.Func {
-	args := []*ir.Param{}
-	switch f := fn.(type) {
-	case prism.DFunction:
-		args = []*ir.Param{ToParam(f.AlphaType), ToParam(f.OmegaType)}
-	case prism.MFunction:
-		args = []*ir.Param{ToParam(f.OmegaType)}
-	}
-
-	state.CurrentFunction = state.Module.NewFunc(
+func (state *State) DeclareDFunction(fn prism.DFunction) *ir.Func {
+	return state.Module.NewFunc(
 		fn.LLVMise(),
 		ToReturn(fn.Type()),
-		args...)
+		ToParam(fn.AlphaType), ToParam(fn.OmegaType))
+}
 
-	return state.CurrentFunction
+func (state *State) DeclareMFunction(fn prism.MFunction) *ir.Func {
+	return state.Module.NewFunc(
+		fn.LLVMise(),
+		ToReturn(fn.Type()),
+		ToParam(fn.OmegaType))
 }
 
 func (state *State) CompileDFunction(fn prism.DFunction) *ir.Func {
@@ -41,6 +38,9 @@ func (state *State) CompileDFunction(fn prism.DFunction) *ir.Func {
 	if fn.Returns.Kind() == prism.VoidType.ID {
 		state.Block.NewRet(nil)
 	}
+
+	// TODO remove this
+	state.Block.NewRet(state.DefaultValue(fn.Returns))
 
 	return state.CurrentFunction
 }

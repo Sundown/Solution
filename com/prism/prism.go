@@ -1,12 +1,14 @@
 package prism
 
 import (
+	"sundown/solution/oversight"
 	"sundown/solution/palisade"
 
 	"github.com/llir/llvm/ir/types"
 )
 
 type Environment struct {
+	Runtime    *oversight.Runtime
 	MFunctions map[Ident]*MFunction
 	DFunctions map[Ident]*DFunction
 	Types      map[Ident]Type
@@ -33,11 +35,11 @@ func (m MFunction) Ident() Ident {
 }
 
 func (f DFunction) LLVMise() string {
-	return f.Name.Package + "::" + f.Name.Name + " " + f.AlphaType.String() + ", " + f.OmegaType.String() + "->" + f.Returns.String()
+	return f.Name.Package + "::" + f.Name.Name + "_" + f.AlphaType.String() + "," + f.OmegaType.String() + "->" + f.Returns.String()
 }
 
 func (f MFunction) LLVMise() string {
-	return f.Name.Package + "::" + f.Name.Name + " " + f.OmegaType.String() + "->" + f.Returns.String()
+	return f.Name.Package + "::" + f.Name.Name + "_" + f.OmegaType.String() + "->" + f.Returns.String()
 }
 
 const (

@@ -41,7 +41,7 @@ func (a AtomicType) Width() int64 {
 }
 
 func (v VectorType) Width() int64 {
-	return v.Width() + 16
+	return v.Type.Width() + 16
 }
 
 func (s StructType) Width() (acc int64) {
@@ -59,7 +59,7 @@ func (a AtomicType) Realise() types.Type {
 func (v VectorType) Realise() types.Type {
 	return types.NewStruct(
 		types.I64, types.I64,
-		types.NewPointer(v.Realise()))
+		types.NewPointer(v.Type.Realise()))
 }
 
 func (s StructType) Realise() types.Type {

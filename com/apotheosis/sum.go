@@ -16,7 +16,7 @@ func (state *State) CompileInlineSum(val Value) value.Value {
 	state.Block.NewStore(I64(0), counter)
 
 	accum := state.Block.NewAlloca(lltyp)
-	state.Block.NewStore(state.DefaultValue(&typ), accum)
+	state.Block.NewStore(state.DefaultValue(typ), accum)
 
 	// Body
 	// Get elem, add to accum, increment counter, conditional jump to body

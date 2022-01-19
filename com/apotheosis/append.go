@@ -3,6 +3,7 @@ package apotheosis
 import (
 	"sundown/solution/prism"
 
+	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
@@ -33,7 +34,7 @@ func (state *State) CompileInlineAppend(alpha Value, omega Value) (head value.Va
 		state.Block.NewBitCast(state.Block.NewLoad(vec_elem_typ,
 			state.Block.NewGetElementPtr(vec_head_typ, omega.Value, I32(0), vectorBodyOffset)),
 			types.I8Ptr), len_b, constant.NewBool(false))
-	state.WriteVectorPointer(Value{head, alpha.Type}, body)
+	state.WriteVectorPointer(head.(*ir.InstAlloca), body, alpha.Type.Realise())
 
 	return
 }

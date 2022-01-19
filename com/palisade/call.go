@@ -10,7 +10,7 @@ import (
 var Parser = participle.MustBuild(&PalisadeResult{}, participle.UseLookahead(4), participle.Unquote())
 
 func Begin(rt *oversight.Runtime) *PalisadeResult {
-	prog := PalisadeResult{}
+	prog := PalisadeResult{Runtime: rt}
 	oversight.Verbose("Init palisade")
 	r, err := os.Open(rt.File)
 	defer r.Close()

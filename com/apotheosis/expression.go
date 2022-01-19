@@ -95,9 +95,11 @@ func (state *State) CompileDApplication(app *prism.DApplication) value.Value {
 			Value{state.CompileExpression(&app.Left), app.Left.Type()},
 			Value{state.CompileExpression(&app.Right), app.Right.Type()})
 	default:
-		return state.Block.NewCall(
+		call := state.Block.NewCall(
 			state.DFunctions[app.Operator.LLVMise()],
 			state.CompileExpression(&app.Left),
 			state.CompileExpression(&app.Right))
+
+		return call
 	}
 }

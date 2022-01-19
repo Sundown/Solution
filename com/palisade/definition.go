@@ -1,6 +1,9 @@
 package palisade
 
+import "sundown/solution/oversight"
+
 type PalisadeResult struct {
+	Runtime    *oversight.Runtime
 	Statements []*struct {
 		Function  *Function  `@@`
 		Directive *Directive `| @@`
