@@ -74,14 +74,14 @@ func (state *State) CompileInlineMap(fn, vec prism.Expression) value.Value {
 
 	var call value.Value
 
-	if arg.Morpheme.Tuple[0].Morpheme.Function.Special {
+	/*if arg.Morpheme.Tuple[0].Morpheme.Function.Special {
 		call = state.GetSpecialCallable(fn.(prism.Function).Ident())(vec.Type().(prism.VectorType), cur_elm)
-	} else {
-		call = loopblock.NewCall(
-			state.CompileExpression(&fn),
-			cur_elm)
+	} else {*/
+	call = loopblock.NewCall(
+		state.CompileExpression(&fn),
+		cur_elm)
 
-	}
+	//}
 
 	if should_store {
 		loopblock.NewStore(

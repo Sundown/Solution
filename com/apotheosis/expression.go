@@ -52,48 +52,52 @@ func (state *State) GetSpecialDCallable(ident *prism.Ident) DCallable {
 	}
 }
 
-func (state *State) CompileApplication(app *prism.Application) value.Value {
-	switch *app.Function.Ident.Ident {
+func (state *State) CompileMApplication(app *prism.MApplication) value.Value {
+	switch app.Operator.Ident().Name {
 	case "Return":
-		state.Block.NewRet(state.CompileExpression(app.ArgumentAlpha))
+		state.Block.NewRet(state.CompileExpression(&app.Operand))
 		return nil
-	case "GEP":
-		return state.CompileInlineIndex(app.ArgumentAlpha.TypeOf, state.CompileExpression(app.ArgumentAlpha))
 	case "Println":
-		return state.CompileInlinePrintln(app.ArgumentAlpha.TypeOf, state.CompileExpression(app.ArgumentAlpha))
+		return state.CompileInlinePrintln(Value{state.CompileExpression(&app.Operand), app.Operand.Type()})
 	case "Print":
-		return state.CompileInlinePrint(app.ArgumentAlpha.TypeOf, state.CompileExpression(app.ArgumentAlpha))
+		return state.CompileInlinePrint(Value{state.CompileExpression(&app.Operand), app.Operand.Type()})
 	case "Panic":
-		return state.CompileInlinePanic(nil, state.CompileExpression(app.ArgumentAlpha))
+		return state.CompileInlinePanic(Value{state.CompileExpression(&app.Operand), app.Operand.Type()})
 	case "Len":
-		return state.ReadVectorLength(app.ArgumentAlpha.TypeOf, state.CompileExpression(app.ArgumentAlpha))
+		return state.ReadVectorLength(Value{state.CompileExpression(&app.Operand), app.Operand.Type()})
 	case "Cap":
-		return state.ReadVectorCapacity(app.ArgumentAlpha.TypeOf, state.CompileExpression(app.ArgumentAlpha))
-	case "Map":
-		return state.CompileInlineMap(app.ArgumentAlpha)
-	case "Foldl":
-		return state.CompileInlineFoldl(app)
+		return state.ReadVectorCapacity(Value{state.CompileExpression(&app.Operand), app.Operand.Type()})
 	case "Sum":
-		return state.CompileInlineSum(app.ArgumentAlpha.TypeOf, state.CompileExpression(app.ArgumentAlpha))
+		return state.CompileInlineSum(Value{state.CompileExpression(&app.Operand), app.Operand.Type()})
 	case "Product":
-		return state.CompileInlineProduct(app.ArgumentAlpha.TypeOf, state.CompileExpression(app.ArgumentAlpha))
-	case "Append":
-		return state.CompileInlineAppend(
-			app.ArgumentAlpha.TypeOf, state.CompileExpression(app.ArgumentAlpha),
-			app.ArgumentOmega.TypeOf, state.CompileExpression(app.ArgumentOmega))
-	case "Equals":
-		return state.CompileInlineEqual(
-			app.ArgumentAlpha.TypeOf, state.CompileExpression(app.ArgumentAlpha),
-			app.ArgumentOmega.TypeOf, state.CompileExpression(app.ArgumentOmega))
-	case "First":
-		return state.TupleGet(app.ArgumentAlpha.TypeOf, state.CompileExpression(app.ArgumentAlpha), 0)
-	case "Second":
-		return state.TupleGet(app.ArgumentAlpha.TypeOf, state.CompileExpression(app.ArgumentAlpha), 1)
-	case "Third":
-		return state.TupleGet(app.ArgumentAlpha.TypeOf, state.CompileExpression(app.ArgumentAlpha), 2)
+		return state.CompileInlineProduct(Value{state.CompileExpression(&app.Operand), app.Operand.Type()})
 	default:
 		return state.Block.NewCall(
-			state.Functions[app.Function.ToLLVMName()],
-			state.CompileExpression(app.ArgumentAlpha))
+			state.MFunctions[app.Operator.LLVMise()],
+			state.CompileExpression(&app.Operand))
+	}
+}
+
+func (state *State) CompileDApplication(app *prism.DApplication) value.Value {
+	switch app.Operator.Ident().Name {
+	case "GEP":
+		return state.CompileInlineIndex(
+			Value{state.CompileExpression(&app.Left), app.Left.Type()},
+			Value{state.CompileExpression(&app.Right), app.Right.Type()})
+	case "Map":
+		return state.CompileInlineMap(app.Left, app.Right)
+	case "Append":
+		return state.CompileInlineAppend(
+			Value{state.CompileExpression(&app.Left), app.Left.Type()},
+			Value{state.CompileExpression(&app.Right), app.Right.Type()})
+	case "Equals":
+		return state.CompileInlineEqual(
+			Value{state.CompileExpression(&app.Left), app.Left.Type()},
+			Value{state.CompileExpression(&app.Right), app.Right.Type()})
+	default:
+		return state.Block.NewCall(
+			state.DFunctions[app.Operator.LLVMise()],
+			state.CompileExpression(&app.Left),
+			state.CompileExpression(&app.Right))
 	}
 }
