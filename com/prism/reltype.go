@@ -1,7 +1,6 @@
 package prism
 
 import (
-	"sundown/solution/oversight"
 	"sundown/solution/palisade"
 )
 
@@ -42,6 +41,6 @@ func (env Environment) SubstantiateType(t palisade.Type) Type {
 		return StructType{FieldTypes: acc}
 	}
 
-	oversight.Panic("Unknown type")
+	Panic("Unknown type")
 	return nil
 }

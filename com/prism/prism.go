@@ -1,17 +1,33 @@
 package prism
 
 import (
-	"sundown/solution/oversight"
 	"sundown/solution/palisade"
 
+	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/types"
 )
 
 type Environment struct {
-	Runtime    *oversight.Runtime
+	LexResult *palisade.PalisadeResult
+	//
 	MFunctions map[Ident]*MFunction
 	DFunctions map[Ident]*DFunction
 	Types      map[Ident]Type
+	//
+	EmitFormat   string
+	Output       string
+	Verbose      *bool
+	Optimisation *int64
+	File         string
+	//
+	Module            *ir.Module
+	Block             *ir.Block
+	LLDFunctions      map[string]*ir.Func
+	LLMFunctions      map[string]*ir.Func
+	Specials          map[string]*ir.Func
+	CurrentFunction   *ir.Func
+	CurrentFunctionIR Expression
+	PanicStrings      map[string]*ir.Global
 }
 
 type Ident struct {

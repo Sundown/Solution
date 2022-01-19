@@ -1,4 +1,4 @@
-package oversight
+package prism
 
 import (
 	"os/exec"
@@ -8,7 +8,7 @@ import (
 )
 
 type Runtime struct {
-	Emit         string
+	EmitFormat   string
 	Output       string
 	Verbose      *bool
 	Optimisation *int64

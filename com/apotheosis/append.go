@@ -10,31 +10,31 @@ import (
 )
 
 // self explanatory
-func (state *State) CompileInlineAppend(alpha Value, omega Value) (head value.Value) {
+func (env *Environment) CompileInlineAppend(alpha Value, omega Value) (head value.Value) {
 	vec_head_typ := alpha.Type.Realise()
 	vec_elem_typ := types.NewPointer(alpha.Type.(prism.VectorType).Realise())
 
-	len_a := state.ReadVectorLength(alpha)
-	len_b := state.ReadVectorLength(omega)
-	cap_f := state.Block.NewAdd(state.ReadVectorCapacity(alpha),
-		state.ReadVectorCapacity(omega))
-	head = state.Block.NewAlloca(vec_head_typ)
-	state.Block.NewStore(state.Block.NewAdd(len_a, len_b),
-		state.Block.NewGetElementPtr(vec_head_typ, head, I32(0), vectorLenOffset))
-	state.Block.NewStore(cap_f, state.Block.NewGetElementPtr(
+	len_a := env.ReadVectorLength(alpha)
+	len_b := env.ReadVectorLength(omega)
+	cap_f := env.Block.NewAdd(env.ReadVectorCapacity(alpha),
+		env.ReadVectorCapacity(omega))
+	head = env.Block.NewAlloca(vec_head_typ)
+	env.Block.NewStore(env.Block.NewAdd(len_a, len_b),
+		env.Block.NewGetElementPtr(vec_head_typ, head, I32(0), vectorLenOffset))
+	env.Block.NewStore(cap_f, env.Block.NewGetElementPtr(
 		vec_head_typ, head, I32(0), vectorCapOffset))
-	body := state.Block.NewBitCast(state.Block.NewCall(state.GetCalloc(),
-		I32(alpha.Type.Width()), state.Block.NewTrunc(cap_f, types.I32)), vec_elem_typ)
-	state.Block.NewCall(state.GetMemcpy(), state.Block.NewBitCast(body, types.I8Ptr),
-		state.Block.NewBitCast(state.Block.NewLoad(vec_elem_typ,
-			state.Block.NewGetElementPtr(vec_head_typ, alpha.Value, I32(0), vectorBodyOffset)),
+	body := env.Block.NewBitCast(env.Block.NewCall(env.GetCalloc(),
+		I32(alpha.Type.Width()), env.Block.NewTrunc(cap_f, types.I32)), vec_elem_typ)
+	env.Block.NewCall(env.GetMemcpy(), env.Block.NewBitCast(body, types.I8Ptr),
+		env.Block.NewBitCast(env.Block.NewLoad(vec_elem_typ,
+			env.Block.NewGetElementPtr(vec_head_typ, alpha.Value, I32(0), vectorBodyOffset)),
 			types.I8Ptr), len_a, constant.NewBool(false))
-	state.Block.NewCall(state.GetMemcpy(), state.Block.NewIntToPtr(
-		state.Block.NewAdd(len_a, state.Block.NewPtrToInt(body, types.I64)), types.I8Ptr),
-		state.Block.NewBitCast(state.Block.NewLoad(vec_elem_typ,
-			state.Block.NewGetElementPtr(vec_head_typ, omega.Value, I32(0), vectorBodyOffset)),
+	env.Block.NewCall(env.GetMemcpy(), env.Block.NewIntToPtr(
+		env.Block.NewAdd(len_a, env.Block.NewPtrToInt(body, types.I64)), types.I8Ptr),
+		env.Block.NewBitCast(env.Block.NewLoad(vec_elem_typ,
+			env.Block.NewGetElementPtr(vec_head_typ, omega.Value, I32(0), vectorBodyOffset)),
 			types.I8Ptr), len_b, constant.NewBool(false))
-	state.WriteVectorPointer(head.(*ir.InstAlloca), body, alpha.Type.Realise())
+	env.WriteVectorPointer(head.(*ir.InstAlloca), body, alpha.Type.Realise())
 
 	return
 }

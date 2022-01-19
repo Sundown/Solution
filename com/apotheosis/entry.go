@@ -1,7 +1,6 @@
 package apotheosis
 
 import (
-	"sundown/solution/oversight"
 	"sundown/solution/prism"
 
 	"github.com/llir/llvm/ir"
@@ -9,71 +8,58 @@ import (
 	"github.com/llir/llvm/ir/types"
 )
 
-type State struct {
-	Runtime           *oversight.Runtime
-	Env               *prism.Environment
-	Module            *ir.Module
-	Block             *ir.Block
-	DFunctions        map[string]*ir.Func
-	MFunctions        map[string]*ir.Func
-	Specials          map[string]*ir.Func
-	CurrentFunction   *ir.Func
-	CurrentFunctionIR prism.Expression
-	PanicStrings      map[string]*ir.Global
+type Environment struct {
+	*prism.Environment
 }
 
-func (state *State) Compile(env *prism.Environment) *ir.Module {
-	oversight.Verbose("Init compiler")
-	state.Specials = make(map[string]*ir.Func)
-	state.DFunctions = make(map[string]*ir.Func)
-	state.MFunctions = make(map[string]*ir.Func)
-	state.PanicStrings = make(map[string]*ir.Global)
+func Compile(penv *prism.Environment) *prism.Environment {
+	prism.Verbose("Init compiler")
 
-	state.Env = env
+	env := &Environment{penv}
+	env.Specials = make(map[string]*ir.Func)
+	env.LLDFunctions = make(map[string]*ir.Func)
+	env.LLMFunctions = make(map[string]*ir.Func)
+	env.PanicStrings = make(map[string]*ir.Global)
 
-	state.Module = ir.NewModule()
+	env.Module = ir.NewModule()
 
-	state.Module.SourceFilename = "out_file"
+	env.Module.SourceFilename = env.Output + ".ll"
 
-	state.
+	env.
 		DeclareFunctions().
 		CompileFunctions().
 		InitMain()
 
-		//if state.Runtime.Output == "" {
-	//state.Env.Runtime.Output = "out_file"
-	//}
-
-	return state.Module
+	return env.Environment
 }
 
-func (state *State) DeclareFunctions() *State {
-	for _, fn := range state.Env.DFunctions {
-		state.DFunctions[fn.LLVMise()] = state.DeclareDFunction(*fn)
+func (env *Environment) DeclareFunctions() *Environment {
+	for _, fn := range env.DFunctions {
+		env.LLDFunctions[fn.LLVMise()] = env.DeclareDFunction(*fn)
 	}
-	for _, fn := range state.Env.MFunctions {
-		state.MFunctions[fn.LLVMise()] = state.DeclareMFunction(*fn)
+	for _, fn := range env.MFunctions {
+		env.LLMFunctions[fn.LLVMise()] = env.DeclareMFunction(*fn)
 	}
 
-	return state
+	return env
 }
 
-func (state *State) CompileFunctions() *State {
-	for _, fn := range state.Env.DFunctions {
-		state.DFunctions[fn.LLVMise()] = state.CompileDFunction(*fn)
+func (env *Environment) CompileFunctions() *Environment {
+	for _, fn := range env.DFunctions {
+		env.LLDFunctions[fn.LLVMise()] = env.CompileDFunction(*fn)
 	}
-	for _, fn := range state.Env.MFunctions {
-		state.MFunctions[fn.LLVMise()] = state.CompileMFunction(*fn)
+	for _, fn := range env.MFunctions {
+		env.LLMFunctions[fn.LLVMise()] = env.CompileMFunction(*fn)
 	}
 
-	return state
+	return env
 }
 
-func (state *State) InitMain() *State {
-	state.CurrentFunction = state.Module.NewFunc("main", types.I32)
-	state.Block = state.CurrentFunction.NewBlock("entry")
-	state.Block.NewCall(state.DFunctions["_::add_Int,Int->Int"], I64(0), I64(1))
-	state.Block.NewRet(constant.NewInt(types.I32, 0))
+func (env *Environment) InitMain() *Environment {
+	env.CurrentFunction = env.Module.NewFunc("main", types.I32)
+	env.Block = env.CurrentFunction.NewBlock("entry")
+	env.Block.NewCall(env.LLDFunctions["_::add_Int,Int->Int"], I64(0), I64(1))
+	env.Block.NewRet(constant.NewInt(types.I32, 0))
 
-	return state
+	return env
 }

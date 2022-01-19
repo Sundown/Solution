@@ -8,45 +8,45 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-func (state *State) CompileInlineSum(val Value) value.Value {
+func (env *Environment) CompileInlineSum(val Value) value.Value {
 	typ := val.Type.(prism.VectorType).Type
 	lltyp := typ.Realise()
 
-	counter := state.Block.NewAlloca(types.I64)
-	state.Block.NewStore(I64(0), counter)
+	counter := env.Block.NewAlloca(types.I64)
+	env.Block.NewStore(I64(0), counter)
 
-	accum := state.Block.NewAlloca(lltyp)
-	state.Block.NewStore(state.DefaultValue(typ), accum)
+	accum := env.Block.NewAlloca(lltyp)
+	env.Block.NewStore(env.DefaultValue(typ), accum)
 
 	// Body
 	// Get elem, add to accum, increment counter, conditional jump to body
 	// TODO these can be simplified with the helpers in vector.go
-	cond_rhs := state.Block.NewLoad(
+	cond_rhs := env.Block.NewLoad(
 		types.I64,
-		state.Block.NewGetElementPtr(
+		env.Block.NewGetElementPtr(
 			prism.VectorType{Type: typ}.Realise(),
 			val.Value,
 			I32(0),
 			vectorLenOffset))
 
-	ll_body_actual := state.Block.NewLoad(
+	ll_body_actual := env.Block.NewLoad(
 		types.NewPointer(lltyp),
-		state.Block.NewGetElementPtr(
+		env.Block.NewGetElementPtr(
 			prism.VectorType{Type: typ}.Realise(),
 			val.Value,
 			I32(0),
 			vectorBodyOffset))
 
-	loopblock := state.CurrentFunction.NewBlock("")
-	state.Block.NewBr(loopblock)
-	state.Block = loopblock
+	loopblock := env.CurrentFunction.NewBlock("")
+	env.Block.NewBr(loopblock)
+	env.Block = loopblock
 
 	// Add to accum
 	cur_counter := loopblock.NewLoad(types.I64, counter)
 
 	// Accum <- accum + current element
 	loopblock.NewStore(
-		state.AgnosticAdd(
+		env.AgnosticAdd(
 			&typ,
 			loopblock.NewLoad(lltyp, accum),
 			loopblock.NewLoad(
@@ -67,52 +67,52 @@ func (state *State) CompileInlineSum(val Value) value.Value {
 		loopblock.NewAdd(cur_counter, I64(1)),
 		cond_rhs)
 
-	exitblock := state.CurrentFunction.NewBlock("")
+	exitblock := env.CurrentFunction.NewBlock("")
 	loopblock.NewCondBr(cond, loopblock, exitblock)
-	state.Block = exitblock
+	env.Block = exitblock
 
-	return state.Block.NewLoad(lltyp, accum)
+	return env.Block.NewLoad(lltyp, accum)
 }
 
-func (state *State) CompileInlineProduct(val Value) value.Value {
+func (env *Environment) CompileInlineProduct(val Value) value.Value {
 	typ := val.Type.(prism.VectorType).Type
 	lltyp := typ.Realise()
 
-	counter := state.Block.NewAlloca(types.I64)
-	state.Block.NewStore(I64(0), counter)
+	counter := env.Block.NewAlloca(types.I64)
+	env.Block.NewStore(I64(0), counter)
 
-	accum := state.Block.NewAlloca(lltyp)
-	state.Block.NewStore(state.Number(&typ, 1), accum)
+	accum := env.Block.NewAlloca(lltyp)
+	env.Block.NewStore(env.Number(&typ, 1), accum)
 
 	// Body
 	// Get elem, add to accum, increment counter, conditional jump to body
 
-	cond_rhs := state.Block.NewLoad(
+	cond_rhs := env.Block.NewLoad(
 		types.I64,
-		state.Block.NewGetElementPtr(
+		env.Block.NewGetElementPtr(
 			prism.VectorType{Type: typ}.Realise(),
 			val.Value,
 			I32(0),
 			vectorLenOffset))
 
-	ll_body_actual := state.Block.NewLoad(
+	ll_body_actual := env.Block.NewLoad(
 		types.NewPointer(lltyp),
-		state.Block.NewGetElementPtr(
+		env.Block.NewGetElementPtr(
 			prism.VectorType{Type: typ}.Realise(),
 			val.Value,
 			I32(0),
 			vectorBodyOffset))
 
-	loopblock := state.CurrentFunction.NewBlock("")
-	state.Block.NewBr(loopblock)
-	state.Block = loopblock
+	loopblock := env.CurrentFunction.NewBlock("")
+	env.Block.NewBr(loopblock)
+	env.Block = loopblock
 
 	// Add to accum
 	cur_counter := loopblock.NewLoad(types.I64, counter)
 
 	// Accum <- accum * current element
 	loopblock.NewStore(
-		state.AgnosticMult(
+		env.AgnosticMult(
 			&typ,
 			loopblock.NewLoad(lltyp, accum),
 			loopblock.NewLoad(
@@ -133,10 +133,10 @@ func (state *State) CompileInlineProduct(val Value) value.Value {
 		loopblock.NewAdd(loopblock.NewLoad(types.I64, counter), I64(1)),
 		counter)
 
-	exitblock := state.CurrentFunction.NewBlock("")
+	exitblock := env.CurrentFunction.NewBlock("")
 	loopblock.NewCondBr(cond, loopblock, exitblock)
-	state.Block = exitblock
+	env.Block = exitblock
 
-	return state.Block.NewLoad(lltyp, accum)
+	return env.Block.NewLoad(lltyp, accum)
 
 }

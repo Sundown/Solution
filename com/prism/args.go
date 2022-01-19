@@ -1,4 +1,4 @@
-package oversight
+package prism
 
 import (
 	"crypto/sha256"
@@ -8,11 +8,9 @@ import (
 	"os/exec"
 	"path/filepath"
 	"strconv"
-
-	"github.com/llir/llvm/ir"
 )
 
-func (rt *Runtime) ParseArgs() *Runtime {
+func Init(env *Environment) *Environment {
 	if len(os.Args) == 1 {
 		Error("No files input").Exit()
 	}
@@ -28,8 +26,8 @@ func (rt *Runtime) ParseArgs() *Runtime {
 					}
 
 					i++
-					rt.Emit = os.Args[i]
-					Verbose("Emitting", rt.Emit)
+					env.EmitFormat = os.Args[i]
+					Verbose("Emitting", env.EmitFormat)
 				} else {
 					Error("emit requires argument").Exit()
 				}
@@ -37,7 +35,7 @@ func (rt *Runtime) ParseArgs() *Runtime {
 			case "o":
 				if len(os.Args) > i+1 {
 					i++
-					rt.Output = os.Args[i]
+					env.Output = os.Args[i]
 				} else {
 					Error("output expected filename").Exit()
 				}
@@ -53,11 +51,11 @@ func (rt *Runtime) ParseArgs() *Runtime {
 							Error("optimisation expected integer (0, 1, 3) or \"fast\"").Exit()
 						}
 
-						rt.Optimisation = &l
+						env.Optimisation = &l
 
 					case "fast":
 						l := int64(4)
-						rt.Optimisation = &l
+						env.Optimisation = &l
 					}
 				} else {
 					Error("optimisation expected level").Exit()
@@ -65,7 +63,7 @@ func (rt *Runtime) ParseArgs() *Runtime {
 			}
 
 		} else {
-			rt.File, err = filepath.Abs(os.Args[1])
+			env.File, err = filepath.Abs(os.Args[1])
 			if err != nil {
 				Error("Trying to use " + os.Args[1] + " as input file, not found.").Exit()
 			}
@@ -73,47 +71,47 @@ func (rt *Runtime) ParseArgs() *Runtime {
 		}
 	}
 
-	return rt
+	return env
 }
 
-func (rt *Runtime) HandleEmit(mod *ir.Module) {
-	out := []byte(mod.String())
+func Emit(env *Environment) {
+	out := []byte((*env.Module).String())
 
 	var sum [32]byte = sha256.Sum256(out)
-	temp_name := rt.Output + "_" + hex.EncodeToString(sum[:]) + ".ll"
+	temp_name := env.Output + "_" + hex.EncodeToString(sum[:]) + ".ll"
 	Verbose("Temp file", temp_name)
 
-	if rt.Emit == "llvm" {
-		ioutil.WriteFile(rt.Output+".ll", out, 0644)
-		Notify("Compiled", rt.Output, "to LLVM").Exit()
+	if env.EmitFormat == "llvm" {
+		ioutil.WriteFile(env.Output+".ll", out, 0644)
+		Notify("Compiled", env.Output, "to LLVM").Exit()
 	} else {
 		ioutil.WriteFile(temp_name, out, 0644)
 	}
 
 	VerifyClangVersion()
 
-	if rt.Emit == "asm" {
-		err := exec.Command("clang", temp_name, "-o", rt.Output+".s", "-S").Run()
+	if env.EmitFormat == "asm" {
+		err := exec.Command("clang", temp_name, "-o", env.Output+".s", "-S").Run()
 		exec.Command("rm", "-f", temp_name).Run()
 		if err != nil {
 			Error(err.Error()).Exit()
 		}
 
-		Notify("Compiled", rt.Output, "to Assembly").Exit()
+		Notify("Compiled", env.Output, "to Assembly").Exit()
 	}
 
 	opt := ""
-	if rt.Optimisation != nil {
-		f := strconv.FormatInt(*rt.Optimisation, 10)
+	if env.Optimisation != nil {
+		f := strconv.FormatInt(*env.Optimisation, 10)
 		Verbose("Optimisation level", f)
 		opt = "-O" + f
 	}
 
-	err := exec.Command("clang", temp_name, opt, "-o", rt.Output).Run()
+	err := exec.Command("clang", temp_name, opt, "-o", env.Output).Run()
 	exec.Command("rm", "-f", temp_name).Run()
 	if err != nil {
 		Error(err.Error()).Exit()
 	} else {
-		Notify("Compiled", rt.Output, "to executable")
+		Notify("Compiled", env.Output, "to executable")
 	}
 }

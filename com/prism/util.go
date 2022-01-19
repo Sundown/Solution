@@ -1,4 +1,4 @@
-package oversight
+package prism
 
 import (
 	"fmt"

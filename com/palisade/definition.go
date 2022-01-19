@@ -1,18 +1,15 @@
 package palisade
 
-import "sundown/solution/oversight"
-
 type PalisadeResult struct {
-	Runtime    *oversight.Runtime
-	Statements []*struct {
+	Environmentments []*struct {
 		Function  *Function  `@@`
 		Directive *Directive `| @@`
 	} `@@*`
 }
 
 type Directive struct {
-	Ident *string `":" @Ident`
-	Value *string `@String`
+	Command *string `"@" @Ident`
+	Value   *string `@Ident`
 }
 
 type Ident struct {

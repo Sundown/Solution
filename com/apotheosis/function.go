@@ -7,56 +7,56 @@ import (
 	"github.com/llir/llvm/ir/types"
 )
 
-func (state *State) CompileBlock(body *[]prism.Expression) {
+func (env *Environment) CompileBlock(body *[]prism.Expression) {
 	// Block is just an expression[]
 	for _, stmt := range *body {
-		state.CompileExpression(&stmt)
+		env.CompileExpression(&stmt)
 	}
 }
 
-func (state *State) DeclareDFunction(fn prism.DFunction) *ir.Func {
-	return state.Module.NewFunc(
+func (env *Environment) DeclareDFunction(fn prism.DFunction) *ir.Func {
+	return env.Module.NewFunc(
 		fn.LLVMise(),
 		ToReturn(fn.Type()),
 		ToParam(fn.AlphaType), ToParam(fn.OmegaType))
 }
 
-func (state *State) DeclareMFunction(fn prism.MFunction) *ir.Func {
-	return state.Module.NewFunc(
+func (env *Environment) DeclareMFunction(fn prism.MFunction) *ir.Func {
+	return env.Module.NewFunc(
 		fn.LLVMise(),
 		ToReturn(fn.Type()),
 		ToParam(fn.OmegaType))
 }
 
-func (state *State) CompileDFunction(fn prism.DFunction) *ir.Func {
-	state.CurrentFunction = state.DFunctions[fn.LLVMise()]
-	state.CurrentFunctionIR = fn
+func (env *Environment) CompileDFunction(fn prism.DFunction) *ir.Func {
+	env.CurrentFunction = env.LLDFunctions[fn.LLVMise()]
+	env.CurrentFunctionIR = fn
 
-	state.Block = state.CurrentFunction.NewBlock("")
-	state.CompileBlock(&fn.Body)
+	env.Block = env.CurrentFunction.NewBlock("")
+	env.CompileBlock(&fn.Body)
 
 	if fn.Returns.Kind() == prism.VoidType.ID {
-		state.Block.NewRet(nil)
+		env.Block.NewRet(nil)
 	}
 
 	// TODO remove this
-	state.Block.NewRet(state.DefaultValue(fn.Returns))
+	env.Block.NewRet(env.DefaultValue(fn.Returns))
 
-	return state.CurrentFunction
+	return env.CurrentFunction
 }
 
-func (state *State) CompileMFunction(fn prism.MFunction) *ir.Func {
-	state.CurrentFunction = state.MFunctions[fn.LLVMise()]
-	state.CurrentFunctionIR = fn
+func (env *Environment) CompileMFunction(fn prism.MFunction) *ir.Func {
+	env.CurrentFunction = env.LLMFunctions[fn.LLVMise()]
+	env.CurrentFunctionIR = fn
 
-	state.Block = state.CurrentFunction.NewBlock("")
-	state.CompileBlock(&fn.Body)
+	env.Block = env.CurrentFunction.NewBlock("")
+	env.CompileBlock(&fn.Body)
 
 	if fn.Returns.Kind() == prism.VoidType.ID {
-		state.Block.NewRet(nil)
+		env.Block.NewRet(nil)
 	}
 
-	return state.CurrentFunction
+	return env.CurrentFunction
 }
 
 // Complex types decay to pointers, atomic types do not

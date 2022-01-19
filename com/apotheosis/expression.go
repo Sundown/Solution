@@ -6,14 +6,14 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-func (state *State) CompileExpression(expr *prism.Expression) value.Value {
+func (env *Environment) CompileExpression(expr *prism.Expression) value.Value {
 	switch t := (*expr).(type) {
 	case prism.MApplication:
-		return state.CompileMApplication(&t)
+		return env.CompileMApplication(&t)
 	case prism.DApplication:
-		return state.CompileDApplication(&t)
+		return env.CompileDApplication(&t)
 	case prism.Morpheme:
-		return state.CompileAtom(&t)
+		return env.CompileAtom(&t)
 	default:
 		panic("unreachable")
 	}
@@ -22,83 +22,83 @@ func (state *State) CompileExpression(expr *prism.Expression) value.Value {
 type MCallable func(val Value) value.Value
 type DCallable func(left, right Value) value.Value
 
-func (state *State) GetSpecialMCallable(ident *prism.Ident) MCallable {
+func (env *Environment) GetSpecialMCallable(ident *prism.Ident) MCallable {
 	switch ident.Name {
 	case "Println":
-		return state.CompileInlinePrintln
+		return env.CompileInlinePrintln
 	case "Print":
-		return state.CompileInlinePrint
+		return env.CompileInlinePrint
 	case "Panic":
-		return state.CompileInlinePanic
+		return env.CompileInlinePanic
 	case "Len":
-		return state.ReadVectorLength
+		return env.ReadVectorLength
 	case "Cap":
-		return state.ReadVectorCapacity
+		return env.ReadVectorCapacity
 	case "Sum":
-		return state.CompileInlineSum
+		return env.CompileInlineSum
 	case "Product":
-		return state.CompileInlineProduct
+		return env.CompileInlineProduct
 	default:
 		panic("unreachable")
 	}
 }
 
-func (state *State) GetSpecialDCallable(ident *prism.Ident) DCallable {
+func (env *Environment) GetSpecialDCallable(ident *prism.Ident) DCallable {
 	switch ident.Name {
 	case "GEP":
-		return state.CompileInlineIndex
+		return env.CompileInlineIndex
 	default:
 		panic("unreachable")
 	}
 }
 
-func (state *State) CompileMApplication(app *prism.MApplication) value.Value {
+func (env *Environment) CompileMApplication(app *prism.MApplication) value.Value {
 	switch app.Operator.Ident().Name {
 	case "Return":
-		state.Block.NewRet(state.CompileExpression(&app.Operand))
+		env.Block.NewRet(env.CompileExpression(&app.Operand))
 		return nil
 	case "Println":
-		return state.CompileInlinePrintln(Value{state.CompileExpression(&app.Operand), app.Operand.Type()})
+		return env.CompileInlinePrintln(Value{env.CompileExpression(&app.Operand), app.Operand.Type()})
 	case "Print":
-		return state.CompileInlinePrint(Value{state.CompileExpression(&app.Operand), app.Operand.Type()})
+		return env.CompileInlinePrint(Value{env.CompileExpression(&app.Operand), app.Operand.Type()})
 	case "Panic":
-		return state.CompileInlinePanic(Value{state.CompileExpression(&app.Operand), app.Operand.Type()})
+		return env.CompileInlinePanic(Value{env.CompileExpression(&app.Operand), app.Operand.Type()})
 	case "Len":
-		return state.ReadVectorLength(Value{state.CompileExpression(&app.Operand), app.Operand.Type()})
+		return env.ReadVectorLength(Value{env.CompileExpression(&app.Operand), app.Operand.Type()})
 	case "Cap":
-		return state.ReadVectorCapacity(Value{state.CompileExpression(&app.Operand), app.Operand.Type()})
+		return env.ReadVectorCapacity(Value{env.CompileExpression(&app.Operand), app.Operand.Type()})
 	case "Sum":
-		return state.CompileInlineSum(Value{state.CompileExpression(&app.Operand), app.Operand.Type()})
+		return env.CompileInlineSum(Value{env.CompileExpression(&app.Operand), app.Operand.Type()})
 	case "Product":
-		return state.CompileInlineProduct(Value{state.CompileExpression(&app.Operand), app.Operand.Type()})
+		return env.CompileInlineProduct(Value{env.CompileExpression(&app.Operand), app.Operand.Type()})
 	default:
-		return state.Block.NewCall(
-			state.MFunctions[app.Operator.LLVMise()],
-			state.CompileExpression(&app.Operand))
+		return env.Block.NewCall(
+			env.LLMFunctions[app.Operator.LLVMise()],
+			env.CompileExpression(&app.Operand))
 	}
 }
 
-func (state *State) CompileDApplication(app *prism.DApplication) value.Value {
+func (env *Environment) CompileDApplication(app *prism.DApplication) value.Value {
 	switch app.Operator.Ident().Name {
 	case "GEP":
-		return state.CompileInlineIndex(
-			Value{state.CompileExpression(&app.Left), app.Left.Type()},
-			Value{state.CompileExpression(&app.Right), app.Right.Type()})
+		return env.CompileInlineIndex(
+			Value{env.CompileExpression(&app.Left), app.Left.Type()},
+			Value{env.CompileExpression(&app.Right), app.Right.Type()})
 	case "Map":
-		return state.CompileInlineMap(app.Left, app.Right)
+		return env.CompileInlineMap(app.Left, app.Right)
 	case "Append":
-		return state.CompileInlineAppend(
-			Value{state.CompileExpression(&app.Left), app.Left.Type()},
-			Value{state.CompileExpression(&app.Right), app.Right.Type()})
+		return env.CompileInlineAppend(
+			Value{env.CompileExpression(&app.Left), app.Left.Type()},
+			Value{env.CompileExpression(&app.Right), app.Right.Type()})
 	case "Equals":
-		return state.CompileInlineEqual(
-			Value{state.CompileExpression(&app.Left), app.Left.Type()},
-			Value{state.CompileExpression(&app.Right), app.Right.Type()})
+		return env.CompileInlineEqual(
+			Value{env.CompileExpression(&app.Left), app.Left.Type()},
+			Value{env.CompileExpression(&app.Right), app.Right.Type()})
 	default:
-		call := state.Block.NewCall(
-			state.DFunctions[app.Operator.LLVMise()],
-			state.CompileExpression(&app.Left),
-			state.CompileExpression(&app.Right))
+		call := env.Block.NewCall(
+			env.LLDFunctions[app.Operator.LLVMise()],
+			env.CompileExpression(&app.Left),
+			env.CompileExpression(&app.Right))
 
 		return call
 	}

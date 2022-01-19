@@ -9,12 +9,19 @@ type Environment struct {
 	*prism.Environment
 }
 
-func Init(result *palisade.PalisadeResult) prism.Environment {
-	env := Environment{prism.NewEnvironment()}
+func Parse(penv *prism.Environment) *prism.Environment {
+	env := Environment{penv}
 
-	for _, stmt := range result.Statements {
+	for _, stmt := range env.LexResult.Environmentments {
 		// First pass, declare all functions so that they
 		// may be referenced before they are defined (text-wise)
+		// Handle compiler directives
+		if d := stmt.Directive; d != nil {
+			if *d.Command == "Package" {
+				env.Output = *d.Value
+			}
+		}
+
 		if f := stmt.Function; f != nil {
 			// palisade.Function is agnostic to arity
 			// containing either monadic or dyadic
@@ -26,7 +33,7 @@ func Init(result *palisade.PalisadeResult) prism.Environment {
 		env.AnalyseDBody(f)
 	}
 
-	return *env.Environment
+	return env.Environment
 }
 
 // Intern either monadic or dyadic function header into environment

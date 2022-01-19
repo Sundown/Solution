@@ -9,12 +9,12 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-func (state *State) CompileInlineMap(fn, vec prism.Expression) value.Value {
+func (env *Environment) CompileInlineMap(fn, vec prism.Expression) value.Value {
 	// Return type of function to be mapped
 	f_returns := fn.Type()
 
 	// The vector in LLVM
-	llvec := state.CompileExpression(&vec)
+	llvec := env.CompileExpression(&vec)
 
 	head_type := vec.Type().Realise()
 	elm_type := vec.Type().(prism.VectorType).Realise()
@@ -27,42 +27,42 @@ func (state *State) CompileInlineMap(fn, vec prism.Expression) value.Value {
 		should_store = false
 	}
 
-	leng := state.ReadVectorLength(Value{llvec, vec.Type()})
+	leng := env.ReadVectorLength(Value{llvec, vec.Type()})
 
 	var head *ir.InstAlloca
 	var body *ir.InstBitCast
 
 	if should_store {
-		cap := state.ReadVectorCapacity(Value{llvec, vec.Type()})
-		head = state.Block.NewAlloca(to_head_type)
+		cap := env.ReadVectorCapacity(Value{llvec, vec.Type()})
+		head = env.Block.NewAlloca(to_head_type)
 
 		// Copy length
-		state.Block.NewStore(leng, state.Block.NewGetElementPtr(to_head_type, head, I32(0), vectorLenOffset))
+		env.Block.NewStore(leng, env.Block.NewGetElementPtr(to_head_type, head, I32(0), vectorLenOffset))
 
 		// Copy capacity
-		state.Block.NewStore(cap, state.Block.NewGetElementPtr(to_head_type, head, I32(0), vectorCapOffset))
+		env.Block.NewStore(cap, env.Block.NewGetElementPtr(to_head_type, head, I32(0), vectorCapOffset))
 
 		// Allocate a body of capacity * element width, and cast to element type
-		body = state.Block.NewBitCast(
-			state.Block.NewCall(state.GetCalloc(),
-				I32(f_returns.Width()),                // Byte size of elements
-				state.Block.NewTrunc(cap, types.I32)), // How much memory to alloc
+		body = env.Block.NewBitCast(
+			env.Block.NewCall(env.GetCalloc(),
+				I32(f_returns.Width()),              // Byte size of elements
+				env.Block.NewTrunc(cap, types.I32)), // How much memory to alloc
 			types.NewPointer(to_elm_type)) // Cast alloc'd memory to typ
 	}
 
 	// --- Loop body ---
-	vec_body := state.Block.NewLoad(
+	vec_body := env.Block.NewLoad(
 		types.NewPointer(elm_type),
-		state.Block.NewGetElementPtr(head_type, llvec, I32(0), vectorBodyOffset))
+		env.Block.NewGetElementPtr(head_type, llvec, I32(0), vectorBodyOffset))
 
-	counter := state.Block.NewAlloca(types.I64)
-	state.Block.NewStore(I64(0), counter)
+	counter := env.Block.NewAlloca(types.I64)
+	env.Block.NewStore(I64(0), counter)
 
 	// Body
 	// Get elem, add to accum, increment counter, conditional jump to body
-	loopblock := state.CurrentFunction.NewBlock("")
-	state.Block.NewBr(loopblock)
-	state.Block = loopblock
+	loopblock := env.CurrentFunction.NewBlock("")
+	env.Block.NewBr(loopblock)
+	env.Block = loopblock
 	// Add to accum
 	cur_counter := loopblock.NewLoad(types.I64, counter)
 
@@ -75,10 +75,10 @@ func (state *State) CompileInlineMap(fn, vec prism.Expression) value.Value {
 	var call value.Value
 
 	/*if arg.Morpheme.Tuple[0].Morpheme.Function.Special {
-		call = state.GetSpecialCallable(fn.(prism.Function).Ident())(vec.Type().(prism.VectorType), cur_elm)
+		call = env.GetSpecialCallable(fn.(prism.Function).Ident())(vec.Type().(prism.VectorType), cur_elm)
 	} else {*/
 	call = loopblock.NewCall(
-		state.CompileExpression(&fn),
+		env.CompileExpression(&fn),
 		cur_elm)
 
 	//}
@@ -96,13 +96,13 @@ func (state *State) CompileInlineMap(fn, vec prism.Expression) value.Value {
 
 	cond := loopblock.NewICmp(enum.IPredSLT, incr, leng)
 
-	exitblock := state.CurrentFunction.NewBlock("")
+	exitblock := env.CurrentFunction.NewBlock("")
 	loopblock.NewCondBr(cond, loopblock, exitblock)
-	state.Block = exitblock
+	env.Block = exitblock
 
 	if should_store {
-		state.Block.NewStore(body,
-			state.Block.NewGetElementPtr(to_head_type, head, I32(0), vectorBodyOffset))
+		env.Block.NewStore(body,
+			env.Block.NewGetElementPtr(to_head_type, head, I32(0), vectorBodyOffset))
 		return head
 	} else {
 		return nil

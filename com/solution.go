@@ -1,21 +1,28 @@
 package main
 
 import (
-	"fmt"
 	"sundown/solution/apotheosis"
-	"sundown/solution/oversight"
-	"sundown/solution/palisade"
+	"sundown/solution/prism"
 	"sundown/solution/subtle"
 )
 
 func main() {
-	oversight.Notify("Solution init...")
+	prism.Notify("Solution init...")
 
-	r := &oversight.Runtime{}
-	s := &apotheosis.State{}
-	lexed := palisade.Begin(r.ParseArgs())
-	env := subtle.Init(lexed)
+	env := prism.NewEnvironment()
 
-	ir := s.Compile(&env)
-	fmt.Println(ir.String())
+	// Parse arguments
+	prism.Init(env)
+
+	// Open file and lex
+	prism.Lex(env)
+
+	// Parse lexed tokens to AST and resolve compiler directives
+	subtle.Parse(env)
+
+	// Compile AST to LLVM
+	apotheosis.Compile(env)
+
+	// Write LLVM IR to file or invoke Clang
+	prism.Emit(env)
 }

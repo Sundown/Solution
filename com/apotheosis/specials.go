@@ -5,21 +5,21 @@ import (
 	"github.com/llir/llvm/ir/types"
 )
 
-func (state *State) GetCalloc() *ir.Func {
-	if state.Specials["calloc"] == nil {
-		state.Specials["calloc"] = state.Module.NewFunc(
+func (env *Environment) GetCalloc() *ir.Func {
+	if env.Specials["calloc"] == nil {
+		env.Specials["calloc"] = env.Module.NewFunc(
 			"calloc",
 			types.I8Ptr,
 			ir.NewParam("size", types.I32),
 			ir.NewParam("count", types.I32))
 	}
 
-	return state.Specials["calloc"]
+	return env.Specials["calloc"]
 }
 
-func (state *State) GetMemcpy() *ir.Func {
-	if state.Specials["memcpy"] == nil {
-		state.Specials["memcpy"] = state.Module.NewFunc(
+func (env *Environment) GetMemcpy() *ir.Func {
+	if env.Specials["memcpy"] == nil {
+		env.Specials["memcpy"] = env.Module.NewFunc(
 			"llvm.memcpy",
 			types.Void,
 			ir.NewParam("dest", types.I8Ptr),
@@ -28,28 +28,28 @@ func (state *State) GetMemcpy() *ir.Func {
 			ir.NewParam("isvolatile", types.I1))
 	}
 
-	return state.Specials["memcpy"]
+	return env.Specials["memcpy"]
 }
 
-func (state *State) GetExit() *ir.Func {
-	if state.Specials["exit"] == nil {
-		state.Specials["exit"] = state.Module.NewFunc(
+func (env *Environment) GetExit() *ir.Func {
+	if env.Specials["exit"] == nil {
+		env.Specials["exit"] = env.Module.NewFunc(
 			"exit",
 			types.Void,
 			ir.NewParam("", types.I32))
 	}
 
-	return state.Specials["exit"]
+	return env.Specials["exit"]
 }
 
-func (state *State) GetPrintf() *ir.Func {
-	if state.Specials["printf"] == nil {
-		state.Specials["printf"] = state.Module.NewFunc(
+func (env *Environment) GetPrintf() *ir.Func {
+	if env.Specials["printf"] == nil {
+		env.Specials["printf"] = env.Module.NewFunc(
 			"printf",
 			types.I32,
 			ir.NewParam("", types.I8Ptr))
-		state.Specials["printf"].Sig.Variadic = true
+		env.Specials["printf"].Sig.Variadic = true
 	}
 
-	return state.Specials["printf"]
+	return env.Specials["printf"]
 }

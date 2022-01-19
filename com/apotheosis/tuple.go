@@ -1,39 +1,39 @@
 package apotheosis
 
 /*
-func (state *State) CompileTuple(tuple *prism.Morpheme) value.Value {
-	ll_tuple := state.Block.NewAlloca(tuple.TypeOf.AsLLType())
+func (env *Environment) CompileTuple(tuple *prism.Morpheme) value.Value {
+	ll_tuple := env.Block.NewAlloca(tuple.TypeOf.AsLLType())
 
 	for index, expr := range tuple.Tuple {
-		val := state.CompileExpression(expr)
+		val := env.CompileExpression(expr)
 
 		if expr.TypeOf.Atomic == nil {
-			val = state.Block.NewLoad(expr.TypeOf.AsLLType(), val)
+			val = env.Block.NewLoad(expr.TypeOf.AsLLType(), val)
 		}
 
-		state.Block.NewStore(val, state.GEP(ll_tuple, I32(0), I32(int64(index))))
+		env.Block.NewStore(val, env.GEP(ll_tuple, I32(0), I32(int64(index))))
 	}
 
 	return ll_tuple
 }
 
-func (state *State) TupleGet(typ *prism.Type, real value.Value, index int) value.Value {
+func (env *Environment) TupleGet(typ *prism.Type, real value.Value, index int) value.Value {
 	if len(typ.Tuple) < index {
-		oversight.Panic(oversight.CT_OOB, index, typ.String(), len(typ.Tuple))
+		prism.Panic(prism.CT_OOB, index, typ.String(), len(typ.Tuple))
 	}
 
 	if typ.Tuple == nil {
-		oversight.Panic(oversight.CT_Unexpected, oversight.Yellow("tuple"), oversight.Yellow(typ.String()))
+		prism.Panic(prism.CT_Unexpected, prism.Yellow("tuple"), prism.Yellow(typ.String()))
 	}
 
-	ptr := state.Block.NewGetElementPtr(
+	ptr := env.Block.NewGetElementPtr(
 		typ.AsLLType(), real,
 		I32(0), I32(int64(index)))
 
 	if typ.Tuple[index].Atomic == nil {
 		return ptr
 	} else {
-		return state.Block.NewLoad(typ.Tuple[index].AsLLType(), ptr)
+		return env.Block.NewLoad(typ.Tuple[index].AsLLType(), ptr)
 	}
 }
 */
