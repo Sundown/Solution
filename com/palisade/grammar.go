@@ -1,9 +1,9 @@
 package palisade
 
 type Expression struct {
-	Monadic  *Monadic    `( @@`
-	Dyadic   *Dyadic     `| @@`
-	Morpheme *[]Morpheme `| @@+ )`
+	Monadic   *Monadic    `( @@`
+	Dyadic    *Dyadic     `| @@`
+	Morphemes *[]Morpheme `| @@+ )`
 }
 
 type Monadic struct {

@@ -6,7 +6,8 @@ import (
 
 func NewEnvironment() *Environment {
 	var env Environment
-	env.Functions = make(map[Ident]*Function)
+	env.MFunctions = make(map[Ident]*MFunction)
+	env.DFunctions = make(map[Ident]*DFunction)
 	env.Types = make(map[Ident]Type)
 
 	env.Types[ParseIdent("Int")] = AtomicType{
@@ -50,7 +51,10 @@ func NewEnvironment() *Environment {
 }
 
 func (e Environment) String() (s string) {
-	for _, f := range e.Functions {
+	for _, f := range e.DFunctions {
+		s += f.String()
+	}
+	for _, f := range e.MFunctions {
 		s += f.String()
 	}
 

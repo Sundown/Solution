@@ -1,7 +1,6 @@
 package subtle
 
 import (
-	"sundown/solution/oversight"
 	"sundown/solution/palisade"
 	"sundown/solution/prism"
 )
@@ -11,68 +10,152 @@ type Environment struct {
 }
 
 func Init(result *palisade.PalisadeResult) prism.Environment {
-	env := Environment{}
+	env := Environment{prism.NewEnvironment()}
 
 	for _, stmt := range result.Statements {
-		if f := stmt.FnDef; f != nil {
-			if f.Body != nil {
-				panic("Body should be empty")
-			}
-
-			fn := env.InternFunction(*f)
-
-			env.Functions[fn.Name] = fn
-
+		// First pass, declare all functions so that they
+		// may be referenced before they are defined (text-wise)
+		if f := stmt.Function; f != nil {
+			// palisade.Function is agnostic to arity
+			// containing either monadic or dyadic
+			env.InternFunction(*f)
 		}
+	}
+
+	for _, f := range env.DFunctions {
+		env.AnalyseDBody(f)
 	}
 
 	return *env.Environment
 }
 
-func (env Environment) InternFunction(f palisade.FnDef) prism.Function {
-	if f.C != nil {
-		// Dyadic, has 2 types
-		return prism.Function{
-			Name:     f.Name,
+// Intern either monadic or dyadic function header into environment
+// will not handle body of function, declarations only
+func (env Environment) InternFunction(f palisade.Function) {
+	if f.Dyadic != nil {
+		fn := prism.DFunction{
+			Name:      prism.Intern(*f.Dyadic.Ident),
+			AlphaType: env.SubstantiateType(*f.Dyadic.Alpha),
+			OmegaType: env.SubstantiateType(*f.Dyadic.Omega),
+			Returns:   env.SubstantiateType(*f.Returns),
+			PreBody:   f.Body,
+		}
+		// TODO Perform check that it doesn't already exist
+		env.DFunctions[fn.Name] = &fn
+	} else if f.Monadic != nil {
+		fn := prism.MFunction{
+			Name:      prism.Intern(*f.Monadic.Ident),
+			OmegaType: env.SubstantiateType(*f.Monadic.Omega),
+			Returns:   env.SubstantiateType(*f.Returns),
+			PreBody:   f.Body,
+		}
+		// TODO Perform check that it doesn't already exist
+		env.MFunctions[fn.Name] = &fn
 	}
 }
 
-func (env Environment) AnalyseBody(f *prism.Function) *[]prism.Expression {
-	exprs := []prism.Expression{}
-	for _, e := range *f.PreBody {
-		exprs = append(exprs, env.AnalyseExpression(e))
+func (env Environment) AnalyseDBody(f *prism.DFunction) {
+	for _, expr := range *f.PreBody {
+		f.Body = append(f.Body, env.AnalyseExpression(&expr))
 	}
-
-	return &exprs
 }
 
-func (env Environment) AnalyseExpression(e prism.Expression) prism.Expression
-
-func (env Environment) AnalyseDyadicApplication(inner prism.Expression, outer prism.Expression) prism.Expression {
-	fn := inner.(prism.Function)
-
-	// TODO
-	// Handle the case of the operand being empty, non-applied function
-	// pain
-
-	if fn.AlphaType == nil {
-		oversight.Panic("Trying to call monadic function with 2 arguments")
+func (env Environment) AnalyseExpression(e *palisade.Expression) prism.Expression {
+	if e.Monadic != nil {
+		return env.AnalyseMonadic(e.Monadic)
+	} else if e.Dyadic != nil {
+		return env.AnalyseDyadic(e.Dyadic)
+	} else if e.Morphemes != nil {
+		return env.AnalyseMorphemes(e.Morphemes)
 	}
 
-	if !prism.EqType(fn.AlphaType, outer.Type()) {
-		oversight.Panic("Trying to call function with wrong left type")
-	}
-
-	if !prism.EqType(fn.OmegaType, inner.(prism.Application).Operand.Type()) {
-		oversight.Panic("Trying to call function with wrong right type")
-	}
-
-	return prism.Dyadic{
-		Operator: fn,
-		Left:     outer,
-		Right:    inner.(prism.Application).Operand,
-	}
-
+	panic("unreachable")
 }
 
-func (env Environment) AnalyseAtom(e prism.Expression) prism.Expression
+func (env Environment) FetchVerb(v *palisade.Verb) prism.Expression {
+	if found, ok := env.MFunctions[prism.Intern(*v.Ident)]; ok {
+		return *found
+	} else if found, ok := env.DFunctions[prism.Intern(*v.Ident)]; ok {
+		return *found
+	}
+
+	panic("Verb not found")
+}
+
+func (env Environment) AnalyseMonadic(m *palisade.Monadic) prism.MApplication {
+	op := env.FetchVerb(m.Verb)
+	if _, ok := op.(prism.MFunction); !ok {
+		panic("Verb is not a monadic function")
+	}
+
+	expr := env.AnalyseExpression(m.Expression)
+	if !prism.EqType(expr.Type(), op.(prism.MFunction).Returns) {
+		panic("Type mismatch")
+	}
+
+	return prism.MApplication{
+		Operator: op.(prism.MFunction),
+		Operand:  expr, // TODO check type
+	}
+}
+
+func (env Environment) AnalyseMorphemes(ms *[]palisade.Morpheme) prism.Expression {
+	if len(*ms) == 1 {
+		return env.AnalyseMorpheme(&(*ms)[0])
+	}
+
+	vec := make([]prism.Expression, len(*ms))
+	for i, m := range *ms {
+		vec[i] = env.AnalyseMorpheme(&m)
+	}
+
+	return prism.Vector{
+		ElementType: prism.VectorType{vec[0].Type()},
+		Body:        &vec,
+	}
+}
+
+func (env Environment) AnalyseMorpheme(m *palisade.Morpheme) prism.Expression {
+	switch {
+	case m.Char != nil:
+		return prism.Char{string(*m.Char)}
+	case m.Int != nil:
+		return prism.Int{*m.Int}
+	case m.Real != nil:
+		return prism.Real{*m.Real}
+	case m.String != nil:
+		return prism.String{string(*m.String)}
+	case m.Subexpr != nil:
+		return env.AnalyseExpression(m.Subexpr)
+	}
+
+	panic("Other types not implemented")
+}
+
+func (env Environment) AnalyseDyadic(d *palisade.Dyadic) prism.DApplication {
+	op := env.FetchVerb(d.Verb)
+	if _, ok := op.(prism.DFunction); !ok {
+		panic("Verb is not a dyadic function")
+	}
+	var left prism.Expression
+	if d.Monadic != nil {
+		left = env.AnalyseMonadic(d.Monadic)
+	} else if d.Morphemes != nil {
+		left = env.AnalyseMorphemes(d.Morphemes)
+	} else {
+		panic("Dyadic expression has no left operand")
+	}
+
+	right := env.AnalyseExpression(d.Expression)
+	if !prism.EqType(left.Type(), op.(prism.DFunction).AlphaType) {
+		panic("Alpha type mismatch")
+	} else if !prism.EqType(right.Type(), op.(prism.DFunction).OmegaType) {
+		panic("Omega type mismatch")
+	}
+
+	return prism.DApplication{
+		Operator: op.(prism.DFunction),
+		Left:     left,
+		Right:    right,
+	}
+}

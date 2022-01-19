@@ -19,20 +19,24 @@ func EqType(a, b Type) bool {
 	return false
 }
 
-func (f Function) Type() Type {
+func (v Vector) Type() Type {
+	return v.ElementType
+}
+
+func (f DFunction) Type() Type {
 	return f.Returns
 }
 
-func (m Monadic) Type() Type {
+func (f MFunction) Type() Type {
+	return f.Returns
+}
+
+func (m MApplication) Type() Type {
 	return m.Operator.Type()
 }
 
-func (d Dyadic) Type() Type {
+func (d DApplication) Type() Type {
 	return d.Operator.Type()
-}
-
-func (a Application) Type() Type {
-	return a.Operator.Type()
 }
 
 func (i Int) Type() Type {

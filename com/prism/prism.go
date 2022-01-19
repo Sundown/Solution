@@ -1,12 +1,15 @@
 package prism
 
 import (
+	"sundown/solution/palisade"
+
 	"github.com/llir/llvm/ir/types"
 )
 
 type Environment struct {
-	Functions map[Ident]Function
-	Types     map[Ident]Type
+	MFunctions map[Ident]*MFunction
+	DFunctions map[Ident]*DFunction
+	Types      map[Ident]Type
 }
 
 type Ident struct {
@@ -41,6 +44,11 @@ type AtomicType struct {
 	Actual       types.Type
 }
 
+type Vector struct {
+	ElementType VectorType
+	Body        *[]Expression
+}
+
 type VectorType struct {
 	ElementType Type
 }
@@ -54,38 +62,32 @@ type Expression interface {
 	String() string
 }
 
-type Subexpression struct {
-	Expression Expression
-}
-
-type Function struct {
+type DFunction struct {
 	Name      Ident
 	AlphaType Type
 	OmegaType Type
 	Returns   Type
-	PreBody   *[]Expression
-	Body      *[]Expression
+	PreBody   *[]palisade.Expression
+	Body      []Expression
 }
 
-type Monadic struct {
-	Operator Function
+type MFunction struct {
+	Name      Ident
+	OmegaType Type
+	Returns   Type
+	PreBody   *[]palisade.Expression
+	Body      []Expression
+}
+
+type MApplication struct {
+	Operator MFunction
 	Operand  Expression
 }
 
-type Dyadic struct {
-	Operator Function
+type DApplication struct {
+	Operator DFunction
 	Left     Expression
 	Right    Expression
-}
-
-type Application struct {
-	Operator Function
-	Operand  Expression
-}
-
-type Dangle struct {
-	Outer Expression
-	Inner Expression
 }
 
 type Int struct {

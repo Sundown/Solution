@@ -22,15 +22,15 @@ type Function struct {
 		Alpha *Type  `@@`
 		Ident *Ident `@@`
 		Omega *Type  `@@`
-	} `"Δ" @@`
+	} `("Δ" @@`
 
 	Monadic *struct {
 		Ident *Ident `@@`
 		Omega *Type  `@@`
-	} `"Δ" @@`
+	} `| "Δ" @@)`
 
-	Gives *Type         `"→" @@ ":"`
-	Body  []*Expression `(@@ ";")+ "∇"`
+	Returns *Type         `"→" @@ ":"`
+	Body    *[]Expression `(@@ ";")+ "∇"`
 }
 
 type Type struct {

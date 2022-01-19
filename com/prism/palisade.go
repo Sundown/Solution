@@ -32,8 +32,16 @@ func ParseIdent(s string) (p Ident) {
 	return Intern(t)
 }
 
-func (env Environment) GetFunction(i Ident) *Function {
-	if f, ok := env.Functions[i]; ok {
+func (env Environment) GetDFunction(i Ident) *DFunction {
+	if f, ok := env.DFunctions[i]; ok {
+		return f
+	}
+
+	return nil
+}
+
+func (env Environment) GetMFunction(i Ident) *MFunction {
+	if f, ok := env.MFunctions[i]; ok {
 		return f
 	}
 

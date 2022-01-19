@@ -7,10 +7,10 @@ import (
 	"github.com/alecthomas/participle/v2"
 )
 
-var Parser = participle.MustBuild(&Expression{}, participle.UseLookahead(4), participle.Unquote())
+var Parser = participle.MustBuild(&PalisadeResult{}, participle.UseLookahead(4), participle.Unquote())
 
-func Begin(rt *oversight.Runtime) *Expression {
-	prog := Expression{}
+func Begin(rt *oversight.Runtime) *PalisadeResult {
+	prog := PalisadeResult{}
 	oversight.Verbose("Init palisade")
 	r, err := os.Open(rt.File)
 	defer r.Close()

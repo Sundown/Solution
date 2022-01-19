@@ -3,6 +3,7 @@ package prism
 import (
 	"fmt"
 
+	"github.com/alecthomas/repr"
 	"github.com/llir/llvm/ir/types"
 )
 
@@ -70,32 +71,41 @@ func (s StructType) Realise() types.Type {
 	return types.NewStruct(acc...)
 }
 
-func (f Function) String() (s string) {
+func (f DFunction) String() (s string) {
 	s += "Δ " + f.AlphaType.String() + " " + f.Name.String() + " " +
 		f.OmegaType.String() + " -> " + f.Returns.String() + "\n"
 
 	if f.Body != nil {
-		for _, p := range *f.Body {
+		for _, p := range f.Body {
 			s += " " + p.String() + "\n"
 		}
 	} else if f.PreBody != nil {
-		for _, p := range *f.PreBody {
-			s += " " + p.String() + "\n\t"
-		}
+		repr.String(f.PreBody)
 	}
 
 	return s + "∇\n"
 }
 
-func (b Application) String() string {
-	return b.Operator.Name.String() + " (" + b.Operand.String() + ")"
+func (f MFunction) String() (s string) {
+	s += "Δ " + f.Name.String() + " " +
+		f.OmegaType.String() + " -> " + f.Returns.String() + "\n"
+
+	if f.Body != nil {
+		for _, p := range f.Body {
+			s += " " + p.String() + "\n"
+		}
+	} else if f.PreBody != nil {
+		repr.String(f.PreBody)
+	}
+
+	return s + "∇\n"
 }
 
-func (d Dyadic) String() string {
+func (d DApplication) String() string {
 	return d.Operator.String() + " (" + d.Left.String() + ", " + d.Right.String() + ")"
 }
 
-func (m Monadic) String() string {
+func (m MApplication) String() string {
 	return m.Operator.String() + " (" + m.Operand.String() + ")"
 }
 
@@ -105,10 +115,6 @@ func (i Int) String() string {
 
 func (e EOF) String() string {
 	return "EOF"
-}
-
-func (s Subexpression) String() string {
-	return "(" + s.Expression.String() + ")"
 }
 
 func (r Real) String() string {
@@ -129,6 +135,15 @@ func (b Bool) String() string {
 	}
 
 	return "False"
+}
+
+func (v Vector) String() string {
+	var s string
+	for _, v := range *v.Body {
+		s += v.String() + " "
+	}
+
+	return s
 }
 
 func (a Alpha) String() string {
