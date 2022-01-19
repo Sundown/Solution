@@ -18,6 +18,10 @@ func (s StructType) Kind() int {
 	return TypeKindStruct
 }
 
+func (v Vector) Kind() int {
+	return TypeKindVector
+}
+
 // ...
 
 func (env Environment) SubstantiateType(t palisade.Type) Type {
@@ -27,7 +31,7 @@ func (env Environment) SubstantiateType(t palisade.Type) Type {
 		}
 	} else if t.Vector != nil {
 		return VectorType{
-			ElementType: env.SubstantiateType(*t.Vector),
+			env.SubstantiateType(*t.Vector),
 		}
 	} else if t.Tuple != nil {
 		acc := make([]Type, len(t.Tuple))

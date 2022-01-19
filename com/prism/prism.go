@@ -17,6 +17,14 @@ type Ident struct {
 	Name    string
 }
 
+func (f DFunction) LLVMise() string {
+	return f.Name.Package + "::" + f.Name.Name + " " + f.AlphaType.String() + ", " + f.OmegaType.String() + "->" + f.Returns.String()
+}
+
+func (f MFunction) LLVMise() string {
+	return f.Name.Package + "::" + f.Name.Name + " " + f.OmegaType.String() + "->" + f.Returns.String()
+}
+
 const (
 	TypeKindAtomic = iota
 	TypeKindVector
@@ -50,7 +58,7 @@ type Vector struct {
 }
 
 type VectorType struct {
-	ElementType Type
+	Type
 }
 
 type StructType struct {
@@ -60,6 +68,10 @@ type StructType struct {
 type Expression interface {
 	Type() Type
 	String() string
+}
+
+type Morpheme interface {
+	_atomicflag()
 }
 
 type DFunction struct {

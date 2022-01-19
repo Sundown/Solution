@@ -1,13 +1,18 @@
 package apotheosis
 
 import (
-	"sundown/solution/subtle"
+	"sundown/solution/prism"
 
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
 )
+
+type Value struct {
+	Value value.Value
+	Type  prism.Type
+}
 
 func I64(v int64) constant.Constant {
 	return constant.NewInt(types.I64, v)
@@ -23,14 +28,14 @@ func (state *State) GEP(source *ir.InstAlloca, indices ...value.Value) *ir.InstG
 }
 
 // Will work for vectors too once they can be mutated
-func (state *State) DefaultValue(t *subtle.Type) value.Value {
-	if t.Equals(&subtle.IntType) {
+func (state *State) DefaultValue(t *prism.Type) value.Value {
+	if prism.EqType(*t, &prism.IntType) {
 		return I64(0)
-	} else if t.Equals(&subtle.RealType) {
+	} else if prism.EqType(*t, &prism.RealType) {
 		return constant.NewFloat(types.Double, 0)
-	} else if t.Equals(&subtle.CharType) {
+	} else if prism.EqType(*t, &prism.CharType) {
 		return constant.NewInt(types.I8, 0)
-	} else if t.Equals(&subtle.BoolType) {
+	} else if prism.EqType(*t, &prism.BoolType) {
 		return constant.NewBool(false)
 	} else {
 		panic("Not yet implemented")
@@ -38,70 +43,70 @@ func (state *State) DefaultValue(t *subtle.Type) value.Value {
 }
 
 // Will work for vectors too once they can be mutated
-func (state *State) Number(t *subtle.Type, n float64) value.Value {
-	if t.Equals(&subtle.IntType) {
+func (state *State) Number(t *prism.Type, n float64) value.Value {
+	if prism.EqType(*t, &prism.IntType) {
 		return I64(int64(n))
-	} else if t.Equals(&subtle.RealType) {
+	} else if prism.EqType(*t, &prism.RealType) {
 		return constant.NewFloat(types.Double, n)
-	} else if t.Equals(&subtle.CharType) {
+	} else if prism.EqType(*t, &prism.CharType) {
 		return constant.NewInt(types.I8, int64(n))
-	} else if t.Equals(&subtle.BoolType) {
+	} else if prism.EqType(*t, &prism.BoolType) {
 		return constant.NewBool(false)
 	} else {
 		panic("Not yet implemented")
 	}
 }
 
-func (state *State) AgnosticAdd(t *subtle.Type, x, y value.Value) value.Value {
-	if t.Equals(&subtle.IntType) {
+func (state *State) AgnosticAdd(t *prism.Type, x, y value.Value) value.Value {
+	if prism.EqType(*t, &prism.IntType) {
 		return state.Block.NewAdd(x, y)
-	} else if t.Equals(&subtle.RealType) {
+	} else if prism.EqType(*t, &prism.RealType) {
 		return state.Block.NewFAdd(x, y)
-	} else if t.Equals(&subtle.CharType) {
+	} else if prism.EqType(*t, &prism.CharType) {
 		return state.Block.NewAdd(x, y)
 	} else {
 		panic("Not yet implemented")
 	}
 }
 
-func (state *State) AgnosticMult(t *subtle.Type, x, y value.Value) value.Value {
-	if t.Equals(&subtle.IntType) {
+func (state *State) AgnosticMult(t *prism.Type, x, y value.Value) value.Value {
+	if prism.EqType(*t, &prism.IntType) {
 		return state.Block.NewMul(x, y)
-	} else if t.Equals(&subtle.RealType) {
+	} else if prism.EqType(*t, &prism.RealType) {
 		return state.Block.NewFMul(x, y)
-	} else if t.Equals(&subtle.CharType) {
+	} else if prism.EqType(*t, &prism.CharType) {
 		return state.Block.NewMul(x, y)
 	} else {
 		panic("Not yet implemented")
 	}
 }
 
-func (state *State) GetFormatStringln(t *subtle.Type) value.Value {
-	if t.Equals(&subtle.StringType) {
+func (state *State) GetFormatStringln(t *prism.Type) value.Value {
+	if prism.EqType(*t, &prism.StringType) {
 		return state.Block.NewGetElementPtr(types.NewArray(4, types.I8), state.Module.NewGlobalDef("", constant.NewCharArrayFromString("%s\x0A\x00")), I32(0), I32(0))
-	} else if t.Equals(&subtle.IntType) {
+	} else if prism.EqType(*t, &prism.IntType) {
 		return state.Block.NewGetElementPtr(types.NewArray(4, types.I8), state.Module.NewGlobalDef("", constant.NewCharArrayFromString("%d\x0A\x00")), I32(0), I32(0))
-	} else if t.Equals(&subtle.RealType) {
+	} else if prism.EqType(*t, &prism.RealType) {
 		return state.Block.NewGetElementPtr(types.NewArray(4, types.I8), state.Module.NewGlobalDef("", constant.NewCharArrayFromString("%f\x0A\x00")), I32(0), I32(0))
-	} else if t.Equals(&subtle.CharType) {
+	} else if prism.EqType(*t, &prism.CharType) {
 		return state.Block.NewGetElementPtr(types.NewArray(4, types.I8), state.Module.NewGlobalDef("", constant.NewCharArrayFromString("%c\x0A\x00")), I32(0), I32(0))
-	} else if t.Equals(&subtle.BoolType) {
+	} else if prism.EqType(*t, &prism.BoolType) {
 		return state.Block.NewGetElementPtr(types.NewArray(4, types.I8), state.Module.NewGlobalDef("", constant.NewCharArrayFromString("%d\x0A\x00")), I32(0), I32(0))
 	} else {
 		return state.Block.NewGetElementPtr(types.NewArray(2, types.I8), state.Module.NewGlobalDef("", constant.NewCharArrayFromString("\x0A\x00")), I32(0), I32(0))
 	}
 }
 
-func (state *State) GetFormatString(t *subtle.Type) value.Value {
-	if t.Equals(&subtle.StringType) {
+func (state *State) GetFormatString(t *prism.Type) value.Value {
+	if prism.EqType(*t, &prism.StringType) {
 		return state.Block.NewGetElementPtr(types.NewArray(3, types.I8), state.Module.NewGlobalDef("", constant.NewCharArrayFromString("%s\x00")), I32(0), I32(0))
-	} else if t.Equals(&subtle.IntType) {
+	} else if prism.EqType(*t, &prism.IntType) {
 		return state.Block.NewGetElementPtr(types.NewArray(3, types.I8), state.Module.NewGlobalDef("", constant.NewCharArrayFromString("%d\x00")), I32(0), I32(0))
-	} else if t.Equals(&subtle.RealType) {
+	} else if prism.EqType(*t, &prism.RealType) {
 		return state.Block.NewGetElementPtr(types.NewArray(3, types.I8), state.Module.NewGlobalDef("", constant.NewCharArrayFromString("%f\x00")), I32(0), I32(0))
-	} else if t.Equals(&subtle.CharType) {
+	} else if prism.EqType(*t, &prism.CharType) {
 		return state.Block.NewGetElementPtr(types.NewArray(3, types.I8), state.Module.NewGlobalDef("", constant.NewCharArrayFromString("%c\x00")), I32(0), I32(0))
-	} else if t.Equals(&subtle.BoolType) {
+	} else if prism.EqType(*t, &prism.BoolType) {
 		return state.Block.NewGetElementPtr(types.NewArray(3, types.I8), state.Module.NewGlobalDef("", constant.NewCharArrayFromString("%d\x00")), I32(0), I32(0))
 	} else {
 		return state.Block.NewGetElementPtr(types.NewArray(1, types.I8), state.Module.NewGlobalDef("", constant.NewCharArrayFromString("\x00")), I32(0), I32(0))

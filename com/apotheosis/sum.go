@@ -1,38 +1,39 @@
 package apotheosis
 
 import (
-	"sundown/solution/subtle"
+	"sundown/solution/prism"
 
 	"github.com/llir/llvm/ir/enum"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
 )
 
-func (state *State) CompileInlineSum(head_typ *subtle.Type, val value.Value) value.Value {
-	typ := head_typ.Vector
-	lltyp := typ.AsLLType()
+func (state *State) CompileInlineSum(val Value) value.Value {
+	typ := val.Type.(prism.VectorType).Type
+	lltyp := typ.Realise()
 
 	counter := state.Block.NewAlloca(types.I64)
 	state.Block.NewStore(I64(0), counter)
 
 	accum := state.Block.NewAlloca(lltyp)
-	state.Block.NewStore(state.DefaultValue(typ), accum)
+	state.Block.NewStore(state.DefaultValue(&typ), accum)
 
 	// Body
 	// Get elem, add to accum, increment counter, conditional jump to body
+	// TODO these can be simplified with the helpers in vector.go
 	cond_rhs := state.Block.NewLoad(
 		types.I64,
 		state.Block.NewGetElementPtr(
-			typ.AsVector().AsLLType(),
-			val,
+			prism.VectorType{typ}.Realise(),
+			val.Value,
 			I32(0),
 			vectorLenOffset))
 
 	ll_body_actual := state.Block.NewLoad(
 		types.NewPointer(lltyp),
 		state.Block.NewGetElementPtr(
-			typ.AsVector().AsLLType(),
-			val,
+			prism.VectorType{typ}.Realise(),
+			val.Value,
 			I32(0),
 			vectorBodyOffset))
 
@@ -46,7 +47,7 @@ func (state *State) CompileInlineSum(head_typ *subtle.Type, val value.Value) val
 	// Accum <- accum + current element
 	loopblock.NewStore(
 		state.AgnosticAdd(
-			typ,
+			&typ,
 			loopblock.NewLoad(lltyp, accum),
 			loopblock.NewLoad(
 				lltyp,
@@ -73,15 +74,15 @@ func (state *State) CompileInlineSum(head_typ *subtle.Type, val value.Value) val
 	return state.Block.NewLoad(lltyp, accum)
 }
 
-func (state *State) CompileInlineProduct(head_typ *subtle.Type, val value.Value) value.Value {
-	typ := head_typ.Vector
-	lltyp := typ.AsLLType()
+func (state *State) CompileInlineProduct(val Value) value.Value {
+	typ := val.Type.(prism.VectorType).Type
+	lltyp := typ.Realise()
 
 	counter := state.Block.NewAlloca(types.I64)
 	state.Block.NewStore(I64(0), counter)
 
 	accum := state.Block.NewAlloca(lltyp)
-	state.Block.NewStore(state.Number(typ, 1), accum)
+	state.Block.NewStore(state.Number(&typ, 1), accum)
 
 	// Body
 	// Get elem, add to accum, increment counter, conditional jump to body
@@ -89,16 +90,16 @@ func (state *State) CompileInlineProduct(head_typ *subtle.Type, val value.Value)
 	cond_rhs := state.Block.NewLoad(
 		types.I64,
 		state.Block.NewGetElementPtr(
-			typ.AsVector().AsLLType(),
-			val,
+			prism.VectorType{typ}.Realise(),
+			val.Value,
 			I32(0),
 			vectorLenOffset))
 
 	ll_body_actual := state.Block.NewLoad(
 		types.NewPointer(lltyp),
 		state.Block.NewGetElementPtr(
-			typ.AsVector().AsLLType(),
-			val,
+			prism.VectorType{typ}.Realise(),
+			val.Value,
 			I32(0),
 			vectorBodyOffset))
 
@@ -112,7 +113,7 @@ func (state *State) CompileInlineProduct(head_typ *subtle.Type, val value.Value)
 	// Accum <- accum * current element
 	loopblock.NewStore(
 		state.AgnosticMult(
-			typ,
+			&typ,
 			loopblock.NewLoad(lltyp, accum),
 			loopblock.NewLoad(
 				lltyp,

@@ -12,7 +12,7 @@ func (a AtomicType) String() string {
 }
 
 func (v VectorType) String() string {
-	return "[" + v.ElementType.String() + "]"
+	return "[" + v.String() + "]"
 }
 
 func (s StructType) String() (acc string) {
@@ -41,7 +41,7 @@ func (a AtomicType) Width() int64 {
 }
 
 func (v VectorType) Width() int64 {
-	return v.ElementType.Width() + 16
+	return v.Width() + 16
 }
 
 func (s StructType) Width() (acc int64) {
@@ -59,7 +59,7 @@ func (a AtomicType) Realise() types.Type {
 func (v VectorType) Realise() types.Type {
 	return types.NewStruct(
 		types.I64, types.I64,
-		types.NewPointer(v.ElementType.Realise()))
+		types.NewPointer(v.Realise()))
 }
 
 func (s StructType) Realise() types.Type {
@@ -73,7 +73,7 @@ func (s StructType) Realise() types.Type {
 
 func (f DFunction) String() (s string) {
 	s += "Δ " + f.AlphaType.String() + " " + f.Name.String() + " " +
-		f.OmegaType.String() + " -> " + f.Returns.String() + "\n"
+		f.OmegaType.String() + " → " + f.Returns.String() + "\n"
 
 	if f.Body != nil {
 		for _, p := range f.Body {
@@ -88,7 +88,7 @@ func (f DFunction) String() (s string) {
 
 func (f MFunction) String() (s string) {
 	s += "Δ " + f.Name.String() + " " +
-		f.OmegaType.String() + " -> " + f.Returns.String() + "\n"
+		f.OmegaType.String() + " → " + f.Returns.String() + "\n"
 
 	if f.Body != nil {
 		for _, p := range f.Body {
@@ -102,11 +102,11 @@ func (f MFunction) String() (s string) {
 }
 
 func (d DApplication) String() string {
-	return d.Operator.String() + " (" + d.Left.String() + ", " + d.Right.String() + ")"
+	return d.Left.String() + " " + d.Operator.Name.String() + " " + d.Right.String()
 }
 
 func (m MApplication) String() string {
-	return m.Operator.String() + " (" + m.Operand.String() + ")"
+	return m.Operator.Name.String() + " " + m.Operand.String()
 }
 
 func (i Int) String() string {

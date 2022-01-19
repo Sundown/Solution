@@ -1,25 +1,28 @@
 package apotheosis
 
 import (
-	"sundown/solution/subtle"
+	"sundown/solution/prism"
 
 	"github.com/llir/llvm/ir/value"
 )
 
-func (state *State) CompileExpression(expr *subtle.Expression) value.Value {
-	if expr.Application != nil {
-		return state.CompileApplication(expr.Application)
-	} else if expr.Morpheme != nil {
-		return state.CompileAtom(expr.Morpheme)
-	} else {
+func (state *State) CompileExpression(expr *prism.Expression) value.Value {
+	switch t := (*expr).(type) {
+	case prism.MApplication:
+		return state.CompileMApplication(&t)
+	case prism.DApplication:
+		return state.CompileDApplication(&t)
+	case prism.Morpheme:
+		return state.CompileAtom(&t)
+	default:
 		panic("unreachable")
 	}
 }
 
-type Callable func(*subtle.Type, value.Value) value.Value
+type Callable func(*prism.Type, value.Value) value.Value
 
-func (state *State) GetSpecialCallable(ident *subtle.Ident) Callable {
-	switch *ident.Ident {
+func (state *State) GetSpecialCallable(ident *prism.Ident) Callable {
+	switch ident.Name {
 	case "Println":
 		return state.CompileInlinePrintln
 	case "Print":
@@ -41,7 +44,7 @@ func (state *State) GetSpecialCallable(ident *subtle.Ident) Callable {
 	}
 }
 
-func (state *State) CompileApplication(app *subtle.Application) value.Value {
+func (state *State) CompileApplication(app *prism.Application) value.Value {
 	switch *app.Function.Ident.Ident {
 	case "Return":
 		state.Block.NewRet(state.CompileExpression(app.ArgumentAlpha))

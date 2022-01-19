@@ -1,16 +1,8 @@
 package apotheosis
 
-import (
-	"sundown/solution/subtle"
-
-	"github.com/llir/llvm/ir/enum"
-	"github.com/llir/llvm/ir/types"
-	"github.com/llir/llvm/ir/value"
-)
-
 // Need tuple element access before this is useful, ignore for now
-func (state *State) CompileInlineFoldl(app *subtle.Application) value.Value {
-	fn := app.ArgumentAlpha.Morpheme.Tuple[0]
+/* func (state *State) CompileInlineFoldl(app *prism.DApplication) value.Value {
+	fn := app.Alpha.Morpheme.Tuple[0]
 	llfn := state.CompileExpression(fn)
 	typ := app.ArgumentAlpha.TypeOf.Vector
 
@@ -82,3 +74,4 @@ func (state *State) CompileInlineFoldl(app *subtle.Application) value.Value {
 
 	return state.Block.NewLoad(lltyp, accum)
 }
+*/

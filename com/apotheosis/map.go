@@ -1,7 +1,7 @@
 package apotheosis
 
 import (
-	"sundown/solution/subtle"
+	"sundown/solution/prism"
 
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/enum"
@@ -9,7 +9,7 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-func (state *State) CompileInlineMap(arg *subtle.Expression) value.Value {
+func (state *State) CompileInlineMap(arg *prism.Expression) value.Value {
 	if arg.TypeOf.Tuple == nil {
 		panic("Map requires Tuple")
 	}
@@ -30,7 +30,7 @@ func (state *State) CompileInlineMap(arg *subtle.Expression) value.Value {
 	to_elm_type := f_returns.AsLLType()
 
 	should_store := true
-	if f_returns.Equals(subtle.AtomicType("Void")) {
+	if f_returns.Equals(prism.AtomicType("Void")) {
 		should_store = false
 	}
 

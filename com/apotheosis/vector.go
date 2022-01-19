@@ -2,7 +2,7 @@ package apotheosis
 
 import (
 	"sundown/solution/oversight"
-	"sundown/solution/subtle"
+	"sundown/solution/prism"
 
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/enum"
@@ -16,14 +16,10 @@ var (
 	vectorBodyOffset = I32(2)
 )
 
-func (state *State) CompileVector(vector *subtle.Morpheme) value.Value {
-	if vector.Vector == nil {
-		panic("Unreachable")
-	}
-
-	leng, cap := CalculateVectorSizes(len(vector.Vector))
-	elm_type := vector.TypeOf.Vector.AsLLType()
-	head_type := vector.TypeOf.AsLLType()
+func (state *State) CompileVector(vector prism.Vector) value.Value {
+	leng, cap := CalculateVectorSizes(len(*vector.Body))
+	elm_type := vector.Type().(prism.VectorType).Realise()
+	head_type := vector.Type().Realise()
 	head := state.Block.NewAlloca(head_type)
 
 	// Store vector length
@@ -32,14 +28,14 @@ func (state *State) CompileVector(vector *subtle.Morpheme) value.Value {
 	// Store vector capacity
 	state.WriteVectorCapacity(head, cap, head_type)
 
-	body := state.BuildVectorBody(elm_type, cap, vector.TypeOf.Vector.WidthInBytes())
+	body := state.BuildVectorBody(elm_type, cap, vector.Type().(prism.VectorType).Width())
 
-	if len(vector.Vector) > 0 {
-		state.PopulateBody(body, elm_type, vector.Vector)
+	if len(*vector.Body) > 0 {
+		state.PopulateBody(body, elm_type, *vector.Body)
 	}
 
 	// Probably broken for 0-length vectors because this pointer is gonna be garbage
-	state.WriteVectorPointer(head, head_type, body)
+	state.WriteVectorPointer(Value{head, vector.Type()}, body)
 
 	return head
 }
@@ -48,14 +44,13 @@ func (state *State) CompileVector(vector *subtle.Morpheme) value.Value {
 func (state *State) PopulateBody(
 	allocated_body *ir.InstBitCast,
 	element_type types.Type,
-	expr_vec []*subtle.Expression) {
+	expr_vec []prism.Expression) {
 
-	ir_elm_type := expr_vec[0].TypeOf
+	ir_elm_type := expr_vec[0].Type()
 	for index, element := range expr_vec {
-		v := state.CompileExpression(element)
+		v := state.CompileExpression(&element)
 
-		// I'm 50% sure this is wrong
-		if ir_elm_type.Atomic == nil {
+		if _, ok := ir_elm_type.(prism.AtomicType); ok {
 			v = state.Block.NewLoad(element_type, v)
 		}
 
@@ -67,14 +62,11 @@ func (state *State) PopulateBody(
 	}
 }
 
-func (state *State) WriteVectorPointer(
-	vector_header *ir.InstAlloca,
-	vector_header_type types.Type,
-	constructed_body *ir.InstBitCast) {
+func (state *State) WriteVectorPointer(vector Value, constructed_body *ir.InstBitCast) {
 	state.Block.NewStore(
 		constructed_body,
 		state.Block.NewGetElementPtr(
-			vector_header_type, vector_header, I32(0), vectorBodyOffset))
+			vector.Type.Realise(), vector.Value, I32(0), vectorBodyOffset))
 }
 
 func (state *State) BuildVectorBody(typ types.Type, cap int64, width int64) *ir.InstBitCast {
@@ -103,42 +95,42 @@ func (state *State) WriteVectorCapacity(vector_struct *ir.InstAlloca, cap int64,
 			I32(0), vectorCapOffset))
 }
 
-func (state *State) ReadVectorLength(typ *subtle.Type, vec value.Value) value.Value {
+func (state *State) ReadVectorLength(vec Value) value.Value {
 	return state.Block.NewLoad(types.I64,
 		state.Block.NewGetElementPtr(
-			typ.AsLLType(),
-			vec,
+			vec.Type.Realise(),
+			vec.Value,
 			I32(0), vectorLenOffset))
 }
 
-func (state *State) ReadVectorCapacity(typ *subtle.Type, vec value.Value) value.Value {
+func (state *State) ReadVectorCapacity(vec Value) value.Value {
 	return state.Block.NewLoad(types.I64,
 		state.Block.NewGetElementPtr(
-			typ.AsLLType(),
-			vec,
+			vec.Type.Realise(),
+			vec.Value,
 			I32(0), vectorCapOffset))
 }
 
-func (state *State) ReadVectorElement(head_typ *subtle.Type, src value.Value, index value.Value) value.Value {
-	if head_typ.Vector == nil {
+func (state *State) ReadVectorElement(vec Value, index value.Value) value.Value {
+	if _, ok := vec.Type.(prism.VectorType); !ok {
 		oversight.Panic(
 			oversight.CT_Unexpected,
 			oversight.Yellow("vector"),
-			oversight.Yellow(head_typ.String()))
+			oversight.Yellow(vec.Type.String()))
 	}
 
-	state.ValidateVectorIndex(head_typ, src, index)
+	state.ValidateVectorIndex(vec, index)
 
 	elm := state.Block.NewGetElementPtr(
-		head_typ.Vector.AsLLType(), state.Block.NewLoad(
-			types.NewPointer(head_typ.Vector.AsLLType()),
+		vec.Type.(prism.VectorType).Realise(), state.Block.NewLoad(
+			types.NewPointer(vec.Type.(prism.VectorType).Realise()),
 			state.Block.NewGetElementPtr(
-				head_typ.AsLLType(),
-				src,
+				vec.Type.Realise(),
+				vec.Value,
 				I32(0), vectorBodyOffset)), index)
 
-	if head_typ.Vector.Atomic != nil {
-		return state.Block.NewLoad(head_typ.Vector.AsLLType(), elm)
+	if _, ok := vec.Type.(prism.VectorType).Type.(prism.AtomicType); ok {
+		return state.Block.NewLoad(vec.Type.(prism.VectorType).Realise(), elm)
 	}
 
 	return elm
@@ -155,14 +147,14 @@ func CalculateVectorSizes(l int) (leng int64, cap int64) {
 	return leng, cap
 }
 
-func (state *State) ValidateVectorIndex(typ *subtle.Type, src value.Value, index value.Value) {
+func (state *State) ValidateVectorIndex(vec Value, index value.Value) {
 	btrue := state.CurrentFunction.NewBlock("")
 	bfalse := state.CurrentFunction.NewBlock("")
 
 	leng := state.Block.NewLoad(types.I64,
 		state.Block.NewGetElementPtr(
-			typ.AsLLType(),
-			src,
+			vec.Type.Realise(),
+			vec.Value,
 			I32(0), vectorLenOffset))
 
 	state.LLVMPanic(bfalse, "Panic: index %d out of bounds [%d]\n", index, leng)

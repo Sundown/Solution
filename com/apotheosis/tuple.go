@@ -2,12 +2,12 @@ package apotheosis
 
 import (
 	"sundown/solution/oversight"
-	"sundown/solution/subtle"
+	"sundown/solution/prism"
 
 	"github.com/llir/llvm/ir/value"
 )
 
-func (state *State) CompileTuple(tuple *subtle.Morpheme) value.Value {
+func (state *State) CompileTuple(tuple *prism.Morpheme) value.Value {
 	ll_tuple := state.Block.NewAlloca(tuple.TypeOf.AsLLType())
 
 	for index, expr := range tuple.Tuple {
@@ -23,7 +23,7 @@ func (state *State) CompileTuple(tuple *subtle.Morpheme) value.Value {
 	return ll_tuple
 }
 
-func (state *State) TupleGet(typ *subtle.Type, real value.Value, index int) value.Value {
+func (state *State) TupleGet(typ *prism.Type, real value.Value, index int) value.Value {
 	if len(typ.Tuple) < index {
 		oversight.Panic(oversight.CT_OOB, index, typ.String(), len(typ.Tuple))
 	}
