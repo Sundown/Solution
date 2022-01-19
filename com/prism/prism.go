@@ -17,6 +17,21 @@ type Ident struct {
 	Name    string
 }
 
+type Function interface {
+	LLVMise() string
+	Type() Type
+	Ident() Ident
+	String() string
+}
+
+func (d DFunction) Ident() Ident {
+	return d.Name
+}
+
+func (m MFunction) Ident() Ident {
+	return m.Name
+}
+
 func (f DFunction) LLVMise() string {
 	return f.Name.Package + "::" + f.Name.Name + " " + f.AlphaType.String() + ", " + f.OmegaType.String() + "->" + f.Returns.String()
 }

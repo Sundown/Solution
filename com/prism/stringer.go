@@ -12,7 +12,7 @@ func (a AtomicType) String() string {
 }
 
 func (v VectorType) String() string {
-	return "[" + v.String() + "]"
+	return "[" + v.Type.String() + "]"
 }
 
 func (s StructType) String() (acc string) {

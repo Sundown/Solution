@@ -7,49 +7,46 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-func (state *State) CompileInlinePrintln(typ *prism.Type, val value.Value) value.Value {
-	if typ.Equals(&prism.StringType) {
+func (state *State) CompileInlinePrintln(val Value) value.Value {
+	if prism.EqType(val.Type, &prism.StringType) {
 		return state.Block.NewCall(
 			state.GetPrintf(),
-			state.GetFormatStringln(typ),
+			state.GetFormatStringln(&val.Type),
 			state.Block.NewLoad(types.I8Ptr, state.Block.NewGetElementPtr(
-				typ.AsLLType(),
-				val,
+				val.Type.Realise(),
+				val.Value,
 				I32(0), vectorBodyOffset)))
 	}
 
 	return state.Block.NewCall(
 		state.GetPrintf(),
-		state.GetFormatStringln(typ),
-		val)
+		state.GetFormatStringln(&val.Type),
+		val.Value)
 }
 
-func (state *State) CompileInlinePrint(typ *prism.Type, val value.Value) value.Value {
-	if typ.Equals(&prism.StringType) {
+func (state *State) CompileInlinePrint(val Value) value.Value {
+	if prism.EqType(val.Type, &prism.StringType) {
 		return state.Block.NewCall(
 			state.GetPrintf(),
-			state.GetFormatString(typ),
+			state.GetFormatString(&val.Type),
 			state.Block.NewLoad(types.I8Ptr, state.Block.NewGetElementPtr(
-				typ.AsLLType(),
-				val,
+				val.Type.Realise(),
+				val.Value,
 				I32(0), vectorBodyOffset)))
 	}
 
 	return state.Block.NewCall(
 		state.GetPrintf(),
-		state.GetFormatString(typ),
-		val)
+		state.GetFormatStringln(&val.Type),
+		val.Value)
 }
 
-func (state *State) CompileInlineIndex(typ *prism.Type, val value.Value) value.Value {
-	return state.ReadVectorElement(
-		typ.Tuple[0],                // Vector type
-		state.TupleGet(typ, val, 0), // Vector in LLVM
-		state.TupleGet(typ, val, 1)) // Index in LLVM
+func (state *State) CompileInlineIndex(left, right Value) value.Value {
+	return state.ReadVectorElement(right, left.Value)
 }
 
-func (state *State) CompileInlinePanic(_ *prism.Type, val value.Value) value.Value {
-	state.Block.NewCall(state.GetExit(), state.Block.NewTrunc(val, types.I32))
+func (state *State) CompileInlinePanic(val Value) value.Value {
+	state.Block.NewCall(state.GetExit(), state.Block.NewTrunc(val.Value, types.I32))
 	state.Block.NewUnreachable()
 	return nil
 }

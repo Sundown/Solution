@@ -1,12 +1,6 @@
 package apotheosis
 
-import (
-	"sundown/solution/oversight"
-	"sundown/solution/prism"
-
-	"github.com/llir/llvm/ir/value"
-)
-
+/*
 func (state *State) CompileTuple(tuple *prism.Morpheme) value.Value {
 	ll_tuple := state.Block.NewAlloca(tuple.TypeOf.AsLLType())
 
@@ -42,3 +36,4 @@ func (state *State) TupleGet(typ *prism.Type, real value.Value, index int) value
 		return state.Block.NewLoad(typ.Tuple[index].AsLLType(), ptr)
 	}
 }
+*/

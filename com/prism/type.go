@@ -11,7 +11,7 @@ func EqType(a, b Type) bool {
 	case TypeKindAtomic:
 		return a.(AtomicType).ID == b.(AtomicType).ID
 	case TypeKindVector:
-		return EqType(a.(VectorType), b.(VectorType))
+		return EqType(a.(VectorType).Type, b.(VectorType).Type)
 	case TypeKindStruct:
 		// TODO
 	}

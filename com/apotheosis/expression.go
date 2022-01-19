@@ -19,16 +19,15 @@ func (state *State) CompileExpression(expr *prism.Expression) value.Value {
 	}
 }
 
-type Callable func(*prism.Type, value.Value) value.Value
+type MCallable func(val Value) value.Value
+type DCallable func(left, right Value) value.Value
 
-func (state *State) GetSpecialCallable(ident *prism.Ident) Callable {
+func (state *State) GetSpecialMCallable(ident *prism.Ident) MCallable {
 	switch ident.Name {
 	case "Println":
 		return state.CompileInlinePrintln
 	case "Print":
 		return state.CompileInlinePrint
-	case "GEP":
-		return state.CompileInlineIndex
 	case "Panic":
 		return state.CompileInlinePanic
 	case "Len":
@@ -39,6 +38,15 @@ func (state *State) GetSpecialCallable(ident *prism.Ident) Callable {
 		return state.CompileInlineSum
 	case "Product":
 		return state.CompileInlineProduct
+	default:
+		panic("unreachable")
+	}
+}
+
+func (state *State) GetSpecialDCallable(ident *prism.Ident) DCallable {
+	switch ident.Name {
+	case "GEP":
+		return state.CompileInlineIndex
 	default:
 		panic("unreachable")
 	}

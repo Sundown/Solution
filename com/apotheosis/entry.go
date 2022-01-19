@@ -18,7 +18,7 @@ type State struct {
 	MFunctions        map[string]*ir.Func
 	Specials          map[string]*ir.Func
 	CurrentFunction   *ir.Func
-	CurrentFunctionIR *prism.Expression
+	CurrentFunctionIR prism.Expression
 	PanicStrings      map[string]*ir.Global
 }
 
@@ -61,10 +61,10 @@ func (state *State) DeclareFunctions() *State {
 
 func (state *State) CompileFunctions() *State {
 	for _, fn := range state.Env.DFunctions {
-		state.DFunctions[fn.LLVMise()] = state.CompileFunction(fn)
+		state.DFunctions[fn.LLVMise()] = state.CompileDFunction(*fn)
 	}
 	for _, fn := range state.Env.MFunctions {
-		state.MFunctions[fn.LLVMise()] = state.CompileFunction(fn)
+		state.MFunctions[fn.LLVMise()] = state.CompileMFunction(*fn)
 	}
 
 	return state

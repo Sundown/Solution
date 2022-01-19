@@ -9,38 +9,31 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-func (state *State) CompileInlineMap(arg *prism.Expression) value.Value {
-	if arg.TypeOf.Tuple == nil {
-		panic("Map requires Tuple")
-	}
-
+func (state *State) CompileInlineMap(fn, vec prism.Expression) value.Value {
 	// Return type of function to be mapped
-	f_returns := arg.TypeOf.Tuple[0]
-
-	// The vector in AST
-	vec := arg.Morpheme.Tuple[1]
+	f_returns := fn.Type()
 
 	// The vector in LLVM
-	llvec := state.CompileExpression(vec)
+	llvec := state.CompileExpression(&vec)
 
-	head_type := vec.TypeOf.AsLLType()
-	elm_type := vec.TypeOf.Vector.AsLLType()
+	head_type := vec.Type().Realise()
+	elm_type := vec.Type().(prism.VectorType).Realise()
 
-	to_head_type := f_returns.AsVector().AsLLType()
-	to_elm_type := f_returns.AsLLType()
+	to_head_type := prism.VectorType{f_returns}.Realise()
+	to_elm_type := f_returns.Realise()
 
 	should_store := true
-	if f_returns.Equals(prism.AtomicType("Void")) {
+	if f_returns.Kind() == prism.VoidType.ID {
 		should_store = false
 	}
 
-	leng := state.ReadVectorLength(vec.TypeOf, llvec)
+	leng := state.ReadVectorLength(Value{llvec, vec.Type()})
 
 	var head *ir.InstAlloca
 	var body *ir.InstBitCast
 
 	if should_store {
-		cap := state.ReadVectorCapacity(vec.TypeOf, llvec)
+		cap := state.ReadVectorCapacity(Value{llvec, vec.Type()})
 		head = state.Block.NewAlloca(to_head_type)
 
 		// Copy length
@@ -52,7 +45,7 @@ func (state *State) CompileInlineMap(arg *prism.Expression) value.Value {
 		// Allocate a body of capacity * element width, and cast to element type
 		body = state.Block.NewBitCast(
 			state.Block.NewCall(state.GetCalloc(),
-				I32(f_returns.WidthInBytes()),         // Byte size of elements
+				I32(f_returns.Width()),                // Byte size of elements
 				state.Block.NewTrunc(cap, types.I32)), // How much memory to alloc
 			types.NewPointer(to_elm_type)) // Cast alloc'd memory to typ
 	}
@@ -75,17 +68,17 @@ func (state *State) CompileInlineMap(arg *prism.Expression) value.Value {
 
 	var cur_elm value.Value = loopblock.NewGetElementPtr(elm_type, vec_body, cur_counter)
 
-	if vec.TypeOf.Vector.Atomic != nil {
+	if _, ok := vec.Type().(prism.VectorType).Type.(prism.AtomicType); ok {
 		cur_elm = loopblock.NewLoad(elm_type, cur_elm)
 	}
 
 	var call value.Value
 
 	if arg.Morpheme.Tuple[0].Morpheme.Function.Special {
-		call = state.GetSpecialCallable(arg.Morpheme.Tuple[0].Morpheme.Function.Ident)(vec.TypeOf.Vector, cur_elm)
+		call = state.GetSpecialCallable(fn.(prism.Function).Ident())(vec.Type().(prism.VectorType), cur_elm)
 	} else {
 		call = loopblock.NewCall(
-			state.CompileExpression(arg.Morpheme.Tuple[0]),
+			state.CompileExpression(&fn),
 			cur_elm)
 
 	}
