@@ -72,6 +72,7 @@ const (
 )
 
 type Type interface {
+	Any() bool
 	Kind() int
 	Width() int64
 	String() string
@@ -79,6 +80,7 @@ type Type interface {
 }
 
 type AtomicType struct {
+	AnyType      bool
 	ID           int
 	WidthInBytes int
 	Name         Ident
@@ -92,9 +94,11 @@ type Vector struct {
 
 type VectorType struct {
 	Type
+	AnyType bool
 }
 
 type StructType struct {
+	AnyType    bool
 	FieldTypes []Type
 }
 
@@ -108,6 +112,7 @@ type Morpheme interface {
 }
 
 type DFunction struct {
+	Special   bool
 	Name      Ident
 	AlphaType Type
 	OmegaType Type
@@ -117,6 +122,7 @@ type DFunction struct {
 }
 
 type MFunction struct {
+	Special   bool
 	Name      Ident
 	OmegaType Type
 	Returns   Type

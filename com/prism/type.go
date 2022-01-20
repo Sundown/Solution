@@ -3,6 +3,10 @@ package prism
 import "github.com/llir/llvm/ir/types"
 
 func EqType(a, b Type) bool {
+	if a.Any() || b.Any() {
+		return true
+	}
+
 	if a.Kind() != b.Kind() {
 		return false
 	}

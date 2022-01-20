@@ -29,6 +29,8 @@ func Parse(penv *prism.Environment) *prism.Environment {
 		}
 	}
 
+	env.MFunctions[prism.ReturnSpecial.Name] = &prism.ReturnSpecial
+
 	for _, f := range env.DFunctions {
 		env.AnalyseDBody(f)
 	}
@@ -100,7 +102,7 @@ func (env Environment) AnalyseMorphemes(ms *[]palisade.Morpheme) prism.Expressio
 	}
 
 	return prism.Vector{
-		ElementType: prism.VectorType{vec[0].Type()},
+		ElementType: prism.VectorType{Type: vec[0].Type()},
 		Body:        &vec,
 	}
 }

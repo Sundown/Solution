@@ -39,9 +39,6 @@ func (env *Environment) CompileDFunction(fn prism.DFunction) *ir.Func {
 		env.Block.NewRet(nil)
 	}
 
-	// TODO remove this
-	env.Block.NewRet(env.DefaultValue(fn.Returns))
-
 	return env.CurrentFunction
 }
 

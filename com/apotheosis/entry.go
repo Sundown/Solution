@@ -35,9 +35,17 @@ func Compile(penv *prism.Environment) *prism.Environment {
 
 func (env *Environment) DeclareFunctions() *Environment {
 	for _, fn := range env.DFunctions {
+		if fn.Special {
+			continue
+		}
+
 		env.LLDFunctions[fn.LLVMise()] = env.DeclareDFunction(*fn)
 	}
 	for _, fn := range env.MFunctions {
+		if fn.Special {
+			continue
+		}
+
 		env.LLMFunctions[fn.LLVMise()] = env.DeclareMFunction(*fn)
 	}
 
@@ -46,9 +54,17 @@ func (env *Environment) DeclareFunctions() *Environment {
 
 func (env *Environment) CompileFunctions() *Environment {
 	for _, fn := range env.DFunctions {
+		if fn.Special {
+			continue
+		}
+
 		env.LLDFunctions[fn.LLVMise()] = env.CompileDFunction(*fn)
 	}
 	for _, fn := range env.MFunctions {
+		if fn.Special {
+			continue
+		}
+
 		env.LLMFunctions[fn.LLVMise()] = env.CompileMFunction(*fn)
 	}
 
@@ -58,7 +74,7 @@ func (env *Environment) CompileFunctions() *Environment {
 func (env *Environment) InitMain() *Environment {
 	env.CurrentFunction = env.Module.NewFunc("main", types.I32)
 	env.Block = env.CurrentFunction.NewBlock("entry")
-	env.Block.NewCall(env.LLDFunctions["_::add_Int,Int->Int"], I64(0), I64(1))
+	env.Block.NewCall(env.LLDFunctions["_::add_[Int],[Int]->Int"], I64(0), I64(1))
 	env.Block.NewRet(constant.NewInt(types.I32, 0))
 
 	return env
