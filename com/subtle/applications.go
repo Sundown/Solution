@@ -12,13 +12,13 @@ func (env Environment) AnalyseMonadic(m *palisade.Monadic) prism.MApplication {
 	}
 
 	expr := env.AnalyseExpression(m.Expression)
-	if !prism.EqType(expr.Type(), op.(prism.MFunction).Returns) {
+	if !prism.EqType(expr.Type(), op.(prism.MFunction).OmegaType) {
 		panic("Type mismatch")
 	}
 
 	return prism.MApplication{
 		Operator: op.(prism.MFunction),
-		Operand:  expr, // TODO check type
+		Operand:  expr,
 	}
 }
 func (env Environment) AnalyseDyadic(d *palisade.Dyadic) prism.DApplication {

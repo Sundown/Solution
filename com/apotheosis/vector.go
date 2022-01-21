@@ -48,8 +48,8 @@ func (env *Environment) PopulateBody(
 	for index, element := range expr_vec {
 		v := env.CompileExpression(&element)
 
-		if _, ok := ir_elm_type.(prism.AtomicType); ok {
-			v = env.Block.NewLoad(element_type, v)
+		if _, ok := ir_elm_type.(prism.AtomicType); !ok {
+			v = env.Block.NewLoad(element_type, v) // TODO might be backwards
 		}
 
 		env.Block.NewStore(v,

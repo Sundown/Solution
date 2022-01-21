@@ -29,8 +29,6 @@ func Parse(penv *prism.Environment) *prism.Environment {
 		}
 	}
 
-	env.MFunctions[prism.ReturnSpecial.Name] = &prism.ReturnSpecial
-
 	for _, f := range env.DFunctions {
 		env.AnalyseDBody(f)
 	}

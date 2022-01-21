@@ -47,6 +47,14 @@ func NewEnvironment() *Environment {
 		Actual:       types.Void,
 	}
 
+	env.MFunctions[ReturnSpecial.Name] = &ReturnSpecial
+	env.MFunctions[PrintlnSpecial.Name] = &PrintlnSpecial
+	env.MFunctions[PrintSpecial.Name] = &PrintSpecial
+	env.MFunctions[LenSpecial.Name] = &LenSpecial
+	env.MFunctions[CapSpecial.Name] = &CapSpecial
+	env.MFunctions[SumSpecial.Name] = &SumSpecial
+	env.MFunctions[ProductSpecial.Name] = &ProductSpecial
+
 	return &env
 }
 

@@ -62,6 +62,7 @@ const (
 	TypeKindAtomic = iota
 	TypeKindVector
 	TypeKindStruct
+	TypeKindSome
 	KindFunction
 	TypeInt
 	TypeReal
@@ -100,6 +101,37 @@ type VectorType struct {
 type StructType struct {
 	AnyType    bool
 	FieldTypes []Type
+}
+
+func (s SomeType) Any() bool {
+	return false
+}
+
+func (s SomeType) Kind() int {
+	return TypeKindSome
+}
+
+func (s SomeType) Width() int64 {
+	panic("Impossible")
+}
+
+func (s SomeType) String() (res string) {
+	for i, t := range s.Types {
+		if i > 0 {
+			res += " | "
+		}
+		res += t.String()
+	}
+
+	return
+}
+
+func (s SomeType) Realise() types.Type {
+	panic("Impossible")
+}
+
+type SomeType struct {
+	Types []Type
 }
 
 type Expression interface {

@@ -7,6 +7,22 @@ func EqType(a, b Type) bool {
 		return true
 	}
 
+	if s, ok := a.(SomeType); ok {
+		for _, t := range s.Types {
+			if EqType(t, b) {
+				return true
+			}
+		}
+	}
+
+	if s, ok := b.(SomeType); ok {
+		for _, t := range s.Types {
+			if EqType(t, a) {
+				return true
+			}
+		}
+	}
+
 	if a.Kind() != b.Kind() {
 		return false
 	}
