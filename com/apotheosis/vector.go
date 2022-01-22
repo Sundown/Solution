@@ -122,15 +122,16 @@ func (env *Environment) ReadVectorElement(vec Value, index value.Value) value.Va
 	env.ValidateVectorIndex(vec, index)
 
 	elm := env.Block.NewGetElementPtr(
-		vec.Type.(prism.VectorType).Realise(), env.Block.NewLoad(
-			types.NewPointer(vec.Type.(prism.VectorType).Realise()),
+		vec.Type.(prism.VectorType).Type.Realise(),
+		env.Block.NewLoad(
+			types.NewPointer(vec.Type.(prism.VectorType).Type.Realise()),
 			env.Block.NewGetElementPtr(
 				vec.Type.Realise(),
 				vec.Value,
 				I32(0), vectorBodyOffset)), index)
 
 	if _, ok := vec.Type.(prism.VectorType).Type.(prism.AtomicType); ok {
-		return env.Block.NewLoad(vec.Type.(prism.VectorType).Realise(), elm)
+		return env.Block.NewLoad(vec.Type.(prism.VectorType).Type.Realise(), elm)
 	}
 
 	return elm

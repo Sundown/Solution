@@ -4,15 +4,14 @@ import (
 	"sundown/solution/palisade"
 
 	"github.com/llir/llvm/ir"
-	"github.com/llir/llvm/ir/types"
 )
 
 type Environment struct {
 	LexResult *palisade.PalisadeResult
 	//
-	MFunctions map[Ident]*MFunction
-	DFunctions map[Ident]*DFunction
-	Types      map[Ident]Type
+	MonadicFunctions map[Ident]*MonadicFunction
+	DyadicFunctions  map[Ident]*DyadicFunction
+	Types            map[Ident]Type
 	//
 	EmitFormat   string
 	Output       string
@@ -20,14 +19,14 @@ type Environment struct {
 	Optimisation *int64
 	File         string
 	//
-	Module            *ir.Module
-	Block             *ir.Block
-	LLDFunctions      map[string]*ir.Func
-	LLMFunctions      map[string]*ir.Func
-	Specials          map[string]*ir.Func
-	CurrentFunction   *ir.Func
-	CurrentFunctionIR Expression
-	PanicStrings      map[string]*ir.Global
+	Module             *ir.Module
+	Block              *ir.Block
+	LLDyadicFunctions  map[string]*ir.Func
+	LLMonadicFunctions map[string]*ir.Func
+	Specials           map[string]*ir.Func
+	CurrentFunction    *ir.Func
+	CurrentFunctionIR  Expression
+	PanicStrings       map[string]*ir.Global
 }
 
 type Ident struct {
@@ -42,96 +41,25 @@ type Function interface {
 	String() string
 }
 
-func (d DFunction) Ident() Ident {
+func (d DyadicFunction) Ident() Ident {
 	return d.Name
 }
 
-func (m MFunction) Ident() Ident {
+func (m MonadicFunction) Ident() Ident {
 	return m.Name
 }
 
-func (f DFunction) LLVMise() string {
+func (f DyadicFunction) LLVMise() string {
 	return f.Name.Package + "::" + f.Name.Name + "_" + f.AlphaType.String() + "," + f.OmegaType.String() + "->" + f.Returns.String()
 }
 
-func (f MFunction) LLVMise() string {
+func (f MonadicFunction) LLVMise() string {
 	return f.Name.Package + "::" + f.Name.Name + "_" + f.OmegaType.String() + "->" + f.Returns.String()
-}
-
-const (
-	TypeKindAtomic = iota
-	TypeKindVector
-	TypeKindStruct
-	TypeKindSome
-	KindFunction
-	TypeInt
-	TypeReal
-	TypeChar
-	TypeBool
-	TypeVoid
-	TypeString
-)
-
-type Type interface {
-	Any() bool
-	Kind() int
-	Width() int64
-	String() string
-	Realise() types.Type
-}
-
-type AtomicType struct {
-	AnyType      bool
-	ID           int
-	WidthInBytes int
-	Name         Ident
-	Actual       types.Type
 }
 
 type Vector struct {
 	ElementType VectorType
 	Body        *[]Expression
-}
-
-type VectorType struct {
-	Type
-	AnyType bool
-}
-
-type StructType struct {
-	AnyType    bool
-	FieldTypes []Type
-}
-
-func (s SomeType) Any() bool {
-	return false
-}
-
-func (s SomeType) Kind() int {
-	return TypeKindSome
-}
-
-func (s SomeType) Width() int64 {
-	panic("Impossible")
-}
-
-func (s SomeType) String() (res string) {
-	for i, t := range s.Types {
-		if i > 0 {
-			res += " | "
-		}
-		res += t.String()
-	}
-
-	return
-}
-
-func (s SomeType) Realise() types.Type {
-	panic("Impossible")
-}
-
-type SomeType struct {
-	Types []Type
 }
 
 type Expression interface {
@@ -143,7 +71,7 @@ type Morpheme interface {
 	_atomicflag()
 }
 
-type DFunction struct {
+type DyadicFunction struct {
 	Special   bool
 	Name      Ident
 	AlphaType Type
@@ -153,7 +81,7 @@ type DFunction struct {
 	Body      []Expression
 }
 
-type MFunction struct {
+type MonadicFunction struct {
 	Special   bool
 	Name      Ident
 	OmegaType Type
@@ -163,12 +91,12 @@ type MFunction struct {
 }
 
 type MApplication struct {
-	Operator MFunction
+	Operator MonadicFunction
 	Operand  Expression
 }
 
 type DApplication struct {
-	Operator DFunction
+	Operator DyadicFunction
 	Left     Expression
 	Right    Expression
 }

@@ -73,7 +73,7 @@ func (env *Environment) CompileMApplication(app *prism.MApplication) value.Value
 		return env.CompileInlineProduct(Value{env.CompileExpression(&app.Operand), app.Operand.Type()})
 	default:
 		return env.Block.NewCall(
-			env.LLMFunctions[app.Operator.LLVMise()],
+			env.LLMonadicFunctions[app.Operator.LLVMise()],
 			env.CompileExpression(&app.Operand))
 	}
 }
@@ -96,7 +96,7 @@ func (env *Environment) CompileDApplication(app *prism.DApplication) value.Value
 			Value{env.CompileExpression(&app.Right), app.Right.Type()})
 	default:
 		call := env.Block.NewCall(
-			env.LLDFunctions[app.Operator.LLVMise()],
+			env.LLDyadicFunctions[app.Operator.LLVMise()],
 			env.CompileExpression(&app.Left),
 			env.CompileExpression(&app.Right))
 

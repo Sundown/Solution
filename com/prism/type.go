@@ -2,25 +2,132 @@ package prism
 
 import "github.com/llir/llvm/ir/types"
 
+const (
+	TypeKindAtomic = iota
+	TypeKindVector
+	TypeKindStruct
+	TypeKindSome
+	KinDyadicFunction
+	TypeInt
+	TypeReal
+	TypeChar
+	TypeBool
+	TypeVoid
+	TypeString
+)
+
+type Type interface {
+	Any() bool
+	SemiDetermined() bool
+	Kind() int
+	Width() int64
+	String() string
+	Realise() types.Type
+}
+
+type AtomicType struct {
+	AnyType      bool
+	ID           int
+	WidthInBytes int
+	Name         Ident
+	Actual       types.Type
+}
+
+type VectorType struct {
+	Type
+	AnyType bool
+}
+
+type StructType struct {
+	AnyType    bool
+	FieldTypes []Type
+}
+
+func (s SemiDeterminedType) SemiDetermined() bool {
+	return true
+}
+
+func (s VectorType) SemiDetermined() bool {
+	return false
+}
+func (s TypeGroup) SemiDetermined() bool {
+	return false
+}
+func (s AtomicType) SemiDetermined() bool {
+	return false
+}
+func (s StructType) SemiDetermined() bool {
+	return false
+}
+
+func (s TypeGroup) Any() bool {
+	return false
+}
+
+func (s SemiDeterminedType) Any() bool {
+	return false
+}
+
+func (s TypeGroup) Kind() int {
+	return TypeKindSome
+}
+
+func (s TypeGroup) Width() int64 {
+	panic("Impossible")
+}
+
+func (s SemiDeterminedType) Width() int64 {
+	panic("Impossible")
+}
+
+func (s SemiDeterminedType) Realise() types.Type {
+	panic("Impossible")
+}
+
+type SemiDeterminedType struct{}
+
+func (s SemiDeterminedType) String() string {
+	return "T"
+}
+
+func (s TypeGroup) String() (res string) {
+	for i, t := range s.Types {
+		if i > 0 {
+			res += " | "
+		}
+		res += t.String()
+	}
+
+	return
+}
+
+func (s TypeGroup) Realise() types.Type {
+	panic("Impossible")
+}
+
+type TypeGroup struct {
+	Types []Type
+}
+
 func EqType(a, b Type) bool {
 	if a.Any() || b.Any() {
 		return true
 	}
 
-	if s, ok := a.(SomeType); ok {
-		for _, t := range s.Types {
-			if EqType(t, b) {
+	p := func(x TypeGroup, y Type) bool {
+		for _, t := range x.Types {
+			if EqType(t, y) {
 				return true
 			}
 		}
+
+		return false
 	}
 
-	if s, ok := b.(SomeType); ok {
-		for _, t := range s.Types {
-			if EqType(t, a) {
-				return true
-			}
-		}
+	if s, ok := a.(TypeGroup); ok && p(s, b) {
+		return true
+	} else if s, ok := b.(TypeGroup); ok && p(s, a) {
+		return true
 	}
 
 	if a.Kind() != b.Kind() {
@@ -43,11 +150,11 @@ func (v Vector) Type() Type {
 	return v.ElementType
 }
 
-func (f DFunction) Type() Type {
+func (f DyadicFunction) Type() Type {
 	return f.Returns
 }
 
-func (f MFunction) Type() Type {
+func (f MonadicFunction) Type() Type {
 	return f.Returns
 }
 

@@ -29,7 +29,7 @@ func Parse(penv *prism.Environment) *prism.Environment {
 		}
 	}
 
-	for _, f := range env.DFunctions {
+	for _, f := range env.DyadicFunctions {
 		env.AnalyseDBody(f)
 	}
 
@@ -40,7 +40,7 @@ func Parse(penv *prism.Environment) *prism.Environment {
 // will not handle body of function, declarations only
 func (env Environment) InternFunction(f palisade.Function) {
 	if f.Dyadic != nil {
-		fn := prism.DFunction{
+		fn := prism.DyadicFunction{
 			Name:      prism.Intern(*f.Dyadic.Ident),
 			AlphaType: env.SubstantiateType(*f.Dyadic.Alpha),
 			OmegaType: env.SubstantiateType(*f.Dyadic.Omega),
@@ -48,20 +48,24 @@ func (env Environment) InternFunction(f palisade.Function) {
 			PreBody:   f.Body,
 		}
 		// TODO Perform check that it doesn't already exist
-		env.DFunctions[fn.Name] = &fn
+		env.DyadicFunctions[fn.Name] = &fn
 	} else if f.Monadic != nil {
-		fn := prism.MFunction{
+		fn := prism.MonadicFunction{
 			Name:      prism.Intern(*f.Monadic.Ident),
 			OmegaType: env.SubstantiateType(*f.Monadic.Omega),
 			Returns:   env.SubstantiateType(*f.Returns),
 			PreBody:   f.Body,
 		}
 		// TODO Perform check that it doesn't already exist
-		env.MFunctions[fn.Name] = &fn
+		env.MonadicFunctions[fn.Name] = &fn
 	}
 }
 
-func (env Environment) AnalyseDBody(f *prism.DFunction) {
+func (env Environment) AnalyseDBody(f *prism.DyadicFunction) {
+	if f.Special {
+		return
+	}
+
 	for _, expr := range *f.PreBody {
 		f.Body = append(f.Body, env.AnalyseExpression(&expr))
 	}
@@ -80,9 +84,9 @@ func (env Environment) AnalyseExpression(e *palisade.Expression) prism.Expressio
 }
 
 func (env Environment) FetchVerb(v *palisade.Verb) prism.Expression {
-	if found, ok := env.MFunctions[prism.Intern(*v.Ident)]; ok {
+	if found, ok := env.MonadicFunctions[prism.Intern(*v.Ident)]; ok {
 		return *found
-	} else if found, ok := env.DFunctions[prism.Intern(*v.Ident)]; ok {
+	} else if found, ok := env.DyadicFunctions[prism.Intern(*v.Ident)]; ok {
 		return *found
 	}
 

@@ -6,8 +6,8 @@ import (
 
 func NewEnvironment() *Environment {
 	var env Environment
-	env.MFunctions = make(map[Ident]*MFunction)
-	env.DFunctions = make(map[Ident]*DFunction)
+	env.MonadicFunctions = make(map[Ident]*MonadicFunction)
+	env.DyadicFunctions = make(map[Ident]*DyadicFunction)
 	env.Types = make(map[Ident]Type)
 
 	env.Types[ParseIdent("Int")] = AtomicType{
@@ -47,22 +47,23 @@ func NewEnvironment() *Environment {
 		Actual:       types.Void,
 	}
 
-	env.MFunctions[ReturnSpecial.Name] = &ReturnSpecial
-	env.MFunctions[PrintlnSpecial.Name] = &PrintlnSpecial
-	env.MFunctions[PrintSpecial.Name] = &PrintSpecial
-	env.MFunctions[LenSpecial.Name] = &LenSpecial
-	env.MFunctions[CapSpecial.Name] = &CapSpecial
-	env.MFunctions[SumSpecial.Name] = &SumSpecial
-	env.MFunctions[ProductSpecial.Name] = &ProductSpecial
+	env.MonadicFunctions[ReturnSpecial.Name] = &ReturnSpecial
+	env.MonadicFunctions[PrintlnSpecial.Name] = &PrintlnSpecial
+	env.MonadicFunctions[PrintSpecial.Name] = &PrintSpecial
+	env.MonadicFunctions[LenSpecial.Name] = &LenSpecial
+	env.MonadicFunctions[CapSpecial.Name] = &CapSpecial
+	env.MonadicFunctions[SumSpecial.Name] = &SumSpecial
+	env.MonadicFunctions[ProductSpecial.Name] = &ProductSpecial
+	env.DyadicFunctions[GEPSpecial.Name] = &GEPSpecial
 
 	return &env
 }
 
 func (e Environment) String() (s string) {
-	for _, f := range e.DFunctions {
+	for _, f := range e.DyadicFunctions {
 		s += f.String()
 	}
-	for _, f := range e.MFunctions {
+	for _, f := range e.MonadicFunctions {
 		s += f.String()
 	}
 

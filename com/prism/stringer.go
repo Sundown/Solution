@@ -71,7 +71,7 @@ func (s StructType) Realise() types.Type {
 	return types.NewStruct(acc...)
 }
 
-func (f DFunction) String() (s string) {
+func (f DyadicFunction) String() (s string) {
 	s += "Δ " + f.AlphaType.String() + " " + f.Name.String() + " " +
 		f.OmegaType.String() + " → " + f.Returns.String() + "\n"
 
@@ -86,7 +86,7 @@ func (f DFunction) String() (s string) {
 	return s + "∇\n"
 }
 
-func (f MFunction) String() (s string) {
+func (f MonadicFunction) String() (s string) {
 	s += "Δ " + f.Name.String() + " " +
 		f.OmegaType.String() + " → " + f.Returns.String() + "\n"
 

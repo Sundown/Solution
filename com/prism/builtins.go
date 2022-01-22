@@ -1,48 +1,56 @@
 package prism
 
 var (
-	ReturnSpecial = MFunction{
+	ReturnSpecial = MonadicFunction{
 		Special:   true,
 		Name:      Ident{Package: "_", Name: "Return"},
 		OmegaType: AtomicType{AnyType: true},
 		Returns:   AtomicType{AnyType: true},
 	}
-	PrintlnSpecial = MFunction{
+	PrintlnSpecial = MonadicFunction{
 		Special:   true,
 		Name:      Ident{Package: "_", Name: "Println"},
 		OmegaType: AtomicType{AnyType: true},
 		Returns:   VoidType,
 	}
-	PrintSpecial = MFunction{
+	PrintSpecial = MonadicFunction{
 		Special:   true,
 		Name:      Ident{Package: "_", Name: "Print"},
 		OmegaType: AtomicType{AnyType: true},
 		Returns:   VoidType,
 	}
 
-	LenSpecial = MFunction{
+	LenSpecial = MonadicFunction{
 		Special:   true,
 		Name:      Ident{Package: "_", Name: "Len"},
 		OmegaType: VectorType{AnyType: true},
 		Returns:   IntType,
 	}
-	CapSpecial = MFunction{
+	CapSpecial = MonadicFunction{
 		Special:   true,
 		Name:      Ident{Package: "_", Name: "Cap"},
 		OmegaType: VectorType{AnyType: true},
 		Returns:   IntType,
 	}
-	SumSpecial = MFunction{
+
+	GEPSpecial = DyadicFunction{
+		Special:   true,
+		Name:      Ident{Package: "_", Name: "GEP"},
+		AlphaType: IntType,
+		OmegaType: VectorType{AnyType: true},
+		Returns:   IntType,
+	}
+	SumSpecial = MonadicFunction{
 		Special:   true,
 		Name:      Ident{Package: "_", Name: "Sum"},
-		OmegaType: VectorType{Type: SomeType{Types: []Type{IntType, RealType}}},
-		Returns:   SomeType{Types: []Type{IntType, RealType}},
+		OmegaType: VectorType{Type: TypeGroup{Types: []Type{IntType, RealType}}},
+		Returns:   TypeGroup{Types: []Type{IntType, RealType}},
 	}
 
-	ProductSpecial = MFunction{
+	ProductSpecial = MonadicFunction{
 		Special:   true,
 		Name:      Ident{Package: "_", Name: "Product"},
-		OmegaType: VectorType{Type: SomeType{Types: []Type{IntType, RealType}}},
-		Returns:   SomeType{Types: []Type{IntType, RealType}},
+		OmegaType: VectorType{Type: TypeGroup{Types: []Type{IntType, RealType}}},
+		Returns:   TypeGroup{Types: []Type{IntType, RealType}},
 	}
 )

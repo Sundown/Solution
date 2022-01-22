@@ -32,16 +32,16 @@ func ParseIdent(s string) (p Ident) {
 	return Intern(t)
 }
 
-func (env Environment) GetDFunction(i Ident) *DFunction {
-	if f, ok := env.DFunctions[i]; ok {
+func (env Environment) GetDyadicFunction(i Ident) *DyadicFunction {
+	if f, ok := env.DyadicFunctions[i]; ok {
 		return f
 	}
 
 	return nil
 }
 
-func (env Environment) GetMFunction(i Ident) *MFunction {
-	if f, ok := env.MFunctions[i]; ok {
+func (env Environment) GetMonadicFunction(i Ident) *MonadicFunction {
+	if f, ok := env.MonadicFunctions[i]; ok {
 		return f
 	}
 

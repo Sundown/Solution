@@ -14,22 +14,22 @@ func (env *Environment) CompileBlock(body *[]prism.Expression) {
 	}
 }
 
-func (env *Environment) DeclareDFunction(fn prism.DFunction) *ir.Func {
+func (env *Environment) DeclareDyadicFunction(fn prism.DyadicFunction) *ir.Func {
 	return env.Module.NewFunc(
 		fn.LLVMise(),
 		ToReturn(fn.Type()),
 		ToParam(fn.AlphaType), ToParam(fn.OmegaType))
 }
 
-func (env *Environment) DeclareMFunction(fn prism.MFunction) *ir.Func {
+func (env *Environment) DeclareMonadicFunction(fn prism.MonadicFunction) *ir.Func {
 	return env.Module.NewFunc(
 		fn.LLVMise(),
 		ToReturn(fn.Type()),
 		ToParam(fn.OmegaType))
 }
 
-func (env *Environment) CompileDFunction(fn prism.DFunction) *ir.Func {
-	env.CurrentFunction = env.LLDFunctions[fn.LLVMise()]
+func (env *Environment) CompileDyadicFunction(fn prism.DyadicFunction) *ir.Func {
+	env.CurrentFunction = env.LLDyadicFunctions[fn.LLVMise()]
 	env.CurrentFunctionIR = fn
 
 	env.Block = env.CurrentFunction.NewBlock("")
@@ -42,8 +42,8 @@ func (env *Environment) CompileDFunction(fn prism.DFunction) *ir.Func {
 	return env.CurrentFunction
 }
 
-func (env *Environment) CompileMFunction(fn prism.MFunction) *ir.Func {
-	env.CurrentFunction = env.LLMFunctions[fn.LLVMise()]
+func (env *Environment) CompileMonadicFunction(fn prism.MonadicFunction) *ir.Func {
+	env.CurrentFunction = env.LLMonadicFunctions[fn.LLVMise()]
 	env.CurrentFunctionIR = fn
 
 	env.Block = env.CurrentFunction.NewBlock("")
