@@ -66,6 +66,8 @@ func (env Environment) AnalyseDBody(f *prism.DyadicFunction) {
 		return
 	}
 
+	env.CurrentFunctionIR = *f
+
 	for _, expr := range *f.PreBody {
 		f.Body = append(f.Body, env.AnalyseExpression(&expr))
 	}

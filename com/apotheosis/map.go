@@ -55,8 +55,8 @@ func (env *Environment) CompileInlineMap(fn, vec prism.Expression) value.Value {
 		types.NewPointer(elm_type),
 		env.Block.NewGetElementPtr(head_type, llvec, I32(0), vectorBodyOffset))
 
-	counter := env.Block.NewAlloca(types.I64)
-	env.Block.NewStore(I64(0), counter)
+	counter := env.Block.NewAlloca(types.I32)
+	env.Block.NewStore(I32(0), counter)
 
 	// Body
 	// Get elem, add to accum, increment counter, conditional jump to body
@@ -64,7 +64,7 @@ func (env *Environment) CompileInlineMap(fn, vec prism.Expression) value.Value {
 	env.Block.NewBr(loopblock)
 	env.Block = loopblock
 	// Add to accum
-	cur_counter := loopblock.NewLoad(types.I64, counter)
+	cur_counter := loopblock.NewLoad(types.I32, counter)
 
 	var cur_elm value.Value = loopblock.NewGetElementPtr(elm_type, vec_body, cur_counter)
 
@@ -90,7 +90,7 @@ func (env *Environment) CompileInlineMap(fn, vec prism.Expression) value.Value {
 	}
 
 	// Increment counter
-	incr := loopblock.NewAdd(cur_counter, I64(1))
+	incr := loopblock.NewAdd(cur_counter, I32(1))
 
 	loopblock.NewStore(incr, counter)
 

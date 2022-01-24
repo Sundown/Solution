@@ -12,8 +12,8 @@ func (env *Environment) CompileInlineSum(val Value) value.Value {
 	typ := val.Type.(prism.VectorType).Type
 	lltyp := typ.Realise()
 
-	counter := env.Block.NewAlloca(types.I64)
-	env.Block.NewStore(I64(0), counter)
+	counter := env.Block.NewAlloca(types.I32)
+	env.Block.NewStore(I32(0), counter)
 
 	accum := env.Block.NewAlloca(lltyp)
 	env.Block.NewStore(env.DefaultValue(typ), accum)
@@ -22,7 +22,7 @@ func (env *Environment) CompileInlineSum(val Value) value.Value {
 	// Get elem, add to accum, increment counter, conditional jump to body
 	// TODO these can be simplified with the helpers in vector.go
 	cond_rhs := env.Block.NewLoad(
-		types.I64,
+		types.I32,
 		env.Block.NewGetElementPtr(
 			prism.VectorType{Type: typ}.Realise(),
 			val.Value,
@@ -42,7 +42,7 @@ func (env *Environment) CompileInlineSum(val Value) value.Value {
 	env.Block = loopblock
 
 	// Add to accum
-	cur_counter := loopblock.NewLoad(types.I64, counter)
+	cur_counter := loopblock.NewLoad(types.I32, counter)
 
 	// Accum <- accum + current element
 	loopblock.NewStore(
@@ -59,12 +59,12 @@ func (env *Environment) CompileInlineSum(val Value) value.Value {
 
 	// Increment counter
 	loopblock.NewStore(
-		loopblock.NewAdd(loopblock.NewLoad(types.I64, counter), I64(1)),
+		loopblock.NewAdd(loopblock.NewLoad(types.I32, counter), I32(1)),
 		counter)
 
 	cond := loopblock.NewICmp(
 		enum.IPredSLT,
-		loopblock.NewAdd(cur_counter, I64(1)),
+		loopblock.NewAdd(cur_counter, I32(1)),
 		cond_rhs)
 
 	exitblock := env.CurrentFunction.NewBlock("")
@@ -78,8 +78,8 @@ func (env *Environment) CompileInlineProduct(val Value) value.Value {
 	typ := val.Type.(prism.VectorType).Type
 	lltyp := typ.Realise()
 
-	counter := env.Block.NewAlloca(types.I64)
-	env.Block.NewStore(I64(0), counter)
+	counter := env.Block.NewAlloca(types.I32)
+	env.Block.NewStore(I32(0), counter)
 
 	accum := env.Block.NewAlloca(lltyp)
 	env.Block.NewStore(env.Number(&typ, 1), accum)
@@ -88,7 +88,7 @@ func (env *Environment) CompileInlineProduct(val Value) value.Value {
 	// Get elem, add to accum, increment counter, conditional jump to body
 
 	cond_rhs := env.Block.NewLoad(
-		types.I64,
+		types.I32,
 		env.Block.NewGetElementPtr(
 			prism.VectorType{Type: typ}.Realise(),
 			val.Value,
@@ -108,7 +108,7 @@ func (env *Environment) CompileInlineProduct(val Value) value.Value {
 	env.Block = loopblock
 
 	// Add to accum
-	cur_counter := loopblock.NewLoad(types.I64, counter)
+	cur_counter := loopblock.NewLoad(types.I32, counter)
 
 	// Accum <- accum * current element
 	loopblock.NewStore(
@@ -125,12 +125,12 @@ func (env *Environment) CompileInlineProduct(val Value) value.Value {
 
 	cond := loopblock.NewICmp(
 		enum.IPredSLT,
-		loopblock.NewAdd(cur_counter, I64(1)),
+		loopblock.NewAdd(cur_counter, I32(1)),
 		cond_rhs)
 
 	// Increment counter
 	loopblock.NewStore(
-		loopblock.NewAdd(loopblock.NewLoad(types.I64, counter), I64(1)),
+		loopblock.NewAdd(loopblock.NewLoad(types.I32, counter), I32(1)),
 		counter)
 
 	exitblock := env.CurrentFunction.NewBlock("")

@@ -17,18 +17,6 @@ func (s StructType) Kind() int {
 	return TypeKindStruct
 }
 
-func (a AtomicType) Any() bool {
-	return a.AnyType
-}
-
-func (v VectorType) Any() bool {
-	return v.AnyType
-}
-
-func (s StructType) Any() bool {
-	return s.AnyType
-}
-
 func (v Vector) Kind() int {
 	return TypeKindVector
 }
@@ -37,13 +25,13 @@ func (v Vector) Kind() int {
 
 func (env Environment) SubstantiateType(t palisade.Type) Type {
 	if t.Primative != nil {
+		// TODO make "T" work
 		if ptr := env.Types[Intern(*t.Primative)]; ptr != nil {
 			return ptr
 		}
 	} else if t.Vector != nil {
 		return VectorType{
-			AnyType: false,
-			Type:    env.SubstantiateType(*t.Vector),
+			Type: env.SubstantiateType(*t.Vector),
 		}
 	} else if t.Tuple != nil {
 		acc := make([]Type, len(t.Tuple))

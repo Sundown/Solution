@@ -85,20 +85,26 @@ type MonadicFunction struct {
 	Special   bool
 	Name      Ident
 	OmegaType Type
-	Returns   Type
-	PreBody   *[]palisade.Expression
-	Body      []Expression
+
+	Returns Type
+	PreBody *[]palisade.Expression
+	Body    []Expression
 }
 
 type MApplication struct {
 	Operator MonadicFunction
 	Operand  Expression
+	// Algebraic T refers to which type in given application
+	T_Refers Type
 }
 
 type DApplication struct {
 	Operator DyadicFunction
 	Left     Expression
 	Right    Expression
+	// Algebraic T refers to which type in given application
+	// Possibility of requiring A and B algebraic types once tuples are present
+	T_Refers Type
 }
 
 type Int struct {

@@ -6,7 +6,8 @@ const (
 	TypeKindAtomic = iota
 	TypeKindVector
 	TypeKindStruct
-	TypeKindSome
+	TypeKindSemiDetermined
+	TypeKindSemiDeterminedGroup
 	KinDyadicFunction
 	TypeInt
 	TypeReal
@@ -17,8 +18,6 @@ const (
 )
 
 type Type interface {
-	Any() bool
-	SemiDetermined() bool
 	Kind() int
 	Width() int64
 	String() string
@@ -26,7 +25,6 @@ type Type interface {
 }
 
 type AtomicType struct {
-	AnyType      bool
 	ID           int
 	WidthInBytes int
 	Name         Ident
@@ -35,44 +33,21 @@ type AtomicType struct {
 
 type VectorType struct {
 	Type
-	AnyType bool
 }
 
 type StructType struct {
-	AnyType    bool
 	FieldTypes []Type
 }
 
-func (s SemiDeterminedType) SemiDetermined() bool {
-	return true
+func (s SemiDeterminedType) Kind() int {
+	return TypeKindSemiDetermined
 }
 
-func (s VectorType) SemiDetermined() bool {
-	return false
-}
-func (s TypeGroup) SemiDetermined() bool {
-	return false
-}
-func (s AtomicType) SemiDetermined() bool {
-	return false
-}
-func (s StructType) SemiDetermined() bool {
-	return false
+func (s SemiDeterminedTypeGroup) Kind() int {
+	return TypeKindSemiDeterminedGroup
 }
 
-func (s TypeGroup) Any() bool {
-	return false
-}
-
-func (s SemiDeterminedType) Any() bool {
-	return false
-}
-
-func (s TypeGroup) Kind() int {
-	return TypeKindSome
-}
-
-func (s TypeGroup) Width() int64 {
+func (s SemiDeterminedTypeGroup) Width() int64 {
 	panic("Impossible")
 }
 
@@ -90,7 +65,7 @@ func (s SemiDeterminedType) String() string {
 	return "T"
 }
 
-func (s TypeGroup) String() (res string) {
+func (s SemiDeterminedTypeGroup) String() (res string) {
 	for i, t := range s.Types {
 		if i > 0 {
 			res += " | "
@@ -101,22 +76,22 @@ func (s TypeGroup) String() (res string) {
 	return
 }
 
-func (s TypeGroup) Realise() types.Type {
+func (s SemiDeterminedTypeGroup) Realise() types.Type {
 	panic("Impossible")
 }
 
-type TypeGroup struct {
+type SemiDeterminedTypeGroup struct {
 	Types []Type
 }
 
-func EqType(a, b Type) bool {
-	if a.Any() || b.Any() {
-		return true
+func PrimativeTypeEq(a, b Type) bool {
+	if a.Kind() == TypeKindSemiDetermined || b.Kind() == TypeKindSemiDetermined {
+		return false
 	}
 
-	p := func(x TypeGroup, y Type) bool {
+	p := func(x SemiDeterminedTypeGroup, y Type) bool {
 		for _, t := range x.Types {
-			if EqType(t, y) {
+			if PrimativeTypeEq(t, y) {
 				return true
 			}
 		}
@@ -124,9 +99,9 @@ func EqType(a, b Type) bool {
 		return false
 	}
 
-	if s, ok := a.(TypeGroup); ok && p(s, b) {
+	if s, ok := a.(SemiDeterminedTypeGroup); ok && p(s, b) {
 		return true
-	} else if s, ok := b.(TypeGroup); ok && p(s, a) {
+	} else if s, ok := b.(SemiDeterminedTypeGroup); ok && p(s, a) {
 		return true
 	}
 
@@ -138,9 +113,10 @@ func EqType(a, b Type) bool {
 	case TypeKindAtomic:
 		return a.(AtomicType).ID == b.(AtomicType).ID
 	case TypeKindVector:
-		return EqType(a.(VectorType).Type, b.(VectorType).Type)
+		return PrimativeTypeEq(a.(VectorType).Type, b.(VectorType).Type)
 	case TypeKindStruct:
 		// TODO
+		// ... other kinds
 	}
 
 	return false

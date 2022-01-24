@@ -29,13 +29,13 @@ func (env *Environment) GEP(source *ir.InstAlloca, indices ...value.Value) *ir.I
 
 // Will work for vectors too once they can be mutated
 func (env *Environment) DefaultValue(t prism.Type) value.Value {
-	if prism.EqType(t, prism.IntType) {
+	if prism.PrimativeTypeEq(t, prism.IntType) {
 		return I64(0)
-	} else if prism.EqType(t, prism.RealType) {
+	} else if prism.PrimativeTypeEq(t, prism.RealType) {
 		return constant.NewFloat(types.Double, 0)
-	} else if prism.EqType(t, prism.CharType) {
+	} else if prism.PrimativeTypeEq(t, prism.CharType) {
 		return constant.NewInt(types.I8, 0)
-	} else if prism.EqType(t, prism.BoolType) {
+	} else if prism.PrimativeTypeEq(t, prism.BoolType) {
 		return constant.NewBool(false)
 	} else {
 		panic("Not yet implemented")
@@ -44,13 +44,13 @@ func (env *Environment) DefaultValue(t prism.Type) value.Value {
 
 // Will work for vectors too once they can be mutated
 func (env *Environment) Number(t *prism.Type, n float64) value.Value {
-	if prism.EqType(*t, prism.IntType) {
+	if prism.PrimativeTypeEq(*t, prism.IntType) {
 		return I64(int64(n))
-	} else if prism.EqType(*t, prism.RealType) {
+	} else if prism.PrimativeTypeEq(*t, prism.RealType) {
 		return constant.NewFloat(types.Double, n)
-	} else if prism.EqType(*t, prism.CharType) {
+	} else if prism.PrimativeTypeEq(*t, prism.CharType) {
 		return constant.NewInt(types.I8, int64(n))
-	} else if prism.EqType(*t, prism.BoolType) {
+	} else if prism.PrimativeTypeEq(*t, prism.BoolType) {
 		return constant.NewBool(false)
 	} else {
 		panic("Not yet implemented")
@@ -58,11 +58,11 @@ func (env *Environment) Number(t *prism.Type, n float64) value.Value {
 }
 
 func (env *Environment) AgnosticAdd(t *prism.Type, x, y value.Value) value.Value {
-	if prism.EqType(*t, prism.IntType) {
+	if prism.PrimativeTypeEq(*t, prism.IntType) {
 		return env.Block.NewAdd(x, y)
-	} else if prism.EqType(*t, prism.RealType) {
+	} else if prism.PrimativeTypeEq(*t, prism.RealType) {
 		return env.Block.NewFAdd(x, y)
-	} else if prism.EqType(*t, prism.CharType) {
+	} else if prism.PrimativeTypeEq(*t, prism.CharType) {
 		return env.Block.NewAdd(x, y)
 	} else {
 		panic("Not yet implemented")
@@ -70,11 +70,11 @@ func (env *Environment) AgnosticAdd(t *prism.Type, x, y value.Value) value.Value
 }
 
 func (env *Environment) AgnosticMult(t *prism.Type, x, y value.Value) value.Value {
-	if prism.EqType(*t, prism.IntType) {
+	if prism.PrimativeTypeEq(*t, prism.IntType) {
 		return env.Block.NewMul(x, y)
-	} else if prism.EqType(*t, prism.RealType) {
+	} else if prism.PrimativeTypeEq(*t, prism.RealType) {
 		return env.Block.NewFMul(x, y)
-	} else if prism.EqType(*t, prism.CharType) {
+	} else if prism.PrimativeTypeEq(*t, prism.CharType) {
 		return env.Block.NewMul(x, y)
 	} else {
 		panic("Not yet implemented")
@@ -82,15 +82,15 @@ func (env *Environment) AgnosticMult(t *prism.Type, x, y value.Value) value.Valu
 }
 
 func (env *Environment) GetFormatStringln(t *prism.Type) value.Value {
-	if prism.EqType(*t, prism.StringType) {
+	if prism.PrimativeTypeEq(*t, prism.StringType) {
 		return env.Block.NewGetElementPtr(types.NewArray(4, types.I8), env.Module.NewGlobalDef("", constant.NewCharArrayFromString("%s\x0A\x00")), I32(0), I32(0))
-	} else if prism.EqType(*t, prism.IntType) {
+	} else if prism.PrimativeTypeEq(*t, prism.IntType) {
 		return env.Block.NewGetElementPtr(types.NewArray(4, types.I8), env.Module.NewGlobalDef("", constant.NewCharArrayFromString("%d\x0A\x00")), I32(0), I32(0))
-	} else if prism.EqType(*t, prism.RealType) {
+	} else if prism.PrimativeTypeEq(*t, prism.RealType) {
 		return env.Block.NewGetElementPtr(types.NewArray(4, types.I8), env.Module.NewGlobalDef("", constant.NewCharArrayFromString("%f\x0A\x00")), I32(0), I32(0))
-	} else if prism.EqType(*t, prism.CharType) {
+	} else if prism.PrimativeTypeEq(*t, prism.CharType) {
 		return env.Block.NewGetElementPtr(types.NewArray(4, types.I8), env.Module.NewGlobalDef("", constant.NewCharArrayFromString("%c\x0A\x00")), I32(0), I32(0))
-	} else if prism.EqType(*t, prism.BoolType) {
+	} else if prism.PrimativeTypeEq(*t, prism.BoolType) {
 		return env.Block.NewGetElementPtr(types.NewArray(4, types.I8), env.Module.NewGlobalDef("", constant.NewCharArrayFromString("%d\x0A\x00")), I32(0), I32(0))
 	} else {
 		return env.Block.NewGetElementPtr(types.NewArray(2, types.I8), env.Module.NewGlobalDef("", constant.NewCharArrayFromString("\x0A\x00")), I32(0), I32(0))
@@ -98,15 +98,15 @@ func (env *Environment) GetFormatStringln(t *prism.Type) value.Value {
 }
 
 func (env *Environment) GetFormatString(t *prism.Type) value.Value {
-	if prism.EqType(*t, prism.StringType) {
+	if prism.PrimativeTypeEq(*t, prism.StringType) {
 		return env.Block.NewGetElementPtr(types.NewArray(3, types.I8), env.Module.NewGlobalDef("", constant.NewCharArrayFromString("%s\x00")), I32(0), I32(0))
-	} else if prism.EqType(*t, prism.IntType) {
+	} else if prism.PrimativeTypeEq(*t, prism.IntType) {
 		return env.Block.NewGetElementPtr(types.NewArray(3, types.I8), env.Module.NewGlobalDef("", constant.NewCharArrayFromString("%d\x00")), I32(0), I32(0))
-	} else if prism.EqType(*t, prism.RealType) {
+	} else if prism.PrimativeTypeEq(*t, prism.RealType) {
 		return env.Block.NewGetElementPtr(types.NewArray(3, types.I8), env.Module.NewGlobalDef("", constant.NewCharArrayFromString("%f\x00")), I32(0), I32(0))
-	} else if prism.EqType(*t, prism.CharType) {
+	} else if prism.PrimativeTypeEq(*t, prism.CharType) {
 		return env.Block.NewGetElementPtr(types.NewArray(3, types.I8), env.Module.NewGlobalDef("", constant.NewCharArrayFromString("%c\x00")), I32(0), I32(0))
-	} else if prism.EqType(*t, prism.BoolType) {
+	} else if prism.PrimativeTypeEq(*t, prism.BoolType) {
 		return env.Block.NewGetElementPtr(types.NewArray(3, types.I8), env.Module.NewGlobalDef("", constant.NewCharArrayFromString("%d\x00")), I32(0), I32(0))
 	} else {
 		return env.Block.NewGetElementPtr(types.NewArray(1, types.I8), env.Module.NewGlobalDef("", constant.NewCharArrayFromString("\x00")), I32(0), I32(0))

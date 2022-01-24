@@ -61,12 +61,7 @@ func (env *Environment) PopulateBody(
 }
 
 func (env *Environment) WriteVectorPointer(head *ir.InstAlloca, body *ir.InstBitCast, head_type types.Type) {
-	pt := env.Block.NewGetElementPtr(
-		head_type, head, I32(0), vectorBodyOffset)
-
-	env.Block.NewStore(
-		body,
-		pt)
+	env.Block.NewStore(body, env.Block.NewGetElementPtr(head_type, head, I32(0), vectorBodyOffset))
 }
 
 func (env *Environment) BuildVectorBody(typ types.Type, cap int64, width int64) *ir.InstBitCast {
@@ -79,7 +74,7 @@ func (env *Environment) BuildVectorBody(typ types.Type, cap int64, width int64) 
 
 func (env *Environment) WriteVectorLength(vector_struct *ir.InstAlloca, len int64, typ types.Type) {
 	env.Block.NewStore(
-		I64(len),
+		I32(len),
 		env.Block.NewGetElementPtr(
 			typ,
 			vector_struct,
@@ -88,15 +83,33 @@ func (env *Environment) WriteVectorLength(vector_struct *ir.InstAlloca, len int6
 
 func (env *Environment) WriteVectorCapacity(vector_struct *ir.InstAlloca, cap int64, typ types.Type) {
 	env.Block.NewStore(
-		I64(cap),
+		I32(cap),
 		env.Block.NewGetElementPtr(
 			typ,
 			vector_struct,
 			I32(0), vectorCapOffset))
 }
 
+func (env *Environment) WriteLLVectorLength(vec Value, len value.Value) {
+	env.Block.NewStore(
+		len,
+		env.Block.NewGetElementPtr(
+			vec.Type.Realise(),
+			vec.Value,
+			I32(0), vectorLenOffset))
+}
+
+func (env *Environment) WriteLLVectorCapacity(vec Value, cap value.Value) {
+	env.Block.NewStore(
+		cap,
+		env.Block.NewGetElementPtr(
+			vec.Type.Realise(),
+			vec.Value,
+			I32(0), vectorCapOffset))
+}
+
 func (env *Environment) ReadVectorLength(vec Value) value.Value {
-	return env.Block.NewLoad(types.I64,
+	return env.Block.NewLoad(types.I32,
 		env.Block.NewGetElementPtr(
 			vec.Type.Realise(),
 			vec.Value,
@@ -104,7 +117,7 @@ func (env *Environment) ReadVectorLength(vec Value) value.Value {
 }
 
 func (env *Environment) ReadVectorCapacity(vec Value) value.Value {
-	return env.Block.NewLoad(types.I64,
+	return env.Block.NewLoad(types.I32,
 		env.Block.NewGetElementPtr(
 			vec.Type.Realise(),
 			vec.Value,
@@ -112,26 +125,22 @@ func (env *Environment) ReadVectorCapacity(vec Value) value.Value {
 }
 
 func (env *Environment) ReadVectorElement(vec Value, index value.Value) value.Value {
-	if _, ok := vec.Type.(prism.VectorType); !ok {
-		prism.Panic(
-			prism.CT_Unexpected,
-			prism.Yellow("vector"),
-			prism.Yellow(vec.Type.String()))
-	}
+	typ := vec.Type.(prism.VectorType)
 
 	env.ValidateVectorIndex(vec, index)
 
 	elm := env.Block.NewGetElementPtr(
-		vec.Type.(prism.VectorType).Type.Realise(),
+		typ.Type.Realise(),
 		env.Block.NewLoad(
-			types.NewPointer(vec.Type.(prism.VectorType).Type.Realise()),
+			types.NewPointer(typ.Type.Realise()),
 			env.Block.NewGetElementPtr(
 				vec.Type.Realise(),
 				vec.Value,
-				I32(0), vectorBodyOffset)), index)
+				I32(0), vectorBodyOffset)),
+		index)
 
-	if _, ok := vec.Type.(prism.VectorType).Type.(prism.AtomicType); ok {
-		return env.Block.NewLoad(vec.Type.(prism.VectorType).Type.Realise(), elm)
+	if _, ok := typ.Type.(prism.AtomicType); ok {
+		return env.Block.NewLoad(typ.Type.Realise(), elm)
 	}
 
 	return elm
@@ -152,7 +161,7 @@ func (env *Environment) ValidateVectorIndex(vec Value, index value.Value) {
 	btrue := env.CurrentFunction.NewBlock("")
 	bfalse := env.CurrentFunction.NewBlock("")
 
-	leng := env.Block.NewLoad(types.I64,
+	leng := env.Block.NewLoad(types.I32,
 		env.Block.NewGetElementPtr(
 			vec.Type.Realise(),
 			vec.Value,

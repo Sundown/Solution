@@ -5,7 +5,7 @@ import (
 	"sundown/solution/prism"
 )
 
-func (env Environment) AnalyseMonadic(m *palisade.Monadic) prism.MApplication {
+func (env Environment) AnalyseMonadic(m *palisade.Monadic) (app prism.MApplication) {
 	op := env.FetchVerb(m.Verb)
 	if _, ok := op.(prism.MonadicFunction); !ok {
 		panic("Verb is not a monadic function")
@@ -14,14 +14,30 @@ func (env Environment) AnalyseMonadic(m *palisade.Monadic) prism.MApplication {
 	fn := op.(prism.MonadicFunction)
 	expr := env.AnalyseExpression(m.Expression)
 
-	if fn.OmegaType.SemiDetermined() {
-		fn.OmegaType = expr.Type()
+	if !prism.PrimativeTypeEq(expr.Type(), fn.OmegaType) {
+		if derived := prism.DeriveSemiDeterminedType(fn.OmegaType, expr.Type()); derived != nil {
+			integrated_omega := prism.IntegrateSemiDeterminedType(derived, fn.OmegaType)
 
-		if fn.Returns.SemiDetermined() {
-			fn.Returns = expr.Type()
+			fn.OmegaType = integrated_omega
+
+			if prism.PredicateSemiDeterminedType(fn.Returns) {
+				integrated_return := prism.IntegrateSemiDeterminedType(derived, fn.Returns)
+
+				fn.Returns = integrated_return
+			}
+		} else {
+			panic("Omega type mismatch between" + fn.OmegaType.String() + " and " + expr.Type().String())
 		}
-	} else if !prism.EqType(expr.Type(), fn.OmegaType) {
-		panic("Type mismatch")
+	}
+
+	if fn.Name.Package == "_" && fn.Name.Name == "Return" {
+		if !prism.PrimativeTypeEq(env.CurrentFunctionIR.Type(), fn.Returns) {
+			if !prism.PredicateSemiDeterminedType(env.CurrentFunctionIR.Type()) {
+				panic("Return recieves type which does not match determined-function's type")
+			} else {
+				panic("Not implemented, pain")
+			}
+		}
 	}
 
 	return prism.MApplication{
@@ -29,6 +45,7 @@ func (env Environment) AnalyseMonadic(m *palisade.Monadic) prism.MApplication {
 		Operand:  expr,
 	}
 }
+
 func (env Environment) AnalyseDyadic(d *palisade.Dyadic) prism.DApplication {
 	op := env.FetchVerb(d.Verb)
 	if _, ok := op.(prism.DyadicFunction); !ok {
@@ -44,14 +61,40 @@ func (env Environment) AnalyseDyadic(d *palisade.Dyadic) prism.DApplication {
 	}
 
 	right := env.AnalyseExpression(d.Expression)
-	if !prism.EqType(left.Type(), op.(prism.DyadicFunction).AlphaType) {
-		panic("Alpha type mismatch")
-	} else if !prism.EqType(right.Type(), op.(prism.DyadicFunction).OmegaType) {
-		panic("Omega type mismatch")
+
+	fn := op.(prism.DyadicFunction)
+	if !prism.PrimativeTypeEq(left.Type(), fn.AlphaType) {
+		if derived := prism.DeriveSemiDeterminedType(fn.AlphaType, left.Type()); derived != nil {
+			fn.AlphaType = prism.IntegrateSemiDeterminedType(derived, fn.AlphaType)
+			if prism.PredicateSemiDeterminedType(fn.Returns) {
+				fn.Returns = prism.IntegrateSemiDeterminedType(derived, fn.Returns)
+			}
+		} else {
+			panic("Alpha type mismatch between " + fn.AlphaType.String() + " and " + right.Type().String())
+		}
+	} else if !prism.PrimativeTypeEq(right.Type(), fn.OmegaType) {
+		if derived := prism.DeriveSemiDeterminedType(fn.OmegaType, right.Type()); derived != nil {
+			fn.OmegaType = prism.IntegrateSemiDeterminedType(derived, fn.OmegaType)
+			if prism.PredicateSemiDeterminedType(fn.Returns) {
+				fn.Returns = prism.IntegrateSemiDeterminedType(derived, fn.Returns)
+			}
+		} else {
+			panic("Omega type mismatch between " + fn.OmegaType.String() + " and " + right.Type().String())
+		}
+	}
+
+	if fn.Name.Package == "_" && fn.Name.Name == "Return" {
+		if !prism.PrimativeTypeEq(env.CurrentFunctionIR.Type(), fn.Returns) {
+			if !prism.PredicateSemiDeterminedType(env.CurrentFunctionIR.Type()) {
+				panic("Return recieves type which does not match determined-function's type")
+			} else {
+				panic("Not implemented, pain")
+			}
+		}
 	}
 
 	return prism.DApplication{
-		Operator: op.(prism.DyadicFunction),
+		Operator: fn,
 		Left:     left,
 		Right:    right,
 	}

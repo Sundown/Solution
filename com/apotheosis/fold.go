@@ -12,8 +12,8 @@ package apotheosis
 
 	llvec := env.CompileExpression(vec)
 
-	counter := env.Block.NewAlloca(types.I64)
-	env.Block.NewStore(I64(0), counter)
+	counter := env.Block.NewAlloca(types.I32)
+	env.Block.NewStore(I32(0), counter)
 
 	accum := env.Block.NewAlloca(lltyp)
 	env.Block.NewStore(env.Number(typ, 1), accum)
@@ -22,7 +22,7 @@ package apotheosis
 	// Get elem, add to accum, increment counter, conditional jump to body
 
 	cond_rhs := env.Block.NewLoad(
-		types.I64,
+		types.I32,
 		env.Block.NewGetElementPtr(
 			typ.AsVector().AsLLType(),
 			llvec,
@@ -36,7 +36,7 @@ package apotheosis
 	// ---
 
 	// Add to accum
-	cur_counter := loopblock.NewLoad(types.I64, counter)
+	cur_counter := loopblock.NewLoad(types.I32, counter)
 
 	// Accum <- accum * current element
 	ll_tuple := env.Block.NewAlloca(fn.TypeOf.AsLLType())
@@ -60,12 +60,12 @@ package apotheosis
 
 	cond := loopblock.NewICmp(
 		enum.IPredSLT,
-		loopblock.NewAdd(cur_counter, I64(1)),
+		loopblock.NewAdd(cur_counter, I32(1)),
 		cond_rhs)
 
 	// Increment counter
 	loopblock.NewStore(
-		loopblock.NewAdd(loopblock.NewLoad(types.I64, counter), I64(1)),
+		loopblock.NewAdd(loopblock.NewLoad(types.I32, counter), I32(1)),
 		counter)
 
 	exitblock := env.CurrentFunction.NewBlock("")

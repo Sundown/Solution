@@ -55,6 +55,7 @@ func NewEnvironment() *Environment {
 	env.MonadicFunctions[SumSpecial.Name] = &SumSpecial
 	env.MonadicFunctions[ProductSpecial.Name] = &ProductSpecial
 	env.DyadicFunctions[GEPSpecial.Name] = &GEPSpecial
+	env.DyadicFunctions[AppendSpecial.Name] = &AppendSpecial
 
 	return &env
 }
