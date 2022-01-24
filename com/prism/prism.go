@@ -1,6 +1,7 @@
 package prism
 
 import (
+	"fmt"
 	"sundown/solution/palisade"
 
 	"github.com/llir/llvm/ir"
@@ -67,6 +68,20 @@ type Expression interface {
 	String() string
 }
 
+type DyadicOperator struct {
+	Operator int
+	Left     Expression
+	Right    Expression
+}
+
+func (do DyadicOperator) Type() Type {
+	return do.Left.Type()
+}
+
+func (do DyadicOperator) String() string {
+	return do.Left.String() + " " + fmt.Sprint(do.Operator) + " " + do.Right.String()
+}
+
 type Morpheme interface {
 	_atomicflag()
 }
@@ -127,6 +142,19 @@ type Bool struct {
 	Value bool
 }
 
-type Alpha struct{}
-type Omega struct{}
+type Alpha struct {
+	TypeOf Type
+}
+type Omega struct {
+	TypeOf Type
+}
+
+func (a Alpha) Type() Type {
+	return a.TypeOf
+}
+
+func (a Omega) Type() Type {
+	return a.TypeOf
+}
+
 type EOF struct{}

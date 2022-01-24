@@ -1,6 +1,5 @@
 package apotheosis
 
-// Need tuple element access before this is useful, ignore for now
 /* func (env *Environment) CompileInlineFoldl(app *prism.DApplication) value.Value {
 	fn := app.Alpha.Morpheme.Tuple[0]
 	llfn := env.CompileExpression(fn)

@@ -8,7 +8,8 @@ const (
 	TypeKindStruct
 	TypeKindSemiDetermined
 	TypeKindSemiDeterminedGroup
-	KinDyadicFunction
+	TypeKindDyadicFunction
+	KindMapOperator
 	TypeInt
 	TypeReal
 	TypeChar
@@ -109,12 +110,12 @@ func PrimativeTypeEq(a, b Type) bool {
 		return false
 	}
 
-	switch a.Kind() {
-	case TypeKindAtomic:
+	switch a.(type) {
+	case AtomicType:
 		return a.(AtomicType).ID == b.(AtomicType).ID
-	case TypeKindVector:
+	case VectorType:
 		return PrimativeTypeEq(a.(VectorType).Type, b.(VectorType).Type)
-	case TypeKindStruct:
+	case StructType:
 		// TODO
 		// ... other kinds
 	}

@@ -6,7 +6,7 @@ import (
 
 // These are redundant I think
 func (a AtomicType) Kind() int {
-	return TypeKindAtomic
+	return a.ID
 }
 
 func (v VectorType) Kind() int {

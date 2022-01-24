@@ -33,6 +33,10 @@ func Parse(penv *prism.Environment) *prism.Environment {
 		env.AnalyseDBody(f)
 	}
 
+	for _, f := range env.MonadicFunctions {
+		env.AnalyseMBody(f)
+	}
+
 	return env.Environment
 }
 
@@ -73,10 +77,26 @@ func (env Environment) AnalyseDBody(f *prism.DyadicFunction) {
 	}
 }
 
+func (env Environment) AnalyseMBody(f *prism.MonadicFunction) {
+	if f.Special {
+		return
+	}
+
+	env.CurrentFunctionIR = *f
+
+	for _, expr := range *f.PreBody {
+		f.Body = append(f.Body, env.AnalyseExpression(&expr))
+	}
+}
+
 func (env Environment) AnalyseExpression(e *palisade.Expression) prism.Expression {
 	if e.Monadic != nil {
 		return env.AnalyseMonadic(e.Monadic)
 	} else if e.Dyadic != nil {
+		if *e.Dyadic.Verb.Ident.Ident == "Map" {
+			return env.AnalyseDyadicOperator(e.Dyadic)
+		}
+
 		return env.AnalyseDyadic(e.Dyadic)
 	} else if e.Morphemes != nil {
 		return env.AnalyseMorphemes(e.Morphemes)
@@ -85,14 +105,14 @@ func (env Environment) AnalyseExpression(e *palisade.Expression) prism.Expressio
 	panic("unreachable")
 }
 
-func (env Environment) FetchVerb(v *palisade.Verb) prism.Expression {
-	if found, ok := env.MonadicFunctions[prism.Intern(*v.Ident)]; ok {
+func (env Environment) FetchVerb(v *palisade.Ident) prism.Expression {
+	if found, ok := env.MonadicFunctions[prism.Intern(*v)]; ok {
 		return *found
-	} else if found, ok := env.DyadicFunctions[prism.Intern(*v.Ident)]; ok {
+	} else if found, ok := env.DyadicFunctions[prism.Intern(*v)]; ok {
 		return *found
 	}
 
-	panic("Verb not found")
+	panic("Verb " + *v.Ident + " not found")
 }
 
 func (env Environment) AnalyseMorphemes(ms *[]palisade.Morpheme) prism.Expression {
@@ -123,6 +143,30 @@ func (env Environment) AnalyseMorpheme(m *palisade.Morpheme) prism.Expression {
 		return prism.String{string(*m.String)}
 	case m.Subexpr != nil:
 		return env.AnalyseExpression(m.Subexpr)
+	case m.Ident != nil:
+		return env.FetchVerb(m.Ident)
+	case m.Alpha != nil:
+		if f, ok := env.CurrentFunctionIR.(prism.DyadicFunction); ok {
+			return prism.Alpha{
+				TypeOf: f.AlphaType,
+			}
+		} else {
+			panic("Alpha in monadic function")
+
+		}
+	case m.Omega != nil:
+		if f, ok := env.CurrentFunctionIR.(prism.DyadicFunction); ok {
+			return prism.Omega{
+				TypeOf: f.OmegaType,
+			}
+		} else if f, ok := env.CurrentFunctionIR.(prism.MonadicFunction); ok {
+			return prism.Omega{
+				TypeOf: f.OmegaType,
+			}
+		} else {
+			panic("Unreachable")
+
+		}
 	}
 
 	panic("Other types not implemented")

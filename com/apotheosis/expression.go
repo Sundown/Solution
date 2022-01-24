@@ -3,6 +3,7 @@ package apotheosis
 import (
 	"sundown/solution/prism"
 
+	"github.com/alecthomas/repr"
 	"github.com/llir/llvm/ir/value"
 )
 
@@ -14,9 +15,36 @@ func (env *Environment) CompileExpression(expr *prism.Expression) value.Value {
 		return env.CompileDApplication(&t)
 	case prism.Morpheme:
 		return env.CompileAtom(&t)
+	case prism.DyadicOperator:
+		return env.CompileDyadicOperator(&t)
+	case prism.Function:
+		return env.CompileFunction(&t)
+	case prism.Alpha:
+		return env.CurrentFunction.Params[0]
+	case prism.Omega:
+		if len(env.CurrentFunction.Params) == 1 {
+			return env.CurrentFunction.Params[0]
+		} else {
+			return env.CurrentFunction.Params[1]
+		}
 	default:
+		repr.Println(expr)
 		panic("unreachable")
 	}
+}
+
+func (env *Environment) CompileFunction(f *prism.Function) value.Value {
+	if mfn, ok := env.LLMonadicFunctions[(*f).LLVMise()]; ok {
+		return mfn
+	} else if dfn, ok := env.LLDyadicFunctions[(*f).LLVMise()]; ok {
+		return dfn
+	}
+
+	/* switch (*f).Ident {
+	case "Println":
+
+	} */
+	panic("Not found")
 }
 
 type MCallable func(val Value) value.Value
@@ -52,6 +80,16 @@ func (env *Environment) GetSpecialDCallable(ident *prism.Ident) DCallable {
 	}
 }
 
+func (env *Environment) CompileDyadicOperator(dop *prism.DyadicOperator) value.Value {
+	switch dop.Operator {
+	case prism.KindMapOperator:
+		return env.CompileInlineMap(
+			dop.Left,
+			Value{env.CompileExpression(&dop.Right), dop.Right.Type()})
+	}
+	panic("unreachable")
+}
+
 func (env *Environment) CompileMApplication(app *prism.MApplication) value.Value {
 	switch app.Operator.Ident().Name {
 	case "Return":
@@ -84,8 +122,6 @@ func (env *Environment) CompileDApplication(app *prism.DApplication) value.Value
 		return env.CompileInlineIndex(
 			Value{env.CompileExpression(&app.Left), app.Left.Type()},
 			Value{env.CompileExpression(&app.Right), app.Right.Type()})
-	case "Map":
-		return env.CompileInlineMap(app.Left, app.Right)
 	case "Append":
 		return env.CompileInlineAppend(
 			Value{env.CompileExpression(&app.Left), app.Left.Type()},
