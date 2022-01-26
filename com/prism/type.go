@@ -10,6 +10,7 @@ const (
 	TypeKindSemiDeterminedGroup
 	TypeKindDyadicFunction
 	KindMapOperator
+	KindFoldlOperator
 	TypeInt
 	TypeReal
 	TypeChar

@@ -95,6 +95,8 @@ func (env Environment) AnalyseExpression(e *palisade.Expression) prism.Expressio
 	} else if e.Dyadic != nil {
 		if *e.Dyadic.Verb.Ident.Ident == "Map" {
 			return env.AnalyseDyadicOperator(e.Dyadic)
+		} else if *e.Dyadic.Verb.Ident.Ident == "Foldl" {
+			return env.AnalyseDyadicOperator(e.Dyadic)
 		}
 
 		return env.AnalyseDyadic(e.Dyadic)

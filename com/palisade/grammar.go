@@ -15,7 +15,7 @@ type Dyadic struct {
 	Monadic    *Monadic    `( @@`
 	Morphemes  *[]Morpheme `| (@@+) )`
 	Verb       *Verb       `@@`
-	Expression *Expression `@@?` // possibly broken, leave for now
+	Expression *Expression `@@` //`@@?` // possibly broken, leave for now
 }
 
 type Verb struct {
@@ -26,9 +26,9 @@ type Morpheme struct {
 	Char    *string     `@Char`
 	Alpha   *string     `| @"α"`
 	Omega   *string     `| @"ω"`
-	Ident   *Ident      `| "$"@@`
-	Int     *int64      `| @('-'? Int)`
+	Ident   *Ident      `| "$" @@`
 	Real    *float64    `| @('-'? Float)`
+	Int     *int64      `| @('-'? Int)`
 	String  *string     `| @String`
 	Subexpr *Expression `| "(" @@ ")"`
 }

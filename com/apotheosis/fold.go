@@ -1,76 +1,49 @@
 package apotheosis
 
-/* func (env *Environment) CompileInlineFoldl(app *prism.DApplication) value.Value {
-	fn := app.Alpha.Morpheme.Tuple[0]
-	llfn := env.CompileExpression(fn)
-	typ := app.ArgumentAlpha.TypeOf.Vector
+import (
+	"sundown/solution/prism"
 
-	lltyp := typ.AsLLType()
+	"github.com/llir/llvm/ir/enum"
+	"github.com/llir/llvm/ir/types"
+	"github.com/llir/llvm/ir/value"
+)
 
-	vec := app.ArgumentAlpha
-
-	llvec := env.CompileExpression(vec)
+func (env *Environment) CompileInlineFoldl(fn prism.Expression, vec Value) value.Value {
+	lltyp := vec.Type.(prism.VectorType).Type.Realise()
 
 	counter := env.Block.NewAlloca(types.I32)
-	env.Block.NewStore(I32(0), counter)
+	env.Block.NewStore(I32(1), counter) // start at second item
 
 	accum := env.Block.NewAlloca(lltyp)
-	env.Block.NewStore(env.Number(typ, 1), accum)
+	env.Block.NewStore(env.ReadVectorElement(vec, I32(0)), accum)
 
-	// Body
-	// Get elem, add to accum, increment counter, conditional jump to body
-
-	cond_rhs := env.Block.NewLoad(
-		types.I32,
-		env.Block.NewGetElementPtr(
-			typ.AsVector().AsLLType(),
-			llvec,
-			I32(0),
-			vectorLenOffset))
-
-	// This is a bit messy
 	loopblock := env.CurrentFunction.NewBlock("")
 	env.Block.NewBr(loopblock)
 	env.Block = loopblock
-	// ---
 
-	// Add to accum
-	cur_counter := loopblock.NewLoad(types.I32, counter)
-
-	// Accum <- accum * current element
-	ll_tuple := env.Block.NewAlloca(fn.TypeOf.AsLLType())
-
-	left := accum
-	right := loopblock.NewGetElementPtr(
-		lltyp,
-		env.Block.NewLoad(
-			types.NewPointer(lltyp),
-			env.Block.NewGetElementPtr(
-				typ.AsVector().AsLLType(),
-				llvec,
-				I32(0),
-				vectorBodyOffset)),
-		cur_counter)
-
-	env.Block.NewStore(left, env.GEP(ll_tuple, I32(0), I32(0)))
-	env.Block.NewStore(right, env.GEP(ll_tuple, I32(0), I32(1)))
-
-	loopblock.NewStore(env.Block.NewCall(llfn, ll_tuple), accum)
+	loopblock.NewStore(
+		loopblock.NewCall(
+			env.CompileExpression(&fn),
+			loopblock.NewLoad(lltyp, accum),
+			env.UnsafeReadVectorElement(
+				vec,
+				loopblock.NewLoad(types.I32, counter))),
+		accum)
 
 	cond := loopblock.NewICmp(
 		enum.IPredSLT,
-		loopblock.NewAdd(cur_counter, I32(1)),
-		cond_rhs)
+		loopblock.NewAdd(loopblock.NewLoad(types.I32, counter), I32(1)),
+		env.ReadVectorLength(vec))
 
-	// Increment counter
 	loopblock.NewStore(
 		loopblock.NewAdd(loopblock.NewLoad(types.I32, counter), I32(1)),
 		counter)
 
 	exitblock := env.CurrentFunction.NewBlock("")
+
 	loopblock.NewCondBr(cond, loopblock, exitblock)
+
 	env.Block = exitblock
 
 	return env.Block.NewLoad(lltyp, accum)
 }
-*/

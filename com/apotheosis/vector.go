@@ -146,6 +146,26 @@ func (env *Environment) ReadVectorElement(vec Value, index value.Value) value.Va
 	return elm
 }
 
+func (env *Environment) UnsafeReadVectorElement(vec Value, index value.Value) value.Value {
+	typ := vec.Type.(prism.VectorType)
+
+	elm := env.Block.NewGetElementPtr(
+		typ.Type.Realise(),
+		env.Block.NewLoad(
+			types.NewPointer(typ.Type.Realise()),
+			env.Block.NewGetElementPtr(
+				vec.Type.Realise(),
+				vec.Value,
+				I32(0), vectorBodyOffset)),
+		index)
+
+	if _, ok := typ.Type.(prism.AtomicType); ok {
+		return env.Block.NewLoad(typ.Type.Realise(), elm)
+	}
+
+	return elm
+}
+
 func CalculateVectorSizes(l int) (leng int64, cap int64) {
 	leng = int64(l)
 	if leng < 4 {
@@ -161,16 +181,10 @@ func (env *Environment) ValidateVectorIndex(vec Value, index value.Value) {
 	btrue := env.CurrentFunction.NewBlock("")
 	bfalse := env.CurrentFunction.NewBlock("")
 
-	leng := env.Block.NewLoad(types.I32,
-		env.Block.NewGetElementPtr(
-			vec.Type.Realise(),
-			vec.Value,
-			I32(0), vectorLenOffset))
+	leng := env.ReadVectorLength(vec)
 
 	env.LLVMPanic(bfalse, "Panic: index %d out of bounds [%d]\n", index, leng)
 
-	bend := env.CurrentFunction.NewBlock("")
-	btrue.NewBr(bend)
 	bfalse.NewUnreachable()
 
 	env.Block.NewCondBr(
@@ -180,5 +194,5 @@ func (env *Environment) ValidateVectorIndex(vec Value, index value.Value) {
 			index),
 		bfalse, btrue)
 
-	env.Block = bend
+	env.Block = btrue
 }

@@ -86,6 +86,11 @@ func (env *Environment) CompileDyadicOperator(dop *prism.DyadicOperator) value.V
 		return env.CompileInlineMap(
 			dop.Left,
 			Value{env.CompileExpression(&dop.Right), dop.Right.Type()})
+
+	case prism.KindFoldlOperator:
+		return env.CompileInlineFoldl(
+			dop.Left,
+			Value{env.CompileExpression(&dop.Right), dop.Right.Type()})
 	}
 	panic("unreachable")
 }
@@ -118,6 +123,9 @@ func (env *Environment) CompileMApplication(app *prism.MApplication) value.Value
 
 func (env *Environment) CompileDApplication(app *prism.DApplication) value.Value {
 	switch app.Operator.Ident().Name {
+	case "Add":
+		return env.CompileInlineAdd(Value{env.CompileExpression(&app.Left), app.Left.Type()},
+			Value{env.CompileExpression(&app.Right), app.Right.Type()})
 	case "GEP":
 		return env.CompileInlineIndex(
 			Value{env.CompileExpression(&app.Left), app.Left.Type()},

@@ -56,6 +56,14 @@ var (
 		Returns:   SemiDeterminedTypeGroup{[]Type{IntType, RealType}},
 	}
 
+	AddSpecial = DyadicFunction{
+		Special:   true,
+		Name:      Ident{Package: "_", Name: "Add"},
+		AlphaType: SemiDeterminedTypeGroup{[]Type{IntType, RealType}},
+		OmegaType: SemiDeterminedTypeGroup{[]Type{IntType, RealType}},
+		Returns:   SemiDeterminedTypeGroup{[]Type{IntType, RealType}},
+	}
+
 	ProductSpecial = MonadicFunction{
 		Special:   true,
 		Name:      Ident{Package: "_", Name: "Product"},

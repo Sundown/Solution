@@ -72,6 +72,19 @@ func (env Environment) AnalyseDyadicOperator(d *palisade.Dyadic) prism.DyadicOpe
 			Left:     lexpr.(prism.Function),
 			Right:    rexpr.(prism.Vector),
 		}
+	case "Foldl":
+		if _, ok := lexpr.(prism.Function); !ok {
+			panic("Left operand is not a function")
+		}
+		if _, ok := rexpr.(prism.Vector); !ok {
+			panic("Right operand is not a vector")
+		}
+
+		dop = prism.DyadicOperator{
+			Operator: prism.KindFoldlOperator,
+			Left:     lexpr.(prism.Function),
+			Right:    rexpr.(prism.Vector),
+		}
 	}
 
 	return dop

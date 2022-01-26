@@ -10,40 +10,40 @@ func NewEnvironment() *Environment {
 	env.DyadicFunctions = make(map[Ident]*DyadicFunction)
 	env.Types = make(map[Ident]Type)
 
-	env.Types[ParseIdent("Int")] = AtomicType{
+	env.Types[Ident{"_", "Int"}] = AtomicType{
 		ID:           TypeInt,
 		WidthInBytes: 8,
-		Name:         ParseIdent("Int"),
+		Name:         Ident{"_", "Int"},
 		Actual:       types.I64,
 	}
-	env.Types[ParseIdent("Real")] = AtomicType{
+	env.Types[Ident{"_", "Real"}] = AtomicType{
 		ID:           TypeReal,
 		WidthInBytes: 8,
-		Name:         ParseIdent("Real"),
+		Name:         Ident{"_", "Real"},
 		Actual:       types.Double,
 	}
-	env.Types[ParseIdent("Char")] = AtomicType{
+	env.Types[Ident{"_", "Char"}] = AtomicType{
 		ID:           TypeChar,
 		WidthInBytes: 1,
-		Name:         ParseIdent("Char"),
+		Name:         Ident{"_", "Char"},
 		Actual:       types.I8,
 	}
-	env.Types[ParseIdent("String")] = AtomicType{
+	env.Types[Ident{"_", "String"}] = AtomicType{
 		ID:           TypeString,
 		WidthInBytes: 12, // TODO
-		Name:         ParseIdent("String"),
+		Name:         Ident{"_", "String"},
 		Actual:       types.I8Ptr,
 	}
-	env.Types[ParseIdent("Bool")] = AtomicType{
+	env.Types[Ident{"_", "Bool"}] = AtomicType{
 		ID:           TypeBool,
 		WidthInBytes: 1,
-		Name:         ParseIdent("Bool"),
+		Name:         Ident{"_", "Bool"},
 		Actual:       types.I1,
 	}
-	env.Types[ParseIdent("Void")] = AtomicType{
+	env.Types[Ident{"_", "Void"}] = AtomicType{
 		ID:           TypeVoid,
 		WidthInBytes: 0,
-		Name:         ParseIdent("Void"),
+		Name:         Ident{"_", "Void"},
 		Actual:       types.Void,
 	}
 
@@ -56,7 +56,7 @@ func NewEnvironment() *Environment {
 	env.MonadicFunctions[ProductSpecial.Name] = &ProductSpecial
 	env.DyadicFunctions[GEPSpecial.Name] = &GEPSpecial
 	env.DyadicFunctions[AppendSpecial.Name] = &AppendSpecial
-
+	env.DyadicFunctions[AddSpecial.Name] = &AddSpecial
 	return &env
 }
 

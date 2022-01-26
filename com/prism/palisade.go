@@ -17,6 +17,18 @@ func Intern(i palisade.Ident) (p Ident) {
 	return
 }
 
+/* var basicLexer = stateful.MustSimple([]stateful.Rule{
+	{"Comment", `(?i)rem[^\n]*`, nil},
+	{"String", `"(\\"|[^"])*"`, nil},
+	{"Float", `(\d*\.)?\d+`, nil},
+	{"Int", `\d+`, nil},
+	{"Ident", `([^p{α}p{ω}])\w+`, nil},
+	{"Char", `\'.\'`, nil},
+	//{"Punct", `[-[!@#$%^&*()+_={}\|:;"'<,>.?/]|]`, nil},
+	{"EOL", `[\n\r]+`, nil},
+	{"whitespace", `[ \t]+`, nil},
+})
+*/
 func ParseIdent(s string) (p Ident) {
 	var t palisade.Ident
 	err := participle.MustBuild(
