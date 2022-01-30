@@ -8,8 +8,8 @@ type PalisadeResult struct {
 }
 
 type Directive struct {
-	Command *string `"@" @Ident`
-	Value   *string `@Ident`
+	Command *string `"@" @Ident `
+	Value   *string `@Ident ";"`
 }
 
 type Ident struct {
@@ -19,18 +19,18 @@ type Ident struct {
 
 type Function struct {
 	Dyadic *struct {
-		Alpha *Type  `@@`
-		Ident *Ident `@@`
-		Omega *Type  `@@`
-	} `("Δ" @@`
+		Alpha *Type  `@@ `
+		Ident *Ident `@@ `
+		Omega *Type  `@@ `
+	} `("Δ"  @@`
 
 	Monadic *struct {
 		Ident *Ident `@@`
 		Omega *Type  `@@`
 	} `| "Δ" @@)`
 
-	Returns *Type         `"→" @@ ":"`
-	Body    *[]Expression `(@@ ";")+ "∇"`
+	Returns *Type         `"→"  @@  ":" `
+	Body    *[]Expression `(@@ ";" )+ "∇"`
 }
 
 type Type struct {

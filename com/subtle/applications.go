@@ -6,7 +6,7 @@ import (
 )
 
 func (env Environment) AnalyseMonadic(m *palisade.Monadic) (app prism.MApplication) {
-	op := env.FetchVerb(m.Verb.Ident)
+	op := env.FetchVerb(m.Verb)
 	if _, ok := op.(prism.MonadicFunction); !ok {
 		panic("Verb is not a monadic function")
 	}
@@ -33,7 +33,7 @@ func (env Environment) AnalyseMonadic(m *palisade.Monadic) (app prism.MApplicati
 	if fn.Name.Package == "_" && fn.Name.Name == "Return" {
 		if !prism.PrimativeTypeEq(env.CurrentFunctionIR.Type(), fn.Returns) {
 			if !prism.PredicateSemiDeterminedType(env.CurrentFunctionIR.Type()) {
-				panic("Return recieves type which does not match determined-function's type")
+				panic("Return recieves " + fn.Returns.String() + " which does not match determined-function's type " + env.CurrentFunctionIR.Type().String())
 			} else {
 				panic("Not implemented, pain")
 			}
@@ -45,20 +45,18 @@ func (env Environment) AnalyseMonadic(m *palisade.Monadic) (app prism.MApplicati
 		Operand:  expr,
 	}
 }
-func (env Environment) AnalyseDyadicOperator(d *palisade.Dyadic) prism.DyadicOperator {
+func (env Environment) AnalyseDyadicOperator(d *palisade.Monadic) prism.DyadicOperator {
 	dop := prism.DyadicOperator{}
 	var lexpr prism.Expression
-	if d.Monadic != nil {
-		panic("Can't handle this yet")
-	} else if d.Morphemes != nil {
-		lexpr = env.AnalyseMorphemes(d.Morphemes)
+	if d.Verb != nil {
+		lexpr = env.FetchVerb(d.Verb)
 	} else {
 		panic("Dyadic expression has no left operand")
 	}
 
-	rexpr := env.AnalyseExpression(d.Expression)
+	rexpr := env.AnalyseExpression(d.Expression.Monadic.Expression)
 
-	switch *d.Verb.Ident.Ident {
+	switch *d.Expression.Monadic.Verb.Ident {
 	case "Map":
 		if _, ok := lexpr.(prism.Function); !ok {
 			panic("Left operand is not a function")
@@ -72,7 +70,7 @@ func (env Environment) AnalyseDyadicOperator(d *palisade.Dyadic) prism.DyadicOpe
 			Left:     lexpr.(prism.Function),
 			Right:    rexpr.(prism.Vector),
 		}
-	case "Foldl":
+	case "/":
 		if _, ok := lexpr.(prism.Function); !ok {
 			panic("Left operand is not a function")
 		}
@@ -91,7 +89,7 @@ func (env Environment) AnalyseDyadicOperator(d *palisade.Dyadic) prism.DyadicOpe
 }
 
 func (env Environment) AnalyseDyadic(d *palisade.Dyadic) prism.DApplication {
-	op := env.FetchVerb(d.Verb.Ident)
+	op := env.FetchVerb(d.Verb)
 	if _, ok := op.(prism.DyadicFunction); !ok {
 		panic("Verb is not a dyadic function")
 	}

@@ -20,6 +20,7 @@ func Lex(env *Environment) *Environment {
 	err = participle.MustBuild(
 		&palisade.PalisadeResult{},
 		participle.UseLookahead(4),
+		participle.Lexer(basicLexer),
 		participle.Unquote(),
 	).Parse(env.File, r, &res)
 

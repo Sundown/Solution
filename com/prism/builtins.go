@@ -58,7 +58,7 @@ var (
 
 	AddSpecial = DyadicFunction{
 		Special:   true,
-		Name:      Ident{Package: "_", Name: "Add"},
+		Name:      Ident{Package: "_", Name: "+"},
 		AlphaType: SemiDeterminedTypeGroup{[]Type{IntType, RealType}},
 		OmegaType: SemiDeterminedTypeGroup{[]Type{IntType, RealType}},
 		Returns:   SemiDeterminedTypeGroup{[]Type{IntType, RealType}},

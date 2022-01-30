@@ -91,14 +91,14 @@ func (env Environment) AnalyseMBody(f *prism.MonadicFunction) {
 
 func (env Environment) AnalyseExpression(e *palisade.Expression) prism.Expression {
 	if e.Monadic != nil {
-		return env.AnalyseMonadic(e.Monadic)
-	} else if e.Dyadic != nil {
-		if *e.Dyadic.Verb.Ident.Ident == "Map" {
-			return env.AnalyseDyadicOperator(e.Dyadic)
-		} else if *e.Dyadic.Verb.Ident.Ident == "Foldl" {
-			return env.AnalyseDyadicOperator(e.Dyadic)
+		if e.Monadic.Expression.Monadic != nil {
+			if *e.Monadic.Expression.Monadic.Verb.Ident == "/" {
+				return env.AnalyseDyadicOperator(e.Monadic)
+			}
 		}
 
+		return env.AnalyseMonadic(e.Monadic)
+	} else if e.Dyadic != nil {
 		return env.AnalyseDyadic(e.Dyadic)
 	} else if e.Morphemes != nil {
 		return env.AnalyseMorphemes(e.Morphemes)
@@ -145,8 +145,8 @@ func (env Environment) AnalyseMorpheme(m *palisade.Morpheme) prism.Expression {
 		return prism.String{string(*m.String)}
 	case m.Subexpr != nil:
 		return env.AnalyseExpression(m.Subexpr)
-	case m.Ident != nil:
-		return env.FetchVerb(m.Ident)
+	//case m.Ident != nil:
+	// TODO	return env.FetchVerb(m.Ident)
 	case m.Alpha != nil:
 		if f, ok := env.CurrentFunctionIR.(prism.DyadicFunction); ok {
 			return prism.Alpha{
