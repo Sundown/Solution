@@ -105,24 +105,24 @@ func (env Environment) AnalyseDyadic(d *palisade.Dyadic) prism.DApplication {
 	right := env.AnalyseExpression(d.Expression)
 
 	fn := op.(prism.DyadicFunction)
-	if !prism.PrimativeTypeEq(left.Type(), fn.AlphaType) {
-		if derived := prism.DeriveSemiDeterminedType(fn.AlphaType, left.Type()); derived != nil {
-			fn.AlphaType = prism.IntegrateSemiDeterminedType(derived, fn.AlphaType)
-			if prism.PredicateSemiDeterminedType(fn.Returns) {
-				fn.Returns = prism.IntegrateSemiDeterminedType(derived, fn.Returns)
-			}
-		} else {
-			panic("Alpha type mismatch between " + fn.AlphaType.String() + " and " + right.Type().String())
-		}
-	} else if !prism.PrimativeTypeEq(right.Type(), fn.OmegaType) {
-		if derived := prism.DeriveSemiDeterminedType(fn.OmegaType, right.Type()); derived != nil {
-			fn.OmegaType = prism.IntegrateSemiDeterminedType(derived, fn.OmegaType)
-			if prism.PredicateSemiDeterminedType(fn.Returns) {
-				fn.Returns = prism.IntegrateSemiDeterminedType(derived, fn.Returns)
-			}
-		} else {
-			panic("Omega type mismatch between " + fn.OmegaType.String() + " and " + right.Type().String())
-		}
+
+	tmp := right.Type()
+	resolved_right, err := prism.Delegate(&fn.OmegaType, &tmp)
+	if err != nil {
+		prism.Panic(*err)
+	}
+	tmp = left.Type()
+	resolved_left, err := prism.Delegate(&fn.AlphaType, &tmp)
+	if err != nil {
+		prism.Panic(*err)
+	}
+
+	if _, err := prism.Delegate(resolved_left, resolved_right); err != nil {
+		prism.Panic(*err)
+	}
+
+	if prism.PredicateSemiDeterminedType(fn.Returns) {
+		fn.Returns = prism.IntegrateSemiDeterminedType(*resolved_left, fn.Returns)
 	}
 
 	if fn.Name.Package == "_" && fn.Name.Name == "Return" {

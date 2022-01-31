@@ -91,7 +91,7 @@ func PrimativeTypeEq(a, b Type) bool {
 		return false
 	}
 
-	p := func(x SemiDeterminedTypeGroup, y Type) bool {
+	/* p := func(x SemiDeterminedTypeGroup, y Type) bool {
 		for _, t := range x.Types {
 			if PrimativeTypeEq(t, y) {
 				return true
@@ -99,14 +99,18 @@ func PrimativeTypeEq(a, b Type) bool {
 		}
 
 		return false
-	}
+	} */
 
-	if s, ok := a.(SemiDeterminedTypeGroup); ok && p(s, b) {
-		return true
-	} else if s, ok := b.(SemiDeterminedTypeGroup); ok && p(s, a) {
-		return true
+	/* 	if s, ok := a.(SemiDeterminedTypeGroup); ok && p(s, b) {
+	   		return true
+	   	} else if s, ok := b.(SemiDeterminedTypeGroup); ok && p(s, a) {
+	   		return true
+	   	} */
+	if _, ok := a.(SemiDeterminedTypeGroup); ok {
+		return false
+	} else if _, ok := b.(SemiDeterminedTypeGroup); ok {
+		return false
 	}
-
 	if a.Kind() != b.Kind() {
 		return false
 	}

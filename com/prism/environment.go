@@ -57,6 +57,8 @@ func NewEnvironment() *Environment {
 	env.DyadicFunctions[GEPSpecial.Name] = &GEPSpecial
 	env.DyadicFunctions[AppendSpecial.Name] = &AppendSpecial
 	env.DyadicFunctions[AddSpecial.Name] = &AddSpecial
+	env.DyadicFunctions[SubSpecial.Name] = &SubSpecial
+	env.DyadicFunctions[MulSpecial.Name] = &MulSpecial
 	return &env
 }
 

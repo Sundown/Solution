@@ -1,7 +1,7 @@
 package prism
 
 func PredicateSemiDeterminedType(t Type) bool {
-	if t.Kind() == TypeKindSemiDetermined {
+	if t.Kind() == TypeKindSemiDetermined || t.Kind() == TypeKindSemiDeterminedGroup {
 		return true
 	}
 
@@ -44,13 +44,12 @@ func DeriveSemiDeterminedType(a, b Type) Type {
 		}
 	}
 
-	switch a.Kind() {
-	case TypeKindAtomic:
-		return nil
-	case TypeKindVector:
+	switch a.(type) {
+	case AtomicType:
+		return a
+	case VectorType:
 		return DeriveSemiDeterminedType(a.(VectorType).Type, b.(VectorType).Type)
-	case TypeKindStruct:
-		// TODO
+
 	}
 
 	return nil

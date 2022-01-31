@@ -3,7 +3,6 @@ package apotheosis
 import (
 	"sundown/solution/prism"
 
-	"github.com/alecthomas/repr"
 	"github.com/llir/llvm/ir/value"
 )
 
@@ -28,7 +27,6 @@ func (env *Environment) CompileExpression(expr *prism.Expression) value.Value {
 			return env.CurrentFunction.Params[1]
 		}
 	default:
-		repr.Println(expr)
 		panic("unreachable")
 	}
 }
@@ -40,10 +38,6 @@ func (env *Environment) CompileFunction(f *prism.Function) value.Value {
 		return dfn
 	}
 
-	/* switch (*f).Ident {
-	case "Println":
-
-	} */
 	panic("Not found")
 }
 
@@ -75,6 +69,12 @@ func (env *Environment) GetSpecialDCallable(ident *prism.Ident) DCallable {
 	switch ident.Name {
 	case "GEP":
 		return env.CompileInlineIndex
+	case "+":
+		return env.CompileInlineAdd
+	case "-":
+		return env.CompileInlineSub
+	case "*":
+		return env.CompileInlineMul
 	default:
 		panic("unreachable")
 	}
@@ -125,20 +125,28 @@ func (env *Environment) CompileDApplication(app *prism.DApplication) value.Value
 	switch app.Operator.Ident().Name {
 	case "+":
 		return env.CompileInlineAdd(
-			Value{env.CompileExpression(&app.Left), app.Left.Type()},
-			Value{env.CompileExpression(&app.Right), app.Right.Type()})
+			Value{env.CompileExpression(&app.Left), app.Operator.AlphaType}, // TODO these types are hacks
+			Value{env.CompileExpression(&app.Right), app.Operator.OmegaType})
+	case "-":
+		return env.CompileInlineSub(
+			Value{env.CompileExpression(&app.Left), app.Operator.AlphaType},
+			Value{env.CompileExpression(&app.Right), app.Operator.OmegaType})
+	case "*":
+		return env.CompileInlineMul(
+			Value{env.CompileExpression(&app.Left), app.Operator.AlphaType},
+			Value{env.CompileExpression(&app.Right), app.Operator.OmegaType})
 	case "GEP":
 		return env.CompileInlineIndex(
-			Value{env.CompileExpression(&app.Left), app.Left.Type()},
-			Value{env.CompileExpression(&app.Right), app.Right.Type()})
+			Value{env.CompileExpression(&app.Left), app.Operator.AlphaType},
+			Value{env.CompileExpression(&app.Right), app.Operator.OmegaType})
 	case "Append":
 		return env.CompileInlineAppend(
-			Value{env.CompileExpression(&app.Left), app.Left.Type()},
-			Value{env.CompileExpression(&app.Right), app.Right.Type()})
+			Value{env.CompileExpression(&app.Left), app.Operator.AlphaType},
+			Value{env.CompileExpression(&app.Right), app.Operator.OmegaType})
 	case "Equals":
 		return env.CompileInlineEqual(
-			Value{env.CompileExpression(&app.Left), app.Left.Type()},
-			Value{env.CompileExpression(&app.Right), app.Right.Type()})
+			Value{env.CompileExpression(&app.Left), app.Operator.AlphaType},
+			Value{env.CompileExpression(&app.Right), app.Operator.OmegaType})
 	default:
 		call := env.Block.NewCall(
 			env.LLDyadicFunctions[app.Operator.LLVMise()],

@@ -21,14 +21,22 @@ func (env *Environment) CompileInlineFoldl(fn prism.Expression, vec Value) value
 	env.Block.NewBr(loopblock)
 	env.Block = loopblock
 
-	loopblock.NewStore(
-		loopblock.NewCall(
-			env.CompileExpression(&fn),
+	loopblock.NewStore(env.Apply(&fn,
+		Value{
 			loopblock.NewLoad(lltyp, accum),
-			env.UnsafeReadVectorElement(
-				vec,
-				loopblock.NewLoad(types.I32, counter))),
-		accum)
+			vec.Type.(prism.VectorType).Type},
+		Value{
+			env.UnsafeReadVectorElement(vec, loopblock.NewLoad(types.I32, counter)),
+			vec.Type.(prism.VectorType).Type}), accum)
+
+	/* loopblock.NewStore(
+	loopblock.NewCall(
+		env.CompileExpression(&fn),
+		loopblock.NewLoad(lltyp, accum),
+		env.UnsafeReadVectorElement(
+			vec,
+			loopblock.NewLoad(types.I32, counter))),
+	accum) */
 
 	cond := loopblock.NewICmp(
 		enum.IPredSLT,
