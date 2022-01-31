@@ -1,10 +1,5 @@
-@Package jan
+@Package jan;
 
-Δ Int add Int → Int:
-	$prn Map 1 2;
-	Return 1;
-∇
-
-Δ prn Int → Void:
-	Print ω;
+Δ Int add Int → Void:
+	Println 2 + 4 * 4;
 ∇
