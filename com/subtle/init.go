@@ -84,21 +84,27 @@ func (env Environment) AnalyseMBody(f *prism.MonadicFunction) {
 
 	env.CurrentFunctionIR = *f
 
-	for _, expr := range *f.PreBody {
-		f.Body = append(f.Body, env.AnalyseExpression(&expr))
+	if len(f.Body) == 0 {
+		for _, expr := range *f.PreBody {
+			f.Body = append(f.Body, env.AnalyseExpression(&expr))
+		}
 	}
 }
 
 func (env Environment) AnalyseExpression(e *palisade.Expression) prism.Expression {
 	if e.Monadic != nil {
 		if e.Monadic.Expression.Monadic != nil {
-			if *e.Monadic.Expression.Monadic.Verb.Ident == "/" {
+			if e.Monadic.Expression.Monadic.Verb != nil &&
+				(*e.Monadic.Expression.Monadic.Verb.Ident == "/" || *e.Monadic.Expression.Monadic.Verb.Ident == "Map") {
 				return env.AnalyseDyadicOperator(e.Monadic)
 			}
 		}
 
 		return env.AnalyseMonadic(e.Monadic)
 	} else if e.Dyadic != nil {
+		if e.Dyadic.Expression == nil {
+			return env.AnalysePartial(e.Dyadic)
+		}
 		return env.AnalyseDyadic(e.Dyadic)
 	} else if e.Morphemes != nil {
 		return env.AnalyseMorphemes(e.Morphemes)
@@ -115,105 +121,4 @@ func (env Environment) FetchVerb(v *palisade.Ident) prism.Expression {
 	}
 
 	panic("Verb " + *v.Ident + " not found")
-}
-
-func (env Environment) AnalyseMorphemes(ms *palisade.Morpheme) prism.Expression {
-	mor := env.AnalyseMorpheme(ms)
-	if vec, ok := mor.(prism.Vector); ok {
-		if len(*vec.Body) == 1 {
-			return (*vec.Body)[0]
-		}
-	}
-
-	return mor
-}
-
-func (env Environment) AnalyseMorpheme(m *palisade.Morpheme) prism.Expression {
-	switch {
-	case m.Char != nil:
-		vec := make([]prism.Expression, len(*m.Char))
-		for i, c := range *m.Char {
-			vec[i] = prism.Char{Value: string(c[0])}
-		}
-
-		return prism.Vector{
-			ElementType: prism.VectorType{Type: prism.CharType},
-			Body:        &vec,
-		}
-	case m.Int != nil:
-		vec := make([]prism.Expression, len(*m.Int))
-		for i, c := range *m.Int {
-			vec[i] = prism.Int{Value: c}
-		}
-
-		return prism.Vector{
-			ElementType: prism.VectorType{Type: prism.IntType},
-			Body:        &vec,
-		}
-	case m.Real != nil:
-		vec := make([]prism.Expression, len(*m.Real))
-		for i, c := range *m.Real {
-			vec[i] = prism.Real{Value: c}
-		}
-
-		return prism.Vector{
-			ElementType: prism.VectorType{Type: prism.RealType},
-			Body:        &vec,
-		}
-	case m.String != nil:
-		vec := make([]prism.Expression, len(*m.String))
-		for i, c := range *m.String {
-			vec[i] = prism.String{Value: c}
-		}
-
-		return prism.Vector{
-			ElementType: prism.VectorType{Type: prism.StringType},
-			Body:        &vec,
-		}
-	case m.Subexpr != nil:
-		vec := make([]prism.Expression, len(*m.Subexpr))
-		var typ prism.Type
-		for i, c := range *m.Subexpr {
-			vec[i] = env.AnalyseExpression(&c)
-			if i == 0 {
-				typ = vec[i].Type()
-			} else {
-				if typ != vec[i].Type() {
-					panic("Type mismatch")
-				}
-			}
-		}
-		return prism.Vector{
-			ElementType: prism.VectorType{Type: typ},
-			Body:        &vec,
-		}
-	case m.Alpha != nil:
-		if len(*m.Alpha) == 1 {
-			if f, ok := env.CurrentFunctionIR.(prism.DyadicFunction); ok {
-				return prism.Alpha{
-					TypeOf: f.AlphaType,
-				}
-			}
-		}
-
-		panic("Unreachable")
-
-	case m.Omega != nil:
-		if len(*m.Omega) == 1 {
-			if f, ok := env.CurrentFunctionIR.(prism.DyadicFunction); ok {
-				return prism.Omega{
-					TypeOf: f.OmegaType,
-				}
-			} else if f, ok := env.CurrentFunctionIR.(prism.MonadicFunction); ok {
-				return prism.Omega{
-					TypeOf: f.OmegaType,
-				}
-			}
-		} else {
-			panic("Unreachable")
-
-		}
-	}
-
-	panic("Other types not implemented")
 }

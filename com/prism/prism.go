@@ -72,10 +72,11 @@ type DyadicOperator struct {
 	Operator int
 	Left     Expression
 	Right    Expression
+	Returns  Type
 }
 
 func (do DyadicOperator) Type() Type {
-	return do.Left.Type()
+	return do.Returns
 }
 
 func (do DyadicOperator) String() string {

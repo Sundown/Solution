@@ -7,7 +7,8 @@ type Expression struct {
 }
 
 type Monadic struct {
-	Verb       *Ident      `@@`
+	Subexpr    *Expression `(("(" @@ ")")`
+	Verb       *Ident      `| @@)`
 	Expression *Expression `@@`
 }
 
@@ -15,15 +16,14 @@ type Dyadic struct {
 	Monadic    *Monadic    `( @@`
 	Morphemes  *Morpheme   `| @@ )`
 	Verb       *Ident      `@@`
-	Expression *Expression `@@` //`@@?` // possibly broken, leave for now
+	Expression *Expression `@@?` //`@@?` // possibly broken, leave for now
 }
 
 type Morpheme struct {
-	Char    *[]string     `@Char+`
-	Alpha   *[]string     `| @Alpha+`
-	Omega   *[]string     `| @Omega+`
-	Real    *[]float64    `| @('-'? Float)+`
-	Int     *[]int64      `| @('-'? Int)+`
-	String  *[]string     `| @String+`
-	Subexpr *[]Expression `| ("(" @@ ")")+`
+	Char   *[]string  `@Char+`
+	Alpha  *[]string  `| @Alpha+`
+	Omega  *[]string  `| @Omega+`
+	Real   *[]float64 `| @('-'? Float)+`
+	Int    *[]int64   `| @('-'? Int)+`
+	String *[]string  `| @String+`
 }
