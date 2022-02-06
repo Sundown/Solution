@@ -1,47 +1,57 @@
 package subtle
 
 import (
-	"fmt"
 	"sundown/solution/palisade"
 	"sundown/solution/prism"
 )
 
 func (env Environment) AnalyseDyadic(d *palisade.Dyadic) prism.DApplication {
 	op := env.FetchVerb(d.Verb)
-	if _, ok := op.(prism.DyadicFunction); !ok {
+	fn, ok := op.(prism.DyadicFunction)
+
+	if !ok {
 		panic("Verb is not a dyadic function")
 	}
+
 	var left prism.Expression
 	if d.Monadic != nil {
 		left = env.AnalyseMonadic(d.Monadic)
 	} else if d.Morphemes != nil {
 		left = env.AnalyseMorphemes(d.Morphemes)
-	} else {
-		panic("Dyadic expression has no left operand")
 	}
 
 	right := env.AnalyseExpression(d.Expression)
 
-	fn := op.(prism.DyadicFunction)
-
-	tmp := right.Type()
-	resolved_right, err := prism.Delegate(&fn.OmegaType, &tmp)
-	if err != nil {
-		fmt.Println(tmp.String())
-		prism.Panic(*err)
-	}
-	tmp = left.Type()
-	resolved_left, err := prism.Delegate(&fn.AlphaType, &tmp)
-	if err != nil {
-		prism.Panic(*err)
+	if !prism.PureMatch(right.Type(), fn.OmegaType) {
+		if !prism.QueryCast(right.Type(), fn.OmegaType) {
+			tmp := right.Type()
+			_, err := prism.Delegate(&fn.OmegaType, &tmp)
+			if err != nil {
+				prism.Panic(*err)
+			}
+		} else {
+			right = prism.DelegateCast(right, fn.OmegaType)
+		}
 	}
 
-	if _, err := prism.Delegate(resolved_left, resolved_right); err != nil {
+	if !prism.PureMatch(left.Type(), fn.AlphaType) {
+		if !prism.QueryCast(left.Type(), fn.AlphaType) {
+			tmp := left.Type()
+			_, err := prism.Delegate(&fn.AlphaType, &tmp)
+			if err != nil {
+				prism.Panic(*err)
+			}
+		} else {
+			left = prism.DelegateCast(left, fn.AlphaType)
+		}
+	}
+
+	if _, err := prism.Delegate(&fn.AlphaType, &fn.OmegaType); err != nil {
 		prism.Panic(*err)
 	}
 
 	if prism.PredicateGenericType(fn.Returns) {
-		fn.Returns = prism.IntegrateGenericType(*resolved_left, fn.Returns)
+		fn.Returns = prism.IntegrateGenericType(fn.AlphaType, fn.Returns)
 	}
 
 	if fn.Name.Package == "_" && fn.Name.Name == "Return" {

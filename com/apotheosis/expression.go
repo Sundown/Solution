@@ -26,6 +26,8 @@ func (env *Environment) CompileExpression(expr *prism.Expression) value.Value {
 		} else {
 			return env.CurrentFunction.Params[1]
 		}
+	case prism.Cast:
+		return env.CompileCast(t)
 	default:
 		panic("unreachable")
 	}

@@ -1,7 +1,20 @@
 package prism
 
+func PureMatch(a, b Type) bool {
+	switch a.(type) {
+	case AtomicType:
+		return a.Kind() == b.Kind()
+	case VectorType:
+		if v, ok := b.(VectorType); ok {
+			return a.(VectorType).Type.Kind() == v.Type.Kind()
+		}
+	}
+
+	return false
+}
+
 /* This is perfect in every single way */
-func Delegate(mould, cast *Type) (determined *Type, failure *string) {
+func Delegate(mould, cast *Type) (determined Type, failure *string) {
 	if mould == nil {
 		return nil, Ref("mould is nil")
 	} else if cast == nil {
@@ -21,7 +34,7 @@ func Delegate(mould, cast *Type) (determined *Type, failure *string) {
 		if mt, ok := (*cast).(AtomicType); ok {
 			if (*mould).(AtomicType).ID == mt.ID {
 				temp := Type(mt)
-				return &temp, nil // Success; matched atomic types together
+				return temp, nil // Success; matched atomic types together
 			} else {
 				return nil, Ref("Atomic type mismatch")
 			}
@@ -47,7 +60,7 @@ func Delegate(mould, cast *Type) (determined *Type, failure *string) {
 	// T has been matched with a determined type directly
 	if _, tp := (*mould).(GenericType); tp {
 		*mould = *cast
-		return cast, nil
+		return *cast, nil
 	}
 
 	if group, tgp := (*mould).(SumType); tgp {

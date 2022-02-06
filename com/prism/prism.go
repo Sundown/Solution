@@ -77,6 +77,16 @@ type Expression interface {
 	String() string
 }
 
+type Void struct{}
+
+func (Void) Type() Type {
+	return VoidType
+}
+
+func (Void) String() string {
+	return "Void"
+}
+
 type DyadicOperator struct {
 	Operator int
 	Left     Expression
@@ -94,6 +104,19 @@ func (do DyadicOperator) String() string {
 
 type Morpheme interface {
 	_atomicflag()
+}
+
+type Cast struct {
+	Value  Expression
+	ToType Type
+}
+
+func (c Cast) Type() Type {
+	return c.ToType
+}
+
+func (c Cast) String() string {
+	return "<" + c.ToType.String() + ">" + c.Value.String()
 }
 
 type DyadicFunction struct {

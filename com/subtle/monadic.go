@@ -28,7 +28,7 @@ func (env Environment) AnalysePartialMonadic(m *palisade.Monadic) (app prism.MAp
 	}
 
 	if prism.PredicateGenericType(app.Operator.Returns) {
-		app.Operator.Returns = prism.IntegrateGenericType(*resolved_right, app.Operator.Returns)
+		app.Operator.Returns = prism.IntegrateGenericType(resolved_right, app.Operator.Returns)
 	}
 
 	return app
@@ -50,7 +50,7 @@ func (env Environment) AnalyseStandardMonadic(m *palisade.Monadic) (app prism.MA
 	}
 
 	if prism.PredicateGenericType(fn.Returns) {
-		fn.Returns = prism.IntegrateGenericType(*resolved_right, fn.Returns)
+		fn.Returns = prism.IntegrateGenericType(resolved_right, fn.Returns)
 	}
 
 	if fn.Name.Package == "_" && fn.Name.Name == "Return" {

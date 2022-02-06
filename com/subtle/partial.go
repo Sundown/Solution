@@ -30,13 +30,13 @@ func (env Environment) AnalysePartial(d *palisade.Dyadic) prism.MonadicFunction 
 	}
 
 	if prism.PredicateGenericType(fn.Returns) {
-		fn.Returns = prism.IntegrateGenericType(*resolved_left, fn.Returns)
+		fn.Returns = prism.IntegrateGenericType(resolved_left, fn.Returns)
 	}
 
 	var takes prism.Type
 	if pred {
-		takes = prism.IntegrateGenericType(*resolved_left, fn.OmegaType)
-		fn.OmegaType = prism.IntegrateGenericType(*resolved_left, fn.OmegaType)
+		takes = prism.IntegrateGenericType(resolved_left, fn.OmegaType)
+		fn.OmegaType = prism.IntegrateGenericType(resolved_left, fn.OmegaType)
 	}
 
 	dapp := prism.DApplication{

@@ -47,11 +47,46 @@ func (env Environment) AnalyseDyadicOperator(d *palisade.Monadic) prism.DyadicOp
 
 		fmt.Println(dop.Type())
 	case "/":
-		if _, ok := lexpr.(prism.Function); !ok {
+		if _, ok := lexpr.(prism.DyadicFunction); !ok {
 			panic("Left operand is not a function")
 		}
 		if _, ok := rexpr.Type().(prism.VectorType); !ok {
 			panic("Right operand is not a vector")
+		}
+
+		elmtype := rexpr.Type().(prism.VectorType).Type
+		fn := lexpr.(prism.DyadicFunction)
+
+		if !prism.PureMatch(elmtype, fn.OmegaType) {
+			if !prism.QueryCast(elmtype, fn.OmegaType) {
+				tmp := elmtype
+				_, err := prism.Delegate(&fn.OmegaType, &tmp)
+				if err != nil {
+					prism.Panic(*err)
+				}
+			} else {
+				rexpr = prism.DelegateCast(rexpr, prism.VectorType{Type: fn.OmegaType})
+			}
+		}
+
+		if !prism.PureMatch(elmtype, fn.AlphaType) {
+			if !prism.QueryCast(elmtype, fn.AlphaType) {
+				tmp := elmtype
+				_, err := prism.Delegate(&fn.AlphaType, &tmp)
+				if err != nil {
+					prism.Panic(*err)
+				}
+			} else {
+				rexpr = prism.DelegateCast(rexpr, prism.VectorType{Type: fn.AlphaType})
+			}
+		}
+
+		if _, err := prism.Delegate(&fn.AlphaType, &fn.OmegaType); err != nil {
+			prism.Panic(*err)
+		}
+
+		if prism.PredicateGenericType(fn.Returns) {
+			fn.Returns = prism.IntegrateGenericType(fn.AlphaType, fn.Returns)
 		}
 
 		dop = prism.DyadicOperator{
