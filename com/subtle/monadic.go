@@ -27,8 +27,8 @@ func (env Environment) AnalysePartialMonadic(m *palisade.Monadic) (app prism.MAp
 		prism.Panic(*err)
 	}
 
-	if prism.PredicateSemiDeterminedType(app.Operator.Returns) {
-		app.Operator.Returns = prism.IntegrateSemiDeterminedType(*resolved_right, app.Operator.Returns)
+	if prism.PredicateGenericType(app.Operator.Returns) {
+		app.Operator.Returns = prism.IntegrateGenericType(*resolved_right, app.Operator.Returns)
 	}
 
 	return app
@@ -49,13 +49,13 @@ func (env Environment) AnalyseStandardMonadic(m *palisade.Monadic) (app prism.MA
 		prism.Panic(*err)
 	}
 
-	if prism.PredicateSemiDeterminedType(fn.Returns) {
-		fn.Returns = prism.IntegrateSemiDeterminedType(*resolved_right, fn.Returns)
+	if prism.PredicateGenericType(fn.Returns) {
+		fn.Returns = prism.IntegrateGenericType(*resolved_right, fn.Returns)
 	}
 
 	if fn.Name.Package == "_" && fn.Name.Name == "Return" {
 		if !prism.PrimativeTypeEq(env.CurrentFunctionIR.Type(), fn.Returns) {
-			if !prism.PredicateSemiDeterminedType(env.CurrentFunctionIR.Type()) {
+			if !prism.PredicateGenericType(env.CurrentFunctionIR.Type()) {
 				panic("Return recieves " + fn.Returns.String() + " which does not match determined-function's type " + env.CurrentFunctionIR.Type().String())
 			} else {
 				panic("Not implemented, pain")

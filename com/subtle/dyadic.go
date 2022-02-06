@@ -40,13 +40,13 @@ func (env Environment) AnalyseDyadic(d *palisade.Dyadic) prism.DApplication {
 		prism.Panic(*err)
 	}
 
-	if prism.PredicateSemiDeterminedType(fn.Returns) {
-		fn.Returns = prism.IntegrateSemiDeterminedType(*resolved_left, fn.Returns)
+	if prism.PredicateGenericType(fn.Returns) {
+		fn.Returns = prism.IntegrateGenericType(*resolved_left, fn.Returns)
 	}
 
 	if fn.Name.Package == "_" && fn.Name.Name == "Return" {
 		if !prism.PrimativeTypeEq(env.CurrentFunctionIR.Type(), fn.Returns) {
-			if !prism.PredicateSemiDeterminedType(env.CurrentFunctionIR.Type()) {
+			if !prism.PredicateGenericType(env.CurrentFunctionIR.Type()) {
 				panic("Return recieves type which does not match determined-function's type")
 			} else {
 				panic("Not implemented, pain")

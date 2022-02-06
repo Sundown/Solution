@@ -1,6 +1,7 @@
 package subtle
 
 import (
+	"fmt"
 	"sundown/solution/palisade"
 	"sundown/solution/prism"
 )
@@ -27,14 +28,14 @@ func (env Environment) AnalyseDyadicOperator(d *palisade.Monadic) prism.DyadicOp
 		if _, ok := lexpr.(prism.Function); !ok {
 			panic("Left operand is not a function")
 		}
-		if _, ok := rexpr.(prism.Vector); !ok {
+		if _, ok := rexpr.Type().(prism.VectorType); !ok {
 			panic("Right operand is not a vector")
 		}
 
 		dop = prism.DyadicOperator{
 			Operator: prism.KindMapOperator,
 			Left:     lexpr.(prism.MonadicFunction),
-			Right:    rexpr.(prism.Vector),
+			Right:    rexpr,
 			Returns:  rexpr.Type(), // TODO incorrect, actually [left.type()] but needs algebraic handling
 		}
 		tmp := dop.Left.(prism.MonadicFunction).OmegaType
@@ -43,6 +44,8 @@ func (env Environment) AnalyseDyadicOperator(d *palisade.Monadic) prism.DyadicOp
 		if err != nil {
 			panic(*err)
 		}
+
+		fmt.Println(dop.Type())
 	case "/":
 		if _, ok := lexpr.(prism.Function); !ok {
 			panic("Left operand is not a function")

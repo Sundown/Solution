@@ -41,33 +41,33 @@ type StructType struct {
 	FieldTypes []Type
 }
 
-func (s SemiDeterminedType) Kind() int {
+func (s GenericType) Kind() int {
 	return TypeKindSemiDetermined
 }
 
-func (s SemiDeterminedTypeGroup) Kind() int {
+func (s SumType) Kind() int {
 	return TypeKindSemiDeterminedGroup
 }
 
-func (s SemiDeterminedTypeGroup) Width() int64 {
+func (s SumType) Width() int64 {
 	panic("Impossible")
 }
 
-func (s SemiDeterminedType) Width() int64 {
+func (s GenericType) Width() int64 {
 	panic("Impossible")
 }
 
-func (s SemiDeterminedType) Realise() types.Type {
+func (s GenericType) Realise() types.Type {
 	panic("Impossible")
 }
 
-type SemiDeterminedType struct{}
+type GenericType struct{}
 
-func (s SemiDeterminedType) String() string {
+func (s GenericType) String() string {
 	return "T"
 }
 
-func (s SemiDeterminedTypeGroup) String() (res string) {
+func (s SumType) String() (res string) {
 	for i, t := range s.Types {
 		if i > 0 {
 			res += " | "
@@ -78,11 +78,11 @@ func (s SemiDeterminedTypeGroup) String() (res string) {
 	return
 }
 
-func (s SemiDeterminedTypeGroup) Realise() types.Type {
+func (s SumType) Realise() types.Type {
 	panic("Impossible")
 }
 
-type SemiDeterminedTypeGroup struct {
+type SumType struct {
 	Types []Type
 }
 
@@ -91,7 +91,7 @@ func PrimativeTypeEq(a, b Type) bool {
 		return false
 	}
 
-	/* p := func(x SemiDeterminedTypeGroup, y Type) bool {
+	/* p := func(x SumType, y Type) bool {
 		for _, t := range x.Types {
 			if PrimativeTypeEq(t, y) {
 				return true
@@ -101,14 +101,14 @@ func PrimativeTypeEq(a, b Type) bool {
 		return false
 	} */
 
-	/* 	if s, ok := a.(SemiDeterminedTypeGroup); ok && p(s, b) {
+	/* 	if s, ok := a.(SumType); ok && p(s, b) {
 	   		return true
-	   	} else if s, ok := b.(SemiDeterminedTypeGroup); ok && p(s, a) {
+	   	} else if s, ok := b.(SumType); ok && p(s, a) {
 	   		return true
 	   	} */
-	if _, ok := a.(SemiDeterminedTypeGroup); ok {
+	if _, ok := a.(SumType); ok {
 		return false
-	} else if _, ok := b.(SemiDeterminedTypeGroup); ok {
+	} else if _, ok := b.(SumType); ok {
 		return false
 	}
 	if a.Kind() != b.Kind() {

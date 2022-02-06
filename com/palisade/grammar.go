@@ -16,7 +16,7 @@ type Dyadic struct {
 	Monadic    *Monadic    `( @@`
 	Morphemes  *Morpheme   `| @@ )`
 	Verb       *Ident      `@@`
-	Expression *Expression `@@?` //`@@?` // possibly broken, leave for now
+	Expression *Expression `@@?`
 }
 
 type Morpheme struct {

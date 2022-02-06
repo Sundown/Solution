@@ -59,6 +59,7 @@ func NewEnvironment() *Environment {
 	env.DyadicFunctions[AddSpecial.Name] = &AddSpecial
 	env.DyadicFunctions[SubSpecial.Name] = &SubSpecial
 	env.DyadicFunctions[MulSpecial.Name] = &MulSpecial
+	env.DyadicFunctions[DivSpecial.Name] = &DivSpecial
 	return &env
 }
 

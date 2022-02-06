@@ -1,19 +1,19 @@
 package prism
 
-func PredicateSemiDeterminedType(t Type) bool {
+func PredicateGenericType(t Type) bool {
 	if t.Kind() == TypeKindSemiDetermined || t.Kind() == TypeKindSemiDeterminedGroup {
 		return true
 	}
 
 	if t.Kind() == TypeKindVector {
-		return PredicateSemiDeterminedType(t.(VectorType).Type)
+		return PredicateGenericType(t.(VectorType).Type)
 	}
 
 	// TODO probably more cases
 	return false
 }
 
-func DeriveSemiDeterminedType(a, b Type) Type {
+func DeriveGenericType(a, b Type) Type {
 	if a.Kind() == TypeKindSemiDetermined && b.Kind() == TypeKindSemiDetermined {
 		panic("Impossible to derive T from T and T, must provide fully substantiated type")
 	}
@@ -27,8 +27,8 @@ func DeriveSemiDeterminedType(a, b Type) Type {
 	}
 
 	if a.Kind() == TypeKindSemiDeterminedGroup {
-		for _, t := range a.(SemiDeterminedTypeGroup).Types {
-			if c := DeriveSemiDeterminedType(t, b); c != nil {
+		for _, t := range a.(SumType).Types {
+			if c := DeriveGenericType(t, b); c != nil {
 				// c is t and b, guess this is tidy or something
 				return c
 			}
@@ -36,8 +36,8 @@ func DeriveSemiDeterminedType(a, b Type) Type {
 	}
 
 	if b.Kind() == TypeKindSemiDeterminedGroup {
-		for _, t := range b.(SemiDeterminedTypeGroup).Types {
-			if c := DeriveSemiDeterminedType(t, b); c != nil {
+		for _, t := range b.(SumType).Types {
+			if c := DeriveGenericType(t, b); c != nil {
 				// c is t and a, guess this is tidy or something
 				return c
 			}
@@ -48,21 +48,21 @@ func DeriveSemiDeterminedType(a, b Type) Type {
 	case AtomicType:
 		return a
 	case VectorType:
-		return DeriveSemiDeterminedType(a.(VectorType).Type, b.(VectorType).Type)
+		return DeriveGenericType(a.(VectorType).Type, b.(VectorType).Type)
 
 	}
 
 	return nil
 }
 
-func IntegrateSemiDeterminedType(derived Type, semidet Type) Type {
+func IntegrateGenericType(derived Type, semidet Type) Type {
 	if semidet.Kind() == TypeKindSemiDetermined {
 		return derived
 	}
 
 	if semidet.Kind() == TypeKindSemiDeterminedGroup {
-		for _, t := range semidet.(SemiDeterminedTypeGroup).Types {
-			if c := DeriveSemiDeterminedType(derived, t); c != nil {
+		for _, t := range semidet.(SumType).Types {
+			if c := DeriveGenericType(derived, t); c != nil {
 				// c is t and b, guess this is tidy or something
 				return c
 			}
@@ -73,7 +73,7 @@ func IntegrateSemiDeterminedType(derived Type, semidet Type) Type {
 	case TypeKindAtomic:
 		panic("????? what why")
 	case TypeKindVector:
-		return VectorType{IntegrateSemiDeterminedType(derived, semidet.(VectorType).Type)}
+		return VectorType{IntegrateGenericType(derived, semidet.(VectorType).Type)}
 	case TypeKindStruct:
 		// TODO
 	}

@@ -47,3 +47,17 @@ func (env *Environment) CompileInlineMul(alpha, omega Value) value.Value {
 
 	panic("unreachable")
 }
+
+func (env *Environment) CompileInlineDiv(alpha, omega Value) value.Value {
+	switch alpha.Type.Kind() {
+
+	case prism.RealType.ID:
+		return env.Block.NewFDiv(alpha.Value, omega.Value)
+	case prism.IntType.ID:
+		return env.Block.NewFDiv(alpha.Value, omega.Value)
+	case prism.CharType.ID:
+		return env.Block.NewSDiv(alpha.Value, omega.Value)
+	}
+
+	panic("unreachable")
+}

@@ -8,10 +8,10 @@ func Delegate(mould, cast *Type) (determined *Type, failure *string) {
 		return nil, Ref("cast is nil")
 	}
 
-	if _, sd := (*cast).(SemiDeterminedType); sd {
+	if _, sd := (*cast).(GenericType); sd {
 		return nil, Ref("Cast is T: " + (*cast).String())
 	}
-	if _, sdg := (*cast).(SemiDeterminedTypeGroup); sdg {
+	if _, sdg := (*cast).(SumType); sdg {
 		return nil, Ref("Cast is algebraic group: " + (*cast).String())
 	}
 
@@ -45,12 +45,12 @@ func Delegate(mould, cast *Type) (determined *Type, failure *string) {
 
 	// Second
 	// T has been matched with a determined type directly
-	if _, tp := (*mould).(SemiDeterminedType); tp {
+	if _, tp := (*mould).(GenericType); tp {
 		*mould = *cast
 		return cast, nil
 	}
 
-	if group, tgp := (*mould).(SemiDeterminedTypeGroup); tgp {
+	if group, tgp := (*mould).(SumType); tgp {
 		for _, elm := range group.Types {
 			typ, fail := Delegate(&elm, cast)
 

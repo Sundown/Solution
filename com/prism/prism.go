@@ -37,9 +37,18 @@ type Ident struct {
 
 type Function interface {
 	LLVMise() string
+	IsSpecial() bool
 	Type() Type
 	Ident() Ident
 	String() string
+}
+
+func (d DyadicFunction) IsSpecial() bool {
+	return d.Special
+}
+
+func (d MonadicFunction) IsSpecial() bool {
+	return d.Special
 }
 
 func (d DyadicFunction) Ident() Ident {

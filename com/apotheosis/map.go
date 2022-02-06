@@ -71,11 +71,10 @@ func (env *Environment) CompileInlineMap(fn prism.Expression, vec Value) value.V
 		cur_elm = loopblock.NewLoad(elm_type, cur_elm)
 	}
 
-	var call value.Value
-
-	call = loopblock.NewCall(
-		env.CompileExpression(&fn),
-		cur_elm)
+	call := env.Apply(&fn,
+		Value{
+			cur_elm,
+			vec.Type.(prism.VectorType).Type})
 
 	if should_store {
 		loopblock.NewStore(

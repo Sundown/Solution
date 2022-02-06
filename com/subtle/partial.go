@@ -21,7 +21,7 @@ func (env Environment) AnalysePartial(d *palisade.Dyadic) prism.MonadicFunction 
 
 	fn := op.(prism.DyadicFunction)
 
-	pred := prism.PredicateSemiDeterminedType(fn.AlphaType)
+	pred := prism.PredicateGenericType(fn.AlphaType)
 
 	tmp := left.Type()
 	resolved_left, err := prism.Delegate(&fn.AlphaType, &tmp)
@@ -29,14 +29,14 @@ func (env Environment) AnalysePartial(d *palisade.Dyadic) prism.MonadicFunction 
 		prism.Panic(*err)
 	}
 
-	if prism.PredicateSemiDeterminedType(fn.Returns) {
-		fn.Returns = prism.IntegrateSemiDeterminedType(*resolved_left, fn.Returns)
+	if prism.PredicateGenericType(fn.Returns) {
+		fn.Returns = prism.IntegrateGenericType(*resolved_left, fn.Returns)
 	}
 
 	var takes prism.Type
 	if pred {
-		takes = prism.IntegrateSemiDeterminedType(*resolved_left, fn.OmegaType)
-		fn.OmegaType = prism.IntegrateSemiDeterminedType(*resolved_left, fn.OmegaType)
+		takes = prism.IntegrateGenericType(*resolved_left, fn.OmegaType)
+		fn.OmegaType = prism.IntegrateGenericType(*resolved_left, fn.OmegaType)
 	}
 
 	dapp := prism.DApplication{
