@@ -1,5 +1,6 @@
 @Package jan;
+@Entry Main;
 
-Δ Int add Int → Void:
- 	Println ÷/3 2;
+Δ Main Int → Void:
+ 	Println -2 Max 2;
 ∇

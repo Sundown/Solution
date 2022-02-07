@@ -20,6 +20,7 @@ type Environment struct {
 	Optimisation *int64
 	File         string
 	//
+	EntryFunction      MonadicFunction
 	Module             *ir.Module
 	Block              *ir.Block
 	LLDyadicFunctions  map[string]*ir.Func

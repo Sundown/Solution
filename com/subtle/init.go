@@ -20,6 +20,7 @@ func Parse(penv *prism.Environment) *prism.Environment {
 			if *d.Command == "Package" {
 				env.Output = *d.Value
 			}
+
 		}
 
 		if f := stmt.Function; f != nil {
@@ -35,6 +36,20 @@ func Parse(penv *prism.Environment) *prism.Environment {
 
 	for _, f := range env.MonadicFunctions {
 		env.AnalyseMBody(f)
+	}
+
+	// TODO fix dumb
+	for _, stmt := range env.LexResult.Environmentments {
+		if d := stmt.Directive; d != nil {
+			if *d.Command == "Entry" {
+				fn, ok := env.MonadicFunctions[prism.Ident{Package: "_", Name: *d.Value}]
+				if !ok {
+					panic("Entry function not found")
+				}
+
+				env.EntryFunction = *fn
+			}
+		}
 	}
 
 	return env.Environment

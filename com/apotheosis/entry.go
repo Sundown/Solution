@@ -74,7 +74,7 @@ func (env *Environment) CompileFunctions() *Environment {
 func (env *Environment) InitMain() *Environment {
 	env.CurrentFunction = env.Module.NewFunc("main", types.I32)
 	env.Block = env.CurrentFunction.NewBlock("entry")
-	env.Block.NewCall(env.LLDyadicFunctions["_::add_Int,Int->Void"], I64(0), I64(1))
+	env.Block.NewCall(env.LLMonadicFunctions[env.EntryFunction.LLVMise()], I64(0))
 	env.Block.NewRet(constant.NewInt(types.I32, 0))
 
 	return env
