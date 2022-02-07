@@ -20,7 +20,7 @@ func Lex(env *Environment) *Environment {
 
 	err = participle.MustBuild(
 		&palisade.PalisadeResult{},
-		participle.UseLookahead(40000), // vectors don't seem to work if this is low
+		participle.UseLookahead(40000), // vectors don't work if this is low
 		participle.Lexer(basicLexer),
 		participle.Unquote(),
 	).Parse(env.File, r, &res)
@@ -49,11 +49,11 @@ var basicLexer = stateful.MustSimple([]stateful.Rule{
 	{Name: "whitespace", Pattern: `[ \s]+`, Action: nil}, // THIS IS LOWERCASE FOR A REASON
 	{Name: "EOL", Pattern: `[\n\r]+`, Action: nil},
 	{Name: "String", Pattern: `"(\\"|[^"])*"`, Action: nil},
-	{Name: "Int", Pattern: `\d+`, Action: nil},
-	{Name: "Float", Pattern: `(\d*\.)?\d+`, Action: nil},
+	{Name: "Float", Pattern: `(\-)?(\d*\.)?\d+`, Action: nil},
+	{Name: "Int", Pattern: `(\-)?\d+`, Action: nil},
 	{Name: "Ident", Pattern: `([\w]+|[-*+/÷])`, Action: nil},
 	{Name: "Char", Pattern: `\'.\'`, Action: nil},
-	{Name: "Punct", Pattern: `[-[!@#$%^&*()+_={}\|:;"'<,>.?Δ∇→]|]`, Action: nil},
+	{Name: "Punct", Pattern: `[-[!@#$%^&*()+_=-{}\|:;"'<,>.?Δ∇→]|]`, Action: nil},
 	{Name: "Alpha", Pattern: "α", Action: nil},
 	{Name: "Omega", Pattern: "ω", Action: nil},
 })

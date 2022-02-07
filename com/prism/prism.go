@@ -95,7 +95,14 @@ type DyadicOperator struct {
 }
 
 func (do DyadicOperator) Type() Type {
-	return do.Returns
+	switch do.Operator {
+	case KindMapOperator:
+		return VectorType{do.Left.Type()}
+	case KindFoldlOperator:
+		return do.Left.Type()
+	}
+
+	panic("Need to impl type")
 }
 
 func (do DyadicOperator) String() string {

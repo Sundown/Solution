@@ -1,9 +1,10 @@
 package subtle
 
 import (
-	"fmt"
 	"sundown/solution/palisade"
 	"sundown/solution/prism"
+
+	"github.com/alecthomas/repr"
 )
 
 func (env Environment) AnalyseDyadicOperator(d *palisade.Monadic) prism.DyadicOperator {
@@ -29,23 +30,35 @@ func (env Environment) AnalyseDyadicOperator(d *palisade.Monadic) prism.DyadicOp
 			panic("Left operand is not a function")
 		}
 		if _, ok := rexpr.Type().(prism.VectorType); !ok {
+			repr.Println(rexpr)
 			panic("Right operand is not a vector")
+		}
+
+		elmtype := rexpr.Type().(prism.VectorType).Type
+		fn := lexpr.(prism.MonadicFunction)
+
+		if !prism.PureMatch(elmtype, fn.OmegaType) {
+			if !prism.QueryCast(elmtype, fn.OmegaType) {
+				tmp := elmtype
+				_, err := prism.Delegate(&fn.OmegaType, &tmp)
+				if err != nil {
+					prism.Panic(*err)
+				}
+			} else {
+				rexpr = prism.DelegateCast(rexpr, prism.VectorType{Type: fn.OmegaType})
+			}
+		}
+
+		if prism.PredicateGenericType(fn.Returns) {
+			fn.Returns = prism.IntegrateGenericType(fn.OmegaType, fn.Returns)
 		}
 
 		dop = prism.DyadicOperator{
 			Operator: prism.KindMapOperator,
-			Left:     lexpr.(prism.MonadicFunction),
+			Left:     fn,
 			Right:    rexpr,
-			Returns:  lexpr.(prism.MonadicFunction).Type(),
+			Returns:  fn.Type(),
 		}
-		tmp := dop.Left.(prism.MonadicFunction).OmegaType
-		tmp2 := dop.Right.Type().(prism.VectorType).Type
-		_, err := prism.Delegate(&tmp, &tmp2)
-		if err != nil {
-			panic(*err)
-		}
-
-		fmt.Println(dop.Type())
 	case "/":
 		if _, ok := lexpr.(prism.DyadicFunction); !ok {
 			panic("Left operand is not a function")

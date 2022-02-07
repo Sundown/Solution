@@ -60,6 +60,10 @@ func (env *Environment) GetSpecialMCallable(ident *prism.Ident) MCallable {
 		return env.ReadVectorCapacity
 	case "Sum":
 		return env.CompileInlineSum
+	case "Max":
+		return env.CompileInlineCeil
+	case "Min":
+		return env.CompileInlineFloor
 	case "Product":
 		return env.CompileInlineProduct
 	default:
@@ -122,6 +126,10 @@ func (env *Environment) CompileMApplication(app *prism.MApplication) value.Value
 		return env.CompileInlineSum(Value{env.CompileExpression(&app.Operand), app.Operand.Type()})
 	case "Product":
 		return env.CompileInlineProduct(Value{env.CompileExpression(&app.Operand), app.Operand.Type()})
+	case "Max":
+		return env.CompileInlineCeil(Value{env.CompileExpression(&app.Operand), app.Operand.Type()})
+	case "Min":
+		return env.CompileInlineFloor(Value{env.CompileExpression(&app.Operand), app.Operand.Type()})
 	default:
 		return env.Block.NewCall(
 			env.LLMonadicFunctions[app.Operator.LLVMise()],

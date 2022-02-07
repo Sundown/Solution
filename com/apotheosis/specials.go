@@ -42,6 +42,32 @@ func (env *Environment) GetExit() *ir.Func {
 	return env.Specials["exit"]
 }
 
+func (env *Environment) GetMaxDouble() *ir.Func {
+	if env.Specials["max.f64"] == nil {
+		env.Specials["max.f64"] = env.Module.NewFunc(
+			"llvm.maxnum.double",
+			types.Double,
+			ir.NewParam("", types.Double),
+			ir.NewParam("", types.Double))
+		env.Specials["max.f64"].Sig.Variadic = true
+	}
+
+	return env.Specials["max.f64"]
+}
+
+func (env *Environment) GetMinDouble() *ir.Func {
+	if env.Specials["min.f64"] == nil {
+		env.Specials["min.f64"] = env.Module.NewFunc(
+			"llvm.minnum.double",
+			types.Double,
+			ir.NewParam("", types.Double),
+			ir.NewParam("", types.Double))
+		env.Specials["min.f64"].Sig.Variadic = true
+	}
+
+	return env.Specials["min.f64"]
+}
+
 func (env *Environment) GetPrintf() *ir.Func {
 	if env.Specials["printf"] == nil {
 		env.Specials["printf"] = env.Module.NewFunc(

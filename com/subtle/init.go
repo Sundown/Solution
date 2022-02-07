@@ -113,6 +113,21 @@ func (env Environment) AnalyseExpression(e *palisade.Expression) prism.Expressio
 	panic("unreachable")
 }
 
+func (env Environment) FetchDVerb(v *palisade.Ident) prism.Expression {
+	if found, ok := env.DyadicFunctions[prism.Intern(*v)]; ok {
+		return *found
+	}
+
+	panic("Verb " + *v.Ident + " not found")
+}
+
+func (env Environment) FetchMVerb(v *palisade.Ident) prism.Expression {
+	if found, ok := env.MonadicFunctions[prism.Intern(*v)]; ok {
+		return *found
+	}
+	panic("Verb " + *v.Ident + " not found")
+}
+
 func (env Environment) FetchVerb(v *palisade.Ident) prism.Expression {
 	if found, ok := env.MonadicFunctions[prism.Intern(*v)]; ok {
 		return *found
