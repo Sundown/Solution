@@ -94,4 +94,19 @@ var (
 		OmegaType: RealType,
 		Returns:   RealType,
 	}
+
+	MaxSpecial = DyadicFunction{
+		Special:   true,
+		Name:      Ident{Package: "_", Name: "Max"},
+		AlphaType: SumType{[]Type{IntType, RealType}},
+		OmegaType: SumType{[]Type{IntType, RealType}},
+		Returns:   SumType{[]Type{IntType, RealType}},
+	}
+	MinSpecial = DyadicFunction{
+		Special:   true,
+		Name:      Ident{Package: "_", Name: "Min"},
+		AlphaType: SumType{[]Type{IntType, RealType}},
+		OmegaType: SumType{[]Type{IntType, RealType}},
+		Returns:   SumType{[]Type{IntType, RealType}},
+	}
 )

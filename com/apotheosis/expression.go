@@ -79,6 +79,10 @@ func (env *Environment) GetSpecialDCallable(ident *prism.Ident) DCallable {
 		return env.CompileInlineMul
 	case "÷":
 		return env.CompileInlineDiv
+	case "Max":
+		return env.CompileInlineMax
+	case "Min":
+		return env.CompileInlineMin
 	default:
 		panic("unreachable")
 	}
@@ -139,12 +143,18 @@ func (env *Environment) CompileDApplication(app *prism.DApplication) value.Value
 		return env.CompileInlineMul(
 			Value{env.CompileExpression(&app.Left), app.Operator.AlphaType},
 			Value{env.CompileExpression(&app.Right), app.Operator.OmegaType})
-
 	case "÷":
 		return env.CompileInlineDiv(
 			Value{env.CompileExpression(&app.Left), app.Operator.AlphaType},
 			Value{env.CompileExpression(&app.Right), app.Operator.OmegaType})
-
+	case "Max":
+		return env.CompileInlineMax(
+			Value{env.CompileExpression(&app.Left), app.Operator.AlphaType},
+			Value{env.CompileExpression(&app.Right), app.Operator.OmegaType})
+	case "Min":
+		return env.CompileInlineMin(
+			Value{env.CompileExpression(&app.Left), app.Operator.AlphaType},
+			Value{env.CompileExpression(&app.Right), app.Operator.OmegaType})
 	case "GEP":
 		return env.CompileInlineIndex(
 			Value{env.CompileExpression(&app.Left), app.Operator.AlphaType},
