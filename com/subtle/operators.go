@@ -36,7 +36,7 @@ func (env Environment) AnalyseDyadicOperator(d *palisade.Monadic) prism.DyadicOp
 			Operator: prism.KindMapOperator,
 			Left:     lexpr.(prism.MonadicFunction),
 			Right:    rexpr,
-			Returns:  rexpr.Type(), // TODO incorrect, actually [left.type()] but needs algebraic handling
+			Returns:  lexpr.(prism.MonadicFunction).Type(),
 		}
 		tmp := dop.Left.(prism.MonadicFunction).OmegaType
 		tmp2 := dop.Right.Type().(prism.VectorType).Type
@@ -93,7 +93,7 @@ func (env Environment) AnalyseDyadicOperator(d *palisade.Monadic) prism.DyadicOp
 			Operator: prism.KindFoldlOperator,
 			Left:     lexpr.(prism.DyadicFunction),
 			Right:    rexpr,
-			Returns:  rexpr.Type().(prism.VectorType).Type, // wrong source
+			Returns:  lexpr.(prism.DyadicFunction).Type(),
 		}
 	}
 

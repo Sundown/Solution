@@ -4,6 +4,7 @@ import (
 	"sundown/solution/prism"
 
 	"github.com/llir/llvm/ir/enum"
+	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
 )
 
@@ -48,6 +49,8 @@ func (env *Environment) CompileInlineMul(alpha, omega Value) value.Value {
 
 func (env *Environment) CompileInlineDiv(alpha, omega Value) value.Value {
 	switch alpha.Type.Kind() {
+	case prism.IntType.ID:
+		return env.Block.NewFDiv(env.Block.NewSIToFP(alpha.Value, types.Double), env.Block.NewSIToFP(omega.Value, types.Double))
 	case prism.RealType.ID:
 		return env.Block.NewFDiv(alpha.Value, omega.Value)
 	}
@@ -60,7 +63,7 @@ func (env *Environment) CompileInlineMax(alpha, omega Value) value.Value {
 	case prism.RealType.ID:
 		env.Block.NewFCmp(enum.FPredOGT, alpha.Value, omega.Value)
 	case prism.IntType.ID:
-		// Branchless max, very important especially in array lang like this
+		// Branchless max, very important especially in array languages
 		// a - ((a-b) & (a-b) >> 31)
 		i1 := env.Block.NewSub(alpha.Value, omega.Value)
 		return env.Block.NewSub(alpha.Value,

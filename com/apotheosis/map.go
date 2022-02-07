@@ -65,7 +65,7 @@ func (env *Environment) CompileInlineMap(fn prism.Expression, vec Value) value.V
 	// Add to accum
 	cur_counter := loopblock.NewLoad(types.I32, counter)
 
-	var cur_elm value.Value = loopblock.NewGetElementPtr(elm_type, vec_body, cur_counter)
+	cur_elm := value.Value(loopblock.NewGetElementPtr(elm_type, vec_body, cur_counter))
 
 	if _, ok := vec.Type.(prism.VectorType).Type.(prism.AtomicType); ok {
 		cur_elm = loopblock.NewLoad(elm_type, cur_elm)

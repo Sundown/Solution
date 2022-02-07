@@ -12,10 +12,17 @@ func (env *Environment) CompileInlineFoldl(fn prism.Expression, vec Value) value
 	lltyp := vec.Type.(prism.VectorType).Type.Realise()
 
 	counter := env.Block.NewAlloca(types.I32)
-	env.Block.NewStore(I32(1), counter) // start at second item
+	env.Block.NewStore(I32(2), counter) // start at third item
 
-	accum := env.Block.NewAlloca(lltyp)
-	env.Block.NewStore(env.ReadVectorElement(vec, I32(0)), accum)
+	accum := env.Block.NewAlloca(fn.Type().Realise())
+
+	env.Block.NewStore(env.Apply(&fn,
+		Value{
+			env.UnsafeReadVectorElement(vec, I32(0)),
+			vec.Type.(prism.VectorType).Type},
+		Value{
+			env.UnsafeReadVectorElement(vec, I32(1)),
+			vec.Type.(prism.VectorType).Type}), accum)
 
 	loopblock := env.CurrentFunction.NewBlock("")
 	env.Block.NewBr(loopblock)
@@ -28,15 +35,6 @@ func (env *Environment) CompileInlineFoldl(fn prism.Expression, vec Value) value
 		Value{
 			env.UnsafeReadVectorElement(vec, loopblock.NewLoad(types.I32, counter)),
 			vec.Type.(prism.VectorType).Type}), accum)
-
-	/* loopblock.NewStore(
-	loopblock.NewCall(
-		env.CompileExpression(&fn),
-		loopblock.NewLoad(lltyp, accum),
-		env.UnsafeReadVectorElement(
-			vec,
-			loopblock.NewLoad(types.I32, counter))),
-	accum) */
 
 	cond := loopblock.NewICmp(
 		enum.IPredSLT,

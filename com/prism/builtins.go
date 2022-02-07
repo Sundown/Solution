@@ -90,8 +90,8 @@ var (
 	DivSpecial = DyadicFunction{
 		Special:   true,
 		Name:      Ident{Package: "_", Name: "÷"},
-		AlphaType: RealType,
-		OmegaType: RealType,
+		AlphaType: SumType{[]Type{IntType, RealType}},
+		OmegaType: SumType{[]Type{IntType, RealType}},
 		Returns:   RealType,
 	}
 
