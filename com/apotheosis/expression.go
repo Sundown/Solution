@@ -87,6 +87,10 @@ func (env *Environment) GetSpecialDCallable(ident *prism.Ident) DCallable {
 		return env.CompileInlineMax
 	case "Min":
 		return env.CompileInlineMin
+	case "&":
+		return env.CompileInlineAnd
+	case "|":
+		return env.CompileInlineAnd
 	default:
 		panic("unreachable")
 	}
@@ -174,6 +178,14 @@ func (env *Environment) CompileDApplication(app *prism.DApplication) value.Value
 	case "Equals":
 		return env.CompileInlineEqual(
 			Value{env.CompileExpression(&app.Left), app.Operator.AlphaType},
+			Value{env.CompileExpression(&app.Right), app.Operator.OmegaType})
+	case "&":
+		return env.CompileInlineAnd(
+			Value{env.CompileExpression(&app.Left), app.Operator.AlphaType}, // TODO these types are hacks
+			Value{env.CompileExpression(&app.Right), app.Operator.OmegaType})
+	case "|":
+		return env.CompileInlineAnd(
+			Value{env.CompileExpression(&app.Left), app.Operator.AlphaType}, // TODO these types are hacks
 			Value{env.CompileExpression(&app.Right), app.Operator.OmegaType})
 	default:
 		call := env.Block.NewCall(

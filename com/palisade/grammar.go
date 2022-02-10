@@ -2,6 +2,7 @@ package palisade
 
 type Expression struct {
 	Monadic   *Monadic  `( @@` // This order is extremely important unfortunately.
+	Operator  *Operator `| @@`
 	Dyadic    *Dyadic   `| @@`
 	Morphemes *Morpheme `| @@ )`
 }
@@ -9,14 +10,21 @@ type Expression struct {
 type Monadic struct {
 	Subexpr    *Expression `(("(" @@ ")")`
 	Verb       *Ident      `| @@)`
-	Expression *Expression `@@`
+	Expression *Expression `@@?`
 }
 
 type Dyadic struct {
 	Monadic    *Monadic    `( @@`
 	Morphemes  *Morpheme   `| @@ )`
-	Verb       *Ident      `@@`
+	Subexpr    *Expression `(("(" @@ ")")`
+	Verb       *Ident      `| @@)`
 	Expression *Expression `@@?`
+}
+
+type Operator struct {
+	Verb       *Ident      `@@`
+	Operator   *string     `@Operator`
+	Expression *Expression `@@`
 }
 
 type Morpheme struct {

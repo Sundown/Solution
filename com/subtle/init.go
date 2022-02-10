@@ -20,7 +20,6 @@ func Parse(penv *prism.Environment) *prism.Environment {
 			if *d.Command == "Package" {
 				env.Output = *d.Value
 			}
-
 		}
 
 		if f := stmt.Function; f != nil {
@@ -128,7 +127,7 @@ func (env Environment) AnalyseExpression(e *palisade.Expression) prism.Expressio
 	panic("unreachable")
 }
 
-func (env Environment) FetchDVerb(v *palisade.Ident) prism.Expression {
+func (env Environment) FetchDVerb(v *palisade.Ident) prism.DyadicFunction {
 	if found, ok := env.DyadicFunctions[prism.Intern(*v)]; ok {
 		return *found
 	}
@@ -136,7 +135,7 @@ func (env Environment) FetchDVerb(v *palisade.Ident) prism.Expression {
 	panic("Verb " + *v.Ident + " not found")
 }
 
-func (env Environment) FetchMVerb(v *palisade.Ident) prism.Expression {
+func (env Environment) FetchMVerb(v *palisade.Ident) prism.MonadicFunction {
 	if found, ok := env.MonadicFunctions[prism.Intern(*v)]; ok {
 		return *found
 	}

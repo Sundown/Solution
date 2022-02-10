@@ -35,16 +35,29 @@ func (env Environment) AnalysePartialMonadic(m *palisade.Monadic) (app prism.MAp
 }
 
 func (env Environment) AnalyseStandardMonadic(m *palisade.Monadic) (app prism.MApplication) {
-	op := env.FetchVerb(m.Verb)
-	if _, ok := op.(prism.MonadicFunction); !ok {
-		panic("Verb is not a monadic function")
-	}
+	fn := env.FetchMVerb(m.Verb)
 
-	fn := op.(prism.MonadicFunction)
 	expr := env.AnalyseExpression(m.Expression)
 
 	tmp := expr.Type()
 	resolved_right, err := prism.Delegate(&fn.OmegaType, &tmp)
+
+	if !prism.PureMatch(tmp, fn.OmegaType) {
+		if !prism.QueryCast(tmp, fn.OmegaType) {
+			tmp := tmp
+			_, err := prism.Delegate(&fn.OmegaType, &tmp)
+			if err != nil {
+				prism.Panic(*err)
+			}
+		} else {
+			expr = prism.DelegateCast(expr, fn.OmegaType)
+		}
+	}
+
+	if prism.PredicateGenericType(fn.Returns) {
+		fn.Returns = prism.IntegrateGenericType(fn.OmegaType, fn.Returns)
+	}
+
 	if err != nil {
 		prism.Panic(*err)
 	}

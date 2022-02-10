@@ -18,6 +18,9 @@ func I64(v int64) constant.Constant {
 	return constant.NewInt(types.I64, v)
 }
 
+func F64(v float64) constant.Constant {
+	return constant.NewFloat(types.Double, v)
+}
 func I32(v int64) constant.Constant {
 	return constant.NewInt(types.I32, int64(int32(v)))
 }

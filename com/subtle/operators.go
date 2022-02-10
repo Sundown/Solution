@@ -25,7 +25,7 @@ func (env Environment) AnalyseDyadicOperator(d *palisade.Monadic) prism.DyadicOp
 	rexpr := env.AnalyseExpression(d.Expression.Monadic.Expression)
 
 	switch *d.Expression.Monadic.Verb.Ident {
-	case "Map":
+	case "¨":
 		if _, ok := lexpr.(prism.Function); !ok {
 			panic("Left operand is not a function")
 		}
@@ -104,9 +104,9 @@ func (env Environment) AnalyseDyadicOperator(d *palisade.Monadic) prism.DyadicOp
 
 		dop = prism.DyadicOperator{
 			Operator: prism.KindFoldlOperator,
-			Left:     lexpr.(prism.DyadicFunction),
+			Left:     fn,
 			Right:    rexpr,
-			Returns:  lexpr.(prism.DyadicFunction).Type(),
+			Returns:  fn.Type(),
 		}
 	}
 

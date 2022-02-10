@@ -102,6 +102,23 @@ var (
 		OmegaType: SumType{[]Type{IntType, RealType}},
 		Returns:   SumType{[]Type{IntType, RealType}},
 	}
+
+	AndSpecial = DyadicFunction{
+		Special:   true,
+		Name:      Ident{Package: "_", Name: "&"},
+		AlphaType: SumType{[]Type{IntType, RealType, BoolType}},
+		OmegaType: SumType{[]Type{IntType, RealType, BoolType}},
+		Returns:   SumType{[]Type{IntType, RealType, BoolType}},
+	}
+
+	OrSpecial = DyadicFunction{
+		Special:   true,
+		Name:      Ident{Package: "_", Name: "|"},
+		AlphaType: SumType{[]Type{IntType, RealType, BoolType}},
+		OmegaType: SumType{[]Type{IntType, RealType, BoolType}},
+		Returns:   SumType{[]Type{IntType, RealType, BoolType}},
+	}
+
 	CeilSpecial = MonadicFunction{
 		Special:   true,
 		Name:      Ident{Package: "_", Name: "Max"},

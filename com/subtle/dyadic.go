@@ -3,18 +3,13 @@ package subtle
 import (
 	"sundown/solution/palisade"
 	"sundown/solution/prism"
-
-	"github.com/alecthomas/repr"
 )
 
 func (env Environment) AnalyseDyadic(d *palisade.Dyadic) prism.DApplication {
-	op := env.FetchDVerb(d.Verb)
-	fn, ok := op.(prism.DyadicFunction)
-
-	if !ok {
-		repr.Println(env.DyadicFunctions)
-		panic("Verb is not a dyadic function")
+	if d.Verb == nil {
+		env.AnalyseDyadicPartial(d.Subexpr)
 	}
+	fn := env.FetchDVerb(d.Verb)
 
 	var left prism.Expression
 	if d.Monadic != nil {
