@@ -63,41 +63,50 @@ func (env Environment) D3Train(f, g, h prism.DyadicFunction, a, b prism.Expressi
 	return dy
 }
 
-func (env Environment) D2Train(g prism.MonadicFunction, h prism.DyadicFunction) prism.DyadicFunction {
-	A := &h.AlphaType
-	B := &h.OmegaType
-	Y := &h.Returns
+func (env Environment) D2Train(g prism.MonadicFunction, h prism.DyadicFunction, a, b prism.Expression) prism.DyadicFunction {
+	APre := a.Type()
+	BPre := b.Type()
 
-	C := &g.OmegaType
-	Z := &g.Returns
+	Match(&APre, &h.AlphaType)
+	Match(&BPre, &h.OmegaType)
 
-	Match(Y, C)
+	if prism.PredicateGenericType(h.Returns) {
+		h.Returns = prism.IntegrateGenericType(h.AlphaType, h.Returns)
+	}
 
-	return prism.DyadicFunction{
+	Match(&h.Returns, &g.OmegaType)
+
+	if prism.PredicateGenericType(g.Returns) {
+		g.Returns = prism.IntegrateGenericType(h.AlphaType /* <- wrong */, g.Returns)
+	}
+
+	dy := prism.DyadicFunction{
 		Special:   false,
-		Name:      prism.Ident{Package: "_", Name: "d2_train"},
-		AlphaType: *A,
-		OmegaType: *B,
-		Returns:   *Z,
+		Name:      prism.Ident{Package: "_", Name: "d3_train"},
+		AlphaType: APre,
+		OmegaType: BPre,
+		Returns:   g.Returns,
 		PreBody:   nil,
 		Body: []prism.Expression{
 			prism.MApplication{
 				Operator: prism.MonadicFunction{
 					Special: false,
 					Name:    prism.Ident{Package: "_", Name: "Return"},
-					Returns: *Z,
+					Returns: g.Returns,
 				},
 				Operand: prism.MApplication{
 					Operator: g,
 					Operand: prism.DApplication{
 						Operator: h,
-						Left:     prism.Alpha{TypeOf: *A},
-						Right:    prism.Omega{TypeOf: *B},
+						Left:     prism.Alpha{TypeOf: APre},
+						Right:    prism.Omega{TypeOf: BPre},
 					},
 				},
 			},
 		},
 	}
+
+	return dy
 }
 
 //func (env Environment) M3Train(f, g, h prism.Expression) prism.MonadicFunction

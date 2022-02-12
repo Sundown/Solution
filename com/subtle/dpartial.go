@@ -27,7 +27,7 @@ func (env Environment) AnalyseDyadicPartial(expr *palisade.Expression, left, rig
 
 		UnifyTypes(X, F)
 
-		dy = env.D2Train(f, g)
+		dy = env.D2Train(f, g, left, right)
 	}
 
 	env.DyadicFunctions[dy.Ident()] = &dy
