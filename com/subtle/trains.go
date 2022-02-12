@@ -1,6 +1,7 @@
 package subtle
 
 import (
+	"fmt"
 	"sundown/solution/prism"
 )
 
@@ -31,7 +32,7 @@ func (env Environment) D3Train(f, g, h prism.DyadicFunction, a, b prism.Expressi
 
 	dy := prism.DyadicFunction{
 		Special:   false,
-		Name:      prism.Ident{Package: "_", Name: "d3_train"},
+		Name:      prism.Ident{Package: "_", Name: "d3_train_" + fmt.Sprint(env.Iterate())},
 		AlphaType: APre,
 		OmegaType: BPre,
 		Returns:   g.Returns,

@@ -3,8 +3,6 @@ package subtle
 import (
 	"sundown/solution/palisade"
 	"sundown/solution/prism"
-
-	"github.com/alecthomas/repr"
 )
 
 func (env Environment) AnalyseDyadicOperator(d *palisade.Monadic) prism.DyadicOperator {
@@ -30,7 +28,6 @@ func (env Environment) AnalyseDyadicOperator(d *palisade.Monadic) prism.DyadicOp
 			panic("Left operand is not a function")
 		}
 		if _, ok := rexpr.Type().(prism.VectorType); !ok {
-			repr.Println(rexpr)
 			panic("Right operand is not a vector")
 		}
 

@@ -8,6 +8,7 @@ import (
 )
 
 type Environment struct {
+	Iter      uint
 	LexResult *palisade.PalisadeResult
 	//
 	MonadicFunctions map[Ident]*MonadicFunction

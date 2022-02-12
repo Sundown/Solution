@@ -6,6 +6,7 @@ import (
 
 func NewEnvironment() *Environment {
 	var env Environment
+	env.Iter = 0
 	env.MonadicFunctions = make(map[Ident]*MonadicFunction)
 	env.DyadicFunctions = make(map[Ident]*DyadicFunction)
 	env.Types = make(map[Ident]Type)
@@ -69,6 +70,11 @@ func NewEnvironment() *Environment {
 	env.MonadicFunctions[CeilSpecial.Name] = &CeilSpecial
 	env.MonadicFunctions[FloorSpecial.Name] = &FloorSpecial
 	return &env
+}
+
+func (e *Environment) Iterate() int {
+	e.Iter++
+	return int(e.Iter)
 }
 
 func (e Environment) String() (s string) {

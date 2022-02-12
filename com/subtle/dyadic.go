@@ -6,7 +6,6 @@ import (
 )
 
 func (env Environment) AnalyseDyadic(d *palisade.Dyadic) prism.DApplication {
-
 	var left prism.Expression
 	if d.Monadic != nil {
 		left = env.AnalyseMonadic(d.Monadic)
