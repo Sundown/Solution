@@ -3,35 +3,60 @@ package subtle
 import (
 	"sundown/solution/palisade"
 	"sundown/solution/prism"
-
-	"github.com/alecthomas/repr"
 )
 
-func (env Environment) AnalyseDyadicPartial(expr *palisade.Expression) prism.Expression {
-	//---
-	f := env.FetchDVerb(expr.Monadic.Verb)
+// This returns a new DyadicFunction which is the proper composition of functions within
+// the train, arranged according to the number of such functions
+// https://aplwiki.com/wiki/Tacit_programming#Trains
+func (env Environment) AnalyseDyadicPartial(expr *palisade.Expression, left, right prism.Expression) prism.DyadicFunction {
 	g := env.FetchDVerb(expr.Monadic.Expression.Monadic.Verb)
-	h := env.FetchDVerb(expr.Monadic.Expression.Monadic.Expression.Monadic.Verb)
 
-	A := &f.AlphaType
-	B := &f.OmegaType
-	X := &f.Returns
+	var dy prism.DyadicFunction
+	if expr.Monadic.Expression.Monadic.Expression != nil {
+		f := env.FetchDVerb(expr.Monadic.Verb)
+		h := env.FetchDVerb(expr.Monadic.Expression.Monadic.Expression.Monadic.Verb)
 
-	C := &h.AlphaType
-	D := &h.OmegaType
-	Y := &h.Returns
+		dy = env.D3Train(f, g, h, left, right)
+	} else {
+		f := env.FetchMVerb(expr.Monadic.Verb)
 
-	E := &g.AlphaType
-	F := &g.OmegaType
-	//Z := &g.Returns
+		X := &f.Returns
 
-	Match(A, C)
-	Match(B, D)
-	Match(X, E)
-	Match(Y, F)
+		F := &g.OmegaType
+		//Z := &g.Returns
 
-	repr.Println(expr)
-	return nil
+		UnifyTypes(X, F)
+
+		dy = env.D2Train(f, g)
+	}
+
+	env.DyadicFunctions[dy.Ident()] = &dy
+
+	return dy
+}
+
+func UnifyTypes(e *prism.Type, t *prism.Type) {
+	if !prism.PureMatch((*e), *t) {
+		//if !prism.QueryCast((*e), *t) {
+		if a, ok := (*e).(prism.SumType); ok {
+			if b, ok := (*t).(prism.SumType); ok {
+				in := prism.TypeIntersection(a, b)
+				if len(in.Types) > 0 {
+					unified := prism.Type(in)
+					e = &unified
+					t = &unified
+					return
+				}
+			}
+		}
+
+		tmp := (*e)
+		_, err := prism.Delegate(t, &tmp)
+		if err != nil {
+			panic(*err)
+		}
+		//}
+	}
 }
 
 func Match(e *prism.Type, t *prism.Type) {
@@ -40,7 +65,7 @@ func Match(e *prism.Type, t *prism.Type) {
 			tmp := (*e)
 			_, err := prism.Delegate(t, &tmp)
 			if err != nil {
-				prism.Panic(*err)
+				panic(*err)
 			}
 		}
 	}

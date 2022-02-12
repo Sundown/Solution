@@ -1,55 +1,66 @@
 package subtle
 
-import "sundown/solution/prism"
+import (
+	"sundown/solution/prism"
+)
 
-func (env Environment) D3Train(f, g, h prism.DyadicFunction) prism.DyadicFunction {
-	A := &f.AlphaType
-	B := &f.OmegaType
-	X := &f.Returns
+// Method for creating the specific function of a Dyadic 3-train with determined types
+func (env Environment) D3Train(f, g, h prism.DyadicFunction, a, b prism.Expression) prism.DyadicFunction {
+	APre := a.Type()
+	BPre := b.Type()
 
-	C := &h.AlphaType
-	D := &h.OmegaType
-	Y := &h.Returns
+	Match(&APre, &f.AlphaType)
+	Match(&APre, &h.AlphaType)
+	Match(&BPre, &f.OmegaType)
+	Match(&BPre, &h.OmegaType)
 
-	E := &g.AlphaType
-	F := &g.OmegaType
-	Z := &g.Returns
+	if prism.PredicateGenericType(f.Returns) {
+		f.Returns = prism.IntegrateGenericType(f.AlphaType, f.Returns)
+	}
 
-	Match(A, C)
-	Match(B, D)
-	Match(X, E)
-	Match(Y, F)
+	if prism.PredicateGenericType(h.Returns) {
+		h.Returns = prism.IntegrateGenericType(h.AlphaType, h.Returns)
+	}
 
-	return prism.DyadicFunction{
+	Match(&f.Returns, &g.AlphaType)
+	Match(&h.Returns, &g.OmegaType)
+
+	if prism.PredicateGenericType(g.Returns) {
+		g.Returns = prism.IntegrateGenericType(h.AlphaType /* <- wrong */, g.Returns)
+	}
+
+	dy := prism.DyadicFunction{
 		Special:   false,
 		Name:      prism.Ident{Package: "_", Name: "d3_train"},
-		AlphaType: *A,
-		OmegaType: *B,
-		Returns:   *Z,
+		AlphaType: APre,
+		OmegaType: BPre,
+		Returns:   g.Returns,
 		PreBody:   nil,
 		Body: []prism.Expression{
 			prism.MApplication{
 				Operator: prism.MonadicFunction{
 					Special: false,
 					Name:    prism.Ident{Package: "_", Name: "Return"},
-					Returns: *Z,
+					Returns: g.Returns,
 				},
 				Operand: prism.DApplication{
 					Operator: g,
 					Left: prism.DApplication{
 						Operator: f,
-						Left:     prism.Alpha{TypeOf: *A},
-						Right:    prism.Omega{TypeOf: *B},
+						Left:     prism.Alpha{TypeOf: APre},
+						Right:    prism.Omega{TypeOf: BPre},
 					},
 					Right: prism.DApplication{
 						Operator: h,
-						Left:     prism.Alpha{TypeOf: *A},
-						Right:    prism.Omega{TypeOf: *B},
+						Left:     prism.Alpha{TypeOf: APre},
+						Right:    prism.Omega{TypeOf: BPre},
 					},
 				},
 			},
 		},
 	}
+
+	return dy
 }
 
 func (env Environment) D2Train(g prism.MonadicFunction, h prism.DyadicFunction) prism.DyadicFunction {
@@ -88,5 +99,6 @@ func (env Environment) D2Train(g prism.MonadicFunction, h prism.DyadicFunction) 
 		},
 	}
 }
-func (env Environment) M3Train(f, g, h prism.Expression) prism.MonadicFunction
-func (env Environment) M2Train(f, g prism.Expression) prism.MonadicFunction
+
+//func (env Environment) M3Train(f, g, h prism.Expression) prism.MonadicFunction
+//func (env Environment) M2Train(f, g prism.Expression) prism.MonadicFunction

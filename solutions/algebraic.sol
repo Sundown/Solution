@@ -2,5 +2,5 @@
 @Entry Main;
 
 Δ Main Int → Void:
- 	1 (+++) 2;
+ 	Println 1.3 (++-) 2.7;
 ∇

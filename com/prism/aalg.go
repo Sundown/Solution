@@ -13,6 +13,27 @@ func PureMatch(a, b Type) bool {
 	return false
 }
 
+func TypeIntersection(a, b SumType) SumType {
+	intersection := make([]Type, 0)
+	contains := func(a []Type, e Type) bool {
+		for _, c := range a {
+			if c == e {
+				return true
+			}
+		}
+
+		return false
+	}
+
+	for _, e := range a.Types {
+		if contains(b.Types, e) {
+			intersection = append(intersection, e)
+		}
+	}
+
+	return SumType{Types: intersection}
+}
+
 /* This is perfect in every single way */
 func Delegate(mould, cast *Type) (determined Type, failure *string) {
 	if mould == nil {

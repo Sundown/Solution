@@ -107,6 +107,10 @@ func (env Environment) AnalyseMBody(f *prism.MonadicFunction) {
 
 func (env Environment) AnalyseExpression(e *palisade.Expression) prism.Expression {
 	if e.Monadic != nil {
+		if e.Monadic.Expression == nil {
+			return env.FetchMVerb(e.Monadic.Verb)
+		}
+
 		if e.Monadic.Expression.Monadic != nil {
 			if e.Monadic.Expression.Monadic.Verb != nil &&
 				(*e.Monadic.Expression.Monadic.Verb.Ident == "/" || *e.Monadic.Expression.Monadic.Verb.Ident == "Map") {
@@ -132,14 +136,15 @@ func (env Environment) FetchDVerb(v *palisade.Ident) prism.DyadicFunction {
 		return *found
 	}
 
-	panic("Verb " + *v.Ident + " not found")
+	panic("Dyadic verb " + *v.Ident + " not found")
 }
 
 func (env Environment) FetchMVerb(v *palisade.Ident) prism.MonadicFunction {
 	if found, ok := env.MonadicFunctions[prism.Intern(*v)]; ok {
 		return *found
 	}
-	panic("Verb " + *v.Ident + " not found")
+
+	panic("Monadic verb " + *v.Ident + " not found")
 }
 
 func (env Environment) FetchVerb(v *palisade.Ident) prism.Expression {
