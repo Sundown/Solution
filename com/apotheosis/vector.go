@@ -49,7 +49,7 @@ func (env *Environment) PopulateBody(
 		v := env.CompileExpression(&element)
 
 		if _, ok := ir_elm_type.(prism.AtomicType); !ok {
-			v = env.Block.NewLoad(element_type, v) // TODO might be backwards
+			v = env.Block.NewLoad(element_type, v)
 		}
 
 		env.Block.NewStore(v,

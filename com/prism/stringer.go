@@ -4,7 +4,6 @@ import (
 	"fmt"
 
 	"github.com/alecthomas/repr"
-	"github.com/llir/llvm/ir/types"
 )
 
 func (a AtomicType) String() string {
@@ -36,41 +35,16 @@ func (i Ident) String() string {
 	return i.Package + "::" + i.Name
 }
 
-func (a AtomicType) Width() int64 {
-	return int64(a.WidthInBytes)
+func (Void) String() string {
+	return "Void"
 }
 
-func (v VectorType) Width() int64 {
-	return 16
-	// (32 + 32 + 64) / 8
-	// len + cap + ptr
+func (c Cast) String() string {
+	return "<" + c.ToType.String() + ">" + c.Value.String()
 }
 
-func (s StructType) Width() (acc int64) {
-	for _, v := range s.FieldTypes {
-		acc += v.Width()
-	}
-
-	return acc
-}
-
-func (a AtomicType) Realise() types.Type {
-	return a.Actual
-}
-
-func (v VectorType) Realise() types.Type {
-	return types.NewStruct(
-		types.I32, types.I32, // TODO probably safe to downgrade to 16bit but poor alignment could mean slower
-		types.NewPointer(v.Type.Realise()))
-}
-
-func (s StructType) Realise() types.Type {
-	acc := []types.Type{}
-	for _, v := range s.FieldTypes {
-		acc = append(acc, v.Realise())
-	}
-
-	return types.NewStruct(acc...)
+func (do DyadicOperator) String() string {
+	return do.Left.String() + " " + fmt.Sprint(do.Operator) + " " + do.Right.String()
 }
 
 func (f DyadicFunction) String() (s string) {
@@ -154,4 +128,30 @@ func (a Alpha) String() string {
 
 func (o Omega) String() string {
 	return "ω"
+}
+
+func (e Environment) String() (s string) {
+	for _, f := range e.DyadicFunctions {
+		s += f.String()
+	}
+	for _, f := range e.MonadicFunctions {
+		s += f.String()
+	}
+
+	return
+}
+
+func (s GenericType) String() string {
+	return "T"
+}
+
+func (s SumType) String() (res string) {
+	for i, t := range s.Types {
+		if i > 0 {
+			res += " | "
+		}
+		res += t.String()
+	}
+
+	return
 }

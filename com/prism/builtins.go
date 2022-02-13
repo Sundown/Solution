@@ -49,20 +49,6 @@ var (
 		Returns:   VectorType{GenericType{}},
 	}
 
-	SumSpecial = MonadicFunction{
-		Special:   true,
-		Name:      Ident{Package: "_", Name: "Sum"},
-		OmegaType: VectorType{SumType{[]Type{IntType, RealType}}},
-		Returns:   SumType{[]Type{IntType, RealType}},
-	}
-
-	ProductSpecial = MonadicFunction{
-		Special:   true,
-		Name:      Ident{Package: "_", Name: "Product"},
-		OmegaType: VectorType{SumType{[]Type{IntType, RealType}}},
-		Returns:   SumType{[]Type{IntType, RealType}},
-	}
-
 	AddSpecial = DyadicFunction{
 		Special:   true,
 		Name:      Ident{Package: "_", Name: "+"},

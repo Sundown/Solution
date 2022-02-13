@@ -3,8 +3,6 @@ package subtle
 import (
 	"sundown/solution/palisade"
 	"sundown/solution/prism"
-
-	"github.com/alecthomas/repr"
 )
 
 // This returns a new DyadicFunction which is the proper composition of functions within
@@ -15,22 +13,19 @@ func (env Environment) AnalyseDyadicPartial(expr *palisade.Expression, left, rig
 	var dy prism.DyadicFunction
 	if expr.Monadic.Expression.Monadic.Expression != nil {
 		var h prism.DyadicFunction
-		if expr.Monadic.Expression.Monadic.Expression.Monadic != nil && expr.Monadic.Expression.Monadic.Expression.Monadic.Expression != nil {
-			//repr.Println(expr.Monadic.Expression.Monadic.Expression.Monadic)
+		if expr.Monadic.Expression.Monadic.Expression.Monadic != nil &&
+			expr.Monadic.Expression.Monadic.Expression.Monadic.Expression != nil {
 			h = env.AnalyseDyadicPartial(expr.Monadic.Expression.Monadic.Expression, left, right)
 		} else {
 			h = env.FetchDVerb(expr.Monadic.Expression.Monadic.Expression.Monadic.Verb)
 		}
-		f := env.FetchDVerb(expr.Monadic.Verb)
-		dy = env.D3Train(f, g, h, left, right)
+
+		dy = env.D3Train(env.FetchDVerb(expr.Monadic.Verb), g, h, left, right)
 	} else {
-		f := env.FetchMVerb(expr.Monadic.Verb)
-		dy = env.D2Train(f, g, left, right)
+		dy = env.D2Train(env.FetchMVerb(expr.Monadic.Verb), g, left, right)
 	}
 
 	env.DyadicFunctions[dy.Ident()] = &dy
-
-	repr.Println(dy)
 
 	return dy
 }

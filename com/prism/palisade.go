@@ -78,18 +78,24 @@ func ParseIdent(s string) (p Ident) {
 	return Intern(t)
 }
 
-func (env Environment) GetDyadicFunction(i Ident) *DyadicFunction {
-	if f, ok := env.DyadicFunctions[i]; ok {
-		return f
+func (env Environment) SubstantiateType(t palisade.Type) Type {
+	if t.Primative != nil {
+		if ptr := env.Types[Intern(*t.Primative)]; ptr != nil {
+			return ptr
+		}
+	} else if t.Vector != nil {
+		return VectorType{
+			Type: env.SubstantiateType(*t.Vector),
+		}
+	} else if t.Tuple != nil {
+		acc := make([]Type, len(t.Tuple))
+		for _, cur := range t.Tuple {
+			acc = append(acc, env.SubstantiateType(*cur))
+		}
+
+		return StructType{FieldTypes: acc}
 	}
 
-	return nil
-}
-
-func (env Environment) GetMonadicFunction(i Ident) *MonadicFunction {
-	if f, ok := env.MonadicFunctions[i]; ok {
-		return f
-	}
-
+	Panic("Unknown type")
 	return nil
 }

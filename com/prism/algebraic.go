@@ -9,7 +9,6 @@ func PredicateGenericType(t Type) bool {
 		return PredicateGenericType(t.(VectorType).Type)
 	}
 
-	// TODO probably more cases
 	return false
 }
 
@@ -29,7 +28,6 @@ func DeriveGenericType(a, b Type) Type {
 	if a.Kind() == TypeKindSemiDeterminedGroup {
 		for _, t := range a.(SumType).Types {
 			if c := DeriveGenericType(t, b); c != nil {
-				// c is t and b, guess this is tidy or something
 				return c
 			}
 		}
@@ -38,7 +36,6 @@ func DeriveGenericType(a, b Type) Type {
 	if b.Kind() == TypeKindSemiDeterminedGroup {
 		for _, t := range b.(SumType).Types {
 			if c := DeriveGenericType(t, b); c != nil {
-				// c is t and a, guess this is tidy or something
 				return c
 			}
 		}
@@ -74,8 +71,6 @@ func IntegrateGenericType(derived Type, semidet Type) Type {
 		panic("????? what why")
 	case TypeKindVector:
 		return VectorType{IntegrateGenericType(derived, semidet.(VectorType).Type)}
-	case TypeKindStruct:
-		// TODO
 	}
 
 	panic("Failed to integrate")

@@ -65,8 +65,11 @@ func (env Environment) InternFunction(f palisade.Function) {
 			Returns:   env.SubstantiateType(*f.Returns),
 			PreBody:   f.Body,
 		}
-		// TODO Perform check that it doesn't already exist
-		env.DyadicFunctions[fn.Name] = &fn
+		if _, ok := env.DyadicFunctions[fn.Name]; ok {
+			prism.Panic("Dyadic function " + fn.Name.String() + " is already defined")
+		} else {
+			env.DyadicFunctions[fn.Name] = &fn
+		}
 	} else if f.Monadic != nil {
 		fn := prism.MonadicFunction{
 			Name:      prism.Intern(*f.Monadic.Ident),
@@ -74,8 +77,11 @@ func (env Environment) InternFunction(f palisade.Function) {
 			Returns:   env.SubstantiateType(*f.Returns),
 			PreBody:   f.Body,
 		}
-		// TODO Perform check that it doesn't already exist
-		env.MonadicFunctions[fn.Name] = &fn
+		if _, ok := env.MonadicFunctions[fn.Name]; ok {
+			prism.Panic("Monadic function " + fn.Name.String() + " is already defined")
+		} else {
+			env.MonadicFunctions[fn.Name] = &fn
+		}
 	}
 }
 
@@ -129,30 +135,4 @@ func (env Environment) AnalyseExpression(e *palisade.Expression) prism.Expressio
 	}
 
 	panic("unreachable")
-}
-
-func (env Environment) FetchDVerb(v *palisade.Ident) prism.DyadicFunction {
-	if found, ok := env.DyadicFunctions[prism.Intern(*v)]; ok {
-		return *found
-	}
-
-	panic("Dyadic verb " + *v.Ident + " not found")
-}
-
-func (env Environment) FetchMVerb(v *palisade.Ident) prism.MonadicFunction {
-	if found, ok := env.MonadicFunctions[prism.Intern(*v)]; ok {
-		return *found
-	}
-
-	panic("Monadic verb " + *v.Ident + " not found")
-}
-
-func (env Environment) FetchVerb(v *palisade.Ident) prism.Expression {
-	if found, ok := env.MonadicFunctions[prism.Intern(*v)]; ok {
-		return *found
-	} else if found, ok := env.DyadicFunctions[prism.Intern(*v)]; ok {
-		return *found
-	}
-
-	panic("Verb " + *v.Ident + " not found")
 }

@@ -1,8 +1,36 @@
 package prism
 
 import (
+	"sundown/solution/palisade"
+
+	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/types"
 )
+
+type Environment struct {
+	Iter      uint
+	LexResult *palisade.PalisadeResult
+	//
+	MonadicFunctions map[Ident]*MonadicFunction
+	DyadicFunctions  map[Ident]*DyadicFunction
+	Types            map[Ident]Type
+	//
+	EmitFormat   string
+	Output       string
+	Verbose      *bool
+	Optimisation *int64
+	File         string
+	//
+	EntryFunction      MonadicFunction
+	Module             *ir.Module
+	Block              *ir.Block
+	LLDyadicFunctions  map[string]*ir.Func
+	LLMonadicFunctions map[string]*ir.Func
+	Specials           map[string]*ir.Func
+	CurrentFunction    *ir.Func
+	CurrentFunctionIR  Expression
+	PanicStrings       map[string]*ir.Global
+}
 
 func NewEnvironment() *Environment {
 	var env Environment
@@ -53,8 +81,6 @@ func NewEnvironment() *Environment {
 	env.MonadicFunctions[PrintSpecial.Name] = &PrintSpecial
 	env.MonadicFunctions[LenSpecial.Name] = &LenSpecial
 	env.MonadicFunctions[CapSpecial.Name] = &CapSpecial
-	env.MonadicFunctions[SumSpecial.Name] = &SumSpecial
-	env.MonadicFunctions[ProductSpecial.Name] = &ProductSpecial
 	env.DyadicFunctions[GEPSpecial.Name] = &GEPSpecial
 	env.DyadicFunctions[AppendSpecial.Name] = &AppendSpecial
 	env.DyadicFunctions[AddSpecial.Name] = &AddSpecial
@@ -77,13 +103,28 @@ func (e *Environment) Iterate() int {
 	return int(e.Iter)
 }
 
-func (e Environment) String() (s string) {
-	for _, f := range e.DyadicFunctions {
-		s += f.String()
-	}
-	for _, f := range e.MonadicFunctions {
-		s += f.String()
+func (env Environment) FetchDVerb(v *palisade.Ident) DyadicFunction {
+	if found, ok := env.DyadicFunctions[Intern(*v)]; ok {
+		return *found
 	}
 
-	return
+	panic("Dyadic verb " + *v.Ident + " not found")
+}
+
+func (env Environment) FetchMVerb(v *palisade.Ident) MonadicFunction {
+	if found, ok := env.MonadicFunctions[Intern(*v)]; ok {
+		return *found
+	}
+
+	panic("Monadic verb " + *v.Ident + " not found")
+}
+
+func (env Environment) FetchVerb(v *palisade.Ident) Expression {
+	if found, ok := env.MonadicFunctions[Intern(*v)]; ok {
+		return *found
+	} else if found, ok := env.DyadicFunctions[Intern(*v)]; ok {
+		return *found
+	}
+
+	panic("Verb " + *v.Ident + " not found")
 }

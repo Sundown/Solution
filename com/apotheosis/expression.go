@@ -58,14 +58,10 @@ func (env *Environment) GetSpecialMCallable(ident *prism.Ident) MCallable {
 		return env.ReadVectorLength
 	case "Cap":
 		return env.ReadVectorCapacity
-	case "Sum":
-		return env.CompileInlineSum
 	case "Max":
 		return env.CompileInlineCeil
 	case "Min":
 		return env.CompileInlineFloor
-	case "Product":
-		return env.CompileInlineProduct
 	default:
 		panic("unreachable")
 	}
@@ -126,10 +122,6 @@ func (env *Environment) CompileMApplication(app *prism.MApplication) value.Value
 		return env.ReadVectorLength(Value{env.CompileExpression(&app.Operand), app.Operand.Type()})
 	case "Cap":
 		return env.ReadVectorCapacity(Value{env.CompileExpression(&app.Operand), app.Operand.Type()})
-	case "Sum":
-		return env.CompileInlineSum(Value{env.CompileExpression(&app.Operand), app.Operand.Type()})
-	case "Product":
-		return env.CompileInlineProduct(Value{env.CompileExpression(&app.Operand), app.Operand.Type()})
 	case "Max":
 		return env.CompileInlineCeil(Value{env.CompileExpression(&app.Operand), app.Operand.Type()})
 	case "Min":
@@ -145,48 +137,48 @@ func (env *Environment) CompileDApplication(app *prism.DApplication) value.Value
 	switch app.Operator.Ident().Name {
 	case "+":
 		return env.CompileInlineAdd(
-			Value{env.CompileExpression(&app.Left), app.Operator.AlphaType}, // TODO these types are hacks
-			Value{env.CompileExpression(&app.Right), app.Operator.OmegaType})
+			Value{env.CompileExpression(&app.Left), app.Left.Type()},
+			Value{env.CompileExpression(&app.Right), app.Right.Type()})
 	case "-":
 		return env.CompileInlineSub(
-			Value{env.CompileExpression(&app.Left), app.Operator.AlphaType},
-			Value{env.CompileExpression(&app.Right), app.Operator.OmegaType})
+			Value{env.CompileExpression(&app.Left), app.Left.Type()},
+			Value{env.CompileExpression(&app.Right), app.Right.Type()})
 	case "*":
 		return env.CompileInlineMul(
-			Value{env.CompileExpression(&app.Left), app.Operator.AlphaType},
-			Value{env.CompileExpression(&app.Right), app.Operator.OmegaType})
+			Value{env.CompileExpression(&app.Left), app.Left.Type()},
+			Value{env.CompileExpression(&app.Right), app.Right.Type()})
 	case "÷":
 		return env.CompileInlineDiv(
-			Value{env.CompileExpression(&app.Left), app.Operator.AlphaType},
-			Value{env.CompileExpression(&app.Right), app.Operator.OmegaType})
+			Value{env.CompileExpression(&app.Left), app.Left.Type()},
+			Value{env.CompileExpression(&app.Right), app.Right.Type()})
 	case "Max":
 		return env.CompileInlineMax(
-			Value{env.CompileExpression(&app.Left), app.Operator.AlphaType},
-			Value{env.CompileExpression(&app.Right), app.Operator.OmegaType})
+			Value{env.CompileExpression(&app.Left), app.Left.Type()},
+			Value{env.CompileExpression(&app.Right), app.Right.Type()})
 	case "Min":
 		return env.CompileInlineMin(
-			Value{env.CompileExpression(&app.Left), app.Operator.AlphaType},
-			Value{env.CompileExpression(&app.Right), app.Operator.OmegaType})
+			Value{env.CompileExpression(&app.Left), app.Left.Type()},
+			Value{env.CompileExpression(&app.Right), app.Right.Type()})
 	case "GEP":
 		return env.CompileInlineIndex(
-			Value{env.CompileExpression(&app.Left), app.Operator.AlphaType},
-			Value{env.CompileExpression(&app.Right), app.Operator.OmegaType})
+			Value{env.CompileExpression(&app.Left), app.Left.Type()},
+			Value{env.CompileExpression(&app.Right), app.Right.Type()})
 	case "Append":
 		return env.CompileInlineAppend(
-			Value{env.CompileExpression(&app.Left), app.Operator.AlphaType},
-			Value{env.CompileExpression(&app.Right), app.Operator.OmegaType})
+			Value{env.CompileExpression(&app.Left), app.Left.Type()},
+			Value{env.CompileExpression(&app.Right), app.Right.Type()})
 	case "Equals":
 		return env.CompileInlineEqual(
-			Value{env.CompileExpression(&app.Left), app.Operator.AlphaType},
-			Value{env.CompileExpression(&app.Right), app.Operator.OmegaType})
+			Value{env.CompileExpression(&app.Left), app.Left.Type()},
+			Value{env.CompileExpression(&app.Right), app.Right.Type()})
 	case "&":
 		return env.CompileInlineAnd(
-			Value{env.CompileExpression(&app.Left), app.Operator.AlphaType}, // TODO these types are hacks
-			Value{env.CompileExpression(&app.Right), app.Operator.OmegaType})
+			Value{env.CompileExpression(&app.Left), app.Left.Type()},
+			Value{env.CompileExpression(&app.Right), app.Right.Type()})
 	case "|":
 		return env.CompileInlineAnd(
-			Value{env.CompileExpression(&app.Left), app.Operator.AlphaType}, // TODO these types are hacks
-			Value{env.CompileExpression(&app.Right), app.Operator.OmegaType})
+			Value{env.CompileExpression(&app.Left), app.Left.Type()},
+			Value{env.CompileExpression(&app.Right), app.Right.Type()})
 	default:
 		call := env.Block.NewCall(
 			env.LLDyadicFunctions[app.Operator.LLVMise()],
