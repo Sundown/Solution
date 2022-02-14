@@ -21,7 +21,7 @@ func (env Environment) AnalyseDyadic(d *palisade.Dyadic) prism.DApplication {
 	} else {
 		fn = env.FetchDVerb(d.Verb)
 
-		if !prism.PureMatch(right.Type(), fn.OmegaType) {
+		if !prism.LoTypeEq(right.Type(), fn.OmegaType) {
 			if !prism.QueryCast(right.Type(), fn.OmegaType) {
 				tmp := right.Type()
 				_, err := prism.Delegate(&fn.OmegaType, &tmp)
@@ -33,7 +33,7 @@ func (env Environment) AnalyseDyadic(d *palisade.Dyadic) prism.DApplication {
 			}
 		}
 
-		if !prism.PureMatch(left.Type(), fn.AlphaType) {
+		if !prism.LoTypeEq(left.Type(), fn.AlphaType) {
 			if !prism.QueryCast(left.Type(), fn.AlphaType) {
 				tmp := left.Type()
 				_, err := prism.Delegate(&fn.AlphaType, &tmp)
@@ -54,7 +54,7 @@ func (env Environment) AnalyseDyadic(d *palisade.Dyadic) prism.DApplication {
 		}
 
 		if fn.Name.Package == "_" && fn.Name.Name == "Return" {
-			if !prism.PrimativeTypeEq(env.CurrentFunctionIR.Type(), fn.Returns) {
+			if !prism.LoTypeEq(env.CurrentFunctionIR.Type(), fn.Returns) {
 				if !prism.PredicateGenericType(env.CurrentFunctionIR.Type()) {
 					panic("Return recieves type which does not match determined-function's type")
 				} else {

@@ -8,7 +8,7 @@ import (
 )
 
 func (env *Environment) CompileInlinePrintln(val Value) value.Value {
-	if prism.PrimativeTypeEq(val.Type, prism.StringType) {
+	if prism.LoTypeEq(val.Type, prism.StringType) {
 		return env.Block.NewCall(
 			env.GetPrintf(),
 			env.GetFormatStringln(&val.Type),
@@ -25,7 +25,7 @@ func (env *Environment) CompileInlinePrintln(val Value) value.Value {
 }
 
 func (env *Environment) CompileInlinePrint(val Value) value.Value {
-	if prism.PrimativeTypeEq(val.Type, prism.StringType) {
+	if prism.LoTypeEq(val.Type, prism.StringType) {
 		return env.Block.NewCall(
 			env.GetPrintf(),
 			env.GetFormatString(&val.Type),

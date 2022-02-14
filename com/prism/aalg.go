@@ -1,54 +1,12 @@
 package prism
 
-func PrimativeTypeEq(a, b Type) bool {
-	if a.Kind() == TypeKindSemiDetermined || b.Kind() == TypeKindSemiDetermined {
-		return false
-	}
-
-	/* p := func(x SumType, y Type) bool {
-		for _, t := range x.Types {
-			if PrimativeTypeEq(t, y) {
-				return true
-			}
-		}
-
-		return false
-	} */
-
-	/* 	if s, ok := a.(SumType); ok && p(s, b) {
-	   		return true
-	   	} else if s, ok := b.(SumType); ok && p(s, a) {
-	   		return true
-	   	} */
-	if _, ok := a.(SumType); ok {
-		return false
-	} else if _, ok := b.(SumType); ok {
-		return false
-	}
-	if a.Kind() != b.Kind() {
-		return false
-	}
-
-	switch a.(type) {
-	case AtomicType:
-		return a.(AtomicType).ID == b.(AtomicType).ID
-	case VectorType:
-		return PrimativeTypeEq(a.(VectorType).Type, b.(VectorType).Type)
-	case StructType:
-		// TODO
-		// ... other kinds
-	}
-
-	return false
-}
-
-func PureMatch(a, b Type) bool {
+func LoTypeEq(a, b Type) bool {
 	switch a.(type) {
 	case AtomicType:
 		return a.Kind() == b.Kind()
 	case VectorType:
 		if v, ok := b.(VectorType); ok {
-			return a.(VectorType).Type.Kind() == v.Type.Kind()
+			return LoTypeEq(a.(VectorType).Type, v.Type)
 		}
 	}
 

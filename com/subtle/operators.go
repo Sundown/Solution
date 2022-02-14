@@ -34,7 +34,7 @@ func (env Environment) AnalyseDyadicOperator(d *palisade.Monadic) prism.DyadicOp
 		elmtype := rexpr.Type().(prism.VectorType).Type
 		fn := lexpr.(prism.MonadicFunction)
 
-		if !prism.PureMatch(elmtype, fn.OmegaType) {
+		if !prism.LoTypeEq(elmtype, fn.OmegaType) {
 			if !prism.QueryCast(elmtype, fn.OmegaType) {
 				tmp := elmtype
 				_, err := prism.Delegate(&fn.OmegaType, &tmp)
@@ -67,7 +67,7 @@ func (env Environment) AnalyseDyadicOperator(d *palisade.Monadic) prism.DyadicOp
 		elmtype := rexpr.Type().(prism.VectorType).Type
 		fn := lexpr.(prism.DyadicFunction)
 
-		if !prism.PureMatch(elmtype, fn.OmegaType) {
+		if !prism.LoTypeEq(elmtype, fn.OmegaType) {
 			if !prism.QueryCast(elmtype, fn.OmegaType) {
 				tmp := elmtype
 				_, err := prism.Delegate(&fn.OmegaType, &tmp)
@@ -79,7 +79,7 @@ func (env Environment) AnalyseDyadicOperator(d *palisade.Monadic) prism.DyadicOp
 			}
 		}
 
-		if !prism.PureMatch(elmtype, fn.AlphaType) {
+		if !prism.LoTypeEq(elmtype, fn.AlphaType) {
 			if !prism.QueryCast(elmtype, fn.AlphaType) {
 				tmp := elmtype
 				_, err := prism.Delegate(&fn.AlphaType, &tmp)

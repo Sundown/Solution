@@ -42,7 +42,7 @@ func (env Environment) AnalyseStandardMonadic(m *palisade.Monadic) (app prism.MA
 	tmp := expr.Type()
 	resolved_right, err := prism.Delegate(&fn.OmegaType, &tmp)
 
-	if !prism.PureMatch(tmp, fn.OmegaType) {
+	if !prism.LoTypeEq(tmp, fn.OmegaType) {
 		if !prism.QueryCast(tmp, fn.OmegaType) {
 			tmp := tmp
 			_, err := prism.Delegate(&fn.OmegaType, &tmp)
@@ -67,7 +67,7 @@ func (env Environment) AnalyseStandardMonadic(m *palisade.Monadic) (app prism.MA
 	}
 
 	if fn.Name.Package == "_" && fn.Name.Name == "Return" {
-		if !prism.PrimativeTypeEq(env.CurrentFunctionIR.Type(), fn.Returns) {
+		if !prism.LoTypeEq(env.CurrentFunctionIR.Type(), fn.Returns) {
 			if !prism.PredicateGenericType(env.CurrentFunctionIR.Type()) {
 				panic("Return recieves " + fn.Returns.String() + " which does not match determined-function's type " + env.CurrentFunctionIR.Type().String())
 			} else {
