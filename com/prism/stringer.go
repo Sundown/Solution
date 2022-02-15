@@ -77,11 +77,11 @@ func (f MonadicFunction) String() (s string) {
 	return s + "∇\n"
 }
 
-func (d DApplication) String() string {
+func (d DyadicApplication) String() string {
 	return d.Left.String() + " " + d.Operator.Name.String() + " " + d.Right.String()
 }
 
-func (m MApplication) String() string {
+func (m MonadicApplication) String() string {
 	return m.Operator.Name.String() + " " + m.Operand.String()
 }
 

@@ -6,9 +6,19 @@ import (
 	"github.com/llir/llvm/ir/types"
 )
 
-type Ident struct {
-	Package string
-	Name    string
+type Expression interface {
+	Type() Type
+	String() string
+}
+
+type Type interface {
+	Kind() int
+	Width() int64
+	String() string
+	Equals(Type) bool
+	Realise() types.Type
+	Resolve(Type) Type
+	IsAlgebraic() bool
 }
 
 type Function interface {
@@ -17,6 +27,11 @@ type Function interface {
 	Type() Type
 	Ident() Ident
 	String() string
+}
+
+type Ident struct {
+	Package string
+	Name    string
 }
 
 func (d DyadicFunction) IsSpecial() bool {
@@ -38,11 +53,6 @@ func (m MonadicFunction) Ident() Ident {
 type Vector struct {
 	ElementType VectorType
 	Body        *[]Expression
-}
-
-type Expression interface {
-	Type() Type
-	String() string
 }
 
 type Void struct{}
@@ -83,27 +93,15 @@ type MonadicFunction struct {
 	Body    []Expression
 }
 
-type MApplication struct {
+type MonadicApplication struct {
 	Operator MonadicFunction
 	Operand  Expression
-	// Algebraic T refers to which type in given application
-	T_Refers Type
 }
 
-type DApplication struct {
+type DyadicApplication struct {
 	Operator DyadicFunction
 	Left     Expression
 	Right    Expression
-	// Algebraic T refers to which type in given application
-	// Possibility of requiring A and B algebraic types once tuples are present
-	T_Refers Type
-}
-
-type Type interface {
-	Kind() int
-	Width() int64
-	String() string
-	Realise() types.Type
 }
 
 type AtomicType struct {

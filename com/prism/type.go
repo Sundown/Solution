@@ -14,11 +14,11 @@ func (f MonadicFunction) Type() Type {
 	return f.Returns
 }
 
-func (m MApplication) Type() Type {
+func (m MonadicApplication) Type() Type {
 	return m.Operator.Type()
 }
 
-func (d DApplication) Type() Type {
+func (d DyadicApplication) Type() Type {
 	return d.Operator.Type()
 }
 

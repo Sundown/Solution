@@ -34,7 +34,7 @@ func (env Environment) AnalyseDyadicOperator(d *palisade.Monadic) prism.DyadicOp
 		elmtype := rexpr.Type().(prism.VectorType).Type
 		fn := lexpr.(prism.MonadicFunction)
 
-		if !prism.LoTypeEq(elmtype, fn.OmegaType) {
+		if !elmtype.Equals(fn.OmegaType) {
 			if !prism.QueryCast(elmtype, fn.OmegaType) {
 				tmp := elmtype
 				_, err := prism.Delegate(&fn.OmegaType, &tmp)
@@ -46,8 +46,8 @@ func (env Environment) AnalyseDyadicOperator(d *palisade.Monadic) prism.DyadicOp
 			}
 		}
 
-		if prism.PredicateGenericType(fn.Returns) {
-			fn.Returns = prism.IntegrateGenericType(fn.OmegaType, fn.Returns)
+		if fn.Returns.IsAlgebraic() {
+			fn.Returns = fn.Returns.Resolve(fn.OmegaType)
 		}
 
 		dop = prism.DyadicOperator{
@@ -67,7 +67,7 @@ func (env Environment) AnalyseDyadicOperator(d *palisade.Monadic) prism.DyadicOp
 		elmtype := rexpr.Type().(prism.VectorType).Type
 		fn := lexpr.(prism.DyadicFunction)
 
-		if !prism.LoTypeEq(elmtype, fn.OmegaType) {
+		if !elmtype.Equals(fn.OmegaType) {
 			if !prism.QueryCast(elmtype, fn.OmegaType) {
 				tmp := elmtype
 				_, err := prism.Delegate(&fn.OmegaType, &tmp)
@@ -79,7 +79,7 @@ func (env Environment) AnalyseDyadicOperator(d *palisade.Monadic) prism.DyadicOp
 			}
 		}
 
-		if !prism.LoTypeEq(elmtype, fn.AlphaType) {
+		if !elmtype.Equals(fn.AlphaType) {
 			if !prism.QueryCast(elmtype, fn.AlphaType) {
 				tmp := elmtype
 				_, err := prism.Delegate(&fn.AlphaType, &tmp)
@@ -95,8 +95,8 @@ func (env Environment) AnalyseDyadicOperator(d *palisade.Monadic) prism.DyadicOp
 			prism.Panic(*err)
 		}
 
-		if prism.PredicateGenericType(fn.Returns) {
-			fn.Returns = prism.IntegrateGenericType(fn.AlphaType, fn.Returns)
+		if fn.Returns.IsAlgebraic() {
+			fn.Returns = fn.Returns.Resolve(fn.AlphaType)
 		}
 
 		dop = prism.DyadicOperator{

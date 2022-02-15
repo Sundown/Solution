@@ -5,7 +5,7 @@ import (
 	"sundown/solution/prism"
 )
 
-func (env Environment) AnalyseMonadic(m *palisade.Monadic) (app prism.MApplication) {
+func (env Environment) AnalyseMonadic(m *palisade.Monadic) (app prism.MonadicApplication) {
 	if m.Verb != nil {
 		return env.AnalyseStandardMonadic(m)
 	} else if m.Subexpr != nil {
@@ -15,8 +15,8 @@ func (env Environment) AnalyseMonadic(m *palisade.Monadic) (app prism.MApplicati
 	}
 }
 
-func (env Environment) AnalysePartialMonadic(m *palisade.Monadic) (app prism.MApplication) {
-	app = prism.MApplication{
+func (env Environment) AnalysePartialMonadic(m *palisade.Monadic) (app prism.MonadicApplication) {
+	app = prism.MonadicApplication{
 		Operator: env.AnalyseExpression(m.Subexpr).(prism.MonadicFunction),
 		Operand:  env.AnalyseExpression(m.Expression),
 	}
@@ -27,14 +27,14 @@ func (env Environment) AnalysePartialMonadic(m *palisade.Monadic) (app prism.MAp
 		prism.Panic(*err)
 	}
 
-	if prism.PredicateGenericType(app.Operator.Returns) {
-		app.Operator.Returns = prism.IntegrateGenericType(resolved_right, app.Operator.Returns)
+	if app.Operator.Returns.IsAlgebraic() {
+		app.Operator.Returns = app.Operator.Returns.Resolve(resolved_right)
 	}
 
 	return app
 }
 
-func (env Environment) AnalyseStandardMonadic(m *palisade.Monadic) (app prism.MApplication) {
+func (env Environment) AnalyseStandardMonadic(m *palisade.Monadic) (app prism.MonadicApplication) {
 	fn := env.FetchMVerb(m.Verb)
 
 	expr := env.AnalyseExpression(m.Expression)
@@ -42,10 +42,11 @@ func (env Environment) AnalyseStandardMonadic(m *palisade.Monadic) (app prism.MA
 	tmp := expr.Type()
 	resolved_right, err := prism.Delegate(&fn.OmegaType, &tmp)
 
-	if !prism.LoTypeEq(tmp, fn.OmegaType) {
+	if !tmp.Equals(fn.OmegaType) {
 		if !prism.QueryCast(tmp, fn.OmegaType) {
 			tmp := tmp
-			_, err := prism.Delegate(&fn.OmegaType, &tmp)
+			t, err := prism.Delegate(&fn.OmegaType, &tmp)
+			_ = t
 			if err != nil {
 				prism.Panic(*err)
 			}
@@ -54,21 +55,17 @@ func (env Environment) AnalyseStandardMonadic(m *palisade.Monadic) (app prism.MA
 		}
 	}
 
-	if prism.PredicateGenericType(fn.Returns) {
-		fn.Returns = prism.IntegrateGenericType(fn.OmegaType, fn.Returns)
-	}
-
 	if err != nil {
 		prism.Panic(*err)
 	}
 
-	if prism.PredicateGenericType(fn.Returns) {
-		fn.Returns = prism.IntegrateGenericType(resolved_right, fn.Returns)
+	if fn.Returns.IsAlgebraic() {
+		fn.Returns = fn.Returns.Resolve(resolved_right)
 	}
 
 	if fn.Name.Package == "_" && fn.Name.Name == "Return" {
-		if !prism.LoTypeEq(env.CurrentFunctionIR.Type(), fn.Returns) {
-			if !prism.PredicateGenericType(env.CurrentFunctionIR.Type()) {
+		if !env.CurrentFunctionIR.Type().Equals(fn.Returns) {
+			if !env.CurrentFunctionIR.Type().IsAlgebraic() {
 				panic("Return recieves " + fn.Returns.String() + " which does not match determined-function's type " + env.CurrentFunctionIR.Type().String())
 			} else {
 				panic("Not implemented, pain")
@@ -76,7 +73,7 @@ func (env Environment) AnalyseStandardMonadic(m *palisade.Monadic) (app prism.MA
 		}
 	}
 
-	return prism.MApplication{
+	return prism.MonadicApplication{
 		Operator: fn,
 		Operand:  expr,
 	}

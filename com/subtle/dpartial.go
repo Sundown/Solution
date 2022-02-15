@@ -31,7 +31,7 @@ func (env Environment) AnalyseDyadicPartial(expr *palisade.Expression, left, rig
 }
 
 func Match(e *prism.Type, t *prism.Type) {
-	if !prism.LoTypeEq(*e, *t) {
+	if !(*e).Equals(*t) {
 		if !prism.QueryCast(*e, *t) {
 			_, err := prism.Delegate(t, e)
 			if err != nil {

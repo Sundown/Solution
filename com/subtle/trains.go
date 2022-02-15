@@ -15,19 +15,19 @@ func (env Environment) D3Train(f, g, h prism.DyadicFunction, a, b prism.Expressi
 	Match(&BPre, &f.OmegaType)
 	Match(&BPre, &h.OmegaType)
 
-	if prism.PredicateGenericType(f.Returns) {
-		f.Returns = prism.IntegrateGenericType(f.AlphaType, f.Returns)
+	if f.Returns.IsAlgebraic() {
+		f.Returns = f.Returns.Resolve(f.AlphaType)
 	}
 
-	if prism.PredicateGenericType(h.Returns) {
-		h.Returns = prism.IntegrateGenericType(h.AlphaType, h.Returns)
+	if h.Returns.IsAlgebraic() {
+		h.Returns = h.Returns.Resolve(h.AlphaType)
 	}
 
 	Match(&f.Returns, &g.AlphaType)
 	Match(&h.Returns, &g.OmegaType)
 
-	if prism.PredicateGenericType(g.Returns) {
-		g.Returns = prism.IntegrateGenericType(h.AlphaType /* <- wrong */, g.Returns)
+	if g.Returns.IsAlgebraic() {
+		g.Returns = g.Returns.Resolve(h.AlphaType /* <- wrong */)
 	}
 
 	dy := prism.DyadicFunction{
@@ -38,20 +38,20 @@ func (env Environment) D3Train(f, g, h prism.DyadicFunction, a, b prism.Expressi
 		Returns:   g.Returns,
 		PreBody:   nil,
 		Body: []prism.Expression{
-			prism.MApplication{
+			prism.MonadicApplication{
 				Operator: prism.MonadicFunction{
 					Special: false,
 					Name:    prism.Ident{Package: "_", Name: "Return"},
 					Returns: g.Returns,
 				},
-				Operand: prism.DApplication{
+				Operand: prism.DyadicApplication{
 					Operator: g,
-					Left: prism.DApplication{
+					Left: prism.DyadicApplication{
 						Operator: f,
 						Left:     prism.Alpha{TypeOf: APre},
 						Right:    prism.Omega{TypeOf: BPre},
 					},
-					Right: prism.DApplication{
+					Right: prism.DyadicApplication{
 						Operator: h,
 						Left:     prism.Alpha{TypeOf: APre},
 						Right:    prism.Omega{TypeOf: BPre},
@@ -71,14 +71,14 @@ func (env Environment) D2Train(g prism.MonadicFunction, h prism.DyadicFunction, 
 	Match(&APre, &h.AlphaType)
 	Match(&BPre, &h.OmegaType)
 
-	if prism.PredicateGenericType(h.Returns) {
-		h.Returns = prism.IntegrateGenericType(h.AlphaType, h.Returns)
+	if h.Returns.IsAlgebraic() {
+		h.Returns = h.Returns.Resolve(h.AlphaType)
 	}
 
 	Match(&h.Returns, &g.OmegaType)
 
-	if prism.PredicateGenericType(g.Returns) {
-		g.Returns = prism.IntegrateGenericType(h.AlphaType /* <- wrong */, g.Returns)
+	if g.Returns.IsAlgebraic() {
+		g.Returns = g.Returns.Resolve(h.AlphaType /* <- wrong */)
 	}
 
 	dy := prism.DyadicFunction{
@@ -89,15 +89,15 @@ func (env Environment) D2Train(g prism.MonadicFunction, h prism.DyadicFunction, 
 		Returns:   g.Returns,
 		PreBody:   nil,
 		Body: []prism.Expression{
-			prism.MApplication{
+			prism.MonadicApplication{
 				Operator: prism.MonadicFunction{
 					Special: false,
 					Name:    prism.Ident{Package: "_", Name: "Return"},
 					Returns: g.Returns,
 				},
-				Operand: prism.MApplication{
+				Operand: prism.MonadicApplication{
 					Operator: g,
-					Operand: prism.DApplication{
+					Operand: prism.DyadicApplication{
 						Operator: h,
 						Left:     prism.Alpha{TypeOf: APre},
 						Right:    prism.Omega{TypeOf: BPre},

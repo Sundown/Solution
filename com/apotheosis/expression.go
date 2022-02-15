@@ -8,10 +8,10 @@ import (
 
 func (env *Environment) CompileExpression(expr *prism.Expression) value.Value {
 	switch t := (*expr).(type) {
-	case prism.MApplication:
-		return env.CompileMApplication(&t)
-	case prism.DApplication:
-		return env.CompileDApplication(&t)
+	case prism.MonadicApplication:
+		return env.CompileMonadicApplication(&t)
+	case prism.DyadicApplication:
+		return env.CompileDyadicApplication(&t)
 	case prism.Morpheme:
 		return env.CompileAtom(&t)
 	case prism.DyadicOperator:
@@ -107,7 +107,7 @@ func (env *Environment) CompileDyadicOperator(dop *prism.DyadicOperator) value.V
 	panic("unreachable")
 }
 
-func (env *Environment) CompileMApplication(app *prism.MApplication) value.Value {
+func (env *Environment) CompileMonadicApplication(app *prism.MonadicApplication) value.Value {
 	switch app.Operator.Ident().Name {
 	case "Return":
 		env.Block.NewRet(env.CompileExpression(&app.Operand))
@@ -133,7 +133,7 @@ func (env *Environment) CompileMApplication(app *prism.MApplication) value.Value
 	}
 }
 
-func (env *Environment) CompileDApplication(app *prism.DApplication) value.Value {
+func (env *Environment) CompileDyadicApplication(app *prism.DyadicApplication) value.Value {
 	switch app.Operator.Ident().Name {
 	case "+":
 		return env.CompileInlineAdd(

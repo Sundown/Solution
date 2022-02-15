@@ -1,18 +1,5 @@
 package prism
 
-func LoTypeEq(a, b Type) bool {
-	switch a.(type) {
-	case AtomicType:
-		return a.Kind() == b.Kind()
-	case VectorType:
-		if v, ok := b.(VectorType); ok {
-			return LoTypeEq(a.(VectorType).Type, v.Type)
-		}
-	}
-
-	return false
-}
-
 /* This is perfect in every single way */
 func Delegate(mould, cast *Type) (determined Type, failure *string) {
 	if mould == nil {
@@ -22,10 +9,10 @@ func Delegate(mould, cast *Type) (determined Type, failure *string) {
 	}
 
 	if _, sd := (*cast).(GenericType); sd {
-		return nil, Ref("Cast is T: " + (*cast).String())
+		return nil, Ref("Cast cannot be T: " + (*cast).String())
 	}
 	if _, sdg := (*cast).(SumType); sdg {
-		return nil, Ref("Cast is algebraic group: " + (*cast).String())
+		return nil, Ref("Cast cannot be sum: " + (*cast).String())
 	}
 
 	// First

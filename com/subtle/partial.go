@@ -21,7 +21,7 @@ func (env Environment) AnalysePartial(d *palisade.Dyadic) prism.MonadicFunction 
 
 	fn := op.(prism.DyadicFunction)
 
-	pred := prism.PredicateGenericType(fn.AlphaType)
+	pred := fn.AlphaType.IsAlgebraic()
 
 	tmp := left.Type()
 	resolved_left, err := prism.Delegate(&fn.AlphaType, &tmp)
@@ -29,17 +29,18 @@ func (env Environment) AnalysePartial(d *palisade.Dyadic) prism.MonadicFunction 
 		prism.Panic(*err)
 	}
 
-	if prism.PredicateGenericType(fn.Returns) {
-		fn.Returns = prism.IntegrateGenericType(resolved_left, fn.Returns)
+	if fn.Returns.IsAlgebraic() {
+		fn.Returns = fn.Returns.Resolve(resolved_left)
 	}
 
 	var takes prism.Type
 	if pred {
-		takes = prism.IntegrateGenericType(resolved_left, fn.OmegaType)
-		fn.OmegaType = prism.IntegrateGenericType(resolved_left, fn.OmegaType)
+		// TODO sort this out
+		takes = fn.OmegaType.Resolve(resolved_left)
+		fn.OmegaType = fn.OmegaType.Resolve(resolved_left)
 	}
 
-	dapp := prism.DApplication{
+	dapp := prism.DyadicApplication{
 		Operator: fn,
 		Left:     left,
 		Right:    nil,
@@ -53,13 +54,13 @@ func (env Environment) AnalysePartial(d *palisade.Dyadic) prism.MonadicFunction 
 	}
 
 	mon.Body = []prism.Expression{
-		prism.MApplication{
+		prism.MonadicApplication{
 			Operator: prism.MonadicFunction{
 				Special: false,
 				Name:    prism.Ident{Package: "_", Name: "Return"},
 				Returns: dapp.Operator.Returns,
 			},
-			Operand: prism.DApplication{
+			Operand: prism.DyadicApplication{
 				Operator: dapp.Operator,
 				Left:     dapp.Left,
 				Right:    prism.Omega{TypeOf: takes},
