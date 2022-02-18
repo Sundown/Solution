@@ -1,7 +1,8 @@
 package palisade
 
 type Expression struct {
-	Monadic   *Monadic  `( @@` // This order is extremely important unfortunately.
+	// This order is extremely important
+	Monadic   *Monadic  `( @@`
 	Operator  *Operator `| @@`
 	Dyadic    *Dyadic   `| @@`
 	Morphemes *Morpheme `| @@ )`
