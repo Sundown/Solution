@@ -81,7 +81,7 @@ func Emit(env *Environment) {
 	temp_name := env.Output + "_" + hex.EncodeToString(sum[:]) + ".ll"
 	Verbose("Temp file", temp_name)
 
-	if env.EmitFormat == "llvm" {
+	if env.EmitFormat == "purellvm" {
 		ioutil.WriteFile(env.Output+".ll", out, 0644)
 		Notify("Compiled", env.Output, "to LLVM").Exit()
 	} else {
@@ -89,6 +89,18 @@ func Emit(env *Environment) {
 	}
 
 	VerifyClangVersion()
+
+	opt := "-Ofast"
+	if env.Optimisation != nil {
+		f := strconv.FormatInt(*env.Optimisation, 10)
+		Verbose("Optimisation level", f)
+		opt = "-O" + f
+	}
+
+	sp := ""
+	lp := ""
+	str := "executable"
+	ext := ""
 
 	if env.EmitFormat == "asm" {
 		err := exec.Command("clang", temp_name, "-o", env.Output+".s", "-S").Run()
@@ -100,18 +112,22 @@ func Emit(env *Environment) {
 		Notify("Compiled", env.Output, "to Assembly").Exit()
 	}
 
-	opt := ""
-	if env.Optimisation != nil {
-		f := strconv.FormatInt(*env.Optimisation, 10)
-		Verbose("Optimisation level", f)
-		opt = "-O" + f
+	if env.EmitFormat == "llvm" {
+		sp = "-S"
+		lp = "-emit-llvm"
+		str = "LLVM"
+		ext = ".ll"
+	} else if env.EmitFormat == "asm" {
+		sp = "-S"
+		str = "Assembly"
+		ext = ".s"
 	}
 
-	err := exec.Command("clang", temp_name, opt, "-o", env.Output).Run()
+	err := exec.Command("clang", temp_name, opt, sp, lp, "-o", env.Output+ext).Run()
 	exec.Command("rm", "-f", temp_name).Run()
 	if err != nil {
 		Error(err.Error()).Exit()
 	} else {
-		Notify("Compiled", env.Output, "to executable")
+		Notify("Compiled", env.Output, "to", str)
 	}
 }

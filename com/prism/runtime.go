@@ -4,7 +4,6 @@ import (
 	"os/exec"
 	"regexp"
 	"strconv"
-	"strings"
 )
 
 type Runtime struct {
@@ -39,14 +38,4 @@ func VerifyClangVersion() {
 	}
 
 	Notify("Clang version " + strconv.FormatFloat(ver, 'f', -1, 32))
-}
-
-func GetSolutionVersion() string {
-	s, err := exec.Command("git", "rev-parse", "--short", "HEAD").Output()
-
-	if err != nil {
-		Error("unable to find version").Exit()
-	}
-
-	return strings.TrimSpace(string(s))
 }
