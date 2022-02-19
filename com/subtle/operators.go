@@ -5,24 +5,14 @@ import (
 	"sundown/solution/prism"
 )
 
-func (env Environment) AnalyseDyadicOperator(d *palisade.Monadic) prism.DyadicOperator {
+func (env Environment) AnalyseDyadicOperator(d *palisade.Operator) prism.DyadicOperator {
 	dop := prism.DyadicOperator{}
-	var lexpr prism.Expression
-	if d.Verb != nil {
-		lexpr = env.FetchVerb(d.Verb)
-	} else if d.Subexpr != nil {
-		if d.Subexpr.Dyadic == nil {
-			panic("unreachable")
-		}
 
-		lexpr = env.AnalysePartial(d.Subexpr.Dyadic)
-	} else {
-		panic("Dyadic expression has no left operand")
-	}
+	lexpr := env.FetchVerb(d.Verb)
 
-	rexpr := env.AnalyseExpression(d.Expression.Monadic.Expression)
+	rexpr := env.AnalyseExpression(d.Expression)
 
-	switch *d.Expression.Monadic.Verb.Ident {
+	switch *d.Operator {
 	case "¨":
 		if _, ok := lexpr.(prism.Function); !ok {
 			panic("Left operand is not a function")

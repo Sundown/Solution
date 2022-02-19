@@ -116,14 +116,6 @@ func (env Environment) AnalyseExpression(e *palisade.Expression) prism.Expressio
 		if e.Monadic.Expression == nil {
 			return env.FetchMVerb(e.Monadic.Verb)
 		}
-
-		if e.Monadic.Expression.Monadic != nil {
-			if e.Monadic.Expression.Monadic.Verb != nil &&
-				(*e.Monadic.Expression.Monadic.Verb.Ident == "/" || *e.Monadic.Expression.Monadic.Verb.Ident == "Map") {
-				return env.AnalyseDyadicOperator(e.Monadic)
-			}
-		}
-
 		return env.AnalyseMonadic(e.Monadic)
 	} else if e.Dyadic != nil {
 		if e.Dyadic.Expression == nil {
@@ -132,6 +124,8 @@ func (env Environment) AnalyseExpression(e *palisade.Expression) prism.Expressio
 		return env.AnalyseDyadic(e.Dyadic)
 	} else if e.Morphemes != nil {
 		return env.AnalyseMorphemes(e.Morphemes)
+	} else if e.Operator != nil {
+		return env.AnalyseDyadicOperator(e.Operator)
 	}
 
 	panic("unreachable")
