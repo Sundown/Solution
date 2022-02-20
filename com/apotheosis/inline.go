@@ -37,7 +37,7 @@ func (env *Environment) CompileInlinePrint(val Value) value.Value {
 
 	return env.Block.NewCall(
 		env.GetPrintf(),
-		env.GetFormatStringln(&val.Type),
+		env.GetFormatString(&val.Type),
 		val.Value)
 }
 

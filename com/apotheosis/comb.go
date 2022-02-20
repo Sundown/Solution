@@ -8,6 +8,7 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
+// https://hackage.haskell.org/package/base-4.16.0.0/docs/Prelude.html#v:zipWith
 func (env Environment) CombineOf(in interface{}, a, b Value) value.Value {
 	fn, ok := in.(prism.DyadicFunction)
 	var ret_typ prism.Type
