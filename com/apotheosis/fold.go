@@ -9,28 +9,28 @@ import (
 )
 
 func (env *Environment) CompileInlineFoldl(fn prism.Expression, vec Value) value.Value {
-	lltyp := vec.Type.(prism.VectorType).Type.Realise()
+	vectyp := vec.Type.(prism.VectorType).Type
+	lltyp := vectyp.Realise()
 
 	counter := env.Block.NewAlloca(types.I32)
-	env.Block.NewStore(I32(2), counter) // start at third item
+	len := env.ReadVectorLength(vec)
+	env.Block.NewStore(env.Block.NewSub(len, I32(3)), counter)
 
 	accum := env.Block.NewAlloca(fn.Type().Realise())
 
 	env.Block.NewStore(env.Apply(&fn,
 		Value{
-			env.UnsafeReadVectorElement(vec, I32(0)),
-			vec.Type.(prism.VectorType).Type},
+			env.UnsafeReadVectorElement(vec, env.Block.NewSub(len, I32(2))),
+			vectyp},
 		Value{
-			env.UnsafeReadVectorElement(vec, I32(1)),
-			vec.Type.(prism.VectorType).Type}), accum)
+			env.UnsafeReadVectorElement(vec, env.Block.NewSub(len, I32(1))),
+			vectyp}), accum)
 
 	loopblock := env.CurrentFunction.NewBlock("")
 	exitblock := env.CurrentFunction.NewBlock("")
 
-	res := exitblock.NewLoad(lltyp, accum)
-
 	env.Block.NewCondBr(
-		env.Block.NewICmp(enum.IPredEQ, env.ReadVectorLength(vec), I32(2)),
+		env.Block.NewICmp(enum.IPredEQ, len, I32(2)),
 		exitblock,
 		loopblock)
 
@@ -38,23 +38,21 @@ func (env *Environment) CompileInlineFoldl(fn prism.Expression, vec Value) value
 
 	loopblock.NewStore(env.Apply(&fn,
 		Value{
-			loopblock.NewLoad(lltyp, accum),
-			vec.Type.(prism.VectorType).Type},
-		Value{
 			env.UnsafeReadVectorElement(vec, loopblock.NewLoad(types.I32, counter)),
-			vec.Type.(prism.VectorType).Type}), accum)
+			vectyp},
+		Value{
+			loopblock.NewLoad(lltyp, accum),
+			vectyp}), accum)
 
-	cond := loopblock.NewICmp(
-		enum.IPredSLT,
-		loopblock.NewAdd(loopblock.NewLoad(types.I32, counter), I32(1)),
-		env.ReadVectorLength(vec))
+	lcount := loopblock.NewLoad(types.I32, counter)
 
-	loopblock.NewStore(
-		loopblock.NewAdd(loopblock.NewLoad(types.I32, counter), I32(1)),
-		counter)
+	loopblock.NewStore(loopblock.NewSub(lcount, I32(1)), counter)
 
-	loopblock.NewCondBr(cond, loopblock, exitblock)
+	loopblock.NewCondBr(
+		loopblock.NewICmp(enum.IPredNE, lcount, I32(0)),
+		loopblock,
+		exitblock)
 
 	env.Block = exitblock
-	return res
+	return loopblock.NewLoad(lltyp, accum)
 }
