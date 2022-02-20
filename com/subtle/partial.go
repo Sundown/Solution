@@ -35,9 +35,8 @@ func (env Environment) AnalysePartial(d *palisade.Dyadic) prism.MonadicFunction 
 
 	var takes prism.Type
 	if pred {
-		// TODO sort this out
+		// TODO this won't be defined if the left operand is not an algebraic type???
 		takes = fn.OmegaType.Resolve(resolved_left)
-		fn.OmegaType = fn.OmegaType.Resolve(resolved_left)
 	}
 
 	dapp := prism.DyadicApplication{
