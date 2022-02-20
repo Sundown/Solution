@@ -52,9 +52,9 @@ var (
 	AddSpecial = DyadicFunction{
 		Special:   true,
 		Name:      Ident{Package: "_", Name: "+"},
-		AlphaType: SumType{[]Type{IntType, RealType}},
-		OmegaType: SumType{[]Type{IntType, RealType}},
-		Returns:   SumType{[]Type{IntType, RealType}},
+		AlphaType: SumType{[]Type{IntType, RealType, VectorType{IntType}, VectorType{RealType}}},
+		OmegaType: SumType{[]Type{IntType, RealType, VectorType{IntType}, VectorType{RealType}}},
+		Returns:   SumType{[]Type{IntType, RealType, VectorType{IntType}, VectorType{RealType}}},
 	}
 
 	SubSpecial = DyadicFunction{
