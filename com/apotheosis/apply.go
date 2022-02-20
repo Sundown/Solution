@@ -6,22 +6,32 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-func (env *Environment) Apply(e *prism.Expression, params ...Value) value.Value {
-	switch (*e).(type) {
+func (env *Environment) Apply(c interface{}, params ...Value) value.Value {
+	switch c.(type) {
 	case prism.DyadicFunction:
-		if (*e).(prism.DyadicFunction).Special {
-			id := (*e).(prism.DyadicFunction).Ident()
+		if c.(prism.DyadicFunction).Special {
+			id := c.(prism.DyadicFunction).Ident()
 			return env.GetSpecialDCallable(&id)(params[0], params[1])
 		}
-
-		return env.Block.NewCall(env.CompileExpression(e), params[0].Value, params[1].Value)
+		v, ok := c.(prism.Expression)
+		if !ok {
+			panic("Apply: not an expression")
+		}
+		return env.Block.NewCall(env.CompileExpression(&v), params[0].Value, params[1].Value)
 	case prism.MonadicFunction:
-		if (*e).(prism.MonadicFunction).Special {
-			id := (*e).(prism.MonadicFunction).Ident()
+		if c.(prism.MonadicFunction).Special {
+			id := c.(prism.MonadicFunction).Ident()
 			return env.GetSpecialMCallable(&id)(params[0])
 		}
 
-		return env.Block.NewCall(env.CompileExpression(e), params[0].Value)
+		v, ok := c.(prism.Expression)
+		if !ok {
+			panic("Apply: not an expression")
+		}
+		return env.Block.NewCall(env.CompileExpression(&v), params[0].Value)
+	case DCallable:
+		return c.(DCallable)(params[0], params[1])
 	}
+
 	panic("unreachable")
 }

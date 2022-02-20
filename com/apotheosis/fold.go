@@ -18,7 +18,7 @@ func (env *Environment) CompileInlineFoldl(fn prism.Expression, vec Value) value
 
 	accum := env.Block.NewAlloca(fn.Type().Realise())
 
-	env.Block.NewStore(env.Apply(&fn,
+	env.Block.NewStore(env.Apply(fn,
 		Value{
 			env.UnsafeReadVectorElement(vec, env.Block.NewSub(len, I32(2))),
 			vectyp},
@@ -36,15 +36,14 @@ func (env *Environment) CompileInlineFoldl(fn prism.Expression, vec Value) value
 
 	env.Block = loopblock
 
-	loopblock.NewStore(env.Apply(&fn,
+	lcount := loopblock.NewLoad(types.I32, counter)
+	loopblock.NewStore(env.Apply(fn,
 		Value{
-			env.UnsafeReadVectorElement(vec, loopblock.NewLoad(types.I32, counter)),
+			env.UnsafeReadVectorElement(vec, lcount),
 			vectyp},
 		Value{
 			loopblock.NewLoad(lltyp, accum),
 			vectyp}), accum)
-
-	lcount := loopblock.NewLoad(types.I32, counter)
 
 	loopblock.NewStore(loopblock.NewSub(lcount, I32(1)), counter)
 

@@ -15,6 +15,8 @@ func (env *Environment) CompileInlineAdd(alpha, omega Value) value.Value {
 		return env.Block.NewAdd(alpha.Value, omega.Value)
 	case prism.CharType.ID:
 		return env.Block.NewAdd(alpha.Value, omega.Value)
+	case prism.TypeKindVector:
+		return env.CombineOf(DCallable(env.CompileInlineAdd), alpha, omega)
 	}
 
 	panic("unreachable")

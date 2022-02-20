@@ -35,6 +35,7 @@ func (env *Environment) CompileInlineMap(fn prism.Expression, vec Value) value.V
 		cap := env.ReadVectorCapacity(vec)
 		head = env.Block.NewAlloca(to_head_type)
 
+		// TODO use new vector helpers to tidy
 		// Copy length
 		env.Block.NewStore(leng, env.Block.NewGetElementPtr(to_head_type, head, I32(0), vectorLenOffset))
 
@@ -71,7 +72,7 @@ func (env *Environment) CompileInlineMap(fn prism.Expression, vec Value) value.V
 		cur_elm = loopblock.NewLoad(elm_type, cur_elm)
 	}
 
-	call := env.Apply(&fn,
+	call := env.Apply(fn,
 		Value{
 			cur_elm,
 			vec.Type.(prism.VectorType).Type})
