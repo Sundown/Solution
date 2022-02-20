@@ -8,7 +8,7 @@ func (a AtomicType) Realise() types.Type {
 
 func (v VectorType) Realise() types.Type {
 	return types.NewStruct(
-		types.I32, types.I32, // TODO probably safe to downgrade to 16bit but poor alignment could mean slower
+		types.I32, types.I32,
 		types.NewPointer(v.Type.Realise()))
 }
 

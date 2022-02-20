@@ -39,7 +39,7 @@ func Derive(this, like Type) Type {
 		return nil
 	case SumType:
 		for _, e := range j.Types {
-			if e.Equals(like) { // TODO might be shortsighted
+			if e.Equals(like) {
 				return e
 			}
 		}

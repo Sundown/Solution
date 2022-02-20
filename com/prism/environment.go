@@ -4,7 +4,6 @@ import (
 	"sundown/solution/palisade"
 
 	"github.com/llir/llvm/ir"
-	"github.com/llir/llvm/ir/types"
 )
 
 type Environment struct {
@@ -39,42 +38,12 @@ func NewEnvironment() *Environment {
 	env.DyadicFunctions = make(map[Ident]*DyadicFunction)
 	env.Types = make(map[Ident]Type)
 
-	env.Types[Ident{"_", "Int"}] = AtomicType{
-		ID:           TypeInt,
-		WidthInBytes: 8,
-		Name:         Ident{"_", "Int"},
-		Actual:       types.I64,
-	}
-	env.Types[Ident{"_", "Real"}] = AtomicType{
-		ID:           TypeReal,
-		WidthInBytes: 8,
-		Name:         Ident{"_", "Real"},
-		Actual:       types.Double,
-	}
-	env.Types[Ident{"_", "Char"}] = AtomicType{
-		ID:           TypeChar,
-		WidthInBytes: 1,
-		Name:         Ident{"_", "Char"},
-		Actual:       types.I8,
-	}
-	env.Types[Ident{"_", "String"}] = AtomicType{
-		ID:           TypeString,
-		WidthInBytes: 12, // TODO
-		Name:         Ident{"_", "String"},
-		Actual:       types.I8Ptr,
-	}
-	env.Types[Ident{"_", "Bool"}] = AtomicType{
-		ID:           TypeBool,
-		WidthInBytes: 1,
-		Name:         Ident{"_", "Bool"},
-		Actual:       types.I1,
-	}
-	env.Types[Ident{"_", "Void"}] = AtomicType{
-		ID:           TypeVoid,
-		WidthInBytes: 0,
-		Name:         Ident{"_", "Void"},
-		Actual:       types.Void,
-	}
+	env.Types[Ident{"_", "Int"}] = IntType
+	env.Types[Ident{"_", "Real"}] = RealType
+	env.Types[Ident{"_", "Char"}] = CharType
+	env.Types[Ident{"_", "String"}] = StringType
+	env.Types[Ident{"_", "Bool"}] = BoolType
+	env.Types[Ident{"_", "Void"}] = VoidType
 
 	env.MonadicFunctions[ReturnSpecial.Name] = &ReturnSpecial
 	env.MonadicFunctions[PrintlnSpecial.Name] = &PrintlnSpecial
