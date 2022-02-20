@@ -6,9 +6,7 @@ import (
 )
 
 // Method for creating the specific function of a Dyadic 3-train with determined types
-func (env Environment) D3Train(f, g, h prism.DyadicFunction, a, b prism.Expression) prism.DyadicFunction {
-	APre := a.Type()
-	BPre := b.Type()
+func (env Environment) D3Train(f, g, h prism.DyadicFunction, APre, BPre prism.Type) prism.DyadicFunction {
 
 	Match(&APre, &f.AlphaType)
 	Match(&APre, &h.AlphaType)
@@ -31,12 +29,13 @@ func (env Environment) D3Train(f, g, h prism.DyadicFunction, a, b prism.Expressi
 	}
 
 	dy := prism.DyadicFunction{
-		Special:   false,
-		Name:      prism.Ident{Package: "_", Name: "d3_train_" + fmt.Sprint(env.Iterate())},
-		AlphaType: APre,
-		OmegaType: BPre,
-		Returns:   g.Returns,
-		PreBody:   nil,
+		Special:     false,
+		SkipBuilder: true,
+		Name:        prism.Ident{Package: "_", Name: "d3_train_" + fmt.Sprint(env.Iterate())},
+		AlphaType:   APre,
+		OmegaType:   BPre,
+		Returns:     g.Returns,
+		PreBody:     nil,
 		Body: []prism.Expression{
 			prism.MonadicApplication{
 				Operator: prism.MonadicFunction{
@@ -64,10 +63,7 @@ func (env Environment) D3Train(f, g, h prism.DyadicFunction, a, b prism.Expressi
 	return dy
 }
 
-func (env Environment) D2Train(g prism.MonadicFunction, h prism.DyadicFunction, a, b prism.Expression) prism.DyadicFunction {
-	APre := a.Type()
-	BPre := b.Type()
-
+func (env Environment) D2Train(g prism.MonadicFunction, h prism.DyadicFunction, APre, BPre prism.Type) prism.DyadicFunction {
 	Match(&APre, &h.AlphaType)
 	Match(&BPre, &h.OmegaType)
 
@@ -82,12 +78,13 @@ func (env Environment) D2Train(g prism.MonadicFunction, h prism.DyadicFunction, 
 	}
 
 	dy := prism.DyadicFunction{
-		Special:   false,
-		Name:      prism.Ident{Package: "_", Name: "d3_train"},
-		AlphaType: APre,
-		OmegaType: BPre,
-		Returns:   g.Returns,
-		PreBody:   nil,
+		Special:     false,
+		SkipBuilder: true,
+		Name:        prism.Ident{Package: "_", Name: "d3_train"},
+		AlphaType:   APre,
+		OmegaType:   BPre,
+		Returns:     g.Returns,
+		PreBody:     nil,
 		Body: []prism.Expression{
 			prism.MonadicApplication{
 				Operator: prism.MonadicFunction{

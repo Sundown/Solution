@@ -23,7 +23,8 @@ type Dyadic struct {
 }
 
 type Operator struct {
-	Verb       *Ident      `@@`
+	Subexpr    *Expression `(("(" @@ ")")`
+	Verb       *Ident      `| @@)`
 	Operator   *string     `@Operator`
 	Expression *Expression `@@`
 }

@@ -8,7 +8,7 @@ import (
 // This returns a new DyadicFunction which is the proper composition of functions within
 // the train, arranged according to the number of such functions
 // https://aplwiki.com/wiki/Tacit_programming#Trains
-func (env Environment) AnalyseDyadicPartial(expr *palisade.Expression, left, right prism.Expression) prism.DyadicFunction {
+func (env Environment) AnalyseDyadicPartial(expr *palisade.Expression, left, right prism.Type) prism.DyadicFunction {
 	g := env.FetchDVerb(expr.Monadic.Expression.Monadic.Verb)
 	var dy prism.DyadicFunction
 	if expr.Monadic.Expression.Monadic.Expression != nil {

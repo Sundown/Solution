@@ -8,17 +8,26 @@ import (
 func (env Environment) AnalyseDyadicOperator(d *palisade.Operator) prism.DyadicOperator {
 	dop := prism.DyadicOperator{}
 
-	lexpr := env.FetchVerb(d.Verb)
+	var lexpr prism.Expression
+	if d.Verb != nil {
+		lexpr = env.FetchVerb(d.Verb)
+	}
 
 	rexpr := env.AnalyseExpression(d.Expression)
 
 	switch *d.Operator {
 	case "¨":
-		if _, ok := lexpr.(prism.Function); !ok {
-			panic("Left operand is not a function")
-		}
 		if _, ok := rexpr.Type().(prism.VectorType); !ok {
 			panic("Right operand is not a vector")
+		}
+
+		if d.Subexpr != nil {
+			panic("Not implemented")
+			//lexpr = env.AnalyseMonadicPartial(d.Subexpr, rexpr.Type().(prism.VectorType).Type)
+		}
+
+		if _, ok := lexpr.(prism.Function); !ok {
+			panic("Left operand is not a function")
 		}
 
 		elmtype := rexpr.Type().(prism.VectorType).Type
@@ -47,11 +56,17 @@ func (env Environment) AnalyseDyadicOperator(d *palisade.Operator) prism.DyadicO
 			Returns:  fn.Type(),
 		}
 	case "/":
-		if _, ok := lexpr.(prism.DyadicFunction); !ok {
-			panic("Left operand is not a function")
-		}
 		if _, ok := rexpr.Type().(prism.VectorType); !ok {
 			panic("Right operand is not a vector")
+		}
+
+		if d.Subexpr != nil {
+			t := rexpr.Type().(prism.VectorType).Type
+			lexpr = env.AnalyseDyadicPartial(d.Subexpr, t, t)
+		}
+
+		if _, ok := lexpr.(prism.DyadicFunction); !ok {
+			panic("Left operand is not a function")
 		}
 
 		elmtype := rexpr.Type().(prism.VectorType).Type

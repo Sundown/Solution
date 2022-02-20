@@ -74,19 +74,21 @@ type Cast struct {
 }
 
 type DyadicFunction struct {
-	Special   bool
-	Name      Ident
-	AlphaType Type
-	OmegaType Type
-	Returns   Type
-	PreBody   *[]palisade.Expression
-	Body      []Expression
+	Special     bool
+	SkipBuilder bool
+	Name        Ident
+	AlphaType   Type
+	OmegaType   Type
+	Returns     Type
+	PreBody     *[]palisade.Expression
+	Body        []Expression
 }
 
 type MonadicFunction struct {
-	Special   bool
-	Name      Ident
-	OmegaType Type
+	Special     bool
+	SkipBuilder bool
+	Name        Ident
+	OmegaType   Type
 
 	Returns Type
 	PreBody *[]palisade.Expression

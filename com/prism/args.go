@@ -21,12 +21,14 @@ func Init(env *Environment) *Environment {
 			switch s[2:] {
 			case "emit":
 				if len(os.Args) > i+1 {
-					if os.Args[i+1] != "llvm" && os.Args[i+1] != "asm" {
+					switch os.Args[i+1] {
+					case "llvm", "asm", "purellvm":
+						env.EmitFormat = os.Args[i+1]
+					default:
 						Error("emit expected one of llvm, asm.").Exit()
 					}
 
 					i++
-					env.EmitFormat = os.Args[i]
 					Verbose("Emitting", env.EmitFormat)
 				} else {
 					Error("emit requires argument").Exit()
