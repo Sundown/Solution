@@ -17,15 +17,13 @@ func (env Environment) AnalyseDyadic(d *palisade.Dyadic) prism.DyadicApplication
 
 	var fn prism.DyadicFunction
 	if d.Verb == nil {
-		fn = env.AnalyseDyadicPartial(d.Subexpr, left, right)
+		fn = env.AnalyseDyadicPartial(d.Subexpr, left.Type(), right.Type())
 	} else {
 		fn = env.FetchDVerb(d.Verb)
-		var t prism.Type
 		if !right.Type().Equals(fn.OmegaType) {
 			if !prism.QueryCast(right.Type(), fn.OmegaType) {
 				tmp := right.Type()
-				t, err := prism.Delegate(&fn.OmegaType, &tmp)
-				_ = t
+				_, err := prism.Delegate(&fn.OmegaType, &tmp)
 				if err != nil {
 					prism.Panic(*err)
 				}
@@ -51,7 +49,7 @@ func (env Environment) AnalyseDyadic(d *palisade.Dyadic) prism.DyadicApplication
 		}
 
 		if fn.Returns.IsAlgebraic() {
-			fn.Returns = fn.Returns.Resolve(t)
+			fn.Returns = fn.Returns.Resolve(fn.OmegaType)
 		}
 
 		if fn.Name.Package == "_" && fn.Name.Name == "Return" {

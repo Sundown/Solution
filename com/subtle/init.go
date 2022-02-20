@@ -86,7 +86,7 @@ func (env Environment) InternFunction(f palisade.Function) {
 }
 
 func (env Environment) AnalyseDBody(f *prism.DyadicFunction) {
-	if f.Special {
+	if f.Special || f.SkipBuilder {
 		return
 	}
 
@@ -98,7 +98,7 @@ func (env Environment) AnalyseDBody(f *prism.DyadicFunction) {
 }
 
 func (env Environment) AnalyseMBody(f *prism.MonadicFunction) {
-	if f.Special {
+	if f.Special || f.SkipBuilder {
 		return
 	}
 

@@ -25,7 +25,15 @@ func (env *Environment) CompileInlineFoldl(fn prism.Expression, vec Value) value
 			vec.Type.(prism.VectorType).Type}), accum)
 
 	loopblock := env.CurrentFunction.NewBlock("")
-	env.Block.NewBr(loopblock)
+	exitblock := env.CurrentFunction.NewBlock("")
+
+	res := exitblock.NewLoad(lltyp, accum)
+
+	env.Block.NewCondBr(
+		env.Block.NewICmp(enum.IPredEQ, env.ReadVectorLength(vec), I32(2)),
+		exitblock,
+		loopblock)
+
 	env.Block = loopblock
 
 	loopblock.NewStore(env.Apply(&fn,
@@ -45,11 +53,8 @@ func (env *Environment) CompileInlineFoldl(fn prism.Expression, vec Value) value
 		loopblock.NewAdd(loopblock.NewLoad(types.I32, counter), I32(1)),
 		counter)
 
-	exitblock := env.CurrentFunction.NewBlock("")
-
 	loopblock.NewCondBr(cond, loopblock, exitblock)
 
 	env.Block = exitblock
-
-	return env.Block.NewLoad(lltyp, accum)
+	return res
 }
