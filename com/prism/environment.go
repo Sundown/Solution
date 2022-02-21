@@ -7,8 +7,9 @@ import (
 )
 
 type Environment struct {
-	Iter      uint
-	LexResult *palisade.PalisadeResult
+	CurrentlyInlining bool
+	Iter              uint
+	LexResult         *palisade.PalisadeResult
 	//
 	MonadicFunctions map[Ident]*MonadicFunction
 	DyadicFunctions  map[Ident]*DyadicFunction
@@ -33,6 +34,7 @@ type Environment struct {
 
 func NewEnvironment() *Environment {
 	var env Environment
+	env.CurrentlyInlining = false
 	env.Iter = 0
 	env.MonadicFunctions = make(map[Ident]*MonadicFunction)
 	env.DyadicFunctions = make(map[Ident]*DyadicFunction)

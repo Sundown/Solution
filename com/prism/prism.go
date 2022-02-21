@@ -24,6 +24,7 @@ type Type interface {
 type Function interface {
 	LLVMise() string
 	IsSpecial() bool
+	ShouldInline() bool
 	Type() Type
 	Ident() Ident
 	String() string
@@ -76,6 +77,7 @@ type Cast struct {
 type DyadicFunction struct {
 	Special     bool
 	SkipBuilder bool
+	Inline      bool
 	Name        Ident
 	AlphaType   Type
 	OmegaType   Type
@@ -87,6 +89,7 @@ type DyadicFunction struct {
 type MonadicFunction struct {
 	Special     bool
 	SkipBuilder bool
+	Inline      bool
 	Name        Ident
 	OmegaType   Type
 

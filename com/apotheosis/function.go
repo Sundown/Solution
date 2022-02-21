@@ -4,6 +4,7 @@ import (
 	"sundown/solution/prism"
 
 	"github.com/llir/llvm/ir"
+	"github.com/llir/llvm/ir/enum"
 	"github.com/llir/llvm/ir/types"
 )
 
@@ -37,6 +38,10 @@ func (env *Environment) CompileDyadicFunction(fn prism.DyadicFunction) *ir.Func 
 
 	if fn.Returns.Kind() == prism.VoidType.ID {
 		env.Block.NewRet(nil)
+	}
+
+	if fn.ShouldInline() {
+		env.CurrentFunction.FuncAttrs = []ir.FuncAttribute{enum.FuncAttrAlwaysInline}
 	}
 
 	return env.CurrentFunction
