@@ -60,8 +60,9 @@ func (env *Environment) PopulateBody(
 	}
 }
 
-func (env *Environment) WriteVectorPointer(head *ir.InstAlloca, body *ir.InstBitCast, head_type types.Type) {
+func (env *Environment) WriteVectorPointer(head *ir.InstAlloca, body *ir.InstBitCast, head_type types.Type) value.Value {
 	env.Block.NewStore(body, env.Block.NewGetElementPtr(head_type, head, I32(0), vectorBodyOffset))
+	return head
 }
 
 func (env *Environment) BuildVectorBody(typ types.Type, cap int64, width int64) *ir.InstBitCast {
@@ -69,6 +70,14 @@ func (env *Environment) BuildVectorBody(typ types.Type, cap int64, width int64) 
 		env.GetCalloc(),
 		I32(width), // Byte size of elements
 		I32(cap)),  // How much memory to alloc
+		types.NewPointer(typ)) // Cast alloc'd memory to typ
+}
+
+func (env *Environment) BuildLLVectorBody(typ types.Type, cap value.Value, width int64) *ir.InstBitCast {
+	return env.Block.NewBitCast(env.Block.NewCall(
+		env.GetCalloc(),
+		I32(width), // Byte size of elements
+		cap),       // How much memory to alloc
 		types.NewPointer(typ)) // Cast alloc'd memory to typ
 }
 
@@ -195,4 +204,14 @@ func (env *Environment) ValidateVectorIndex(vec Value, index value.Value) {
 		bfalse, btrue)
 
 	env.Block = btrue
+}
+
+func (env Environment) LLVectorFactory(elm_type prism.Type, size value.Value) (head *ir.InstAlloca, body *ir.InstBitCast) {
+	head = env.Block.NewAlloca(prism.VectorType{Type: elm_type}.Realise())
+	env.WriteLLVectorLength(Value{head, prism.VectorType{Type: elm_type}}, size)
+	env.WriteLLVectorCapacity(Value{head, prism.VectorType{Type: elm_type}}, size)
+	body = env.BuildLLVectorBody(elm_type.Realise(), size, elm_type.Width())
+	env.WriteVectorPointer(head, body, prism.VectorType{Type: elm_type}.Realise())
+
+	return
 }
