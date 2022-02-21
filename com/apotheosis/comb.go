@@ -8,6 +8,7 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
+// TODO define interface type for callable
 // https://hackage.haskell.org/package/base-4.16.0.0/docs/Prelude.html#v:zipWith
 func (env Environment) CombineOf(in interface{}, a, b Value) value.Value {
 	fn, ok := in.(prism.DyadicFunction)
@@ -19,7 +20,10 @@ func (env Environment) CombineOf(in interface{}, a, b Value) value.Value {
 	}
 
 	loopblock := env.CurrentFunction.NewBlock("")
-	exitblock := env.CurrentFunction.NewBlock("")
+	panicblock := env.CurrentFunction.NewBlock("")
+
+	env.LLVMPanic(panicblock, "Combination: vector range mismatch\x0A\x00") // "...\n\0"
+	panicblock.NewUnreachable()
 
 	counter := env.Block.NewAlloca(types.I32)
 	env.Block.NewStore(I32(0), counter)
@@ -42,7 +46,7 @@ func (env Environment) CombineOf(in interface{}, a, b Value) value.Value {
 	env.Block.NewCondBr(
 		env.Block.NewICmp(enum.IPredEQ, len, env.ReadVectorLength(b)),
 		loopblock,
-		exitblock) // TODO should panic
+		panicblock)
 
 	env.Block = loopblock
 
@@ -55,16 +59,17 @@ func (env Environment) CombineOf(in interface{}, a, b Value) value.Value {
 			env.UnsafeReadVectorElement(b, lcount),
 			b.Type.(prism.VectorType).Type})
 
-	loopblock.NewStore(call, loopblock.NewGetElementPtr(ret_typ.Realise(), body, lcount))
+	loopblock.NewStore(call,
+		loopblock.NewGetElementPtr(ret_typ.Realise(), body, lcount))
 
 	loopblock.NewStore(loopblock.NewAdd(lcount, I32(1)), counter)
 
+	env.Block = env.CurrentFunction.NewBlock("")
 	loopblock.NewCondBr(
 		loopblock.NewICmp(enum.IPredNE, lcount, len),
 		loopblock,
-		exitblock)
+		env.Block)
 
-	env.Block = exitblock
 	env.Block.NewStore(body,
 		env.Block.NewGetElementPtr(vectyp.Realise(), newvec, I32(0), vectorBodyOffset))
 

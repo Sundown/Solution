@@ -14,6 +14,11 @@ type Value struct {
 	Type  prism.Type
 }
 
+func (env Environment) New(val value.Value) (res value.Value) {
+	res = env.Block.NewAlloca(val.Type())
+	env.Block.NewStore(val, res)
+	return
+}
 func I64(v int64) constant.Constant {
 	return constant.NewInt(types.I64, v)
 }
