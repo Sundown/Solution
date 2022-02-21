@@ -110,6 +110,10 @@ func (env *Environment) CompileDyadicOperator(dop *prism.DyadicOperator) value.V
 func (env *Environment) CompileMonadicApplication(app *prism.MonadicApplication) value.Value {
 	switch app.Operator.Ident().Name {
 	case "Return":
+		if env.CurrentlyInlining {
+			return env.CompileExpression(&app.Operand)
+		}
+
 		env.Block.NewRet(env.CompileExpression(&app.Operand))
 		return nil
 	case "Println":

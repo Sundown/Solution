@@ -5,6 +5,7 @@ import (
 
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/constant"
+	"github.com/llir/llvm/ir/enum"
 	"github.com/llir/llvm/ir/types"
 )
 
@@ -24,6 +25,10 @@ func Compile(penv *prism.Environment) *prism.Environment {
 	env.Module = ir.NewModule()
 
 	env.Module.SourceFilename = env.Output + ".ll"
+
+	env.Module.AttrGroupDefs = append(
+		ir.NewModule().AttrGroupDefs,
+		&ir.AttrGroupDef{ID: 0, FuncAttrs: []ir.FuncAttribute{enum.FuncAttrAlwaysInline}})
 
 	env.
 		DeclareFunctions().

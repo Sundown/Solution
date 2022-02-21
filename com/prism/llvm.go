@@ -35,3 +35,11 @@ func (f DyadicFunction) LLVMise() string {
 func (f MonadicFunction) LLVMise() string {
 	return f.Name.Package + "::" + f.Name.Name + "_" + f.OmegaType.String() + "->" + f.Returns.String()
 }
+
+func (f DyadicFunction) ShouldInline() bool {
+	return f.Inline
+}
+
+func (f MonadicFunction) ShouldInline() bool {
+	return f.Inline
+}

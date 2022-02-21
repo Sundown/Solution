@@ -31,6 +31,7 @@ func (env Environment) D3Train(f, g, h prism.DyadicFunction, APre, BPre prism.Ty
 	dy := prism.DyadicFunction{
 		Special:     false,
 		SkipBuilder: true,
+		Inline:      true,
 		Name:        prism.Ident{Package: "_", Name: "d3_train_" + fmt.Sprint(env.Iterate())},
 		AlphaType:   APre,
 		OmegaType:   BPre,
@@ -80,6 +81,7 @@ func (env Environment) D2Train(g prism.MonadicFunction, h prism.DyadicFunction, 
 	dy := prism.DyadicFunction{
 		Special:     false,
 		SkipBuilder: true,
+		Inline:      true,
 		Name:        prism.Ident{Package: "_", Name: "d3_train"},
 		AlphaType:   APre,
 		OmegaType:   BPre,
