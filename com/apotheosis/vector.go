@@ -155,6 +155,7 @@ func (env *Environment) ReadVectorElement(vec Value, index value.Value) value.Va
 	return elm
 }
 
+// Add similar function which splits instructions into 2 blocks, 1 for the body address calc and the other for elm calculate and load
 func (env *Environment) UnsafeReadVectorElement(vec Value, index value.Value) value.Value {
 	typ := vec.Type.(prism.VectorType)
 

@@ -79,6 +79,8 @@ func (env *Environment) GetSpecialDCallable(ident *prism.Ident) DCallable {
 		return env.CompileInlineMul
 	case "÷":
 		return env.CompileInlineDiv
+	case "=":
+		return env.CompileInlineEqual
 	case "Max":
 		return env.CompileInlineMax
 	case "Min":
@@ -153,6 +155,10 @@ func (env *Environment) CompileDyadicApplication(app *prism.DyadicApplication) v
 			Value{env.CompileExpression(&app.Right), app.Right.Type()})
 	case "÷":
 		return env.CompileInlineDiv(
+			Value{env.CompileExpression(&app.Left), app.Left.Type()},
+			Value{env.CompileExpression(&app.Right), app.Right.Type()})
+	case "=":
+		return env.CompileInlineEqual(
 			Value{env.CompileExpression(&app.Left), app.Left.Type()},
 			Value{env.CompileExpression(&app.Right), app.Right.Type()})
 	case "Max":

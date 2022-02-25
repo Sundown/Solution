@@ -60,6 +60,7 @@ func NewEnvironment() *Environment {
 	env.DyadicFunctions[DivSpecial.Name] = &DivSpecial
 	env.DyadicFunctions[MaxSpecial.Name] = &MaxSpecial
 	env.DyadicFunctions[MinSpecial.Name] = &MinSpecial
+	env.DyadicFunctions[EqSpecial.Name] = &EqSpecial
 
 	env.DyadicFunctions[AndSpecial.Name] = &AndSpecial
 	env.DyadicFunctions[OrSpecial.Name] = &OrSpecial

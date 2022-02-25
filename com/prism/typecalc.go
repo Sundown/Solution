@@ -1,7 +1,5 @@
 package prism
 
-import "github.com/alecthomas/repr"
-
 func Integrate(this, from Type) Type {
 	switch j := this.(type) {
 	case VectorType:
@@ -47,7 +45,5 @@ func Derive(this, like Type) Type {
 		return like
 	}
 
-	repr.Println(this)
-	repr.Println(like)
 	panic("Unreachable")
 }

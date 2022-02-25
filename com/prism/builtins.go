@@ -49,6 +49,14 @@ var (
 		Returns:   VectorType{GenericType{}},
 	}
 
+	EqSpecial = DyadicFunction{
+		Special:   true,
+		Name:      Ident{Package: "_", Name: "="},
+		AlphaType: GenericType{},
+		OmegaType: GenericType{},
+		Returns:   BoolType,
+	}
+
 	AddSpecial = DyadicFunction{
 		Special:   true,
 		Name:      Ident{Package: "_", Name: "+"},

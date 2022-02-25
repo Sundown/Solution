@@ -26,6 +26,8 @@ func (env *Environment) CompileInlineFoldl(fn prism.Expression, vec Value) value
 	env.Block = loopblock
 
 	lcount := loopblock.NewLoad(types.I32, counter)
+	lcount.SetName("counter_load")
+
 	loopblock.NewStore(
 		env.Apply(fn,
 			Value{env.UnsafeReadVectorElement(vec, lcount), vectyp},

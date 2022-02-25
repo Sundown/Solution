@@ -3,20 +3,21 @@ package subtle
 import (
 	"sundown/solution/palisade"
 	"sundown/solution/prism"
+
+	"github.com/alecthomas/repr"
 )
 
 func (env Environment) AnalyseDyadicOperator(d *palisade.Operator) prism.DyadicOperator {
 	dop := prism.DyadicOperator{}
 
-	var lexpr prism.Expression
-	if d.Verb != nil {
-		lexpr = env.FetchVerb(d.Verb)
-	}
-
 	rexpr := env.AnalyseExpression(d.Expression)
 
 	switch *d.Operator {
 	case "¨":
+		var lexpr prism.Expression
+		if d.Verb != nil {
+			lexpr = env.FetchMVerb(d.Verb)
+		}
 		if _, ok := rexpr.Type().(prism.VectorType); !ok {
 			panic("Right operand is not a vector")
 		}
@@ -56,6 +57,11 @@ func (env Environment) AnalyseDyadicOperator(d *palisade.Operator) prism.DyadicO
 			Returns:  fn.Type(),
 		}
 	case "/":
+
+		var lexpr prism.Expression
+		if d.Verb != nil {
+			lexpr = env.FetchDVerb(d.Verb)
+		}
 		if _, ok := rexpr.Type().(prism.VectorType); !ok {
 			panic("Right operand is not a vector")
 		}
@@ -66,6 +72,7 @@ func (env Environment) AnalyseDyadicOperator(d *palisade.Operator) prism.DyadicO
 		}
 
 		if _, ok := lexpr.(prism.DyadicFunction); !ok {
+			repr.Println(lexpr)
 			panic("Left operand is not a function")
 		}
 
