@@ -6,6 +6,17 @@ import (
 	"github.com/llir/llvm/ir"
 )
 
+func (e Environment) String() (s string) {
+	for _, f := range e.DyadicFunctions {
+		s += f.String()
+	}
+	for _, f := range e.MonadicFunctions {
+		s += f.String()
+	}
+
+	return
+}
+
 type Environment struct {
 	CurrentlyInlining bool
 	Iter              uint

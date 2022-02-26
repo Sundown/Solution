@@ -101,8 +101,8 @@ func (env *Environment) compileDyadicOperator(dop *prism.DyadicOperator) value.V
 			dop.Left,
 			Value{env.compileExpression(&dop.Right), dop.Right.Type()})
 
-	case prism.KindFoldlOperator:
-		return env.compileInlineFoldl(
+	case prism.KindReduceOperator:
+		return env.compileInlineReduce(
 			dop.Left,
 			Value{env.compileExpression(&dop.Right), dop.Right.Type()})
 	}

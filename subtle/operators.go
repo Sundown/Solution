@@ -112,7 +112,7 @@ func (env Environment) analyseDyadicOperator(d *palisade.Operator) prism.DyadicO
 		}
 
 		dop = prism.DyadicOperator{
-			Operator: prism.KindFoldlOperator,
+			Operator: prism.KindReduceOperator,
 			Left:     fn,
 			Right:    rexpr,
 			Returns:  fn.Type(),

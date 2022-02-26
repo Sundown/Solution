@@ -66,3 +66,53 @@ func Delegate(mould, cast *Type) (determined Type, failure *string) {
 
 	panic("unreachable")
 }
+
+// Integrate a concrete type into a sum or generic type
+func Integrate(this, from Type) Type {
+	switch j := this.(type) {
+	case VectorType:
+		if j.IsAlgebraic() {
+			return Integrate(j, from)
+		} else {
+			Panic("Vector is not algebraic")
+		}
+	case SumType:
+		for _, e := range j.Types {
+			if e.Equals(from) {
+				return e
+			}
+		}
+	case GenericType:
+		return from
+	}
+
+	panic("Unreachable")
+}
+
+// Derive concrete type based on likeness of generic/sum type
+func Derive(this, like Type) Type {
+	switch j := this.(type) {
+	case VectorType:
+		if !j.IsAlgebraic() {
+			Panic("Vector is not algebraic")
+		} else if like.IsAlgebraic() {
+			Panic("Cannot derive algebraic type from algebraic type")
+		}
+
+		if v, ok := like.(VectorType); ok {
+			return Derive(j.Type, v.Type)
+		}
+
+		return nil
+	case SumType:
+		for _, e := range j.Types {
+			if e.Equals(like) {
+				return e
+			}
+		}
+	case GenericType:
+		return like
+	}
+
+	panic("Unreachable")
+}
