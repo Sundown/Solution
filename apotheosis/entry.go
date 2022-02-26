@@ -52,7 +52,7 @@ func (env *Environment) DeclareFunctions() *Environment {
 			continue
 		}
 
-		env.LLMonadicFunctions[fn.LLVMise()] = env.DeclareMonadicFunction(*fn)
+		env.LLMonadicFunctions[fn.LLVMise()] = env.declareMonadicFunction(*fn)
 	}
 
 	return env

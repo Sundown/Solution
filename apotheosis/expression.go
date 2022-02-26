@@ -55,9 +55,9 @@ func (env *Environment) GetSpecialMCallable(ident *prism.Ident) MCallable {
 	case "Panic":
 		return env.compileInlinePanic
 	case "Len":
-		return env.ReadVectorLength
+		return env.readVectorLength
 	case "Cap":
-		return env.ReadVectorCapacity
+		return env.readVectorCapacity
 	case "Max":
 		return env.compileInlineCeil
 	case "Min":
@@ -125,9 +125,9 @@ func (env *Environment) compileMonadicApplication(app *prism.MonadicApplication)
 	case "Panic":
 		return env.compileInlinePanic(Value{env.compileExpression(&app.Operand), app.Operand.Type()})
 	case "Len":
-		return env.ReadVectorLength(Value{env.compileExpression(&app.Operand), app.Operand.Type()})
+		return env.readVectorLength(Value{env.compileExpression(&app.Operand), app.Operand.Type()})
 	case "Cap":
-		return env.ReadVectorCapacity(Value{env.compileExpression(&app.Operand), app.Operand.Type()})
+		return env.readVectorCapacity(Value{env.compileExpression(&app.Operand), app.Operand.Type()})
 	case "Max":
 		return env.compileInlineCeil(Value{env.compileExpression(&app.Operand), app.Operand.Type()})
 	case "Min":

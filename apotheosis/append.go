@@ -12,20 +12,20 @@ func (env *Environment) compileInlineAppend(alpha Value, omega Value) value.Valu
 	vec_t := alpha.Type.Realise()
 	elmT := alpha.Type.(prism.VectorType).Type.Realise()
 	elmWidth := I32(alpha.Type.(prism.VectorType).Type.Width())
-	lenA := env.ReadVectorLength(alpha)
+	lenA := env.readVectorLength(alpha)
 
 	// Length of first vector * size of each element, extended to i64
 	sext_lenA_mul := env.Block.NewSExt(env.Block.NewMul(lenA, elmWidth), types.I64)
-	lenB := env.ReadVectorLength(omega)
+	lenB := env.readVectorLength(omega)
 
 	capF := env.Block.NewAdd(
-		env.ReadVectorCapacity(alpha),
-		env.ReadVectorCapacity(omega))
+		env.readVectorCapacity(alpha),
+		env.readVectorCapacity(omega))
 
 	head := env.Block.NewAlloca(vec_t)
 
-	env.WriteLLVectorLength(Value{head, alpha.Type}, env.Block.NewAdd(lenA, lenB))
-	env.WriteLLVectorCapacity(Value{head, alpha.Type}, capF)
+	env.writeLLVectorLength(Value{head, alpha.Type}, env.Block.NewAdd(lenA, lenB))
+	env.writeLLVectorCapacity(Value{head, alpha.Type}, capF)
 
 	body := env.Block.NewCall(
 		env.GetCalloc(),
