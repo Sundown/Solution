@@ -8,7 +8,7 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-func (env *Environment) compileInlineFoldl(fn prism.Expression, vec Value) value.Value {
+func (env *Environment) compileInlineReduce(fn prism.Expression, vec Value) value.Value {
 	vectyp := vec.Type.(prism.VectorType).Type
 
 	len := env.readVectorLength(vec)

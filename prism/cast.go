@@ -1,5 +1,20 @@
 package prism
 
+type Cast struct {
+	Value  Expression
+	ToType Type
+}
+
+// Type property for interface
+func (c Cast) Type() Type {
+	return c.ToType
+}
+
+// String function for interface
+func (c Cast) String() string {
+	return "<" + c.ToType.String() + ">" + c.Value.String()
+}
+
 func DelegateCast(from Expression, to Type) Expression {
 	if !QueryCast(from.Type(), to) {
 		panic("Can't cast " + from.Type().String() + " to " + to.String())
