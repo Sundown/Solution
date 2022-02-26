@@ -3,7 +3,7 @@ package prism
 import (
 	"os"
 
-	"github.com/sundown.solution/palisade"
+	"github.com/sundown/solution/palisade"
 
 	"github.com/alecthomas/participle/v2"
 	"github.com/alecthomas/participle/v2/lexer/stateful"

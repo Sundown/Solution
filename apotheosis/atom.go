@@ -1,7 +1,7 @@
 package apotheosis
 
 import (
-	"github.com/sundown.solution/prism"
+	"github.com/sundown/solution/prism"
 
 	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"

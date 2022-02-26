@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/sundown.solution/apotheosis"
-	"github.com/sundown.solution/prism"
-	"github.com/sundown.solution/subtle"
+	"github.com/sundown/solution/apotheosis"
+	"github.com/sundown/solution/prism"
+	"github.com/sundown/solution/subtle"
 )
 
 func main() {
