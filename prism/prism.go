@@ -1,7 +1,7 @@
 package prism
 
 import (
-	"github.com/sundown.solution/palisade"
+	"github.com/sundown/solution/palisade"
 
 	"github.com/llir/llvm/ir/types"
 )

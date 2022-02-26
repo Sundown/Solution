@@ -1,8 +1,8 @@
 package subtle
 
 import (
-	"github.com/sundown.solution/palisade"
-	"github.com/sundown.solution/prism"
+	"github.com/sundown/solution/palisade"
+	"github.com/sundown/solution/prism"
 )
 
 // This returns a new DyadicFunction which is the proper composition of functions within
