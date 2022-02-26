@@ -7,7 +7,7 @@ import (
 	"github.com/alecthomas/repr"
 )
 
-func (env Environment) AnalyseDyadicOperator(d *palisade.Operator) prism.DyadicOperator {
+func (env Environment) analyseDyadicOperator(d *palisade.Operator) prism.DyadicOperator {
 	dop := prism.DyadicOperator{}
 
 	rexpr := env.AnalyseExpression(d.Expression)
@@ -68,7 +68,7 @@ func (env Environment) AnalyseDyadicOperator(d *palisade.Operator) prism.DyadicO
 
 		if d.Subexpr != nil {
 			t := rexpr.Type().(prism.VectorType).Type
-			lexpr = env.AnalyseDyadicPartial(d.Subexpr, t, t)
+			lexpr = env.analyseDyadicPartial(d.Subexpr, t, t)
 		}
 
 		if _, ok := lexpr.(prism.DyadicFunction); !ok {

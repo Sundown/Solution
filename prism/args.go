@@ -20,15 +20,15 @@ func Init(env *Environment) *Environment {
 		if s[0:2] == "--" {
 			switch s[2:] {
 			case "emit":
-				if len(os.Args) > i+1 {
-					switch os.Args[i+1] {
+				i++
+				if len(os.Args) > i {
+					switch os.Args[i] {
 					case "llvm", "asm", "purellvm":
-						env.EmitFormat = os.Args[i+1]
+						env.EmitFormat = os.Args[i]
 					default:
 						Error("emit expected one of llvm, asm.").Exit()
 					}
 
-					i++
 					Verbose("Emitting", env.EmitFormat)
 				} else {
 					Error("emit requires argument").Exit()
@@ -85,7 +85,7 @@ func Emit(env *Environment) {
 
 	if env.EmitFormat == "purellvm" {
 		ioutil.WriteFile(env.Output+".ll", out, 0644)
-		Notify("Compiled", env.Output, "to LLVM").Exit()
+		Notify("compiled", env.Output, "to LLVM").Exit()
 	} else {
 		ioutil.WriteFile(temp_name, out, 0644)
 	}
@@ -111,7 +111,7 @@ func Emit(env *Environment) {
 			Error(err.Error()).Exit()
 		}
 
-		Notify("Compiled", env.Output, "to Assembly").Exit()
+		Notify("compiled", env.Output, "to Assembly").Exit()
 	}
 
 	if env.EmitFormat == "llvm" {
@@ -130,6 +130,6 @@ func Emit(env *Environment) {
 	if err != nil {
 		Error(err.Error()).Exit()
 	} else {
-		Notify("Compiled", env.Output, "to", str)
+		Notify("compiled", env.Output, "to", str)
 	}
 }

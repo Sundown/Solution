@@ -7,7 +7,7 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-func (env *Environment) CompileInlineEqual(left Value, right Value) value.Value {
+func (env *Environment) compileInlineEqual(left Value, right Value) value.Value {
 	switch left.Type.Kind() {
 	case prism.RealType.ID:
 		return env.Block.NewFCmp(enum.FPredOEQ, left.Value, right.Value)
@@ -18,7 +18,7 @@ func (env *Environment) CompileInlineEqual(left Value, right Value) value.Value 
 	case prism.BoolType.ID:
 		return env.Block.NewICmp(enum.IPredEQ, left.Value, right.Value)
 	case prism.TypeKindVector:
-		return env.CombineOf(DCallable(env.CompileInlineEqual), left, right)
+		return env.CombineOf(DCallable(env.compileInlineEqual), left, right)
 	}
 
 	panic("unreachable")

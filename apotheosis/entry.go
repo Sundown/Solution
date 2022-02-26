@@ -13,6 +13,7 @@ type Environment struct {
 	*prism.Environment
 }
 
+// Entry point to Apotheosis codegen, pass prism.Environment with parsed AST
 func Compile(penv *prism.Environment) *prism.Environment {
 	prism.Verbose("Init compiler")
 
@@ -32,7 +33,7 @@ func Compile(penv *prism.Environment) *prism.Environment {
 
 	env.
 		DeclareFunctions().
-		CompileFunctions().
+		compileFunctions().
 		InitMain()
 
 	return env.Environment
@@ -57,20 +58,20 @@ func (env *Environment) DeclareFunctions() *Environment {
 	return env
 }
 
-func (env *Environment) CompileFunctions() *Environment {
+func (env *Environment) compileFunctions() *Environment {
 	for _, fn := range env.DyadicFunctions {
 		if fn.Special {
 			continue
 		}
 
-		env.LLDyadicFunctions[fn.LLVMise()] = env.CompileDyadicFunction(*fn)
+		env.LLDyadicFunctions[fn.LLVMise()] = env.compileDyadicFunction(*fn)
 	}
 	for _, fn := range env.MonadicFunctions {
 		if fn.Special {
 			continue
 		}
 
-		env.LLMonadicFunctions[fn.LLVMise()] = env.CompileMonadicFunction(*fn)
+		env.LLMonadicFunctions[fn.LLVMise()] = env.compileMonadicFunction(*fn)
 	}
 
 	return env

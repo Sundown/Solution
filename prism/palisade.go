@@ -80,8 +80,8 @@ func ParseIdent(s string) (p Ident) {
 }
 
 func (env Environment) SubstantiateType(t palisade.Type) Type {
-	if t.Primative != nil {
-		if ptr := env.Types[Intern(*t.Primative)]; ptr != nil {
+	if t.Primitive != nil {
+		if ptr := env.Types[Intern(*t.Primitive)]; ptr != nil {
 			return ptr
 		}
 	} else if t.Vector != nil {
