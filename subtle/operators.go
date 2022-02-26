@@ -10,7 +10,7 @@ import (
 func (env Environment) analyseDyadicOperator(d *palisade.Operator) prism.DyadicOperator {
 	dop := prism.DyadicOperator{}
 
-	rexpr := env.AnalyseExpression(d.Expression)
+	rexpr := env.analyseExpression(d.Expression)
 
 	switch *d.Operator {
 	case "¨":
@@ -24,7 +24,7 @@ func (env Environment) analyseDyadicOperator(d *palisade.Operator) prism.DyadicO
 
 		if d.Subexpr != nil {
 			panic("Not implemented")
-			//lexpr = env.AnalyseMonadicPartial(d.Subexpr, rexpr.Type().(prism.VectorType).Type)
+			//lexpr = env.analyseMonadicPartial(d.Subexpr, rexpr.Type().(prism.VectorType).Type)
 		}
 
 		if _, ok := lexpr.(prism.Function); !ok {

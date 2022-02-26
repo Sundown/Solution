@@ -5,20 +5,20 @@ import (
 	"github.com/sundown/solution/prism"
 )
 
-func (env Environment) AnalyseMonadic(m *palisade.Monadic) (app prism.MonadicApplication) {
+func (env Environment) analyseMonadic(m *palisade.Monadic) (app prism.MonadicApplication) {
 	if m.Verb != nil {
-		return env.AnalyseStandardMonadic(m)
+		return env.analyseStandardMonadic(m)
 	} else if m.Subexpr != nil {
-		return env.AnalysePartialMonadic(m)
+		return env.analysePartialMonadic(m)
 	} else {
 		panic("unreachable")
 	}
 }
 
-func (env Environment) AnalysePartialMonadic(m *palisade.Monadic) (app prism.MonadicApplication) {
+func (env Environment) analysePartialMonadic(m *palisade.Monadic) (app prism.MonadicApplication) {
 	app = prism.MonadicApplication{
-		Operator: env.AnalyseExpression(m.Subexpr).(prism.MonadicFunction),
-		Operand:  env.AnalyseExpression(m.Expression),
+		Operator: env.analyseExpression(m.Subexpr).(prism.MonadicFunction),
+		Operand:  env.analyseExpression(m.Expression),
 	}
 
 	tmp := app.Operand.Type()
@@ -34,10 +34,10 @@ func (env Environment) AnalysePartialMonadic(m *palisade.Monadic) (app prism.Mon
 	return app
 }
 
-func (env Environment) AnalyseStandardMonadic(m *palisade.Monadic) (app prism.MonadicApplication) {
+func (env Environment) analyseStandardMonadic(m *palisade.Monadic) (app prism.MonadicApplication) {
 	fn := env.FetchMVerb(m.Verb)
 
-	expr := env.AnalyseExpression(m.Expression)
+	expr := env.analyseExpression(m.Expression)
 
 	tmp := expr.Type()
 	resolved_right, err := prism.Delegate(&fn.OmegaType, &tmp)

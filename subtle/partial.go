@@ -5,16 +5,16 @@ import (
 	"github.com/sundown/solution/prism"
 )
 
-func (env Environment) AnalysePartial(d *palisade.Dyadic) prism.MonadicFunction {
+func (env Environment) analysePartial(d *palisade.Dyadic) prism.MonadicFunction {
 	op := env.FetchVerb(d.Verb)
 	if _, ok := op.(prism.DyadicFunction); !ok {
 		panic("Verb is not a dyadic function")
 	}
 	var left prism.Expression
 	if d.Monadic != nil {
-		left = env.AnalyseMonadic(d.Monadic)
+		left = env.analyseMonadic(d.Monadic)
 	} else if d.Morphemes != nil {
-		left = env.AnalyseMorphemes(d.Morphemes)
+		left = env.analyseMorphemes(d.Morphemes)
 	} else {
 		panic("Dyadic expression has no left operand")
 	}

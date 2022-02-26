@@ -30,11 +30,11 @@ func Parse(penv *prism.Environment) *prism.Environment {
 	}
 
 	for _, f := range env.DyadicFunctions {
-		env.AnalyseDBody(f)
+		env.analyseDBody(f)
 	}
 
 	for _, f := range env.MonadicFunctions {
-		env.AnalyseMBody(f)
+		env.analyseMBody(f)
 	}
 
 	// TODO fix dumb
@@ -85,7 +85,7 @@ func (env Environment) InternFunction(f palisade.Function) {
 	}
 }
 
-func (env Environment) AnalyseDBody(f *prism.DyadicFunction) {
+func (env Environment) analyseDBody(f *prism.DyadicFunction) {
 	if f.Special || f.SkipBuilder {
 		return
 	}
@@ -93,11 +93,11 @@ func (env Environment) AnalyseDBody(f *prism.DyadicFunction) {
 	env.CurrentFunctionIR = *f
 
 	for _, expr := range *f.PreBody {
-		f.Body = append(f.Body, env.AnalyseExpression(&expr))
+		f.Body = append(f.Body, env.analyseExpression(&expr))
 	}
 }
 
-func (env Environment) AnalyseMBody(f *prism.MonadicFunction) {
+func (env Environment) analyseMBody(f *prism.MonadicFunction) {
 	if f.Special || f.SkipBuilder {
 		return
 	}
@@ -106,24 +106,24 @@ func (env Environment) AnalyseMBody(f *prism.MonadicFunction) {
 
 	if len(f.Body) == 0 {
 		for _, expr := range *f.PreBody {
-			f.Body = append(f.Body, env.AnalyseExpression(&expr))
+			f.Body = append(f.Body, env.analyseExpression(&expr))
 		}
 	}
 }
 
-func (env Environment) AnalyseExpression(e *palisade.Expression) prism.Expression {
+func (env Environment) analyseExpression(e *palisade.Expression) prism.Expression {
 	if e.Monadic != nil {
 		if e.Monadic.Expression == nil {
 			return env.FetchMVerb(e.Monadic.Verb)
 		}
-		return env.AnalyseMonadic(e.Monadic)
+		return env.analyseMonadic(e.Monadic)
 	} else if e.Dyadic != nil {
 		if e.Dyadic.Expression == nil {
-			return env.AnalysePartial(e.Dyadic)
+			return env.analysePartial(e.Dyadic)
 		}
 		return env.analyseDyadic(e.Dyadic)
 	} else if e.Morphemes != nil {
-		return env.AnalyseMorphemes(e.Morphemes)
+		return env.analyseMorphemes(e.Morphemes)
 	} else if e.Operator != nil {
 		return env.analyseDyadicOperator(e.Operator)
 	}
