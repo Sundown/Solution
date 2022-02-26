@@ -2,7 +2,8 @@ package subtle
 
 import (
 	"fmt"
-	"sundown/solution/prism"
+
+	"github.com/sundown.solution/prism"
 )
 
 // Method for creating the specific function of a Dyadic 3-train with determined types
