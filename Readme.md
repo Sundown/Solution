@@ -1,26 +1,11 @@
-### Solution
+### Source
 
-Array language compiler with a nice typesystem.
+Palisade: contains parser definition
 
-Solution files are suffixed with `.sol`.
+Subtle: maps parser tree to more detailed AST
 
-Some notes about ongoing implementation:
+Apotheosis: LLVM codegen
 
-- Code generation is done via LLVM, this is done using [llir/llvm](https://github.com/llir/llvm), which will be replaced with LLVM's Go bindings eventually.
-- A (non-JIT) interpreter will be added, which may supplement some optimisations.
-- Solution will invoke Clang on a temporary LLVMIR file when ready.
-- At present, some programs will be faster written in Solution than in C, if Clang is invoked with default options.
-- Basic optimisations such as `leal` combinations for some multiplications, as well as magic numbers for division (once I learn how to have them calculated).
-- More complicated optimisations such as loop-jamming when the `Map` operator is invoked successively will be implemented once the interpreter exists.
-- Type system is made by combination of various types, including but not limited to: `Int`, `Bool`, `Char`... these may be extended to vectors turning them into `String`, much like C.
-- Type system includes sum types (for example a sum type of `Numeric` could be `Int | Real`)
-- A single generic type T exists (alternate options in future), the type of which is substituted into other types in the function's signaturse, as well as any generic-accepting functions called within the function body.
-- Trains (forks and atops) are available in the Dyalog style:
+Prism: contains types for different stages
 
-	`a (fgh) b <=> (a f b) g (a h b)`
-
-	`  (fgh) b <=>   (f b) g (h b)`
-
-	`a (gh) b <=> g (a h b)`
-
-	`  (gh) b <=> g (h b)`
+Oversight: contains methods for errors, arg parsing
