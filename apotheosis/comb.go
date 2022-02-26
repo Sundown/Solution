@@ -27,12 +27,12 @@ func (env Environment) CombineOf(in interface{}, a, b Value) value.Value {
 	counter := env.Block.NewAlloca(types.I32)
 	env.Block.NewStore(I32(0), counter)
 
-	len := env.ReadVectorLength(a)
+	len := env.readVectorLength(a)
 
 	newvec, body := env.LLVectorFactory(ret_typ, len)
 
 	env.Block.NewCondBr(
-		env.Block.NewICmp(enum.IPredEQ, len, env.ReadVectorLength(b)),
+		env.Block.NewICmp(enum.IPredEQ, len, env.readVectorLength(b)),
 		loopblock,
 		panicblock)
 
@@ -40,8 +40,8 @@ func (env Environment) CombineOf(in interface{}, a, b Value) value.Value {
 
 	lcount := loopblock.NewLoad(types.I32, counter)
 	call := env.Apply(in,
-		Value{env.UnsafeReadVectorElement(a, lcount), a.Type.(prism.VectorType).Type},
-		Value{env.UnsafeReadVectorElement(b, lcount), b.Type.(prism.VectorType).Type})
+		Value{env.UnsafereadVectorElement(a, lcount), a.Type.(prism.VectorType).Type},
+		Value{env.UnsafereadVectorElement(b, lcount), b.Type.(prism.VectorType).Type})
 
 	loopblock.NewStore(call, loopblock.NewGetElementPtr(ret_typ.Realise(), body, lcount))
 
@@ -50,5 +50,5 @@ func (env Environment) CombineOf(in interface{}, a, b Value) value.Value {
 	env.Block = env.CurrentFunction.NewBlock("")
 	loopblock.NewCondBr(loopblock.NewICmp(enum.IPredNE, lcount, len), loopblock, env.Block)
 
-	return env.WriteVectorPointer(newvec, body, prism.VectorType{Type: ret_typ}.Realise())
+	return env.writeVectorPointer(newvec, body, prism.VectorType{Type: ret_typ}.Realise())
 }

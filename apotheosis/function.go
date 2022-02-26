@@ -18,15 +18,15 @@ func (env *Environment) compileBlock(body *[]prism.Expression) {
 func (env *Environment) DeclareDyadicFunction(fn prism.DyadicFunction) *ir.Func {
 	return env.Module.NewFunc(
 		fn.LLVMise(),
-		ToReturn(fn.Type()),
-		ToParam(fn.AlphaType), ToParam(fn.OmegaType))
+		toReturn(fn.Type()),
+		toParam(fn.AlphaType), toParam(fn.OmegaType))
 }
 
-func (env *Environment) DeclareMonadicFunction(fn prism.MonadicFunction) *ir.Func {
+func (env *Environment) declareMonadicFunction(fn prism.MonadicFunction) *ir.Func {
 	return env.Module.NewFunc(
 		fn.LLVMise(),
-		ToReturn(fn.Type()),
-		ToParam(fn.OmegaType))
+		toReturn(fn.Type()),
+		toParam(fn.OmegaType))
 }
 
 func (env *Environment) compileDyadicFunction(fn prism.DyadicFunction) *ir.Func {
@@ -62,7 +62,7 @@ func (env *Environment) compileMonadicFunction(fn prism.MonadicFunction) *ir.Fun
 }
 
 // Complex types decay to pointers, atomic types do not
-func ToReturn(t prism.Type) (typ types.Type) {
+func toReturn(t prism.Type) (typ types.Type) {
 	if t.Kind() == prism.VoidType.ID {
 		typ = types.Void
 	} else if _, ok := t.(prism.AtomicType); !ok {
@@ -75,7 +75,7 @@ func ToReturn(t prism.Type) (typ types.Type) {
 }
 
 // Handle void parameters and add pointers to complex types
-func ToParam(t prism.Type) (typ *ir.Param) {
+func toParam(t prism.Type) (typ *ir.Param) {
 	if t.Kind() == prism.VoidType.ID {
 		typ = nil
 	} else if _, ok := t.(prism.AtomicType); !ok {

@@ -11,12 +11,12 @@ import (
 func (env *Environment) compileInlineFoldl(fn prism.Expression, vec Value) value.Value {
 	vectyp := vec.Type.(prism.VectorType).Type
 
-	len := env.ReadVectorLength(vec)
+	len := env.readVectorLength(vec)
 	counter := env.New(env.Block.NewSub(len, I32(3)))
 
 	accum := env.New(env.Apply(fn,
-		Value{env.UnsafeReadVectorElement(vec, env.Block.NewSub(len, I32(2))), vectyp},
-		Value{env.UnsafeReadVectorElement(vec, env.Block.NewSub(len, I32(1))), vectyp}))
+		Value{env.UnsafereadVectorElement(vec, env.Block.NewSub(len, I32(2))), vectyp},
+		Value{env.UnsafereadVectorElement(vec, env.Block.NewSub(len, I32(1))), vectyp}))
 
 	loopblock := env.CurrentFunction.NewBlock("")
 	exitblock := env.CurrentFunction.NewBlock("")
@@ -30,7 +30,7 @@ func (env *Environment) compileInlineFoldl(fn prism.Expression, vec Value) value
 
 	loopblock.NewStore(
 		env.Apply(fn,
-			Value{env.UnsafeReadVectorElement(vec, lcount), vectyp},
+			Value{env.UnsafereadVectorElement(vec, lcount), vectyp},
 			Value{loopblock.NewLoad(vectyp.Realise(), accum), vectyp}),
 		accum)
 

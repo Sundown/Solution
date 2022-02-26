@@ -10,7 +10,7 @@ import (
 
 func (env *Environment) compileInlineMap(fn prism.Expression, vec Value) (head *ir.InstAlloca) {
 	write_pred := fn.Type().Kind() != prism.VoidType.ID
-	leng := env.ReadVectorLength(vec)
+	leng := env.readVectorLength(vec)
 	var body *ir.InstBitCast
 
 	if write_pred {
@@ -26,7 +26,7 @@ func (env *Environment) compileInlineMap(fn prism.Expression, vec Value) (head *
 	curCounter := loopblock.NewLoad(types.I32, counter_store)
 
 	call := env.Apply(fn, Value{
-		env.UnsafeReadVectorElement(vec, curCounter),
+		env.UnsafereadVectorElement(vec, curCounter),
 		vec.Type.(prism.VectorType).Type})
 
 	if write_pred {

@@ -42,7 +42,7 @@ func (env *Environment) compileInlinePrint(val Value) value.Value {
 }
 
 func (env *Environment) compileInlineIndex(left, right Value) value.Value {
-	return env.ReadVectorElement(right, left.Value)
+	return env.readVectorElement(right, left.Value)
 }
 
 func (env *Environment) compileInlinePanic(val Value) value.Value {
