@@ -1,5 +1,7 @@
 ### Solution
 
+[![Go Report Card](https://goreportcard.com/badge/github.com/sundown/solution)](https://goreportcard.com/report/github.com/sundown/solution)
+
 Array language compiler with a nice typesystem.
 
 Solution files are suffixed with `.sol`.
