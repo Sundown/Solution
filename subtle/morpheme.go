@@ -1,8 +1,8 @@
 package subtle
 
 import (
-	"sundown/solution/palisade"
-	"sundown/solution/prism"
+	"github.com/sundown.solution/palisade"
+	"github.com/sundown.solution/prism"
 )
 
 func (env Environment) AnalyseMorphemes(ms *palisade.Morpheme) prism.Expression {
