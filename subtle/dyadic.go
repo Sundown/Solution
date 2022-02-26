@@ -8,12 +8,12 @@ import (
 func (env Environment) analyseDyadic(d *palisade.Dyadic) prism.DyadicApplication {
 	var left prism.Expression
 	if d.Monadic != nil {
-		left = env.AnalyseMonadic(d.Monadic)
+		left = env.analyseMonadic(d.Monadic)
 	} else if d.Morphemes != nil {
-		left = env.AnalyseMorphemes(d.Morphemes)
+		left = env.analyseMorphemes(d.Morphemes)
 	}
 
-	right := env.AnalyseExpression(d.Expression)
+	right := env.analyseExpression(d.Expression)
 
 	var fn prism.DyadicFunction
 	if d.Verb == nil {
