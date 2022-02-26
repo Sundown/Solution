@@ -6,7 +6,7 @@ import (
 	"github.com/sundown/solution/palisade"
 
 	"github.com/alecthomas/participle/v2"
-	"github.com/alecthomas/participle/v2/lexer/stateful"
+	"github.com/alecthomas/participle/v2/lexer"
 )
 
 func Lex(env *Environment) *Environment {
@@ -46,7 +46,7 @@ func Intern(i palisade.Ident) (p Ident) {
 	return
 }
 
-var basicLexer = stateful.MustSimple([]stateful.Rule{
+var basicLexer = lexer.MustSimple([]lexer.Rule{
 	{Name: "whitespace", Pattern: `[ \s]+`, Action: nil}, // THIS IS LOWERCASE FOR A REASON
 	{Name: "EOL", Pattern: `[\n\r]+`, Action: nil},
 	{Name: "String", Pattern: `"(\\"|[^"])*"`, Action: nil},
