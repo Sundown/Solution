@@ -8,7 +8,7 @@ import (
 	"github.com/llir/llvm/ir/types"
 )
 
-func (env *Environment) CompileInlineMap(fn prism.Expression, vec Value) (head *ir.InstAlloca) {
+func (env *Environment) compileInlineMap(fn prism.Expression, vec Value) (head *ir.InstAlloca) {
 	write_pred := fn.Type().Kind() != prism.VoidType.ID
 	leng := env.ReadVectorLength(vec)
 	var body *ir.InstBitCast
@@ -23,17 +23,17 @@ func (env *Environment) CompileInlineMap(fn prism.Expression, vec Value) (head *
 	env.Block.NewBr(loopblock)
 	env.Block = loopblock
 
-	cur_counter := loopblock.NewLoad(types.I32, counter_store)
+	curCounter := loopblock.NewLoad(types.I32, counter_store)
 
 	call := env.Apply(fn, Value{
-		env.UnsafeReadVectorElement(vec, cur_counter),
+		env.UnsafeReadVectorElement(vec, curCounter),
 		vec.Type.(prism.VectorType).Type})
 
 	if write_pred {
-		loopblock.NewStore(call, loopblock.NewGetElementPtr(fn.Type().Realise(), body, cur_counter))
+		loopblock.NewStore(call, loopblock.NewGetElementPtr(fn.Type().Realise(), body, curCounter))
 	}
 
-	incr := loopblock.NewAdd(cur_counter, I32(1))
+	incr := loopblock.NewAdd(curCounter, I32(1))
 
 	loopblock.NewStore(incr, counter_store)
 

@@ -9,7 +9,7 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-func (env *Environment) CompileInlineAnd(alpha, omega Value) value.Value {
+func (env *Environment) compileInlineAnd(alpha, omega Value) value.Value {
 	switch alpha.Type.Kind() {
 	case prism.BoolType.ID:
 		return env.Block.NewAnd(alpha.Value, omega.Value)
@@ -29,7 +29,7 @@ func (env *Environment) CompileInlineAnd(alpha, omega Value) value.Value {
 
 	panic("unreachable")
 }
-func (env *Environment) CompileInlineOr(alpha, omega Value) value.Value {
+func (env *Environment) compileInlineOr(alpha, omega Value) value.Value {
 	switch alpha.Type.Kind() {
 	case prism.BoolType.ID:
 		return env.Block.NewOr(alpha.Value, omega.Value)

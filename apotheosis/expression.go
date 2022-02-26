@@ -6,18 +6,18 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-func (env *Environment) CompileExpression(expr *prism.Expression) value.Value {
+func (env *Environment) compileExpression(expr *prism.Expression) value.Value {
 	switch t := (*expr).(type) {
 	case prism.MonadicApplication:
-		return env.CompileMonadicApplication(&t)
+		return env.compileMonadicApplication(&t)
 	case prism.DyadicApplication:
-		return env.CompileDyadicApplication(&t)
+		return env.compileDyadicApplication(&t)
 	case prism.Morpheme:
-		return env.CompileAtom(&t)
+		return env.compileAtom(&t)
 	case prism.DyadicOperator:
-		return env.CompileDyadicOperator(&t)
+		return env.compileDyadicOperator(&t)
 	case prism.Function:
-		return env.CompileFunction(&t)
+		return env.compileFunction(&t)
 	case prism.Alpha:
 		return env.CurrentFunction.Params[0]
 	case prism.Omega:
@@ -27,13 +27,13 @@ func (env *Environment) CompileExpression(expr *prism.Expression) value.Value {
 			return env.CurrentFunction.Params[1]
 		}
 	case prism.Cast:
-		return env.CompileCast(t)
+		return env.compileCast(t)
 	default:
 		panic("unreachable")
 	}
 }
 
-func (env *Environment) CompileFunction(f *prism.Function) value.Value {
+func (env *Environment) compileFunction(f *prism.Function) value.Value {
 	if mfn, ok := env.LLMonadicFunctions[(*f).LLVMise()]; ok {
 		return mfn
 	} else if dfn, ok := env.LLDyadicFunctions[(*f).LLVMise()]; ok {
@@ -49,19 +49,19 @@ type DCallable func(left, right Value) value.Value
 func (env *Environment) GetSpecialMCallable(ident *prism.Ident) MCallable {
 	switch ident.Name {
 	case "Println":
-		return env.CompileInlinePrintln
+		return env.compileInlinePrintln
 	case "Print":
-		return env.CompileInlinePrint
+		return env.compileInlinePrint
 	case "Panic":
-		return env.CompileInlinePanic
+		return env.compileInlinePanic
 	case "Len":
 		return env.ReadVectorLength
 	case "Cap":
 		return env.ReadVectorCapacity
 	case "Max":
-		return env.CompileInlineCeil
+		return env.compileInlineCeil
 	case "Min":
-		return env.CompileInlineFloor
+		return env.compileInlineFloor
 	default:
 		panic("unreachable")
 	}
@@ -70,130 +70,130 @@ func (env *Environment) GetSpecialMCallable(ident *prism.Ident) MCallable {
 func (env *Environment) GetSpecialDCallable(ident *prism.Ident) DCallable {
 	switch ident.Name {
 	case "GEP":
-		return env.CompileInlineIndex
+		return env.compileInlineIndex
 	case "+":
-		return env.CompileInlineAdd
+		return env.compileInlineAdd
 	case "-":
-		return env.CompileInlineSub
+		return env.compileInlineSub
 	case "*":
-		return env.CompileInlineMul
+		return env.compileInlineMul
 	case "÷":
-		return env.CompileInlineDiv
+		return env.compileInlineDiv
 	case "=":
-		return env.CompileInlineEqual
+		return env.compileInlineEqual
 	case "Max":
-		return env.CompileInlineMax
+		return env.compileInlineMax
 	case "Min":
-		return env.CompileInlineMin
+		return env.compileInlineMin
 	case "&":
-		return env.CompileInlineAnd
+		return env.compileInlineAnd
 	case "|":
-		return env.CompileInlineAnd
+		return env.compileInlineAnd
 	default:
 		panic("unreachable")
 	}
 }
 
-func (env *Environment) CompileDyadicOperator(dop *prism.DyadicOperator) value.Value {
+func (env *Environment) compileDyadicOperator(dop *prism.DyadicOperator) value.Value {
 	switch dop.Operator {
 	case prism.KindMapOperator:
-		return env.CompileInlineMap(
+		return env.compileInlineMap(
 			dop.Left,
-			Value{env.CompileExpression(&dop.Right), dop.Right.Type()})
+			Value{env.compileExpression(&dop.Right), dop.Right.Type()})
 
 	case prism.KindFoldlOperator:
-		return env.CompileInlineFoldl(
+		return env.compileInlineFoldl(
 			dop.Left,
-			Value{env.CompileExpression(&dop.Right), dop.Right.Type()})
+			Value{env.compileExpression(&dop.Right), dop.Right.Type()})
 	}
 	panic("unreachable")
 }
 
-func (env *Environment) CompileMonadicApplication(app *prism.MonadicApplication) value.Value {
+func (env *Environment) compileMonadicApplication(app *prism.MonadicApplication) value.Value {
 	switch app.Operator.Ident().Name {
 	case "Return":
 		if env.CurrentlyInlining {
-			return env.CompileExpression(&app.Operand)
+			return env.compileExpression(&app.Operand)
 		}
 
-		env.Block.NewRet(env.CompileExpression(&app.Operand))
+		env.Block.NewRet(env.compileExpression(&app.Operand))
 		return nil
 	case "Println":
-		return env.CompileInlinePrintln(Value{env.CompileExpression(&app.Operand), app.Operand.Type()})
+		return env.compileInlinePrintln(Value{env.compileExpression(&app.Operand), app.Operand.Type()})
 	case "Print":
-		return env.CompileInlinePrint(Value{env.CompileExpression(&app.Operand), app.Operand.Type()})
+		return env.compileInlinePrint(Value{env.compileExpression(&app.Operand), app.Operand.Type()})
 	case "Panic":
-		return env.CompileInlinePanic(Value{env.CompileExpression(&app.Operand), app.Operand.Type()})
+		return env.compileInlinePanic(Value{env.compileExpression(&app.Operand), app.Operand.Type()})
 	case "Len":
-		return env.ReadVectorLength(Value{env.CompileExpression(&app.Operand), app.Operand.Type()})
+		return env.ReadVectorLength(Value{env.compileExpression(&app.Operand), app.Operand.Type()})
 	case "Cap":
-		return env.ReadVectorCapacity(Value{env.CompileExpression(&app.Operand), app.Operand.Type()})
+		return env.ReadVectorCapacity(Value{env.compileExpression(&app.Operand), app.Operand.Type()})
 	case "Max":
-		return env.CompileInlineCeil(Value{env.CompileExpression(&app.Operand), app.Operand.Type()})
+		return env.compileInlineCeil(Value{env.compileExpression(&app.Operand), app.Operand.Type()})
 	case "Min":
-		return env.CompileInlineFloor(Value{env.CompileExpression(&app.Operand), app.Operand.Type()})
+		return env.compileInlineFloor(Value{env.compileExpression(&app.Operand), app.Operand.Type()})
 	default:
 		return env.Block.NewCall(
 			env.LLMonadicFunctions[app.Operator.LLVMise()],
-			env.CompileExpression(&app.Operand))
+			env.compileExpression(&app.Operand))
 	}
 }
 
-func (env *Environment) CompileDyadicApplication(app *prism.DyadicApplication) value.Value {
+func (env *Environment) compileDyadicApplication(app *prism.DyadicApplication) value.Value {
 	switch app.Operator.Ident().Name {
 	case "+":
-		return env.CompileInlineAdd(
-			Value{env.CompileExpression(&app.Left), app.Left.Type()},
-			Value{env.CompileExpression(&app.Right), app.Right.Type()})
+		return env.compileInlineAdd(
+			Value{env.compileExpression(&app.Left), app.Left.Type()},
+			Value{env.compileExpression(&app.Right), app.Right.Type()})
 	case "-":
-		return env.CompileInlineSub(
-			Value{env.CompileExpression(&app.Left), app.Left.Type()},
-			Value{env.CompileExpression(&app.Right), app.Right.Type()})
+		return env.compileInlineSub(
+			Value{env.compileExpression(&app.Left), app.Left.Type()},
+			Value{env.compileExpression(&app.Right), app.Right.Type()})
 	case "*":
-		return env.CompileInlineMul(
-			Value{env.CompileExpression(&app.Left), app.Left.Type()},
-			Value{env.CompileExpression(&app.Right), app.Right.Type()})
+		return env.compileInlineMul(
+			Value{env.compileExpression(&app.Left), app.Left.Type()},
+			Value{env.compileExpression(&app.Right), app.Right.Type()})
 	case "÷":
-		return env.CompileInlineDiv(
-			Value{env.CompileExpression(&app.Left), app.Left.Type()},
-			Value{env.CompileExpression(&app.Right), app.Right.Type()})
+		return env.compileInlineDiv(
+			Value{env.compileExpression(&app.Left), app.Left.Type()},
+			Value{env.compileExpression(&app.Right), app.Right.Type()})
 	case "=":
-		return env.CompileInlineEqual(
-			Value{env.CompileExpression(&app.Left), app.Left.Type()},
-			Value{env.CompileExpression(&app.Right), app.Right.Type()})
+		return env.compileInlineEqual(
+			Value{env.compileExpression(&app.Left), app.Left.Type()},
+			Value{env.compileExpression(&app.Right), app.Right.Type()})
 	case "Max":
-		return env.CompileInlineMax(
-			Value{env.CompileExpression(&app.Left), app.Left.Type()},
-			Value{env.CompileExpression(&app.Right), app.Right.Type()})
+		return env.compileInlineMax(
+			Value{env.compileExpression(&app.Left), app.Left.Type()},
+			Value{env.compileExpression(&app.Right), app.Right.Type()})
 	case "Min":
-		return env.CompileInlineMin(
-			Value{env.CompileExpression(&app.Left), app.Left.Type()},
-			Value{env.CompileExpression(&app.Right), app.Right.Type()})
+		return env.compileInlineMin(
+			Value{env.compileExpression(&app.Left), app.Left.Type()},
+			Value{env.compileExpression(&app.Right), app.Right.Type()})
 	case "GEP":
-		return env.CompileInlineIndex(
-			Value{env.CompileExpression(&app.Left), app.Left.Type()},
-			Value{env.CompileExpression(&app.Right), app.Right.Type()})
+		return env.compileInlineIndex(
+			Value{env.compileExpression(&app.Left), app.Left.Type()},
+			Value{env.compileExpression(&app.Right), app.Right.Type()})
 	case "Append":
-		return env.CompileInlineAppend(
-			Value{env.CompileExpression(&app.Left), app.Left.Type()},
-			Value{env.CompileExpression(&app.Right), app.Right.Type()})
+		return env.compileInlineAppend(
+			Value{env.compileExpression(&app.Left), app.Left.Type()},
+			Value{env.compileExpression(&app.Right), app.Right.Type()})
 	case "Equals":
-		return env.CompileInlineEqual(
-			Value{env.CompileExpression(&app.Left), app.Left.Type()},
-			Value{env.CompileExpression(&app.Right), app.Right.Type()})
+		return env.compileInlineEqual(
+			Value{env.compileExpression(&app.Left), app.Left.Type()},
+			Value{env.compileExpression(&app.Right), app.Right.Type()})
 	case "&":
-		return env.CompileInlineAnd(
-			Value{env.CompileExpression(&app.Left), app.Left.Type()},
-			Value{env.CompileExpression(&app.Right), app.Right.Type()})
+		return env.compileInlineAnd(
+			Value{env.compileExpression(&app.Left), app.Left.Type()},
+			Value{env.compileExpression(&app.Right), app.Right.Type()})
 	case "|":
-		return env.CompileInlineAnd(
-			Value{env.CompileExpression(&app.Left), app.Left.Type()},
-			Value{env.CompileExpression(&app.Right), app.Right.Type()})
+		return env.compileInlineAnd(
+			Value{env.compileExpression(&app.Left), app.Left.Type()},
+			Value{env.compileExpression(&app.Right), app.Right.Type()})
 	default:
 		call := env.Block.NewCall(
 			env.LLDyadicFunctions[app.Operator.LLVMise()],
-			env.CompileExpression(&app.Left),
-			env.CompileExpression(&app.Right))
+			env.compileExpression(&app.Left),
+			env.compileExpression(&app.Right))
 
 		return call
 	}

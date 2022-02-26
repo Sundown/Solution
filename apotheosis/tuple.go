@@ -1,11 +1,11 @@
 package apotheosis
 
 /*
-func (env *Environment) CompileTuple(tuple *prism.Morpheme) value.Value {
+func (env *Environment) compileTuple(tuple *prism.Morpheme) value.Value {
 	ll_tuple := env.Block.NewAlloca(tuple.TypeOf.AsLLType())
 
 	for index, expr := range tuple.Tuple {
-		val := env.CompileExpression(expr)
+		val := env.compileExpression(expr)
 
 		if expr.TypeOf.Atomic == nil {
 			val = env.Block.NewLoad(expr.TypeOf.AsLLType(), val)

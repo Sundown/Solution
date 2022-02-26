@@ -66,7 +66,7 @@ func (env Environment) AnalyseStandardMonadic(m *palisade.Monadic) (app prism.Mo
 	if fn.Name.Package == "_" && fn.Name.Name == "Return" {
 		if !env.CurrentFunctionIR.Type().Equals(fn.Returns) {
 			if !env.CurrentFunctionIR.Type().IsAlgebraic() {
-				panic("Return recieves " + fn.Returns.String() + " which does not match determined-function's type " + env.CurrentFunctionIR.Type().String())
+				panic("Return receives " + fn.Returns.String() + " which does not match determined-function's type " + env.CurrentFunctionIR.Type().String())
 			} else {
 				panic("Not implemented, pain")
 			}

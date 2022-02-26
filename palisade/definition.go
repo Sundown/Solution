@@ -34,7 +34,7 @@ type Function struct {
 }
 
 type Type struct {
-	Primative *Ident  ` @@`
+	Primitive *Ident  ` @@`
 	Vector    *Type   `| "[" @@ "]"`
 	Tuple     []*Type `| "(" (@@ ("," @@)*)? ")"`
 }

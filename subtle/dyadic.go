@@ -5,7 +5,7 @@ import (
 	"github.com/sundown/solution/prism"
 )
 
-func (env Environment) AnalyseDyadic(d *palisade.Dyadic) prism.DyadicApplication {
+func (env Environment) analyseDyadic(d *palisade.Dyadic) prism.DyadicApplication {
 	var left prism.Expression
 	if d.Monadic != nil {
 		left = env.AnalyseMonadic(d.Monadic)
@@ -17,7 +17,7 @@ func (env Environment) AnalyseDyadic(d *palisade.Dyadic) prism.DyadicApplication
 
 	var fn prism.DyadicFunction
 	if d.Verb == nil {
-		fn = env.AnalyseDyadicPartial(d.Subexpr, left.Type(), right.Type())
+		fn = env.analyseDyadicPartial(d.Subexpr, left.Type(), right.Type())
 	} else {
 		fn = env.FetchDVerb(d.Verb)
 		if !right.Type().Equals(fn.OmegaType) {
@@ -55,7 +55,7 @@ func (env Environment) AnalyseDyadic(d *palisade.Dyadic) prism.DyadicApplication
 		if fn.Name.Package == "_" && fn.Name.Name == "Return" {
 			if !env.CurrentFunctionIR.Type().Equals(fn.Returns) {
 				if !env.CurrentFunctionIR.Type().IsAlgebraic() {
-					panic("Return recieves type which does not match determined-function's type")
+					panic("Return receives type which does not match determined-function's type")
 				} else {
 					panic("Not implemented, pain")
 				}

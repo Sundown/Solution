@@ -1,7 +1,6 @@
 package main
 
 import (
-	"github.com/sundown/solution/apotheosis"
 	"github.com/sundown/solution/prism"
 	"github.com/sundown/solution/subtle"
 )
@@ -20,7 +19,7 @@ func main() {
 	// Parse lexed tokens to AST and resolve compiler directives
 	subtle.Parse(env)
 
-	// Compile AST to LLVM
+	// compile AST to LLVM
 	apotheosis.Compile(env)
 
 	// Write LLVM IR to file or invoke Clang

@@ -8,7 +8,7 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-func (env *Environment) CompileAtom(morpheme *prism.Morpheme) value.Value {
+func (env *Environment) compileAtom(morpheme *prism.Morpheme) value.Value {
 	switch v := (*morpheme).(type) {
 	case prism.Int:
 		return constant.NewInt(types.I64, v.Value)
@@ -19,9 +19,9 @@ func (env *Environment) CompileAtom(morpheme *prism.Morpheme) value.Value {
 	case prism.Bool:
 		return constant.NewBool(v.Value)
 	case prism.Vector:
-		return env.CompileVector(v)
+		return env.compileVector(v)
 	/*case prism.Tuple:
-		return env.CompileTuple(morpheme)
+		return env.compileTuple(morpheme)
 	case prism.Function:
 		fmt.Println("fn", morpheme)
 		return env.Functions[morpheme.Function.ToLLVMName()] */
