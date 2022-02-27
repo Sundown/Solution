@@ -6,17 +6,19 @@ type StructType struct {
 	FieldTypes []Type
 }
 
-// Interface prism.Type comparison
+// Interface Type comparison
 func (s StructType) Equals(b Type) (acc bool) {
-	panic("Not implemented yet")
+	Panic("Not implemented yet")
+	panic(nil)
 }
 
-// Interface prism.Type algebraic predicate
+// Interface Type algebraic predicate
 func (s StructType) IsAlgebraic() (acc bool) {
-	panic("Not implemented yet")
+	Panic("Not implemented yet")
+	panic(nil)
 }
 
-// Interface prism.Type width for LLVM codegen
+// Interface Type width for LLVM codegen
 func (s StructType) Width() (acc int64) {
 	for _, v := range s.FieldTypes {
 		acc += v.Width()
@@ -55,5 +57,6 @@ func (s StructType) Kind() int {
 // Resolve composes Integrate with Derive,
 // Fills in sum/generic type based on a concrete type
 func (s StructType) Resolve(t Type) Type {
-	panic("Not implemented yet")
+	Panic("Not implemented yet")
+	panic(nil)
 }

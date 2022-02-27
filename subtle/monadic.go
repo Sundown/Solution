@@ -10,9 +10,10 @@ func (env Environment) analyseMonadic(m *palisade.Monadic) (app prism.MonadicApp
 		return env.analyseStandardMonadic(m)
 	} else if m.Subexpr != nil {
 		return env.analysePartialMonadic(m)
-	} else {
-		panic("unreachable")
 	}
+
+	prism.Panic("unreachable")
+	panic(nil)
 }
 
 func (env Environment) analysePartialMonadic(m *palisade.Monadic) (app prism.MonadicApplication) {
@@ -20,6 +21,12 @@ func (env Environment) analysePartialMonadic(m *palisade.Monadic) (app prism.Mon
 		Operator: env.analyseExpression(m.Subexpr).(prism.MonadicFunction),
 		Operand:  env.analyseExpression(m.Expression),
 	}
+
+	// TODO implement monadic train system
+	//      ++++
+	//	   ┌─┴─┐
+	//	   + ┌─┼─┐
+	//	     + + +
 
 	tmp := app.Operand.Type()
 	resolved_right, err := prism.Delegate(&app.Operator.OmegaType, &tmp)
@@ -66,9 +73,9 @@ func (env Environment) analyseStandardMonadic(m *palisade.Monadic) (app prism.Mo
 	if fn.Name.Package == "_" && fn.Name.Name == "Return" {
 		if !env.CurrentFunctionIR.Type().Equals(fn.Returns) {
 			if !env.CurrentFunctionIR.Type().IsAlgebraic() {
-				panic("Return receives " + fn.Returns.String() + " which does not match determined-function's type " + env.CurrentFunctionIR.Type().String())
+				prism.Panic("Return receives " + fn.Returns.String() + " which does not match determined-function's type " + env.CurrentFunctionIR.Type().String())
 			} else {
-				panic("Not implemented, pain")
+				prism.Panic("Not implemented, pain")
 			}
 		}
 	}

@@ -8,7 +8,6 @@ import (
 
 // Method for creating the specific function of a Dyadic 3-train with determined types
 func (env Environment) D3Train(f, g, h prism.DyadicFunction, APre, BPre prism.Type) prism.DyadicFunction {
-
 	Match(&APre, &f.AlphaType)
 	Match(&APre, &h.AlphaType)
 	Match(&BPre, &f.OmegaType)

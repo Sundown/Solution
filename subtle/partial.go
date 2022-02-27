@@ -8,7 +8,7 @@ import (
 func (env Environment) analysePartial(d *palisade.Dyadic) prism.MonadicFunction {
 	op := env.FetchVerb(d.Verb)
 	if _, ok := op.(prism.DyadicFunction); !ok {
-		panic("Verb is not a dyadic function")
+		prism.Panic("Verb is not a dyadic function")
 	}
 	var left prism.Expression
 	if d.Monadic != nil {
@@ -16,7 +16,7 @@ func (env Environment) analysePartial(d *palisade.Dyadic) prism.MonadicFunction 
 	} else if d.Morphemes != nil {
 		left = env.analyseMorphemes(d.Morphemes)
 	} else {
-		panic("Dyadic expression has no left operand")
+		prism.Panic("Dyadic expression has no left operand")
 	}
 
 	fn := op.(prism.DyadicFunction)

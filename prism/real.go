@@ -10,12 +10,12 @@ type Real struct {
 	Value float64
 }
 
-// Interface prism.Type comparison
+// Interface Type comparison
 func (t Real) Equals(b Type) bool {
 	return b.Kind() == TypeReal
 }
 
-// Interface prism.Type width for LLVM codegen
+// Interface Type width for LLVM codegen
 func (t Real) Width() int {
 	return RealType.WidthInBytes
 }
@@ -40,10 +40,11 @@ func (r Real) String() string {
 // Resolve composes Integrate with Derive,
 // Should not be used on concrete types
 func (i Real) Resolve(t Type) Type {
-	panic("Unreachable")
+	Panic("Unreachable")
+	panic(nil)
 }
 
-// Interface prism.Type algebraic predicate
+// Interface Type algebraic predicate
 func (t Real) IsAlgebraic() bool {
 	return false
 }

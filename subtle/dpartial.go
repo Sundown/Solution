@@ -35,7 +35,7 @@ func Match(e *prism.Type, t *prism.Type) {
 		if !prism.QueryCast(*e, *t) {
 			_, err := prism.Delegate(t, e)
 			if err != nil {
-				panic(*err)
+				prism.Panic(*err)
 			}
 		}
 	}

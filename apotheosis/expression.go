@@ -29,8 +29,9 @@ func (env *Environment) compileExpression(expr *prism.Expression) value.Value {
 	case prism.Cast:
 		return env.compileCast(t)
 	default:
-		panic("unreachable")
+		prism.Panic("unreachable")
 	}
+	panic(nil)
 }
 
 func (env *Environment) compileFunction(f *prism.Function) value.Value {
@@ -40,7 +41,8 @@ func (env *Environment) compileFunction(f *prism.Function) value.Value {
 		return dfn
 	}
 
-	panic("Not found")
+	prism.Panic("Not found")
+	panic(nil)
 }
 
 type MCallable func(val Value) value.Value
@@ -63,8 +65,9 @@ func (env *Environment) GetSpecialMCallable(ident *prism.Ident) MCallable {
 	case "Min":
 		return env.compileInlineFloor
 	default:
-		panic("unreachable")
+		prism.Panic("unreachable")
 	}
+	panic(nil)
 }
 
 func (env *Environment) GetSpecialDCallable(ident *prism.Ident) DCallable {
@@ -90,8 +93,9 @@ func (env *Environment) GetSpecialDCallable(ident *prism.Ident) DCallable {
 	case "|":
 		return env.compileInlineAnd
 	default:
-		panic("unreachable")
+		prism.Panic("unreachable")
 	}
+	panic(nil)
 }
 
 func (env *Environment) compileDyadicOperator(dop *prism.DyadicOperator) value.Value {
@@ -106,7 +110,8 @@ func (env *Environment) compileDyadicOperator(dop *prism.DyadicOperator) value.V
 			dop.Left,
 			Value{env.compileExpression(&dop.Right), dop.Right.Type()})
 	}
-	panic("unreachable")
+	prism.Panic("unreachable")
+	panic(nil)
 }
 
 func (env *Environment) compileMonadicApplication(app *prism.MonadicApplication) value.Value {

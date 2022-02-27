@@ -46,8 +46,9 @@ func (env *Environment) DefaultValue(t prism.Type) value.Value {
 	} else if t.Equals(prism.BoolType) {
 		return constant.NewBool(false)
 	} else {
-		panic("Not yet implemented")
+		prism.Panic("Not yet implemented")
 	}
+	panic(nil)
 }
 
 // Will work for vectors too once they can be mutated
@@ -61,8 +62,9 @@ func (env *Environment) Number(t *prism.Type, n float64) value.Value {
 	} else if (*t).Equals(prism.BoolType) {
 		return constant.NewBool(false)
 	} else {
-		panic("Not yet implemented")
+		prism.Panic("Not yet implemented")
 	}
+	panic(nil)
 }
 
 func (env *Environment) AgnosticAdd(t *prism.Type, x, y value.Value) value.Value {
@@ -73,8 +75,9 @@ func (env *Environment) AgnosticAdd(t *prism.Type, x, y value.Value) value.Value
 	} else if (*t).Equals(prism.CharType) {
 		return env.Block.NewAdd(x, y)
 	} else {
-		panic("Not yet implemented")
+		prism.Panic("Not yet implemented")
 	}
+	panic(nil)
 }
 
 func (env *Environment) AgnosticMult(t *prism.Type, x, y value.Value) value.Value {
@@ -85,8 +88,9 @@ func (env *Environment) AgnosticMult(t *prism.Type, x, y value.Value) value.Valu
 	} else if (*t).Equals(prism.CharType) {
 		return env.Block.NewMul(x, y)
 	} else {
-		panic("Not yet implemented")
+		prism.Panic("Not yet implemented")
 	}
+	panic(nil)
 }
 
 func (env *Environment) GetFormatStringln(t *prism.Type) value.Value {

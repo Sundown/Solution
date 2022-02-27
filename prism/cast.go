@@ -17,7 +17,7 @@ func (c Cast) String() string {
 
 func DelegateCast(from Expression, to Type) Expression {
 	if !QueryCast(from.Type(), to) {
-		panic("Can't cast " + from.Type().String() + " to " + to.String())
+		Panic("Can't cast " + from.Type().String() + " to " + to.String())
 	}
 
 	switch from.Type().(type) {
@@ -35,7 +35,8 @@ func DelegateCast(from Expression, to Type) Expression {
 		}
 	}
 
-	panic("not implemented")
+	Panic("not implemented")
+	panic(nil)
 }
 
 func QueryCast(from, to Type) bool {

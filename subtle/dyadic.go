@@ -55,9 +55,9 @@ func (env Environment) analyseDyadic(d *palisade.Dyadic) prism.DyadicApplication
 		if fn.Name.Package == "_" && fn.Name.Name == "Return" {
 			if !env.CurrentFunctionIR.Type().Equals(fn.Returns) {
 				if !env.CurrentFunctionIR.Type().IsAlgebraic() {
-					panic("Return receives type which does not match determined-function's type")
+					prism.Panic("Return receives type which does not match determined-function's type")
 				} else {
-					panic("Not implemented, pain")
+					prism.Panic("Not implemented, pain")
 				}
 			}
 		}

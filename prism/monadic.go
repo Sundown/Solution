@@ -1,7 +1,8 @@
 package prism
 
 import (
-	"github.com/alecthomas/repr"
+	"fmt"
+
 	"github.com/sundown/solution/palisade"
 )
 
@@ -42,7 +43,7 @@ func (f MonadicFunction) String() (s string) {
 			s += " " + p.String() + "\n"
 		}
 	} else if f.PreBody != nil {
-		repr.String(f.PreBody)
+		fmt.Println("PREBODY")
 	}
 
 	return s + "∇\n"

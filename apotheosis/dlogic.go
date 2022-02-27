@@ -27,7 +27,8 @@ func (env *Environment) compileInlineAnd(alpha, omega Value) value.Value {
 			env.Block.NewICmp(enum.IPredSGT, omega.Value, constant.NewInt(types.I8, 0))), types.I8)
 	}
 
-	panic("unreachable")
+	prism.Panic("unreachable")
+	panic(nil)
 }
 func (env *Environment) compileInlineOr(alpha, omega Value) value.Value {
 	switch alpha.Type.Kind() {
@@ -48,5 +49,6 @@ func (env *Environment) compileInlineOr(alpha, omega Value) value.Value {
 
 	}
 
-	panic("unreachable")
+	prism.Panic("unreachable")
+	panic(nil)
 }

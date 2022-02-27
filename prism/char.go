@@ -9,12 +9,12 @@ var CharType = AtomicType{
 	Actual:       types.I8,
 }
 
-// Interface prism.Type comparison
+// Interface Type comparison
 func (t Char) Equals(b Type) bool {
 	return b.Kind() == TypeChar
 }
 
-// Interface prism.Type width for LLVM codegen
+// Interface Type width for LLVM codegen
 func (t Char) Width() int {
 	return CharType.WidthInBytes
 }
@@ -36,10 +36,11 @@ func (c Char) String() string {
 // Resolve composes Integrate with Derive,
 // Should not be used on concrete types
 func (i Char) Resolve(t Type) Type {
-	panic("Unreachable")
+	Panic("Unreachable")
+	panic(nil)
 }
 
-// Interface prism.Type algebraic predicate
+// Interface Type algebraic predicate
 func (t Char) IsAlgebraic() bool {
 	return false
 }

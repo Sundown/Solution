@@ -3,8 +3,6 @@ package subtle
 import (
 	"github.com/sundown/solution/palisade"
 	"github.com/sundown/solution/prism"
-
-	"github.com/alecthomas/repr"
 )
 
 func (env Environment) analyseDyadicOperator(d *palisade.Operator) prism.DyadicOperator {
@@ -19,16 +17,16 @@ func (env Environment) analyseDyadicOperator(d *palisade.Operator) prism.DyadicO
 			lexpr = env.FetchMVerb(d.Verb)
 		}
 		if _, ok := rexpr.Type().(prism.VectorType); !ok {
-			panic("Right operand is not a vector")
+			prism.Panic("Right operand is not a vector")
 		}
 
 		if d.Subexpr != nil {
-			panic("Not implemented")
+			prism.Panic("Not implemented")
 			//lexpr = env.analyseMonadicPartial(d.Subexpr, rexpr.Type().(prism.VectorType).Type)
 		}
 
 		if _, ok := lexpr.(prism.Function); !ok {
-			panic("Left operand is not a function")
+			prism.Panic("Left operand is not a function")
 		}
 
 		elmtype := rexpr.Type().(prism.VectorType).Type
@@ -63,7 +61,7 @@ func (env Environment) analyseDyadicOperator(d *palisade.Operator) prism.DyadicO
 			lexpr = env.FetchDVerb(d.Verb)
 		}
 		if _, ok := rexpr.Type().(prism.VectorType); !ok {
-			panic("Right operand is not a vector")
+			prism.Panic("Right operand is not a vector")
 		}
 
 		if d.Subexpr != nil {
@@ -72,8 +70,7 @@ func (env Environment) analyseDyadicOperator(d *palisade.Operator) prism.DyadicO
 		}
 
 		if _, ok := lexpr.(prism.DyadicFunction); !ok {
-			repr.Println(lexpr)
-			panic("Left operand is not a function")
+			prism.Panic("Left operand is not a function")
 		}
 
 		elmtype := rexpr.Type().(prism.VectorType).Type

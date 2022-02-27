@@ -4,15 +4,16 @@ import "github.com/llir/llvm/ir/types"
 
 type GenericType struct{}
 
-// Interface prism.Type comparison
+// Interface Type comparison
 func (s GenericType) Equals(b Type) bool {
 	Warn("Comparison of generic types")
 	return false
 }
 
-// Interface prism.Type width for LLVM codegen
+// Interface Type width for LLVM codegen
 func (s GenericType) Width() int64 {
-	panic("Impossible")
+	Panic("Impossible")
+	panic(nil)
 }
 
 func (s GenericType) String() string {
@@ -26,14 +27,15 @@ func (g GenericType) Resolve(t Type) Type {
 }
 
 func (s GenericType) Realise() types.Type {
-	panic("Impossible")
+	Panic("Impossible")
+	panic(nil)
 }
 
 func (s GenericType) Kind() int {
 	return TypeKindSemiDetermined
 }
 
-// Interface prism.Type algebraic predicate
+// Interface Type algebraic predicate
 func (s GenericType) IsAlgebraic() bool {
 	return true
 }
