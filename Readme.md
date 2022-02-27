@@ -26,3 +26,17 @@ Some notes about ongoing implementation:
 	`a (gh) b <=> g (a h b)`
 
 	`  (gh) b <=> g (h b)`
+
+---
+
+### Source layout
+
+Palisade contains the participle parser definition.
+
+Prism contains global definitions as well as common functions used in many stages.
+
+Subtle performs parsing operations on AST
+
+Apotheosis performs codegen after AST has been parsed
+
+Pilot contains testing infrastructure

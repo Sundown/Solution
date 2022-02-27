@@ -12,6 +12,8 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+
+	"github.com/sundown/solution/pilot"
 )
 
 func Init(env *Environment) *Environment {
@@ -23,6 +25,10 @@ func Init(env *Environment) *Environment {
 	for i, s := range os.Args {
 		if s[0:2] == "--" {
 			switch s[2:] {
+			case "pilot":
+				Notify("Starting Pilot")
+				pilot.Pilot()
+				os.Exit(0)
 			case "emit":
 				i++
 				if len(os.Args) > i {
@@ -94,7 +100,7 @@ func Emit(env *Environment) {
 		ioutil.WriteFile(temp_name, out, 0644)
 	}
 
-	verifyClangVersion()
+	VerifyClangVersion()
 
 	opt := "-Ofast"
 	if env.Optimisation != nil {
@@ -138,6 +144,22 @@ func Emit(env *Environment) {
 	}
 }
 
+func PilotEmit(env *Environment) {
+	out := []byte((*env.Module).String())
+	sum := [32]byte(sha256.Sum256(out))
+	temp_name := env.Output + "_" + hex.EncodeToString(sum[:]) + ".ll"
+
+	VerifyClangVersion()
+
+	err := exec.Command("clang", temp_name, "-Og", "-o", env.Output).Run()
+	exec.Command("rm", "-f", temp_name).Run()
+	if err != nil {
+		Error(err.Error()).Exit()
+	}
+
+	// TODO run it
+}
+
 type Runtime struct {
 	EmitFormat   string
 	Output       string
@@ -146,8 +168,8 @@ type Runtime struct {
 	File         string
 }
 
-// verifyClangVersion ensures Clang is installed and at least v12
-func verifyClangVersion() {
+// VerifyClangVersion ensures Clang is installed and at least v12
+func VerifyClangVersion() {
 	s, err := exec.Command("clang", "--version").Output()
 
 	if err != nil {

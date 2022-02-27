@@ -9,25 +9,36 @@ import (
 	"github.com/alecthomas/participle/v2/lexer"
 )
 
+var parser = participle.MustBuild(
+	&palisade.PalisadeResult{},
+	participle.UseLookahead(40000), // vectors don't work if this is low
+	participle.Lexer(basicLexer),
+	participle.Unquote(),
+)
+
 func Lex(env *Environment) *Environment {
 	Verbose("Init palisade")
 	res := palisade.PalisadeResult{}
-	r, err := os.Open(env.File)
-	defer r.Close()
 
-	if err != nil {
-		Error(err.Error()).Exit()
-	}
+	if !env.IsPilotRun {
+		r, err := os.Open(env.File)
+		defer r.Close()
 
-	err = participle.MustBuild(
-		&palisade.PalisadeResult{},
-		participle.UseLookahead(40000), // vectors don't work if this is low
-		participle.Lexer(basicLexer),
-		participle.Unquote(),
-	).Parse(env.File, r, &res)
+		if err != nil {
+			Error(err.Error()).Exit()
+		}
 
-	if err != nil {
-		panic(err)
+		err = parser.Parse(env.File, r, &res)
+
+		if err != nil {
+			panic(err)
+		}
+	} else {
+		err := parser.ParseString("pilot", env.File, &res)
+
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	env.LexResult = &res
