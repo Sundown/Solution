@@ -18,9 +18,9 @@ func (e Environment) String() (s string) {
 }
 
 type Environment struct {
-	CurrentlyInlining bool
-	Iter              uint
-	LexResult         *palisade.PalisadeResult
+	Iter       uint
+	IsPilotRun bool
+	LexResult  *palisade.PalisadeResult
 	//
 	MonadicFunctions map[Ident]*MonadicFunction
 	DyadicFunctions  map[Ident]*DyadicFunction
@@ -45,8 +45,8 @@ type Environment struct {
 
 func NewEnvironment() *Environment {
 	var env Environment
-	env.CurrentlyInlining = false
 	env.Iter = 0
+	env.IsPilotRun = false
 	env.MonadicFunctions = make(map[Ident]*MonadicFunction)
 	env.DyadicFunctions = make(map[Ident]*DyadicFunction)
 	env.Types = make(map[Ident]Type)
