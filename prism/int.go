@@ -10,7 +10,7 @@ type Int struct {
 	Value int64
 }
 
-// Interface prism.Type comparison
+// Interface Type comparison
 func (t Int) Equals(b Type) bool {
 	return b.Kind() == TypeInt
 }
@@ -18,7 +18,8 @@ func (t Int) Equals(b Type) bool {
 // Resolve composes Integrate with Derive,
 // Should not be used on concrete types
 func (i Int) Resolve(t Type) Type {
-	panic("Unreachable")
+	Panic("Unreachable")
+	panic(nil)
 }
 
 // Type property for interface
@@ -31,7 +32,7 @@ func (i Int) String() string {
 	return fmt.Sprintf("%d", i.Value)
 }
 
-// Interface prism.Type width for LLVM codegen
+// Interface Type width for LLVM codegen
 func (t Int) Width() int {
 	return IntType.WidthInBytes
 }
@@ -43,7 +44,7 @@ var IntType = AtomicType{
 	Actual:       types.I64,
 }
 
-// Interface prism.Type algebraic predicate
+// Interface Type algebraic predicate
 func (t Int) IsAlgebraic() bool {
 	return false
 }

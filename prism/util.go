@@ -12,8 +12,6 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
-
-	"github.com/sundown/solution/pilot"
 )
 
 func Init(env *Environment) *Environment {
@@ -25,10 +23,6 @@ func Init(env *Environment) *Environment {
 	for i, s := range os.Args {
 		if s[0:2] == "--" {
 			switch s[2:] {
-			case "pilot":
-				Notify("Starting Pilot")
-				pilot.Pilot()
-				os.Exit(0)
 			case "emit":
 				i++
 				if len(os.Args) > i {
@@ -144,20 +138,28 @@ func Emit(env *Environment) {
 	}
 }
 
-func PilotEmit(env *Environment) {
+func PilotEmit(env *Environment) (string, bool) {
 	out := []byte((*env.Module).String())
 	sum := [32]byte(sha256.Sum256(out))
 	temp_name := env.Output + "_" + hex.EncodeToString(sum[:]) + ".ll"
 
+	ioutil.WriteFile(temp_name, out, 0644)
+
 	VerifyClangVersion()
 
 	err := exec.Command("clang", temp_name, "-Og", "-o", env.Output).Run()
-	exec.Command("rm", "-f", temp_name).Run()
 	if err != nil {
-		Error(err.Error()).Exit()
+		return err.Error(), false
 	}
 
-	// TODO run it
+	res, err := exec.Command("./" + env.Output).Output()
+	exec.Command("rm", "-f", temp_name, env.Output).Run()
+	if err != nil {
+		return err.Error(), false
+	} else {
+		return string(res), true
+	}
+
 }
 
 type Runtime struct {
@@ -185,14 +187,14 @@ func VerifyClangVersion() {
 	ver, err := strconv.ParseFloat(re.FindAllString(string(s), 1)[0], 32)
 
 	if err != nil {
-		panic(err)
+		Panic(err.Error())
 	}
 
 	if ver < 12 {
 		Error(`Requires clang version 12+`).Exit()
 	}
 
-	Notify("Clang version " + strconv.FormatFloat(ver, 'f', -1, 32))
+	Verbose("Clang version " + strconv.FormatFloat(ver, 'f', -1, 32))
 }
 
 var reset = "\033[0m"

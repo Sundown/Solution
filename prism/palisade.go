@@ -31,13 +31,13 @@ func Lex(env *Environment) *Environment {
 		err = parser.Parse(env.File, r, &res)
 
 		if err != nil {
-			panic(err)
+			Panic(err.Error())
 		}
 	} else {
 		err := parser.ParseString("pilot", env.File, &res)
 
 		if err != nil {
-			panic(err)
+			Panic(err.Error())
 		}
 	}
 
@@ -84,7 +84,7 @@ func ParseIdent(s string) (p Ident) {
 		ParseString("", s, &t)
 
 	if err != nil {
-		panic(err)
+		Panic(err.Error())
 	}
 
 	return Intern(t)

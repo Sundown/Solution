@@ -67,7 +67,7 @@ func (env Environment) analyseMorpheme(m *palisade.Morpheme) prism.Expression {
 			}
 		}
 
-		panic("Unreachable")
+		prism.Panic("Unreachable")
 
 	case m.Omega != nil:
 		if len(*m.Omega) == 1 {
@@ -81,10 +81,11 @@ func (env Environment) analyseMorpheme(m *palisade.Morpheme) prism.Expression {
 				}
 			}
 		} else {
-			panic("Unreachable")
+			prism.Panic("Unreachable")
 
 		}
 	}
 
-	panic("Other types not implemented")
+	prism.Panic("Other types not implemented")
+	panic(nil)
 }

@@ -9,7 +9,7 @@ var StringType = AtomicType{
 	Actual:       types.I8Ptr,
 }
 
-// Interface prism.Type comparison
+// Interface Type comparison
 func (t String) Equals(b Type) bool {
 	return b.Kind() == TypeString
 }
@@ -17,7 +17,8 @@ func (t String) Equals(b Type) bool {
 // Resolve composes Integrate with Derive,
 // Should not be used on concrete types
 func (i String) Resolve(t Type) Type {
-	panic("Unreachable")
+	Panic("Unreachable")
+	panic(nil)
 }
 
 type String struct {
@@ -34,12 +35,12 @@ func (s String) Type() Type {
 	return StringType
 }
 
-// Interface prism.Type width for LLVM codegen
+// Interface Type width for LLVM codegen
 func (t String) Width() int {
 	return StringType.WidthInBytes
 }
 
-// Interface prism.Type algebraic predicate
+// Interface Type algebraic predicate
 func (t String) IsAlgebraic() bool {
 	return false
 }

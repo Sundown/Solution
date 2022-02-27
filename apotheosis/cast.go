@@ -19,7 +19,8 @@ func (env Environment) castInt(from Value) value.Value {
 		return env.Block.NewSExt(from.Value, types.I64)
 	}
 
-	panic("Unreachable")
+	prism.Panic("Unreachable")
+	panic(nil)
 }
 
 func (env Environment) castReal(from Value) value.Value {
@@ -32,7 +33,8 @@ func (env Environment) castReal(from Value) value.Value {
 		return env.Block.NewSIToFP(from.Value, types.Double)
 	}
 
-	panic("Unreachable")
+	prism.Panic("Unreachable")
+	panic(nil)
 }
 
 func (env Environment) compileCast(cast prism.Cast) value.Value {
@@ -58,7 +60,8 @@ func (env Environment) compileCast(cast prism.Cast) value.Value {
 		return env.vectorCast(castfn, val, cast.ToType.(prism.VectorType).Type)
 	}
 
-	panic("Unreachable")
+	prism.Panic("Unreachable")
+	panic(nil)
 }
 
 func (env *Environment) vectorCast(caster MCallable, vec Value, to prism.Type) value.Value {

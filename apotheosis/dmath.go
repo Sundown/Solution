@@ -19,7 +19,8 @@ func (env *Environment) compileInlineAdd(alpha, omega Value) value.Value {
 		return env.CombineOf(DCallable(env.compileInlineAdd), alpha, omega)
 	}
 
-	panic("unreachable")
+	prism.Panic("unreachable")
+	panic(nil)
 }
 
 func (env *Environment) compileInlineSub(alpha, omega Value) value.Value {
@@ -32,7 +33,8 @@ func (env *Environment) compileInlineSub(alpha, omega Value) value.Value {
 		return env.Block.NewSub(alpha.Value, omega.Value)
 	}
 
-	panic("unreachable")
+	prism.Panic("unreachable")
+	panic(nil)
 }
 
 func (env *Environment) compileInlineMul(alpha, omega Value) value.Value {
@@ -45,7 +47,8 @@ func (env *Environment) compileInlineMul(alpha, omega Value) value.Value {
 		return env.Block.NewMul(alpha.Value, omega.Value)
 	}
 
-	panic("unreachable")
+	prism.Panic("unreachable")
+	panic(nil)
 }
 
 func (env *Environment) compileInlineDiv(alpha, omega Value) value.Value {
@@ -56,7 +59,8 @@ func (env *Environment) compileInlineDiv(alpha, omega Value) value.Value {
 		return env.Block.NewFDiv(alpha.Value, omega.Value)
 	}
 
-	panic("unreachable")
+	prism.Panic("unreachable")
+	panic(nil)
 }
 
 func (env *Environment) compileInlineMax(alpha, omega Value) value.Value {
@@ -76,7 +80,8 @@ func (env *Environment) compileInlineMax(alpha, omega Value) value.Value {
 			env.Block.NewAnd(i1, env.Block.NewAShr(i1, I64(31))))
 	}
 
-	panic("unreachable")
+	prism.Panic("unreachable")
+	panic(nil)
 }
 
 func (env *Environment) compileInlineMin(alpha, omega Value) value.Value {
@@ -94,7 +99,8 @@ func (env *Environment) compileInlineMin(alpha, omega Value) value.Value {
 		return env.Block.NewMul(alpha.Value, omega.Value)
 	}
 
-	panic("unreachable")
+	prism.Panic("unreachable")
+	panic(nil)
 }
 
 func (env *Environment) compileInlineCeil(omega Value) value.Value {
@@ -108,7 +114,8 @@ func (env *Environment) compileInlineCeil(omega Value) value.Value {
 		return omega.Value
 	}
 
-	panic("unreachable")
+	prism.Panic("unreachable")
+	panic(nil)
 }
 
 func (env *Environment) compileInlineFloor(omega Value) value.Value {
@@ -120,5 +127,6 @@ func (env *Environment) compileInlineFloor(omega Value) value.Value {
 		return omega.Value
 	}
 
-	panic("unreachable")
+	prism.Panic("unreachable")
+	panic(nil)
 }

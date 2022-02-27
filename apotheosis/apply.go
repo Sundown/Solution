@@ -15,7 +15,7 @@ func (env *Environment) Apply(c interface{}, params ...Value) value.Value {
 		}
 		v, ok := c.(prism.Expression)
 		if !ok {
-			panic("Apply: not an expression")
+			prism.Panic("Apply: not an expression")
 		}
 		return env.Block.NewCall(env.compileExpression(&v), params[0].Value, params[1].Value)
 	case prism.MonadicFunction:
@@ -26,12 +26,13 @@ func (env *Environment) Apply(c interface{}, params ...Value) value.Value {
 
 		v, ok := c.(prism.Expression)
 		if !ok {
-			panic("Apply: not an expression")
+			prism.Panic("Apply: not an expression")
 		}
 		return env.Block.NewCall(env.compileExpression(&v), params[0].Value)
 	case DCallable:
 		return c.(DCallable)(params[0], params[1])
 	}
 
-	panic("unreachable")
+	prism.Panic("unreachable")
+	panic(nil)
 }

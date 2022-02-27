@@ -9,12 +9,12 @@ var BoolType = AtomicType{
 	Actual:       types.I1,
 }
 
-// Interface prism.Type comparison
+// Interface Type comparison
 func (t Bool) Equals(b Type) bool {
 	return b.Kind() == TypeBool
 }
 
-// Interface prism.Type width for LLVM codegen
+// Interface Type width for LLVM codegen
 func (t Bool) Width() int {
 	return BoolType.WidthInBytes
 }
@@ -36,14 +36,15 @@ func (b Bool) String() string {
 // Resolve composes Integrate with Derive,
 // Should not be used on concrete types
 func (i Bool) Resolve(t Type) Type {
-	panic("Unreachable")
+	Panic("Unreachable")
+	return nil
 }
 
 type Bool struct {
 	Value bool
 }
 
-// Interface prism.Type algebraic predicate
+// Interface Type algebraic predicate
 func (t Bool) IsAlgebraic() bool {
 	return false
 }

@@ -21,5 +21,6 @@ func (env *Environment) compileInlineEqual(left Value, right Value) value.Value 
 		return env.CombineOf(DCallable(env.compileInlineEqual), left, right)
 	}
 
-	panic("unreachable")
+	prism.Panic("unreachable")
+	panic(nil)
 }

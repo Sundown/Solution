@@ -26,6 +26,7 @@ func (env *Environment) compileAtom(morpheme *prism.Morpheme) value.Value {
 		fmt.Println("fn", morpheme)
 		return env.Functions[morpheme.Function.ToLLVMName()] */
 	default:
-		panic("unreachable")
+		prism.Panic("unreachable")
 	}
+	panic(nil)
 }

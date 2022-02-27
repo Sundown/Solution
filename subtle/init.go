@@ -43,7 +43,7 @@ func Parse(penv *prism.Environment) *prism.Environment {
 			if *d.Command == "Entry" {
 				fn, ok := env.MonadicFunctions[prism.Ident{Package: "_", Name: *d.Value}]
 				if !ok {
-					panic("Entry function not found")
+					prism.Panic("Entry function not found")
 				}
 
 				env.EntryFunction = *fn
@@ -128,5 +128,6 @@ func (env Environment) analyseExpression(e *palisade.Expression) prism.Expressio
 		return env.analyseDyadicOperator(e.Operator)
 	}
 
-	panic("unreachable")
+	prism.Panic("unreachable")
+	panic(nil)
 }

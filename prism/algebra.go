@@ -64,7 +64,8 @@ func Delegate(mould, cast *Type) (determined Type, failure *string) {
 		return nil, Ref("Cast does not fit within algebraic group")
 	}
 
-	panic("unreachable")
+	Panic("unreachable")
+	panic(nil)
 }
 
 // Integrate a concrete type into a sum or generic type
@@ -86,7 +87,8 @@ func Integrate(this, from Type) Type {
 		return from
 	}
 
-	panic("Unreachable")
+	Panic("Unreachable")
+	return nil
 }
 
 // Derive concrete type based on likeness of generic/sum type
@@ -114,5 +116,6 @@ func Derive(this, like Type) Type {
 		return like
 	}
 
-	panic("Unreachable")
+	Panic("Unreachable")
+	panic(nil)
 }

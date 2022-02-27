@@ -3,7 +3,6 @@ package prism
 import (
 	"fmt"
 
-	"github.com/alecthomas/repr"
 	"github.com/sundown/solution/palisade"
 )
 
@@ -57,7 +56,7 @@ func (f DyadicFunction) String() (s string) {
 			s += " " + p.String() + "\n"
 		}
 	} else if f.PreBody != nil {
-		repr.String(f.PreBody)
+		fmt.Println("PREBODY")
 	}
 
 	return s + "∇\n"
@@ -79,7 +78,8 @@ func (do DyadicOperator) Type() Type {
 		return do.Left.Type()
 	}
 
-	panic("Need to impl type")
+	Panic("Need to impl type")
+	panic(nil)
 }
 
 func (d DyadicFunction) IsSpecial() bool {
