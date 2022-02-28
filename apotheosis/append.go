@@ -24,8 +24,8 @@ func (env *Environment) compileInlineAppend(alpha prism.Value, omega prism.Value
 
 	head := env.Block.NewAlloca(vec_t)
 
-	env.writeLLVectorLength(prism.Value{head, alpha.Type}, env.Block.NewAdd(lenA, lenB))
-	env.writeLLVectorCapacity(prism.Value{head, alpha.Type}, capF)
+	env.writeLLVectorLength(prism.Value{Value: head, Type: alpha.Type}, env.Block.NewAdd(lenA, lenB))
+	env.writeLLVectorCapacity(prism.Value{Value: head, Type: alpha.Type}, capF)
 
 	body := env.Block.NewCall(
 		env.GetCalloc(),

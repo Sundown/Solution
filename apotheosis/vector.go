@@ -209,8 +209,8 @@ func (env *Environment) ValidateVectorIndex(vec prism.Value, index value.Value) 
 
 func (env Environment) LLVectorFactory(elmType prism.Type, size value.Value) (head *ir.InstAlloca, body *ir.InstBitCast) {
 	head = env.Block.NewAlloca(prism.VectorType{Type: elmType}.Realise())
-	env.writeLLVectorLength(prism.Value{head, prism.VectorType{Type: elmType}}, size)
-	env.writeLLVectorCapacity(prism.Value{head, prism.VectorType{Type: elmType}}, size)
+	env.writeLLVectorLength(prism.Value{Value: head, Type: prism.VectorType{Type: elmType}}, size)
+	env.writeLLVectorCapacity(prism.Value{Value: head, Type: prism.VectorType{Type: elmType}}, size)
 	body = env.BuildLLVectorBody(elmType.Realise(), size, elmType.Width())
 	env.writeVectorPointer(head, body, prism.VectorType{Type: elmType}.Realise())
 

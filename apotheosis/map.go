@@ -26,8 +26,8 @@ func (env *Environment) compileInlineMap(fn prism.MonadicFunction, vec prism.Val
 	curCounter := loopblock.NewLoad(types.I32, counter_store)
 
 	call := env.Apply(fn, prism.Value{
-		env.UnsafereadVectorElement(vec, curCounter),
-		vec.Type.(prism.VectorType).Type})
+		Value: env.UnsafereadVectorElement(vec, curCounter),
+		Type:  vec.Type.(prism.VectorType).Type})
 
 	if write_pred {
 		loopblock.NewStore(call, loopblock.NewGetElementPtr(fn.Type().Realise(), body, curCounter))

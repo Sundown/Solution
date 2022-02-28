@@ -39,8 +39,8 @@ func (env Environment) CombineOf(in prism.Callable, a, b prism.Value) value.Valu
 
 	lcount := loopblock.NewLoad(types.I32, counter)
 	call := env.Apply(in,
-		prism.Value{env.UnsafereadVectorElement(a, lcount), a.Type.(prism.VectorType).Type},
-		prism.Value{env.UnsafereadVectorElement(b, lcount), b.Type.(prism.VectorType).Type})
+		prism.Value{Value: env.UnsafereadVectorElement(a, lcount), Type: a.Type.(prism.VectorType).Type},
+		prism.Value{Value: env.UnsafereadVectorElement(b, lcount), Type: b.Type.(prism.VectorType).Type})
 
 	loopblock.NewStore(call, loopblock.NewGetElementPtr(ret_typ.Realise(), body, lcount))
 
