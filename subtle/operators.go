@@ -55,7 +55,6 @@ func (env Environment) analyseDyadicOperator(d *palisade.Operator) prism.DyadicO
 			Returns:  fn.Type(),
 		}
 	case "/":
-
 		var lexpr prism.Expression
 		if d.Verb != nil {
 			lexpr = env.FetchDVerb(d.Verb)

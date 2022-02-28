@@ -91,8 +91,8 @@ func (env Environment) FetchDVerb(v *palisade.Ident) DyadicFunction {
 		return *found
 	}
 
-	Panic("Dyadic verb " + *v.Ident + " not found")
-	panic(nil)
+	panic("Dyadic verb " + *v.Ident + " not found")
+	//panic(nil)
 }
 
 func (env Environment) FetchMVerb(v *palisade.Ident) MonadicFunction {
@@ -100,8 +100,8 @@ func (env Environment) FetchMVerb(v *palisade.Ident) MonadicFunction {
 		return *found
 	}
 
-	Panic("Monadic verb " + *v.Ident + " not found")
-	panic(nil)
+	panic("Monadic verb " + *v.Ident + " not found")
+	//panic(nil)
 }
 
 func (env Environment) FetchVerb(v *palisade.Ident) Expression {

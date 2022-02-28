@@ -1,6 +1,8 @@
 package apotheosis
 
 import (
+	"fmt"
+
 	"github.com/sundown/solution/prism"
 
 	"github.com/llir/llvm/ir/value"
@@ -191,8 +193,15 @@ func (env *Environment) compileDyadicApplication(app *prism.DyadicApplication) v
 			Value{env.compileExpression(&app.Left), app.Left.Type()},
 			Value{env.compileExpression(&app.Right), app.Right.Type()})
 	default:
+		f, ok := env.LLDyadicFunctions[app.Operator.LLVMise()]
+		if !ok {
+			for _, f := range env.LLDyadicFunctions {
+				fmt.Println(f.String())
+			}
+		}
+
 		call := env.Block.NewCall(
-			env.LLDyadicFunctions[app.Operator.LLVMise()],
+			f,
 			env.compileExpression(&app.Left),
 			env.compileExpression(&app.Right))
 
