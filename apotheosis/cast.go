@@ -9,7 +9,7 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-func (env Environment) castInt(from Value) value.Value {
+func (env Environment) castInt(from prism.Value) value.Value {
 	switch from.Type.Kind() {
 	case prism.TypeInt:
 		return from.Value
@@ -23,7 +23,7 @@ func (env Environment) castInt(from Value) value.Value {
 	panic(nil)
 }
 
-func (env Environment) castReal(from Value) value.Value {
+func (env Environment) castReal(from prism.Value) value.Value {
 	switch from.Type.Kind() {
 	case prism.TypeInt:
 		return env.Block.NewSIToFP(from.Value, types.Double)
@@ -38,8 +38,8 @@ func (env Environment) castReal(from Value) value.Value {
 }
 
 func (env Environment) compileCast(cast prism.Cast) value.Value {
-	val := Value{Value: env.compileExpression(&cast.Value), Type: cast.Value.Type()}
-	var castfn MCallable
+	val := prism.Value{Value: env.compileExpression(&cast.Value), Type: cast.Value.Type()}
+	var castfn prism.MCallable
 	var from prism.Type
 	pred := false
 	if _, ok := cast.Value.Type().(prism.VectorType); ok {
@@ -64,7 +64,7 @@ func (env Environment) compileCast(cast prism.Cast) value.Value {
 	panic(nil)
 }
 
-func (env *Environment) vectorCast(caster MCallable, vec Value, to prism.Type) value.Value {
+func (env *Environment) vectorCast(caster prism.MCallable, vec prism.Value, to prism.Type) value.Value {
 	elmType := vec.Type.(prism.VectorType).Type.Realise()
 	irToHeadType := prism.VectorType{Type: to}
 	toHeadType := irToHeadType.Realise()
@@ -77,8 +77,8 @@ func (env *Environment) vectorCast(caster MCallable, vec Value, to prism.Type) v
 	cap := env.readVectorCapacity(vec)
 	head = env.Block.NewAlloca(toHeadType)
 
-	env.writeLLVectorLength(Value{head, irToHeadType}, leng)
-	env.writeLLVectorCapacity(Value{head, irToHeadType}, cap)
+	env.writeLLVectorLength(prism.Value{head, irToHeadType}, leng)
+	env.writeLLVectorCapacity(prism.Value{head, irToHeadType}, cap)
 
 	// Allocate a body of capacity * element width, and cast to element type
 	body = env.Block.NewBitCast(
@@ -109,7 +109,7 @@ func (env *Environment) vectorCast(caster MCallable, vec Value, to prism.Type) v
 	}
 
 	loopblock.NewStore(
-		caster(Value{
+		caster(prism.Value{
 			curElm,
 			vec.Type.(prism.VectorType).Type}),
 		loopblock.NewGetElementPtr(toElmType, body, curCounter))

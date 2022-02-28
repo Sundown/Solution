@@ -8,15 +8,15 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-func (env *Environment) compileInlineReduce(fn prism.Expression, vec Value) value.Value {
+func (env *Environment) compileInlineReduce(fn prism.DyadicFunction, vec prism.Value) value.Value {
 	vectyp := vec.Type.(prism.VectorType).Type
 
 	len := env.readVectorLength(vec)
 	counter := env.New(env.Block.NewSub(len, I32(3)))
 
 	accum := env.New(env.Apply(fn,
-		Value{env.UnsafereadVectorElement(vec, env.Block.NewSub(len, I32(2))), vectyp},
-		Value{env.UnsafereadVectorElement(vec, env.Block.NewSub(len, I32(1))), vectyp}))
+		prism.Value{env.UnsafereadVectorElement(vec, env.Block.NewSub(len, I32(2))), vectyp},
+		prism.Value{env.UnsafereadVectorElement(vec, env.Block.NewSub(len, I32(1))), vectyp}))
 
 	loopblock := env.CurrentFunction.NewBlock("")
 	exitblock := env.CurrentFunction.NewBlock("")
@@ -30,8 +30,8 @@ func (env *Environment) compileInlineReduce(fn prism.Expression, vec Value) valu
 
 	loopblock.NewStore(
 		env.Apply(fn,
-			Value{env.UnsafereadVectorElement(vec, lcount), vectyp},
-			Value{loopblock.NewLoad(vectyp.Realise(), accum), vectyp}),
+			prism.Value{env.UnsafereadVectorElement(vec, lcount), vectyp},
+			prism.Value{loopblock.NewLoad(vectyp.Realise(), accum), vectyp}),
 		accum)
 
 	loopblock.NewStore(loopblock.NewSub(lcount, I32(1)), counter)

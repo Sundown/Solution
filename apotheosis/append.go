@@ -8,7 +8,7 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-func (env *Environment) compileInlineAppend(alpha Value, omega Value) value.Value {
+func (env *Environment) compileInlineAppend(alpha prism.Value, omega prism.Value) value.Value {
 	vec_t := alpha.Type.Realise()
 	elmT := alpha.Type.(prism.VectorType).Type.Realise()
 	elmWidth := I32(alpha.Type.(prism.VectorType).Type.Width())
@@ -24,8 +24,8 @@ func (env *Environment) compileInlineAppend(alpha Value, omega Value) value.Valu
 
 	head := env.Block.NewAlloca(vec_t)
 
-	env.writeLLVectorLength(Value{head, alpha.Type}, env.Block.NewAdd(lenA, lenB))
-	env.writeLLVectorCapacity(Value{head, alpha.Type}, capF)
+	env.writeLLVectorLength(prism.Value{head, alpha.Type}, env.Block.NewAdd(lenA, lenB))
+	env.writeLLVectorCapacity(prism.Value{head, alpha.Type}, capF)
 
 	body := env.Block.NewCall(
 		env.GetCalloc(),

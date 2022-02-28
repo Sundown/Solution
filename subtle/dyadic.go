@@ -28,6 +28,7 @@ func (env Environment) analyseDyadic(d *palisade.Dyadic) prism.DyadicApplication
 					prism.Panic(*err)
 				}
 			} else {
+
 				right = prism.DelegateCast(right, fn.OmegaType)
 			}
 		}
