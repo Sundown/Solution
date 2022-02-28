@@ -2,39 +2,39 @@ package palisade
 
 type PalisadeResult struct {
 	Environmentments []*struct {
-		Function  *Function  `@@`
-		Directive *Directive `| @@`
-	} `@@*`
+		Function  *Function  `parser:"@@"`
+		Directive *Directive `parser:"| @@"`
+	} `parser:"@@*"`
 }
 
 type Directive struct {
-	Command *string `"@" @Ident `
-	Value   *string `@Ident ";"`
+	Command *string `parser:"'@' @Ident"`
+	Value   *string `parser:"@Ident ';'"`
 }
 
 type Ident struct {
-	Namespace *string `(@Ident ":" ":")?`
-	Ident     *string `@Ident`
+	Namespace *string `parser:"(@Ident ':' ':')?"`
+	Ident     *string `parser:"@Ident"`
 }
 
 type Function struct {
 	Dyadic *struct {
-		Alpha *Type  `@@ `
-		Ident *Ident `@@ `
-		Omega *Type  `@@ `
-	} `("Δ"  @@`
+		Alpha *Type  `parser:"@@ "`
+		Ident *Ident `parser:"@@ "`
+		Omega *Type  `parser:"@@ "`
+	} `parser:"('Δ'  @@"`
 
 	Monadic *struct {
-		Ident *Ident `@@`
-		Omega *Type  `@@`
-	} `| "Δ" @@)`
+		Ident *Ident `parser:"@@"`
+		Omega *Type  `parser:"@@"`
+	} `parser:"| 'Δ' @@)"`
 
-	Returns *Type         `"→"  @@  ":" `
-	Body    *[]Expression `(@@ ";" )+ "∇"`
+	Returns *Type         `parser:"'→'  @@  ':'"`
+	Body    *[]Expression `parser:"(@@ ';')+ '∇'"`
 }
 
 type Type struct {
-	Primitive *Ident  ` @@`
-	Vector    *Type   `| "[" @@ "]"`
-	Tuple     []*Type `| "(" (@@ ("," @@)*)? ")"`
+	Primitive *Ident  `parser:"@@"`
+	Vector    *Type   `parser:"| '[' @@ ']'"`
+	Tuple     []*Type `parser:"| '(' (@@ (',' @@)*)? ')'"`
 }

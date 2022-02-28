@@ -20,13 +20,9 @@ func (env *Environment) compileAtom(morpheme *prism.Morpheme) value.Value {
 		return constant.NewBool(v.Value)
 	case prism.Vector:
 		return env.compileVector(v)
-	/*case prism.Tuple:
-		return env.compileTuple(morpheme)
-	case prism.Function:
-		fmt.Println("fn", morpheme)
-		return env.Functions[morpheme.Function.ToLLVMName()] */
 	default:
 		prism.Panic("unreachable")
 	}
+
 	panic(nil)
 }
