@@ -118,9 +118,6 @@ func (env Environment) analyseExpression(e *palisade.Expression) prism.Expressio
 		}
 		return env.analyseMonadic(e.Monadic)
 	} else if e.Dyadic != nil {
-		if e.Dyadic.Expression == nil {
-			return env.analysePartial(e.Dyadic)
-		}
 		return env.analyseDyadic(e.Dyadic)
 	} else if e.Morphemes != nil {
 		return env.analyseMorphemes(e.Morphemes)
