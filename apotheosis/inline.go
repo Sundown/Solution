@@ -7,7 +7,7 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-func (env *Environment) compileInlinePrintln(val Value) value.Value {
+func (env *Environment) compileInlinePrintln(val prism.Value) value.Value {
 	if val.Type.Equals(prism.StringType) {
 		return env.Block.NewCall(
 			env.GetPrintf(),
@@ -24,7 +24,7 @@ func (env *Environment) compileInlinePrintln(val Value) value.Value {
 		val.Value)
 }
 
-func (env *Environment) compileInlinePrint(val Value) value.Value {
+func (env *Environment) compileInlinePrint(val prism.Value) value.Value {
 	if val.Type.Equals(prism.StringType) {
 		return env.Block.NewCall(
 			env.GetPrintf(),
@@ -41,11 +41,11 @@ func (env *Environment) compileInlinePrint(val Value) value.Value {
 		val.Value)
 }
 
-func (env *Environment) compileInlineIndex(left, right Value) value.Value {
+func (env *Environment) compileInlineIndex(left, right prism.Value) value.Value {
 	return env.readVectorElement(right, left.Value)
 }
 
-func (env *Environment) compileInlinePanic(val Value) value.Value {
+func (env *Environment) compileInlinePanic(val prism.Value) value.Value {
 	env.Block.NewCall(env.GetExit(), env.Block.NewTrunc(val.Value, types.I32))
 	env.Block.NewUnreachable()
 	return nil

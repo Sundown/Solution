@@ -6,7 +6,19 @@ import (
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/enum"
 	"github.com/llir/llvm/ir/types"
+	"github.com/llir/llvm/ir/value"
 )
+
+func (env *Environment) compileFunction(f *prism.Function) value.Value {
+	if mfn, ok := env.LLMonadicFunctions[(*f).LLVMise()]; ok {
+		return mfn
+	} else if dfn, ok := env.LLDyadicFunctions[(*f).LLVMise()]; ok {
+		return dfn
+	}
+
+	prism.Panic("Not found")
+	panic(nil)
+}
 
 func (env *Environment) compileBlock(body *[]prism.Expression) {
 	// Block is just an expression[]

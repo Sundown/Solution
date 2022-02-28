@@ -8,9 +8,8 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-// TODO define interface type for callable
 // https://hackage.haskell.org/package/base-4.16.0.0/docs/Prelude.html#v:zipWith
-func (env Environment) CombineOf(in interface{}, a, b Value) value.Value {
+func (env Environment) CombineOf(in prism.Callable, a, b prism.Value) value.Value {
 	var ret_typ prism.Type
 	if fn, ok := in.(prism.DyadicFunction); ok {
 		ret_typ = fn.Type()
@@ -40,8 +39,8 @@ func (env Environment) CombineOf(in interface{}, a, b Value) value.Value {
 
 	lcount := loopblock.NewLoad(types.I32, counter)
 	call := env.Apply(in,
-		Value{env.UnsafereadVectorElement(a, lcount), a.Type.(prism.VectorType).Type},
-		Value{env.UnsafereadVectorElement(b, lcount), b.Type.(prism.VectorType).Type})
+		prism.Value{env.UnsafereadVectorElement(a, lcount), a.Type.(prism.VectorType).Type},
+		prism.Value{env.UnsafereadVectorElement(b, lcount), b.Type.(prism.VectorType).Type})
 
 	loopblock.NewStore(call, loopblock.NewGetElementPtr(ret_typ.Realise(), body, lcount))
 

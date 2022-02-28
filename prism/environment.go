@@ -38,9 +38,13 @@ type Environment struct {
 	LLDyadicFunctions  map[string]*ir.Func
 	LLMonadicFunctions map[string]*ir.Func
 	Specials           map[string]*ir.Func
-	CurrentFunction    *ir.Func
-	CurrentFunctionIR  Expression
-	PanicStrings       map[string]*ir.Global
+
+	LLMonadicCallables map[string]Callable
+	LLDyadicCallables  map[string]Callable
+
+	CurrentFunction   *ir.Func
+	CurrentFunctionIR Expression
+	PanicStrings      map[string]*ir.Global
 }
 
 func NewEnvironment() *Environment {

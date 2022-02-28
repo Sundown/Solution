@@ -19,9 +19,13 @@ func Compile(penv *prism.Environment) *prism.Environment {
 
 	env := &Environment{penv}
 	env.Specials = make(map[string]*ir.Func)
-	env.LLDyadicFunctions = make(map[string]*ir.Func)
 	env.LLMonadicFunctions = make(map[string]*ir.Func)
+	env.LLDyadicFunctions = make(map[string]*ir.Func)
+	env.LLMonadicCallables = make(map[string]prism.Callable)
+	env.LLDyadicCallables = make(map[string]prism.Callable)
 	env.PanicStrings = make(map[string]*ir.Global)
+
+	env.insertCallables()
 
 	env.Module = ir.NewModule()
 
@@ -84,4 +88,25 @@ func (env *Environment) InitMain() *Environment {
 	env.Block.NewRet(constant.NewInt(types.I32, 0))
 
 	return env
+}
+
+func (env *Environment) insertCallables() {
+	env.LLDyadicCallables["+"] = prism.DCallable(env.compileInlineAdd)
+	env.LLDyadicCallables["-"] = prism.DCallable(env.compileInlineSub)
+	env.LLDyadicCallables["*"] = prism.DCallable(env.compileInlineMul)
+	env.LLDyadicCallables["÷"] = prism.DCallable(env.compileInlineDiv)
+	env.LLDyadicCallables["="] = prism.DCallable(env.compileInlineEqual)
+	env.LLDyadicCallables["Max"] = prism.DCallable(env.compileInlineMax)
+	env.LLDyadicCallables["Min"] = prism.DCallable(env.compileInlineMin)
+	env.LLDyadicCallables["&"] = prism.DCallable(env.compileInlineAnd)
+	env.LLDyadicCallables["|"] = prism.DCallable(env.compileInlineAnd)
+	env.LLDyadicCallables["GEP"] = prism.DCallable(env.compileInlineIndex)
+
+	env.LLMonadicCallables["Println"] = prism.MCallable(env.compileInlinePrintln)
+	env.LLMonadicCallables["Print"] = prism.MCallable(env.compileInlinePrint)
+	env.LLMonadicCallables["Panic"] = prism.MCallable(env.compileInlinePanic)
+	env.LLMonadicCallables["Len"] = prism.MCallable(env.readVectorLength)
+	env.LLMonadicCallables["Cap"] = prism.MCallable(env.readVectorCapacity)
+	env.LLMonadicCallables["Max"] = prism.MCallable(env.compileInlineCeil)
+	env.LLMonadicCallables["Min"] = prism.MCallable(env.compileInlineFloor)
 }

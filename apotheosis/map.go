@@ -8,7 +8,7 @@ import (
 	"github.com/llir/llvm/ir/types"
 )
 
-func (env *Environment) compileInlineMap(fn prism.Expression, vec Value) (head *ir.InstAlloca) {
+func (env *Environment) compileInlineMap(fn prism.MonadicFunction, vec prism.Value) (head *ir.InstAlloca) {
 	write_pred := fn.Type().Kind() != prism.VoidType.ID
 	leng := env.readVectorLength(vec)
 	var body *ir.InstBitCast
@@ -25,7 +25,7 @@ func (env *Environment) compileInlineMap(fn prism.Expression, vec Value) (head *
 
 	curCounter := loopblock.NewLoad(types.I32, counter_store)
 
-	call := env.Apply(fn, Value{
+	call := env.Apply(fn, prism.Value{
 		env.UnsafereadVectorElement(vec, curCounter),
 		vec.Type.(prism.VectorType).Type})
 

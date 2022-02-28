@@ -9,10 +9,6 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-type Value struct {
-	Value value.Value
-	Type  prism.Type
-}
 
 func (env Environment) New(val value.Value) (res value.Value) {
 	res = env.Block.NewAlloca(val.Type())

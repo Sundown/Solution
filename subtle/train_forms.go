@@ -3,121 +3,32 @@ package subtle
 import (
 	"fmt"
 
-	"github.com/sundown/solution/palisade"
 	"github.com/sundown/solution/prism"
 )
 
-func (env Environment) analyseDyadicPartial(expr *palisade.Expression, left, right prism.Type) prism.DyadicFunction {
-	return env.BoardTrain(expr, left, right).(prism.DyadicFunction)
-}
+// The 4 types of trains are defined herein
+// These should only be invoked by boardTrain()
+//
+// https://aplwiki.com/wiki/Tacit_programming#3-trains
+//
+// d3Train: dyadic 3 train
+// 		a (fgh) b <=> (a f b) g (a h b)
+//
+// d2Train: dyadi 2 train
+// 		a (gh) b <=> g (a h b)
+//
+// m3Train: monadic 3 train
+// 		(fgh) b <=> (f b) g (h b)
+//
+// m2Train: monadic 2 train
+// 		(gh) b <=> g (h b)
 
-func (env Environment) analyseMonadicPartial(expr *palisade.Expression, right prism.Type) prism.MonadicFunction {
-	return env.BoardTrain(expr, nil, right).(prism.MonadicFunction)
-}
-
-func trainLength(expr *palisade.Expression) int {
-	if expr.Monadic.Expression == nil {
-		return 1
-	}
-
-	return 1 + trainLength(expr.Monadic.Expression)
-}
-
-func (env Environment) BoardTrain(
-	expr *palisade.Expression, left, right prism.Type,
-) prism.Function {
-	if l := trainLength(expr); l == 2 {
-		if left == nil {
-			t := env.M2Train(env.FetchMVerb(expr.Monadic.Verb),
-				env.FetchMVerb(expr.Monadic.Expression.Monadic.Verb),
-				right)
-
-			env.MonadicFunctions[t.Ident()] = &t
-
-			return t
-		} else {
-			t := env.D2Train(env.FetchMVerb(expr.Monadic.Verb),
-				env.FetchDVerb(expr.Monadic.Expression.Monadic.Verb),
-				left, right)
-
-			env.DyadicFunctions[t.Ident()] = &t
-
-			return t
-		}
-	} else if l == 3 {
-		if left == nil {
-			t := env.M3Train(env.FetchMVerb(expr.Monadic.Verb),
-				env.FetchDVerb(expr.Monadic.Expression.Monadic.Verb),
-				env.FetchMVerb(expr.Monadic.Expression.Monadic.Expression.Monadic.Verb),
-				right)
-
-			env.MonadicFunctions[t.Ident()] = &t
-
-			return t
-		} else {
-			t := env.D3Train(env.FetchDVerb(expr.Monadic.Verb),
-				env.FetchDVerb(expr.Monadic.Expression.Monadic.Verb),
-				env.FetchDVerb(expr.Monadic.Expression.Monadic.Expression.Monadic.Verb),
-				left, right)
-
-			env.DyadicFunctions[t.Ident()] = &t
-
-			return t
-		}
-	} else if l%2 == 0 {
-		if left == nil {
-			t := env.M2Train(env.FetchMVerb(expr.Monadic.Verb),
-				env.BoardTrain(expr.Monadic.Expression, left, right).(prism.MonadicFunction),
-				right)
-			env.MonadicFunctions[t.Ident()] = &t
-
-			return t
-		} else {
-			t := env.D2Train(env.FetchMVerb(expr.Monadic.Verb),
-				env.BoardTrain(expr.Monadic.Expression, left, right).(prism.DyadicFunction),
-				left, right)
-			env.DyadicFunctions[t.Ident()] = &t
-
-			return t
-		}
-	} else {
-		if left == nil {
-			t := env.M3Train(env.FetchMVerb(expr.Monadic.Verb),
-				env.FetchDVerb(expr.Monadic.Expression.Monadic.Verb),
-				env.BoardTrain(expr.Monadic.Expression.Monadic.Expression,
-					left, right).(prism.MonadicFunction), right)
-			env.MonadicFunctions[t.Ident()] = &t
-
-			return t
-		} else {
-			t := env.D3Train(env.FetchDVerb(expr.Monadic.Verb),
-				env.FetchDVerb(expr.Monadic.Expression.Monadic.Verb),
-				env.BoardTrain(expr.Monadic.Expression.Monadic.Expression,
-					left, right).(prism.DyadicFunction), left, right)
-			env.DyadicFunctions[t.Ident()] = &t
-
-			return t
-		}
-	}
-}
-
-func Match(e *prism.Type, t *prism.Type) {
-	if !(*e).Equals(*t) {
-		if !prism.QueryCast(*e, *t) {
-			_, err := prism.Delegate(t, e)
-			if err != nil {
-				panic(*err)
-			}
-		}
-	}
-}
-
-// Method for creating the specific function of a Dyadic 3-train with determined types
-func (env Environment) D3Train(f, g, h prism.DyadicFunction, APre, BPre prism.Type) prism.DyadicFunction {
-	Match(&APre, &f.AlphaType)
-	Match(&APre, &h.AlphaType)
-	Match(&BPre, &f.OmegaType)
-	Match(&BPre, &h.OmegaType)
+// a (fgh) b <=> (a f b) g (a h b)
+func (env Environment) d3Train(f, g, h prism.DyadicFunction, APre, BPre prism.Type) prism.DyadicFunction {
+	match(&APre, &f.AlphaType)
+	match(&APre, &h.AlphaType)
+	match(&BPre, &f.OmegaType)
+	match(&BPre, &h.OmegaType)
 
 	if f.Returns.IsAlgebraic() {
 		f.Returns = f.Returns.Resolve(f.AlphaType)
@@ -127,8 +38,8 @@ func (env Environment) D3Train(f, g, h prism.DyadicFunction, APre, BPre prism.Ty
 		h.Returns = h.Returns.Resolve(h.AlphaType)
 	}
 
-	Match(&f.Returns, &g.AlphaType)
-	Match(&h.Returns, &g.OmegaType)
+	match(&f.Returns, &g.AlphaType)
+	match(&h.Returns, &g.OmegaType)
 
 	if g.Returns.IsAlgebraic() {
 		g.Returns = g.Returns.Resolve(h.AlphaType /* <- wrong */)
@@ -171,15 +82,15 @@ func (env Environment) D3Train(f, g, h prism.DyadicFunction, APre, BPre prism.Ty
 }
 
 // a (gh) b <=> g (a h b)
-func (env Environment) D2Train(g prism.MonadicFunction, h prism.DyadicFunction, APre, BPre prism.Type) prism.DyadicFunction {
-	Match(&APre, &h.AlphaType)
-	Match(&BPre, &h.OmegaType)
+func (env Environment) d2Train(g prism.MonadicFunction, h prism.DyadicFunction, APre, BPre prism.Type) prism.DyadicFunction {
+	match(&APre, &h.AlphaType)
+	match(&BPre, &h.OmegaType)
 
 	if h.Returns.IsAlgebraic() {
 		h.Returns = h.Returns.Resolve(h.AlphaType)
 	}
 
-	Match(&h.Returns, &g.OmegaType)
+	match(&h.Returns, &g.OmegaType)
 
 	if g.Returns.IsAlgebraic() {
 		g.Returns = g.Returns.Resolve(h.Returns)
@@ -217,9 +128,9 @@ func (env Environment) D2Train(g prism.MonadicFunction, h prism.DyadicFunction, 
 }
 
 // (fgh) b <=> (f b) g (h b)
-func (env Environment) M3Train(f prism.MonadicFunction, g prism.DyadicFunction, h prism.MonadicFunction, BPre prism.Type) prism.MonadicFunction {
-	Match(&BPre, &f.OmegaType)
-	Match(&BPre, &h.OmegaType)
+func (env Environment) m3Train(f prism.MonadicFunction, g prism.DyadicFunction, h prism.MonadicFunction, BPre prism.Type) prism.MonadicFunction {
+	match(&BPre, &f.OmegaType)
+	match(&BPre, &h.OmegaType)
 
 	if f.Returns.IsAlgebraic() {
 		f.Returns = f.Returns.Resolve(f.OmegaType)
@@ -229,8 +140,8 @@ func (env Environment) M3Train(f prism.MonadicFunction, g prism.DyadicFunction, 
 		h.Returns = h.Returns.Resolve(h.OmegaType)
 	}
 
-	Match(&f.Returns, &g.AlphaType)
-	Match(&h.Returns, &g.OmegaType)
+	match(&f.Returns, &g.AlphaType)
+	match(&h.Returns, &g.OmegaType)
 
 	if g.Returns.IsAlgebraic() {
 		g.Returns = g.Returns.Resolve(h.Returns /* <- wrong */)
@@ -270,14 +181,14 @@ func (env Environment) M3Train(f prism.MonadicFunction, g prism.DyadicFunction, 
 }
 
 // (gh) b <=> g (h b)
-func (env Environment) M2Train(g prism.MonadicFunction, h prism.MonadicFunction, BPre prism.Type) prism.MonadicFunction {
-	Match(&BPre, &h.OmegaType)
+func (env Environment) m2Train(g prism.MonadicFunction, h prism.MonadicFunction, BPre prism.Type) prism.MonadicFunction {
+	match(&BPre, &h.OmegaType)
 
 	if h.Returns.IsAlgebraic() {
 		h.Returns = h.Returns.Resolve(h.OmegaType)
 	}
 
-	Match(&h.Returns, &g.OmegaType)
+	match(&h.Returns, &g.OmegaType)
 
 	if g.Returns.IsAlgebraic() {
 		g.Returns = g.Returns.Resolve(h.Returns)

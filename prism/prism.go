@@ -2,7 +2,14 @@ package prism
 
 import (
 	"github.com/llir/llvm/ir/types"
+	"github.com/llir/llvm/ir/value"
 )
+
+// For Apotheosis
+type Value struct {
+	Value value.Value
+	Type  Type
+}
 
 type Expression interface {
 	Type() Type
