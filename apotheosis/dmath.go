@@ -1,6 +1,7 @@
 package apotheosis
 
 import (
+	"github.com/alecthomas/repr"
 	"github.com/sundown/solution/prism"
 
 	"github.com/llir/llvm/ir/types"
@@ -15,10 +16,8 @@ func (env *Environment) compileInlineAdd(alpha, omega prism.Value) value.Value {
 		return env.Block.NewAdd(alpha.Value, omega.Value)
 	case prism.CharType.ID:
 		return env.Block.NewAdd(alpha.Value, omega.Value)
-	case prism.TypeKindVector:
-		return env.CombineOf(prism.DCallable(env.compileInlineAdd), alpha, omega)
 	}
-
+	repr.Println(alpha)
 	prism.Panic("unreachable")
 	panic(nil)
 }

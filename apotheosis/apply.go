@@ -10,27 +10,40 @@ func (env *Environment) Apply(c prism.Callable, params ...prism.Value) value.Val
 	switch fn := c.(type) {
 	case prism.DyadicFunction:
 		if fn.Special {
-			return env.Apply(env.FetchDCallable(fn.Ident().Name), params...)
+			return env.Apply(env.FetchDyadicCallable(fn.Ident().Name), params...)
 		}
 		v, ok := c.(prism.Expression)
 		if !ok {
 			prism.Panic("Apply: not an expression")
 		}
+
+		if prism.IsVector(params[0].Type) && prism.IsVector(params[1].Type) && !fn.NoAutoVector() {
+			return env.CombineOf(fn, params[0], params[1])
+		}
+
 		return env.Block.NewCall(env.compileExpression(&v), params[0].Value, params[1].Value)
 	case prism.MonadicFunction:
 		if fn.Special {
-			return env.Apply(env.FetchMCallable(fn.Ident().Name), params...)
+			return env.Apply(env.FetchMonadicCallable(fn.Ident().Name), params...)
 		}
 
 		v, ok := c.(prism.Expression)
 		if !ok {
 			prism.Panic("Apply: not an expression")
 		}
+
+		if prism.IsVector(params[0].Type) && !fn.NoAutoVector() {
+			return env.compileInlineMap(fn, params[0])
+		}
+
 		return env.Block.NewCall(env.compileExpression(&v), params[0].Value)
-	case prism.DCallable:
-		return fn(params[0], params[1])
-	case prism.MCallable:
-		return fn(params[0])
+	case prism.DyadicCallable:
+		if prism.IsVector(params[0].Type) && prism.IsVector(params[1].Type) && !c.NoAutoVector() {
+			return env.CombineOf(fn, params[0], params[1])
+		}
+		return fn.DCallable(params[0], params[1])
+	case prism.MonadicCallable:
+		return fn.MCallable(params[0])
 	}
 
 	prism.Panic("unreachable")

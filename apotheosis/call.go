@@ -9,7 +9,7 @@ func (env *Environment) compileMonadicApplication(app *prism.MonadicApplication)
 	if name := app.Operator.Ident().Name; name == "Return" {
 		env.Block.NewRet(env.compileExpression(&app.Operand))
 		return nil
-	} else if fn := env.FetchMCallable(name); fn != nil {
+	} else if fn := env.FetchMonadicCallable(name); fn != nil {
 		return env.Apply(fn, prism.Value{
 			Value: env.compileExpression(&app.Operand),
 			Type:  app.Operand.Type()})
@@ -22,7 +22,7 @@ func (env *Environment) compileMonadicApplication(app *prism.MonadicApplication)
 }
 
 func (env *Environment) compileDyadicApplication(app *prism.DyadicApplication) value.Value {
-	if fn := env.FetchDCallable(app.Operator.Ident().Name); fn != nil {
+	if fn := env.FetchDyadicCallable(app.Operator.Ident().Name); fn != nil {
 		return env.Apply(fn, prism.Value{
 			Value: env.compileExpression(&app.Left),
 			Type:  app.Operator.AlphaType},

@@ -14,21 +14,23 @@ type DyadicOperator struct {
 }
 
 type DyadicFunction struct {
-	Special     bool
-	SkipBuilder bool
-	Inline      bool
-	Name        Ident
-	AlphaType   Type
-	OmegaType   Type
-	Returns     Type
-	PreBody     *[]palisade.Expression
-	Body        []Expression
+	Special            bool
+	SkipBuilder        bool
+	Inline             bool
+	disallowAutoVector bool
+	Name               Ident
+	AlphaType          Type
+	OmegaType          Type
+	Returns            Type
+	PreBody            *[]palisade.Expression
+	Body               []Expression
 }
 
 type DyadicApplication struct {
-	Operator DyadicFunction
-	Left     Expression
-	Right    Expression
+	Operator   DyadicFunction
+	Left       Expression
+	Right      Expression
+	AutoVector bool
 }
 
 // Type property for interface
