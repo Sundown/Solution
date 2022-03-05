@@ -1,9 +1,31 @@
 package prism
 
-import "github.com/llir/llvm/ir/types"
+import (
+	"github.com/llir/llvm/ir/types"
+)
 
 type VectorType struct {
 	Type
+}
+
+// IsVector is shorthand for vector interface check
+func IsVector(t Type) bool {
+	_, ok := t.(VectorType)
+	return ok
+}
+
+func QueryAutoVector(atom, vec Type) bool {
+	if !IsVector(vec) {
+		return false
+	}
+
+	t := vec.(VectorType).Type
+	_, err := Delegate(&atom, &t)
+	if err != nil {
+		panic(*err)
+	}
+
+	return true
 }
 
 // Interface prism.Type algebraic predicate
@@ -25,7 +47,7 @@ type Vector struct {
 // Resolve composes Integrate with Derive,
 // Fills in sum/generic type based on a concrete type
 func (v VectorType) Resolve(t Type) Type {
-	return Integrate(v, Derive(v, t))
+	return VectorType{Integrate(v.Type, Derive(v, t))}
 }
 
 // String function for interface

@@ -7,11 +7,12 @@ import (
 )
 
 type MonadicFunction struct {
-	Special     bool
-	SkipBuilder bool
-	Inline      bool
-	Name        Ident
-	OmegaType   Type
+	Special            bool
+	SkipBuilder        bool
+	Inline             bool
+	disallowAutoVector bool
+	Name               Ident
+	OmegaType          Type
 
 	Returns Type
 	PreBody *[]palisade.Expression
@@ -19,8 +20,9 @@ type MonadicFunction struct {
 }
 
 type MonadicApplication struct {
-	Operator MonadicFunction
-	Operand  Expression
+	Operator   MonadicFunction
+	Operand    Expression
+	AutoVector bool
 }
 
 // Type property for interface

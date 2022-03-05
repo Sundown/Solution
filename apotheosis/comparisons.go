@@ -17,8 +17,6 @@ func (env *Environment) compileInlineEqual(left prism.Value, right prism.Value) 
 		return env.Block.NewICmp(enum.IPredEQ, left.Value, right.Value)
 	case prism.BoolType.ID:
 		return env.Block.NewICmp(enum.IPredEQ, left.Value, right.Value)
-	case prism.TypeKindVector:
-		return env.CombineOf(prism.DCallable(env.compileInlineEqual), left, right)
 	}
 
 	prism.Panic("unreachable")

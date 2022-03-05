@@ -1,6 +1,8 @@
 package subtle
 
 import (
+	"fmt"
+
 	"github.com/sundown/solution/palisade"
 	"github.com/sundown/solution/prism"
 )
@@ -16,11 +18,22 @@ func (env Environment) analyseDyadic(d *palisade.Dyadic) prism.DyadicApplication
 	right := env.analyseExpression(d.Expression)
 
 	var fn prism.DyadicFunction
+	didAutoVector := false
 	if d.Verb == nil {
 		fn = env.analyseDyadicPartial(d.Subexpr, left.Type(), right.Type())
 	} else {
 		fn = env.FetchDVerb(d.Verb)
+		avr := prism.QueryAutoVector(fn.OmegaType, right.Type())
+		avl := prism.QueryAutoVector(fn.AlphaType, left.Type())
+		fmt.Println(avr, avl)
 		if !right.Type().Equals(fn.OmegaType) {
+			if !fn.NoAutoVector() && avl && avr {
+				fn.AlphaType = prism.VectorType{Type: fn.AlphaType}
+				fn.OmegaType = prism.VectorType{Type: fn.OmegaType}
+				fn.Returns = prism.VectorType{Type: fn.Returns}
+				didAutoVector = true
+			}
+
 			if !prism.QueryCast(right.Type(), fn.OmegaType) {
 				tmp := right.Type()
 				_, err := prism.Delegate(&fn.OmegaType, &tmp)
@@ -33,7 +46,7 @@ func (env Environment) analyseDyadic(d *palisade.Dyadic) prism.DyadicApplication
 			}
 		}
 
-		if !left.Type().Equals(fn.AlphaType) {
+		if !left.Type().Equals(fn.AlphaType) && !didAutoVector {
 			if !prism.QueryCast(left.Type(), fn.AlphaType) {
 				tmp := left.Type()
 				_, err := prism.Delegate(&fn.AlphaType, &tmp)
@@ -45,7 +58,7 @@ func (env Environment) analyseDyadic(d *palisade.Dyadic) prism.DyadicApplication
 			}
 		}
 
-		if _, err := prism.Delegate(&fn.AlphaType, &fn.OmegaType); err != nil {
+		if _, err := prism.Delegate(&fn.AlphaType, &fn.OmegaType); !didAutoVector && err != nil {
 			prism.Panic(*err)
 		}
 
@@ -65,8 +78,9 @@ func (env Environment) analyseDyadic(d *palisade.Dyadic) prism.DyadicApplication
 	}
 
 	return prism.DyadicApplication{
-		Operator: fn,
-		Left:     left,
-		Right:    right,
+		Operator:   fn,
+		Left:       left,
+		Right:      right,
+		AutoVector: didAutoVector,
 	}
 }
