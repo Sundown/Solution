@@ -1,5 +1,46 @@
 package prism
 
+func DeferMonadicApplicationTypes(function *MonadicFunction, y *Expression) {
+	// Enclose all function-side types in a vector if operand is vector and the function is not a vector-function (auto map)
+	if !function.NoAutoVector() &&
+		QueryAutoVector(function.OmegaType, (*y).Type()) {
+		function.OmegaType = VectorType{Type: function.OmegaType}
+		function.Returns = VectorType{Type: function.Returns}
+	}
+
+	// There is simple equality between function- and operand-side type (regardless of autovectorisation)
+	// ... do nothing and return
+	if (*y).Type().Equals(function.OmegaType) && !function.Returns.IsAlgebraic() {
+		return
+	}
+
+	// ... otherwise, cast the operands to the function-side types
+	// Method 1:
+	//		If function-side type is sum type then substitute if valid, otherwise set if generic.
+	// Method 2:
+	// 		The function-side type is not algebraic (i.e. sum or generic), however, there is a mapping
+	// 		from the operand-side type to the function-side type.
+	// Method 3:
+	// 		There is no mapping from the operand-side type to the function-side type, however, the
+	// 		function-side type is a sum type and it is possible to map the operand-side type to one of
+	// 		the types within the sum.
+	if newY := function.OmegaType.Resolve((*y).Type()); newY != nil { // 1
+		function.OmegaType = newY
+	} else if QueryCast((*y).Type(), function.OmegaType) { // 2
+		*y = DelegateCast(*y, function.OmegaType)
+	} else if cast := RoundhouseCast(*y, nil, function.OmegaType); cast != nil { // 3
+		*y = *cast
+	} else {
+		Panic("Cannot find mapping between ", (*y).Type(), " and ", function.OmegaType)
+	}
+
+	// Function return type may be reliant on the input type, substitute.
+	// TODO more vigorous substitution, giving consideration to LHS type.
+	if function.Returns.IsAlgebraic() {
+		function.Returns = function.Returns.Resolve((*y).Type())
+	}
+}
+
 func DeferDyadicApplicationTypes(function *DyadicFunction, x, y *Expression) {
 	// Enclose all function-side types in a vector if operands are vectors and the function is not a vector-function
 	// TOOD allow X f Y : A f [B] -> A f B.0, A f B.1, ... ,A f B.n

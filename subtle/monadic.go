@@ -13,21 +13,7 @@ func (env Environment) analyseMonadic(d *palisade.Monadic) prism.MonadicApplicat
 		fn = env.analyseMonadicPartial(d.Subexpr, right.Type())
 	} else {
 		fn = env.FetchMVerb(d.Verb)
-		if !right.Type().Equals(fn.OmegaType) {
-			if !prism.QueryCast(right.Type(), fn.OmegaType) {
-				tmp := right.Type()
-				_, err := prism.Delegate(&fn.OmegaType, &tmp)
-				if err != nil {
-					prism.Panic(*err)
-				}
-			} else {
-				right = prism.DelegateCast(right, fn.OmegaType)
-			}
-		}
-
-		if fn.Returns.IsAlgebraic() {
-			fn.Returns = fn.Returns.Resolve(fn.OmegaType)
-		}
+		prism.DeferMonadicApplicationTypes(&fn, &right)
 
 		if fn.Name.Package == "_" && fn.Name.Name == "Return" {
 			if !env.CurrentFunctionIR.Type().Equals(fn.Returns) {
