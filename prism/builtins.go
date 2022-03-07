@@ -1,6 +1,8 @@
 package prism
 
 var (
+	Numeric = SumType{[]Type{IntType, RealType, CharType, BoolType}}
+
 	ReturnSpecial = MonadicFunction{
 		Special:   true,
 		Name:      Ident{Package: "_", Name: "Return"},
@@ -65,35 +67,35 @@ var (
 		Special:            true,
 		disallowAutoVector: false,
 		Name:               Ident{Package: "_", Name: "+"},
-		AlphaType:          SumType{[]Type{IntType, RealType}},
-		OmegaType:          SumType{[]Type{IntType, RealType}},
-		Returns:            SumType{[]Type{IntType, RealType}},
+		AlphaType:          Numeric,
+		OmegaType:          Numeric,
+		Returns:            Numeric,
 	}
 
 	SubSpecial = DyadicFunction{
 		Special:            true,
 		disallowAutoVector: false,
 		Name:               Ident{Package: "_", Name: "-"},
-		AlphaType:          SumType{[]Type{IntType, RealType}},
-		OmegaType:          SumType{[]Type{IntType, RealType}},
-		Returns:            SumType{[]Type{IntType, RealType}},
+		AlphaType:          Numeric,
+		OmegaType:          Numeric,
+		Returns:            Numeric,
 	}
 
 	MulSpecial = DyadicFunction{
 		Special:            true,
 		disallowAutoVector: false,
 		Name:               Ident{Package: "_", Name: "*"},
-		AlphaType:          SumType{[]Type{IntType, RealType}},
-		OmegaType:          SumType{[]Type{IntType, RealType}},
-		Returns:            SumType{[]Type{IntType, RealType}},
+		AlphaType:          Numeric,
+		OmegaType:          Numeric,
+		Returns:            Numeric,
 	}
 
 	DivSpecial = DyadicFunction{
 		Special:            true,
 		disallowAutoVector: false,
 		Name:               Ident{Package: "_", Name: "÷"},
-		AlphaType:          SumType{[]Type{IntType, RealType}},
-		OmegaType:          SumType{[]Type{IntType, RealType}},
+		AlphaType:          Numeric,
+		OmegaType:          Numeric,
 		Returns:            RealType,
 	}
 
@@ -101,51 +103,60 @@ var (
 		Special:            true,
 		disallowAutoVector: false,
 		Name:               Ident{Package: "_", Name: "Max"},
-		AlphaType:          SumType{[]Type{IntType, RealType}},
-		OmegaType:          SumType{[]Type{IntType, RealType}},
-		Returns:            SumType{[]Type{IntType, RealType}},
+		AlphaType:          Numeric,
+		OmegaType:          Numeric,
+		Returns:            Numeric,
 	}
 
 	AndSpecial = DyadicFunction{
 		Special:            true,
 		disallowAutoVector: false,
 		Name:               Ident{Package: "_", Name: "&"},
-		AlphaType:          SumType{[]Type{IntType, RealType, BoolType}},
-		OmegaType:          SumType{[]Type{IntType, RealType, BoolType}},
-		Returns:            SumType{[]Type{IntType, RealType, BoolType}},
+		AlphaType:          Numeric,
+		OmegaType:          Numeric,
+		Returns:            BoolType,
 	}
 
 	OrSpecial = DyadicFunction{
 		Special:            true,
 		disallowAutoVector: false,
 		Name:               Ident{Package: "_", Name: "|"},
-		AlphaType:          SumType{[]Type{IntType, RealType, BoolType}},
-		OmegaType:          SumType{[]Type{IntType, RealType, BoolType}},
-		Returns:            SumType{[]Type{IntType, RealType, BoolType}},
+		AlphaType:          Numeric,
+		OmegaType:          Numeric,
+		Returns:            BoolType,
 	}
 
 	CeilSpecial = MonadicFunction{
 		Special:            true,
 		disallowAutoVector: false,
 		Name:               Ident{Package: "_", Name: "Max"},
-		OmegaType:          SumType{[]Type{IntType, RealType}},
-		Returns:            SumType{[]Type{IntType, RealType}},
+		OmegaType:          Numeric,
+		Returns:            Numeric,
 	}
 
 	MinSpecial = DyadicFunction{
 		Special:            true,
 		disallowAutoVector: false,
 		Name:               Ident{Package: "_", Name: "Min"},
-		AlphaType:          SumType{[]Type{IntType, RealType}},
-		OmegaType:          SumType{[]Type{IntType, RealType}},
-		Returns:            SumType{[]Type{IntType, RealType}},
+		AlphaType:          Numeric,
+		OmegaType:          Numeric,
+		Returns:            Numeric,
 	}
 
 	FloorSpecial = MonadicFunction{
 		Special:            true,
 		disallowAutoVector: false,
 		Name:               Ident{Package: "_", Name: "Min"},
-		OmegaType:          SumType{[]Type{IntType, RealType}},
-		Returns:            SumType{[]Type{IntType, RealType}},
+		OmegaType:          Numeric,
+		Returns:            Numeric,
+	}
+
+	RightHook = DyadicFunction{
+		Special:            true,
+		disallowAutoVector: false,
+		Name:               Ident{Package: "_", Name: "⊢"},
+		AlphaType:          SumType{[]Type{RealType, IntType}},
+		OmegaType:          SumType{[]Type{RealType, IntType}},
+		Returns:            SumType{[]Type{RealType, IntType}},
 	}
 )

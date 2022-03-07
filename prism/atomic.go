@@ -15,7 +15,6 @@ func (a AtomicType) String() string {
 // Resolve composes Integrate with Derive,
 // Should not be used on concrete types
 func (a AtomicType) Resolve(t Type) Type {
-	Panic("Unreachable")
 	return nil
 }
 

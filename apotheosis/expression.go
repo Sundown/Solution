@@ -1,6 +1,7 @@
 package apotheosis
 
 import (
+	"github.com/alecthomas/repr"
 	"github.com/sundown/solution/prism"
 
 	"github.com/llir/llvm/ir/value"
@@ -26,12 +27,15 @@ func (env *Environment) compileExpression(expr *prism.Expression) value.Value {
 		} else {
 			return env.CurrentFunction.Params[1]
 		}
+	// TODO find out what's causing this
 	case prism.Cast:
 		return env.compileCast(t)
-	default:
-		prism.Panic("unreachable")
+	case *prism.Cast:
+		return env.compileCast(*t)
 	}
-	panic(nil)
+
+	repr.Println(*expr)
+	panic(expr)
 }
 
 func (env *Environment) compileDyadicOperator(dop *prism.DyadicOperator) value.Value {

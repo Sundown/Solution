@@ -87,7 +87,6 @@ func Integrate(this, from Type) Type {
 		return from
 	}
 
-	Panic("Unreachable")
 	return nil
 }
 
@@ -116,6 +115,5 @@ func Derive(this, like Type) Type {
 		return like
 	}
 
-	Panic("Unreachable")
-	panic(nil)
+	return nil
 }

@@ -22,12 +22,7 @@ func DelegateCast(from Expression, to Type) Expression {
 
 	switch from.Type().(type) {
 	case AtomicType:
-		switch from.Type().Kind() {
-		case TypeInt:
-			return Cast{Value: from, ToType: IntType}
-		case TypeReal:
-			return Cast{Value: from, ToType: RealType}
-		}
+		return Cast{Value: from, ToType: to}
 	case VectorType:
 		if v, ok := to.(VectorType); ok &&
 			QueryCast(from.Type().(VectorType).Type, v.Type) {
@@ -60,7 +55,7 @@ func QueryCast(from, to Type) bool {
 			}
 		case TypeReal:
 			switch to.Kind() {
-			case TypeInt, TypeReal, TypeString:
+			case TypeReal, TypeString:
 				return true
 			}
 		case TypeString:

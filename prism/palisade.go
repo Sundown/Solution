@@ -60,12 +60,12 @@ func Intern(i palisade.Ident) (p Ident) {
 var basicLexer = lexer.MustSimple([]lexer.Rule{
 	{Name: "whitespace", Pattern: `[ \s]+`, Action: nil}, // THIS IS LOWERCASE FOR A REASON
 	{Name: "EOL", Pattern: `[\n\r]+`, Action: nil},
+	{Name: "Char", Pattern: `'(\\'|[^'])*'`, Action: nil},
 	{Name: "String", Pattern: `"(\\"|[^"])*"`, Action: nil},
 	{Name: "Float", Pattern: `(\-)?(\d*\.)\d+`, Action: nil},
 	{Name: "Int", Pattern: `(\-)?\d+`, Action: nil},
-	{Name: "Ident", Pattern: `([\w]+|[-*+÷&|=])`, Action: nil},
+	{Name: "Ident", Pattern: `([\w]+|[-*+÷&|=⊢])`, Action: nil},
 	{Name: "Operator", Pattern: `([/¨])`, Action: nil},
-	{Name: "Char", Pattern: `\'.\'`, Action: nil},
 	{Name: "Punct", Pattern: `[-[!@#$%^&*()+_=-{}\|:;"'<,>.?Δ∇→]|]`, Action: nil},
 	{Name: "Alpha", Pattern: "α", Action: nil},
 	{Name: "Omega", Pattern: "ω", Action: nil},

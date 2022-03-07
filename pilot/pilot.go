@@ -7,7 +7,7 @@ import (
 )
 
 func Pilot() {
-	for _, t := range cases {
+	for _, t := range Cases {
 		newRun(t)
 	}
 }

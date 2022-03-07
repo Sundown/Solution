@@ -11,11 +11,7 @@ import (
 
 func (env Environment) castInt(from prism.Value) value.Value {
 	switch from.Type.Kind() {
-	case prism.TypeInt:
-		return from.Value
-	case prism.TypeReal:
-		return env.Block.NewFPToSI(from.Value, types.I64)
-	case prism.TypeBool:
+	case prism.TypeBool, prism.TypeChar, prism.TypeInt:
 		return env.Block.NewSExt(from.Value, types.I64)
 	}
 
@@ -25,12 +21,30 @@ func (env Environment) castInt(from prism.Value) value.Value {
 
 func (env Environment) castReal(from prism.Value) value.Value {
 	switch from.Type.Kind() {
-	case prism.TypeInt:
+	case prism.TypeBool, prism.TypeChar, prism.TypeInt:
 		return env.Block.NewSIToFP(from.Value, types.Double)
 	case prism.TypeReal:
 		return from.Value
+	}
+
+	prism.Panic("Unreachable")
+	panic(nil)
+}
+
+func (env Environment) castChar(from prism.Value) value.Value {
+	switch from.Type.Kind() {
+	case prism.TypeBool, prism.TypeChar:
+		return env.Block.NewSExt(from.Value, types.I8)
+	}
+
+	prism.Panic("Unreachable")
+	panic(nil)
+}
+
+func (env Environment) castBool(from prism.Value) value.Value {
+	switch from.Type.Kind() {
 	case prism.TypeBool:
-		return env.Block.NewSIToFP(from.Value, types.Double)
+		return from.Value
 	}
 
 	prism.Panic("Unreachable")
@@ -54,14 +68,20 @@ func (env Environment) compileCast(cast prism.Cast) value.Value {
 		castfn = env.castInt
 	case prism.TypeReal:
 		castfn = env.castReal
+	case prism.TypeBool:
+		castfn = env.castBool
+	case prism.TypeChar:
+		castfn = env.castChar
+	default:
+		prism.Panic("Unreachable")
 	}
 
 	if pred {
 		return env.vectorCast(castfn, val, cast.ToType.(prism.VectorType).Type)
+	} else {
+		return castfn(val)
 	}
 
-	prism.Panic("Unreachable")
-	panic(nil)
 }
 
 func (env *Environment) vectorCast(caster prism.MCallable, vec prism.Value, to prism.Type) value.Value {

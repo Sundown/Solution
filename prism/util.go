@@ -85,12 +85,12 @@ func Emit(env *Environment) {
 
 	var sum [32]byte = sha256.Sum256(out)
 	temp_name := env.Output + "_" + hex.EncodeToString(sum[:]) + ".ll"
-	Verbose("Temp file", temp_name)
 
 	if env.EmitFormat == "purellvm" {
 		ioutil.WriteFile(env.Output+".ll", out, 0644)
 		Notify("compiled", env.Output, "to LLVM").Exit()
 	} else {
+		Verbose("Temp file", temp_name)
 		ioutil.WriteFile(temp_name, out, 0644)
 	}
 

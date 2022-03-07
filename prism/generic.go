@@ -1,11 +1,14 @@
 package prism
 
-import "github.com/llir/llvm/ir/types"
+import (
+	"github.com/llir/llvm/ir/types"
+)
 
 type GenericType struct{}
 
 // Interface Type comparison
 func (s GenericType) Equals(b Type) bool {
+	//panic("G comp")
 	Warn("Comparison of generic types")
 	return false
 }
