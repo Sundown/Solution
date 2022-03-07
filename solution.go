@@ -10,28 +10,29 @@ import (
 )
 
 func main() {
-	prism.Notify("Solution init...")
-
-	if os.Args[1] == "pilot" {
-		prism.Notify("Starting Pilot")
+	if len(os.Args) >= 2 && os.Args[1] == "test" {
+		prism.Notify("Starting Pilot Tests")
 		pilot.Pilot()
 		os.Exit(0)
 	}
 
+	prism.Notify("Solution init...")
+
+	// Make environment and intern buildin functions
 	env := prism.NewEnvironment()
 
-	// Parse arguments
+	// Parse all arguments
 	prism.Init(env)
 
-	// Open file and lex
+	// Open file, lex, and close
 	prism.Lex(env)
 
 	// Parse lexed tokens to AST and resolve compiler directives
 	subtle.Parse(env)
 
-	// compile AST to LLVM
+	// Compile AST to LLVM
 	apotheosis.Compile(env)
 
-	// write LLVM IR to file or invoke Clang
+	// Write LLVM IR to file or invoke Clang on LLVM Bitcode
 	prism.Emit(env)
 }

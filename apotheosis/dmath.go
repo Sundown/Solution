@@ -1,12 +1,16 @@
 package apotheosis
 
 import (
-	"github.com/alecthomas/repr"
 	"github.com/sundown/solution/prism"
 
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
 )
+
+// ⊢
+func (env *Environment) compileInlineRightHook(alpha, omega prism.Value) value.Value {
+	return omega.Value
+}
 
 func (env *Environment) compileInlineAdd(alpha, omega prism.Value) value.Value {
 	switch alpha.Type.Kind() {
@@ -17,7 +21,6 @@ func (env *Environment) compileInlineAdd(alpha, omega prism.Value) value.Value {
 	case prism.CharType.ID:
 		return env.Block.NewAdd(alpha.Value, omega.Value)
 	}
-	repr.Println(alpha)
 	prism.Panic("unreachable")
 	panic(nil)
 }

@@ -12,13 +12,18 @@ type Environment struct {
 func Parse(penv *prism.Environment) *prism.Environment {
 	env := Environment{penv}
 
+	tempEntry := ""
+
 	for _, stmt := range env.LexResult.Environmentments {
 		// First pass, declare all functions so that they
 		// may be referenced before they are defined (text-wise)
 		// Handle compiler directives
 		if d := stmt.Directive; d != nil {
-			if *d.Command == "Package" {
+			switch *d.Command {
+			case "Package":
 				env.Output = *d.Value
+			case "Entry":
+				tempEntry = *d.Value
 			}
 		}
 
@@ -37,18 +42,12 @@ func Parse(penv *prism.Environment) *prism.Environment {
 		env.analyseMBody(f)
 	}
 
-	// TODO fix dumb
-	for _, stmt := range env.LexResult.Environmentments {
-		if d := stmt.Directive; d != nil {
-			if *d.Command == "Entry" {
-				fn, ok := env.MonadicFunctions[prism.Ident{Package: "_", Name: *d.Value}]
-				if !ok {
-					prism.Panic("Entry function not found")
-				}
-
-				env.EntryFunction = *fn
-			}
-		}
+	if fn, ok := env.MonadicFunctions[prism.Ident{Package: "_", Name: tempEntry}]; ok {
+		env.EntryFunction = *fn
+	} else if fn, ok := env.MonadicFunctions[prism.Ident{Package: "_", Name: "Main"}]; ok {
+		env.EntryFunction = *fn
+	} else {
+		prism.Panic("No entry function found")
 	}
 
 	return env.Environment

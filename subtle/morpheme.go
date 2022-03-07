@@ -21,7 +21,7 @@ func (env Environment) analyseMorpheme(m *palisade.Morpheme) prism.Expression {
 	case m.Char != nil:
 		vec := make([]prism.Expression, len(*m.Char))
 		for i, c := range *m.Char {
-			vec[i] = prism.Char{Value: string(c[0])}
+			vec[i] = prism.Char{Value: string(c[1])}
 		}
 
 		return prism.Vector{
