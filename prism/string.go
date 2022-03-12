@@ -1,7 +1,5 @@
 package prism
 
-import "github.com/alecthomas/repr"
-
 var StringType = VectorType{Type: CharType}
 
 // Interface Type comparison
@@ -27,7 +25,6 @@ func (s String) String() string {
 
 // Type property for interface
 func (s String) Type() Type {
-	repr.Println(s)
 	return StringType
 }
 

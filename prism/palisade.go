@@ -7,7 +7,6 @@ import (
 
 	"github.com/alecthomas/participle/v2"
 	"github.com/alecthomas/participle/v2/lexer"
-	"github.com/alecthomas/repr"
 )
 
 var parser = participle.MustBuild(
@@ -32,7 +31,6 @@ func Lex(env *Environment) *Environment {
 		err = parser.Parse(env.File, r, &res)
 
 		if err != nil {
-			repr.Println(res)
 			Panic(err.Error())
 		}
 	} else {
@@ -66,7 +64,7 @@ var basicLexer = lexer.MustSimple([]lexer.Rule{
 	{Name: "String", Pattern: `"(\\"|[^"])*"`, Action: nil},
 	{Name: "Float", Pattern: `(\-)?(\d*\.)\d+`, Action: nil},
 	{Name: "Int", Pattern: `(\-)?\d+`, Action: nil},
-	{Name: "Ident", Pattern: `([\w]+|[-*+÷&|=⊢])`, Action: nil},
+	{Name: "Ident", Pattern: `([\w]+|[-*+÷&|=⊢,])`, Action: nil},
 	{Name: "Operator", Pattern: `([/¨])`, Action: nil},
 	{Name: "Punct", Pattern: `[-[!@#$%^&*()+_=-{}\|:;"'<,>.?Δ∇→]|]`, Action: nil},
 	{Name: "Alpha", Pattern: "α", Action: nil},
