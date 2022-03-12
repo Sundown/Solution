@@ -47,11 +47,12 @@ var (
 	}
 
 	AppendSpecial = DyadicFunction{
-		Special:   true,
-		Name:      Ident{Package: "_", Name: "Append"},
-		AlphaType: VectorType{GenericType{}},
-		OmegaType: VectorType{GenericType{}},
-		Returns:   VectorType{GenericType{}},
+		Special:            true,
+		disallowAutoVector: true,
+		Name:               Ident{Package: "_", Name: ","},
+		AlphaType:          VectorType{GenericType{}},
+		OmegaType:          VectorType{GenericType{}},
+		Returns:            VectorType{GenericType{}},
 	}
 
 	EqSpecial = DyadicFunction{

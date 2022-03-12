@@ -91,6 +91,7 @@ func (env *Environment) InitMain() *Environment {
 }
 
 func (env *Environment) insertCallables() {
+	env.LLDyadicCallables[","] = prism.MakeDC(env.compileInlineAppend, true)
 	env.LLDyadicCallables["+"] = prism.MakeDC(env.compileInlineAdd, false)
 	env.LLDyadicCallables["-"] = prism.MakeDC(env.compileInlineSub, false)
 	env.LLDyadicCallables["*"] = prism.MakeDC(env.compileInlineMul, false)
