@@ -1,13 +1,8 @@
 package prism
 
-import "github.com/llir/llvm/ir/types"
+import "github.com/alecthomas/repr"
 
-var StringType = AtomicType{
-	ID:           TypeString,
-	WidthInBytes: 12, // TODO
-	Name:         ParseIdent("String"),
-	Actual:       types.I8Ptr,
-}
+var StringType = VectorType{Type: CharType}
 
 // Interface Type comparison
 func (t String) Equals(b Type) bool {
@@ -32,12 +27,13 @@ func (s String) String() string {
 
 // Type property for interface
 func (s String) Type() Type {
+	repr.Println(s)
 	return StringType
 }
 
 // Interface Type width for LLVM codegen
-func (t String) Width() int {
-	return StringType.WidthInBytes
+func (t String) Width() int64 {
+	return t.Type().(VectorType).Width()
 }
 
 // Interface Type algebraic predicate

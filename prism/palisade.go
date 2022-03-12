@@ -7,6 +7,7 @@ import (
 
 	"github.com/alecthomas/participle/v2"
 	"github.com/alecthomas/participle/v2/lexer"
+	"github.com/alecthomas/repr"
 )
 
 var parser = participle.MustBuild(
@@ -31,6 +32,7 @@ func Lex(env *Environment) *Environment {
 		err = parser.Parse(env.File, r, &res)
 
 		if err != nil {
+			repr.Println(res)
 			Panic(err.Error())
 		}
 	} else {
