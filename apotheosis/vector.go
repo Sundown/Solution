@@ -1,6 +1,7 @@
 package apotheosis
 
 import (
+	"github.com/alecthomas/repr"
 	"github.com/sundown/solution/prism"
 
 	"github.com/llir/llvm/ir"
@@ -44,6 +45,7 @@ func (env *Environment) PopulateBody(
 	element_type types.Type,
 	expr_vec []prism.Expression) {
 
+	repr.Println(expr_vec)
 	ir_elmType := expr_vec[0].Type()
 	for index, element := range expr_vec {
 		v := env.compileExpression(&element)
