@@ -1,5 +1,5 @@
 @Package Dev;
 
 Main Int → Void {
-	Println "epic","epic","epic";
+	Println 1 ⊃ 1 2 3;
 }

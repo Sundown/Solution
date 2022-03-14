@@ -11,7 +11,9 @@ import (
 
 func (env Environment) castInt(from prism.Value) value.Value {
 	switch from.Type.Kind() {
-	case prism.TypeBool, prism.TypeChar, prism.TypeInt:
+	case prism.TypeInt:
+		return from.Value
+	case prism.TypeBool, prism.TypeChar:
 		return env.Block.NewSExt(from.Value, types.I64)
 	}
 
@@ -33,7 +35,9 @@ func (env Environment) castReal(from prism.Value) value.Value {
 
 func (env Environment) castChar(from prism.Value) value.Value {
 	switch from.Type.Kind() {
-	case prism.TypeBool, prism.TypeChar:
+	case prism.TypeChar:
+		return from.Value
+	case prism.TypeBool:
 		return env.Block.NewSExt(from.Value, types.I8)
 	}
 

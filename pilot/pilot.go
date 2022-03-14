@@ -23,7 +23,7 @@ func newRun(t Test) {
 	env := prism.NewEnvironment()
 	env.IsPilotRun = true
 	if t.Expr {
-		env.File = `@Package pilot_test_output; @Entry Main; Δ Main Int → Void: ` + t.Code + `∇`
+		env.File = `@Package pilot_test_output; @Entry Main; Main Int → Void{` + t.Code + `}`
 	} else {
 		env.File = t.Code
 	}

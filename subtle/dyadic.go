@@ -41,6 +41,6 @@ func (env Environment) analyseDyadic(d *palisade.Dyadic) prism.DyadicApplication
 		Operator:   fn,
 		Left:       left,
 		Right:      right,
-		AutoVector: branchAutoVector,
+		AutoVector: branchAutoVector, // TODO probably doesnt do anything
 	}
 }
