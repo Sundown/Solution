@@ -1,42 +1,40 @@
-### Solution
+<h3 align="center"> Solution</h3>
 
-[![Go Report Card](https://goreportcard.com/badge/github.com/sundown/solution)](https://goreportcard.com/report/github.com/sundown/solution)
+<p align="center">
+Solution is a compiler for an array-oriented language, providing the cognition of APL in an accessible, compiled, and open-source platform. The Solution Language is inspired by the work of Kenneth Iverson and Dyalog.
+</p>
 
-Array language compiler with a nice typesystem.
 
-Solution files are suffixed with `.sol`.
+### 🔍 Why?
 
-Some notes about ongoing implementation:
+- **Array oriented**: what do our computers process the most? A trivial but accurate answer is *data*, but what is data? Data is the plural form of the Latin word *datum*, which means *a piece of information*. This answer is a joke, yet it is useful; lending the insight that most processing is not performed on a single datum, but rather groups of these, again: data. Despite this striking fact, most languages prefer to focus on a single datum at a time, does this not seem a little strange, considering how much Computer Science is focused on graphs, sets, and other types of groups? Array oriented languages look at the bigger picture, preferring to manipulate lists or matrices of data. 
 
-- Code generation is done via LLVM, this is done using [llir/llvm](https://github.com/llir/llvm), which will be replaced with LLVM's Go bindings eventually.
-- A (non-JIT) interpreter will be added, which may supplement some optimisations.
-- Solution will invoke Clang on a temporary LLVMIR file when ready.
-- At present, some programs will be faster written in Solution than in C, if Clang is invoked with default options.
-- Basic optimisations such as `leal` combinations for some multiplications, as well as magic numbers for division (once I learn how to have them calculated).
-- More complicated optimisations such as loop-jamming when the `Map` operator is invoked successively will be implemented once the interpreter exists.
-- Type system is made by combination of various types, including but not limited to: `Int`, `Bool`, `Char`... these may be extended to vectors turning them into `String`, much like C.
-- Type system includes sum types (for example a sum type of `Numeric` could be `Int | Real`)
-- A single generic type T exists (alternate options in future), the type of which is substituted into other types in the function's signaturse, as well as any generic-accepting functions called within the function body.
-- Trains (forks and atops) are available in the Dyalog style:
+- **Functional**: array-oriented programming is very different to the procedural mindset, once one acclimatises to this, the necessity of immutability and function-purity is trivial. Solution does not enforce functional rules, however, the syntax encourages a functional style. 
 
-	`a (fgh) b <=> (a f b) g (a h b)`
+### ⏰ When?
 
-	`  (fgh) b <=>   (f b) g (h b)`
+Solution has two major stages ahead. 
 
-	`a (gh) b <=> g (a h b)`
+- **Features**: in a short time, Solution will operate correctly with all syntactic features: this includes but is not limited to packages, namespaces, compiler directives, and operators (functions that receive functions). This does not mean the language is complete, simply that future features will extend rather than change the language. 
 
-	`  (gh) b <=> g (h b)`
+- **Re-write**: the C++ re-write is intended to occur after the aforementioned stage. To keep things simple, no changes will be made to the language during this transition. 
 
----
+- **Currently**: at present, the language is unable to provide a Solution to many problems, apart from taking up a lot of spare time... 
 
-### Source layout
+### 🪜 Implementation
 
-Palisade contains the participle parser definition.
+- **Compiled**: many languages of this type are interpreted in some way, this makes learning and debugging much easier, but hurts performance. Being compiled opens the possibility to extend Solution into the GPU world using NVCC. The optimisations performed by LLVM are more advanced than anything possible in a project this size.
 
-Prism contains global definitions as well as common functions used in many stages.
+- **Golang**: the development of Solution occurring in Golang is an unfortunate fluke, mostly due to the language's simplicity. At a certain point in development, the compiler will be re-written in C++, this will be a linear process and won't change any underlying functionality. 
 
-Subtle performs parsing operations on AST
+### 📦 Distribution
 
-Apotheosis performs codegen after AST has been parsed
+- **Packaging**: no efforts will be made to package Solution before the C++ re-write. Currently, git clone and go build do the job. 
 
-Pilot contains testing infrastructure
+- **Libraries**: if this project matures to the state of requiring a package manager, git will do the hard work similar to Go. 
+
+### 🏷 Name
+
+Programming languages are sometimes thought of as tools for solving problems, however, it appears more accurate to say programming languages are a way of describing a problem to a compiler, which will produce a tool to solve your problem, or put simply: a **Solution**. This parlance is also used in the Navy when computers calculate the launching/firing vector of a projectile weapon, the result is called a *firing solution*. 
+
+<p align="center"><a href="https://github.com/sundown/solution/blob/main/LICENSE"><img src="https://img.shields.io/static/v1.svg?style=for-the-badge&label=License&message=GPL-2.0&logoColor=1f1f1f&colorA=1f1f1f&colorB=f0f0f0"/></a></p>
