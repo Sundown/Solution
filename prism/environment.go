@@ -67,7 +67,7 @@ func NewEnvironment() *Environment {
 	env.MonadicFunctions[PrintSpecial.Name] = &PrintSpecial
 	env.MonadicFunctions[LenSpecial.Name] = &LenSpecial
 	env.MonadicFunctions[CapSpecial.Name] = &CapSpecial
-	env.DyadicFunctions[GEPSpecial.Name] = &GEPSpecial
+	env.DyadicFunctions[PickSpecial.Name] = &PickSpecial
 	env.DyadicFunctions[AppendSpecial.Name] = &AppendSpecial
 	env.DyadicFunctions[AddSpecial.Name] = &AddSpecial
 	env.DyadicFunctions[SubSpecial.Name] = &SubSpecial

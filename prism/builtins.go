@@ -38,12 +38,13 @@ var (
 		Returns:   IntType,
 	}
 
-	GEPSpecial = DyadicFunction{
-		Special:   true,
-		Name:      Ident{Package: "_", Name: "GEP"},
-		AlphaType: IntType,
-		OmegaType: VectorType{GenericType{}},
-		Returns:   GenericType{},
+	PickSpecial = DyadicFunction{
+		Special:            true,
+		disallowAutoVector: true,
+		Name:               Ident{Package: "_", Name: "⊃"},
+		AlphaType:          IntType,
+		OmegaType:          VectorType{GenericType{}},
+		Returns:            GenericType{},
 	}
 
 	AppendSpecial = DyadicFunction{

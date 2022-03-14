@@ -9,7 +9,6 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-
 func (env Environment) New(val value.Value) (res value.Value) {
 	res = env.Block.NewAlloca(val.Type())
 	env.Block.NewStore(val, res)

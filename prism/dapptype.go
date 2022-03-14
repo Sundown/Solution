@@ -91,9 +91,11 @@ func DeferDyadicApplicationTypes(function *DyadicFunction, x, y *Expression) {
 	}
 
 	// Function return type may be reliant on the input type, substitute.
-	// TODO more vigorous substitution, giving consideration to LHS type.
+	// TODO more vigorous substitution, giving consideration to RHS type.
+	// Need to extend generic so it specifies Left/Right and whether it can be a vector,
+	// otherwise non-deterministic.
 	if function.Returns.IsAlgebraic() {
-		function.Returns = function.Returns.Resolve((*y).Type())
+		function.Returns = function.Returns.Resolve((*x).Type())
 	}
 }
 
