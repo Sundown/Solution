@@ -1,10 +1,27 @@
 <h2 align="center"> Solution</h2>
-
 <p align="center">
 Solution is a compiler for an array-oriented language, providing the cognition of APL in an accessible, compiled, and open-source platform. The Solution Language is inspired by the work of Kenneth Iverson and Dyalog.
 </p>
 
+<p align="center">
+	<a href="https://github.com/sundown/solution">
+		<img alt="LoC" src="https://img.shields.io/tokei/lines/github/sundown/solution?style=for-the-badge&logo=starship&color=f1f1f1&logoColor=f1f1f1&labelColor=262D3A">
+  </a>
+  <a href="https://github.com/Sundown/Solution/blob/master/go.mod">
+		<img alt="Go Version" src="https://img.shields.io/github/go-mod/go-version/sundown/solution?style=for-the-badge&logo=go&color=f1f1f1&logoColor=f1f1f1&labelColor=262D3A">
+  </a>
+  <a href="https://github.com/sundown/solution/blob/main/LICENSE">
+    <img src="https://img.shields.io/static/v1.svg?style=for-the-badge&logo=gnu&label=License&message=GPL-2.0&color=f1f1f1&logoColor=f1f1f1&labelColor=262D3A"/>
+  </a>
+  <a href="https://llvm.org">
+    <img src="https://img.shields.io/static/v1.svg?style=for-the-badge&logo=llvm&label=LLVM&message=v13.0&color=f1f1f1&logoColor=f1f1f1&labelColor=262D3A"/>
+  </a>
+  
+</p>
 
+
+
+---
 ### 🔍 Why?
 
 - **Array oriented**: what do our computers process the most? A trivial but accurate answer is *data*, but what is data? Data is the plural form of the Latin word *datum*, which means *a piece of information*. This answer is a joke, yet it is useful; lending the insight that most processing is not performed on a single datum, but rather groups of these, again: data. Despite this striking fact, most languages prefer to focus on a single datum at a time, does this not seem a little strange, considering how much Computer Science is focused on graphs, sets, and other types of groups? Array oriented languages look at the bigger picture, preferring to manipulate lists or matrices of data. 
@@ -37,6 +54,4 @@ Solution has two major stages ahead.
 
 Programming languages are sometimes thought of as tools for solving problems, however, it appears more accurate to say programming languages are a way of describing a problem to a compiler, which will produce a tool to solve your problem, or put simply: a **Solution**. This parlance is also used in the Navy when computers calculate the launching/firing vector of a projectile weapon, the result is called a *firing solution*. 
 
-<p align="center"><a href="https://github.com/sundown/solution/blob/main/LICENSE"><img src="https://img.shields.io/static/v1.svg?style=for-the-badge&label=License&message=GPL-2.0&logoColor=1f1f1f&colorA=1f1f1f&colorB=f0f0f0"/></a></p>
-
-<p align="center"><img width="20%" src="https://raw.githubusercontent.com/Sundown/Soldoc/master/So.svg?sanitize=true"/></p>
+<p align="center"><img width="7%" src="https://raw.githubusercontent.com/Sundown/Soldoc/master/So.svg?sanitize=true"/></p>
