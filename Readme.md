@@ -1,4 +1,4 @@
-<h3 align="center"> Solution</h3>
+<h2 align="center"> Solution</h2>
 
 <p align="center">
 Solution is a compiler for an array-oriented language, providing the cognition of APL in an accessible, compiled, and open-source platform. The Solution Language is inspired by the work of Kenneth Iverson and Dyalog.
@@ -38,3 +38,5 @@ Solution has two major stages ahead.
 Programming languages are sometimes thought of as tools for solving problems, however, it appears more accurate to say programming languages are a way of describing a problem to a compiler, which will produce a tool to solve your problem, or put simply: a **Solution**. This parlance is also used in the Navy when computers calculate the launching/firing vector of a projectile weapon, the result is called a *firing solution*. 
 
 <p align="center"><a href="https://github.com/sundown/solution/blob/main/LICENSE"><img src="https://img.shields.io/static/v1.svg?style=for-the-badge&label=License&message=GPL-2.0&logoColor=1f1f1f&colorA=1f1f1f&colorB=f0f0f0"/></a></p>
+
+<p align="center"><img width="20%" src="https://raw.githubusercontent.com/Sundown/Soldoc/master/So.svg?sanitize=true"/></p>
