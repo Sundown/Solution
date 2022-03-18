@@ -32,6 +32,7 @@ type Environment struct {
 	Optimisation *int64
 	File         string
 	//
+	ApotheosisIter     int
 	EntryFunction      MonadicFunction
 	Module             *ir.Module
 	Block              *ir.Block

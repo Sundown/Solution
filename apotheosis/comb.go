@@ -17,8 +17,8 @@ func (env Environment) CombineOf(in prism.Callable, a, b prism.Value) value.Valu
 		ret_typ = a.Type.(prism.VectorType).Type
 	}
 
-	loopblock := env.CurrentFunction.NewBlock("")
-	panicblock := env.CurrentFunction.NewBlock("")
+	loopblock := env.NewBlock(env.CurrentFunction)
+	panicblock := env.NewBlock(env.CurrentFunction)
 
 	env.LLVMPanic(panicblock, "Combination: vector range mismatch\x0A\x00") // "...\n\0"
 	panicblock.NewUnreachable()
@@ -46,7 +46,7 @@ func (env Environment) CombineOf(in prism.Callable, a, b prism.Value) value.Valu
 
 	loopblock.NewStore(loopblock.NewAdd(lcount, I32(1)), counter)
 
-	env.Block = env.CurrentFunction.NewBlock("")
+	env.Block = env.NewBlock(env.CurrentFunction)
 	loopblock.NewCondBr(loopblock.NewICmp(enum.IPredNE, lcount, len), loopblock, env.Block)
 
 	return env.writeVectorPointer(newvec, body, prism.VectorType{Type: ret_typ}.Realise())

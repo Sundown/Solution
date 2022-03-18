@@ -19,7 +19,7 @@ func (env *Environment) compileInlineMap(fn prism.MonadicFunction, vec prism.Val
 
 	counter_store := env.New(I32(0))
 
-	loopblock := env.CurrentFunction.NewBlock("")
+	loopblock := env.NewBlock(env.CurrentFunction)
 	env.Block.NewBr(loopblock)
 	env.Block = loopblock
 
@@ -37,7 +37,7 @@ func (env *Environment) compileInlineMap(fn prism.MonadicFunction, vec prism.Val
 
 	loopblock.NewStore(incr, counter_store)
 
-	env.Block = env.CurrentFunction.NewBlock("")
+	env.Block = env.NewBlock(env.CurrentFunction)
 	loopblock.NewCondBr(loopblock.NewICmp(enum.IPredNE, incr, leng), loopblock, env.Block)
 
 	return

@@ -188,8 +188,8 @@ func CalculateVectorSizes(l int) (leng int64, cap int64) {
 }
 
 func (env *Environment) ValidateVectorIndex(vec prism.Value, index value.Value) {
-	btrue := env.CurrentFunction.NewBlock("")
-	bfalse := env.CurrentFunction.NewBlock("")
+	btrue := env.NewBlock(env.CurrentFunction)
+	bfalse := env.NewBlock(env.CurrentFunction)
 
 	leng := env.readVectorLength(vec)
 

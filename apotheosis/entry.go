@@ -18,6 +18,7 @@ func Compile(penv *prism.Environment) *prism.Environment {
 	prism.Verbose("Init compiler")
 
 	env := &Environment{penv}
+	env.ApotheosisIter = 0
 	env.Specials = make(map[string]*ir.Func)
 	env.LLMonadicFunctions = make(map[string]*ir.Func)
 	env.LLDyadicFunctions = make(map[string]*ir.Func)
@@ -34,6 +35,9 @@ func Compile(penv *prism.Environment) *prism.Environment {
 	env.Module.AttrGroupDefs = append(
 		ir.NewModule().AttrGroupDefs,
 		&ir.AttrGroupDef{ID: 0, FuncAttrs: []ir.FuncAttribute{enum.FuncAttrAlwaysInline}})
+
+	env.Module.TargetTriple = "nvptx64-unknown-cuda"
+	env.Module.DataLayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-i128:128:128-f32:32:32-f64:64:64-v16:16:16-v32:32:32-v64:64:64-v128:128:128-n16:32:64"
 
 	env.
 		DeclareFunctions().
