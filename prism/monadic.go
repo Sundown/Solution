@@ -67,5 +67,5 @@ func (f MonadicFunction) ShouldInline() bool {
 	return f.Inline
 }
 func (f MonadicFunction) LLVMise() string {
-	return f.Name.Package + "::" + f.Name.Name + "_" + f.OmegaType.String() + "->" + f.Returns.String()
+	return f.Name.Package + "_" + f.Name.Name + "_" + f.OmegaType.String() + "$" + f.Returns.String()
 }

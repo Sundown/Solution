@@ -18,8 +18,8 @@ func (env *Environment) compileInlineReduce(fn prism.DyadicFunction, vec prism.V
 		prism.Value{Value: env.UnsafereadVectorElement(vec, env.Block.NewSub(len, I32(2))), Type: vectyp},
 		prism.Value{Value: env.UnsafereadVectorElement(vec, env.Block.NewSub(len, I32(1))), Type: vectyp}))
 
-	loopblock := env.CurrentFunction.NewBlock("")
-	exitblock := env.CurrentFunction.NewBlock("")
+	loopblock := env.NewBlock(env.CurrentFunction)
+	exitblock := env.NewBlock(env.CurrentFunction)
 
 	env.Block.NewCondBr(env.Block.NewICmp(enum.IPredEQ, len, I32(2)), exitblock, loopblock)
 

@@ -51,7 +51,7 @@ func (do DyadicOperator) String() string {
 // String function for interface
 func (f DyadicFunction) String() (s string) {
 	s += "Δ " + f.AlphaType.String() + " " + f.Name.String() + " " +
-		f.OmegaType.String() + " → " + f.Returns.String() + "\n"
+		f.OmegaType.String() + " -> " + f.Returns.String() + "\n"
 
 	if f.Body != nil {
 		for _, p := range f.Body {
@@ -93,7 +93,7 @@ func (d DyadicFunction) Ident() Ident {
 }
 
 func (f DyadicFunction) LLVMise() string {
-	return f.Name.Package + "::" + f.Name.Name + "_" + f.AlphaType.String() + "," + f.OmegaType.String() + "->" + f.Returns.String()
+	return f.Name.Package + "_" + f.Name.Name + "_" + f.AlphaType.String() + "_" + f.OmegaType.String() + "$" + f.Returns.String()
 }
 
 func (f DyadicFunction) ShouldInline() bool {

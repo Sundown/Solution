@@ -1,6 +1,8 @@
 package apotheosis
 
 import (
+	"fmt"
+
 	"github.com/sundown/solution/prism"
 
 	"github.com/llir/llvm/ir"
@@ -31,21 +33,21 @@ func (env *Environment) DeclareDyadicFunction(fn prism.DyadicFunction) *ir.Func 
 	return env.Module.NewFunc(
 		fn.LLVMise(),
 		toReturn(fn.Type()),
-		toParam(fn.AlphaType), toParam(fn.OmegaType))
+		env.toParam(fn.AlphaType), env.toParam(fn.OmegaType))
 }
 
 func (env *Environment) declareMonadicFunction(fn prism.MonadicFunction) *ir.Func {
 	return env.Module.NewFunc(
 		fn.LLVMise(),
 		toReturn(fn.Type()),
-		toParam(fn.OmegaType))
+		env.toParam(fn.OmegaType))
 }
 
 func (env *Environment) compileDyadicFunction(fn prism.DyadicFunction) *ir.Func {
 	env.CurrentFunction = env.LLDyadicFunctions[fn.LLVMise()]
 	env.CurrentFunctionIR = fn
 
-	env.Block = env.CurrentFunction.NewBlock("")
+	env.Block = env.NewBlock(env.CurrentFunction)
 	env.compileBlock(&fn.Body)
 
 	if fn.Returns.Kind() == prism.VoidType.ID {
@@ -63,7 +65,7 @@ func (env *Environment) compileMonadicFunction(fn prism.MonadicFunction) *ir.Fun
 	env.CurrentFunction = env.LLMonadicFunctions[fn.LLVMise()]
 	env.CurrentFunctionIR = fn
 
-	env.Block = env.CurrentFunction.NewBlock("")
+	env.Block = env.NewBlock(env.CurrentFunction)
 	env.compileBlock(&fn.Body)
 
 	if fn.Returns.Kind() == prism.VoidType.ID {
@@ -87,7 +89,7 @@ func toReturn(t prism.Type) (typ types.Type) {
 }
 
 // Handle void parameters and add pointers to complex types
-func toParam(t prism.Type) (typ *ir.Param) {
+func (env *Environment) toParam(t prism.Type) (typ *ir.Param) {
 	if t.Kind() == prism.VoidType.ID {
 		typ = nil
 	} else if _, ok := t.(prism.AtomicType); !ok {
@@ -95,6 +97,8 @@ func toParam(t prism.Type) (typ *ir.Param) {
 	} else {
 		typ = ir.NewParam("", t.Realise())
 	}
+
+	typ.SetName(fmt.Sprint(env.NewID()))
 
 	return typ
 }

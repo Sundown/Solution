@@ -36,7 +36,7 @@ func (env *Environment) GetExit() *ir.Func {
 		env.Specials["exit"] = env.Module.NewFunc(
 			"exit",
 			types.Void,
-			ir.NewParam("", types.I32))
+			ir.NewParam("exitcode", types.I32))
 	}
 
 	return env.Specials["exit"]
@@ -73,7 +73,7 @@ func (env *Environment) GetPrintf() *ir.Func {
 		env.Specials["printf"] = env.Module.NewFunc(
 			"printf",
 			types.I32,
-			ir.NewParam("", types.I8Ptr))
+			ir.NewParam("fmt", types.I8Ptr))
 		env.Specials["printf"].Sig.Variadic = true
 	}
 

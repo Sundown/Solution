@@ -120,7 +120,7 @@ func (env *Environment) vectorCast(caster prism.MCallable, vec prism.Value, to p
 	env.Block.NewStore(I32(0), counter)
 
 	// Get elem, add to accum, increment counter, conditional jump to body
-	loopblock := env.CurrentFunction.NewBlock("")
+	loopblock := env.NewBlock(env.CurrentFunction)
 	env.Block.NewBr(loopblock)
 	env.Block = loopblock
 	// Add to accum
@@ -142,7 +142,7 @@ func (env *Environment) vectorCast(caster prism.MCallable, vec prism.Value, to p
 
 	loopblock.NewStore(incr, counter)
 
-	exitblock := env.CurrentFunction.NewBlock("")
+	exitblock := env.NewBlock(env.CurrentFunction)
 
 	loopblock.NewCondBr(loopblock.NewICmp(enum.IPredSLT, incr, leng), loopblock, exitblock)
 
