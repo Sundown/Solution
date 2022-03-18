@@ -4,9 +4,6 @@ Solution is a compiler for an array-oriented language, providing the cognition o
 </p>
 
 <p align="center">
-	<a href="https://github.com/sundown/solution">
-		<img alt="LoC" src="https://img.shields.io/tokei/lines/github/sundown/solution?style=for-the-badge&logo=starship&color=f1f1f1&logoColor=f1f1f1&labelColor=262D3A">
-  </a>
   <a href="https://github.com/Sundown/Solution/blob/master/go.mod">
 		<img alt="Go Version" src="https://img.shields.io/github/go-mod/go-version/sundown/solution?style=for-the-badge&logo=go&color=f1f1f1&logoColor=f1f1f1&labelColor=262D3A">
   </a>
@@ -30,23 +27,15 @@ Solution is a compiler for an array-oriented language, providing the cognition o
 
 ### ⏰ When?
 
-Solution has two major stages ahead. 
+**Features**: in a short time, Solution will operate correctly with all syntactic features: this includes but is not limited to packages, namespaces, compiler directives, and operators (functions that receive functions). This does not mean the language is complete, simply that future features will extend rather than change the language. 
 
-- **Features**: in a short time, Solution will operate correctly with all syntactic features: this includes but is not limited to packages, namespaces, compiler directives, and operators (functions that receive functions). This does not mean the language is complete, simply that future features will extend rather than change the language. 
+**CUDA**: alongside the implementation of functions and algorithms, compilation options targetting NVIDIA GPUs will be made available. At present this is possible, however, a significant amount of work is needed to make it an easy process.  
 
-- **Re-write**: the C++ re-write is intended to occur after the aforementioned stage. To keep things simple, no changes will be made to the language during this transition. 
-
-- **Currently**: at present, the language is unable to provide a Solution to many problems, apart from taking up a lot of spare time... 
-
-### 🪜 Implementation
-
-- **Compiled**: many languages of this type are interpreted in some way, this makes learning and debugging much easier, but hurts performance. Being compiled opens the possibility to extend Solution into the GPU world using NVCC. The optimisations performed by LLVM are more advanced than anything possible in a project this size.
-
-- **Golang**: the development of Solution occurring in Golang is an unfortunate fluke, mostly due to the language's simplicity. At a certain point in development, the compiler will be re-written in C++, this will be a linear process and won't change any underlying functionality. 
+**Currently**: at present, the language is unable to provide a Solution to many problems, apart from taking up a lot of spare time... 
 
 ### 📦 Distribution
 
-- **Packaging**: no efforts will be made to package Solution before the C++ re-write. Currently, git clone and go build do the job. 
+- **Packaging**: no efforts will be made to package Solution in the near future. Currently, `git clone https://github.com/Sundown/Solution` and `go build` do the job. 
 
 - **Libraries**: if this project matures to the state of requiring a package manager, git will do the hard work similar to Go. 
 
@@ -54,4 +43,4 @@ Solution has two major stages ahead.
 
 Programming languages are sometimes thought of as tools for solving problems, however, it appears more accurate to say programming languages are a way of describing a problem to a compiler, which will produce a tool to solve your problem, or put simply: a **Solution**. This parlance is also used in the Navy when computers calculate the launching/firing vector of a projectile weapon, the result is called a *firing solution*. 
 
-<p align="center"><img width="7%" src="https://raw.githubusercontent.com/Sundown/Soldoc/master/So.svg?sanitize=true"/></p>
+<p align="center"><img width="10%" src="https://raw.githubusercontent.com/Sundown/Soldoc/master/So.svg?sanitize=true"/></p>
