@@ -26,14 +26,14 @@ var (
 
 	LenSpecial = MonadicFunction{
 		Special:   true,
-		Name:      Ident{Package: "_", Name: "Len"},
+		Name:      Ident{Package: "_", Name: "≢"},
 		OmegaType: VectorType{GenericType{}},
 		Returns:   IntType,
 	}
 
 	CapSpecial = MonadicFunction{
 		Special:   true,
-		Name:      Ident{Package: "_", Name: "Cap"},
+		Name:      Ident{Package: "_", Name: "__Cap"},
 		OmegaType: VectorType{GenericType{}},
 		Returns:   IntType,
 	}
@@ -153,12 +153,28 @@ var (
 		Returns:            Numeric,
 	}
 
-	RightHook = DyadicFunction{
+	RightTacD = DyadicFunction{
 		Special:            true,
 		disallowAutoVector: false,
 		Name:               Ident{Package: "_", Name: "⊢"},
-		AlphaType:          SumType{[]Type{RealType, IntType}},
-		OmegaType:          SumType{[]Type{RealType, IntType}},
-		Returns:            SumType{[]Type{RealType, IntType}},
+		AlphaType:          GenericType{},
+		OmegaType:          GenericType{},
+		Returns:            GenericType{},
+	}
+
+	RightTacM = MonadicFunction{
+		Special:            true,
+		disallowAutoVector: false,
+		Name:               Ident{Package: "_", Name: "⊢"},
+		OmegaType:          GenericType{},
+		Returns:            GenericType{},
+	}
+	LeftTacD = DyadicFunction{
+		Special:            true,
+		disallowAutoVector: false,
+		Name:               Ident{Package: "_", Name: "⊣"},
+		AlphaType:          GenericType{},
+		OmegaType:          GenericType{},
+		Returns:            GenericType{},
 	}
 )

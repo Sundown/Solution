@@ -14,8 +14,20 @@ func IsVector(t Type) bool {
 	return ok
 }
 
+func VectorDepth(t Type) int {
+	if !IsVector(t) {
+		return 0
+	}
+
+	return 1 + VectorDepth(t.(VectorType).Type)
+}
+
 func QueryAutoVector(atom, vec Type) bool {
 	if !IsVector(vec) {
+		return false
+	}
+
+	if VectorDepth(atom) == VectorDepth(vec) {
 		return false
 	}
 

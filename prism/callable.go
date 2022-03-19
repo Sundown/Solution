@@ -8,6 +8,7 @@ type Callable interface {
 	Arity() int
 	NoAutoVector() bool
 }
+
 type MCallable func(val Value) value.Value
 type DCallable func(left, right Value) value.Value
 

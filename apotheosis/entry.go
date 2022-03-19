@@ -106,13 +106,15 @@ func (env *Environment) insertCallables() {
 	env.LLDyadicCallables["&"] = prism.MakeDC(env.compileInlineAnd, false)
 	env.LLDyadicCallables["|"] = prism.MakeDC(env.compileInlineAnd, false)
 	env.LLDyadicCallables["⊃"] = prism.MakeDC(env.compileInlineIndex, true)
-	env.LLDyadicCallables["⊢"] = prism.MakeDC(env.compileInlineRightHook, false)
+	env.LLDyadicCallables["⊢"] = prism.MakeDC(env.compileInlineRightTacD, false)
+	env.LLDyadicCallables["⊣"] = prism.MakeDC(env.compileInlineLeftTacD, false)
 
+	env.LLMonadicCallables["⊢"] = prism.MakeMC(env.compileInlineRightTacM, false)
 	env.LLMonadicCallables["Println"] = prism.MakeMC(env.compileInlinePrintln, false)
 	env.LLMonadicCallables["Print"] = prism.MakeMC(env.compileInlinePrint, false)
 	env.LLMonadicCallables["Panic"] = prism.MakeMC(env.compileInlinePanic, false)
-	env.LLMonadicCallables["Len"] = prism.MakeMC(env.readVectorLength, false)
-	env.LLMonadicCallables["Cap"] = prism.MakeMC(env.readVectorCapacity, false)
+	env.LLMonadicCallables["≢"] = prism.MakeMC(env.readVectorLength, false)
+	env.LLMonadicCallables["__Cap"] = prism.MakeMC(env.readVectorCapacity, false)
 	env.LLMonadicCallables["Max"] = prism.MakeMC(env.compileInlineCeil, false)
 	env.LLMonadicCallables["Min"] = prism.MakeMC(env.compileInlineFloor, false)
 }
