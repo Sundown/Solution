@@ -8,8 +8,16 @@ import (
 )
 
 // ⊢
-func (env *Environment) compileInlineRightHook(alpha, omega prism.Value) value.Value {
+func (env *Environment) compileInlineRightTacD(alpha, omega prism.Value) value.Value {
 	return omega.Value
+}
+
+func (env *Environment) compileInlineRightTacM(omega prism.Value) value.Value {
+	return omega.Value
+}
+
+func (env *Environment) compileInlineLeftTacD(alpha, omega prism.Value) value.Value {
+	return alpha.Value
 }
 
 func (env *Environment) compileInlineAdd(alpha, omega prism.Value) value.Value {
