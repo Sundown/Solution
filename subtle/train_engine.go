@@ -14,11 +14,13 @@ func (env Environment) analyseMonadicPartial(expr *palisade.Expression, right pr
 }
 
 func trainLength(expr *palisade.Expression) int {
-	if expr.Monadic.Expression == nil {
+	if expr.Monadic != nil && expr.Monadic.Expression != nil {
+		return 1 + trainLength(expr.Monadic.Expression)
+	} else if expr.Operator == nil && expr.Operator.Expression == nil {
+		return 1 + trainLength(expr.Operator.Expression)
+	} else {
 		return 1
 	}
-
-	return 1 + trainLength(expr.Monadic.Expression)
 }
 
 func (env Environment) boardTrain(
@@ -88,6 +90,7 @@ func (env Environment) boardTrain(
 
 			return t
 		} else {
+
 			t := env.d3Train(env.FetchDVerb(expr.Monadic.Verb),
 				env.FetchDVerb(expr.Monadic.Expression.Monadic.Verb),
 				env.boardTrain(expr.Monadic.Expression.Monadic.Expression,
