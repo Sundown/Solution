@@ -121,7 +121,7 @@ func (env Environment) analyseExpression(e *palisade.Expression) prism.Expressio
 	} else if e.Morphemes != nil {
 		return env.analyseMorphemes(e.Morphemes)
 	} else if e.Operator != nil {
-		return env.analyseDyadicOperator(e.Operator)
+		return env.analyseDyadicApplication(e.Operator)
 	}
 
 	prism.Panic("unreachable")

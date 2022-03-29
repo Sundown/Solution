@@ -16,7 +16,7 @@ func (env Environment) analyseMonadicPartial(expr *palisade.Expression, right pr
 func trainLength(expr *palisade.Expression) int {
 	if expr.Monadic != nil && expr.Monadic.Expression != nil {
 		return 1 + trainLength(expr.Monadic.Expression)
-	} else if expr.Operator == nil && expr.Operator.Expression == nil {
+	} else if expr.Operator != nil && expr.Operator.Expression != nil {
 		return 1 + trainLength(expr.Operator.Expression)
 	} else {
 		return 1
@@ -46,9 +46,11 @@ func (env Environment) boardTrain(
 		}
 	} else if l == 3 {
 		if left == nil {
-			t := env.m3Train(env.FetchMVerb(expr.Monadic.Verb),
-				env.FetchDVerb(expr.Monadic.Expression.Monadic.Verb),
-				env.FetchMVerb(expr.Monadic.Expression.Monadic.Expression.Monadic.Verb),
+			first := innerExpression(expr)
+
+			t := env.m3Train(env.operatorOrMonadic(expr, right),
+				env.FetchDVerb(first.Monadic.Verb),
+				env.operatorOrMonadic(innerExpression(first), right),
 				right)
 
 			env.MonadicFunctions[t.Ident()] = &t
@@ -100,6 +102,26 @@ func (env Environment) boardTrain(
 			return t
 		}
 	}
+}
+
+func innerExpression(expr *palisade.Expression) *palisade.Expression {
+	if (*expr).Monadic != nil {
+		return (*expr).Monadic.Expression
+	} else if (*expr).Operator != nil {
+		return (*expr).Operator.Expression
+	}
+
+	panic("aaa")
+}
+
+func (env *Environment) operatorOrMonadic(expr *palisade.Expression, right prism.Type) prism.MonadicFunction {
+	if expr.Monadic != nil {
+		return env.FetchMVerb(expr.Monadic.Verb)
+	} else if expr.Operator != nil {
+		return env.operatorToFunction(env.analyseDyadicOperator(expr.Operator, right))
+	}
+
+	panic("aaa")
 }
 
 func match(e *prism.Type, t *prism.Type) {

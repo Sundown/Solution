@@ -6,13 +6,6 @@ import (
 	"github.com/sundown/solution/palisade"
 )
 
-type DyadicOperator struct {
-	Operator int
-	Left     Expression
-	Right    Expression
-	Returns  Type
-}
-
 type DyadicFunction struct {
 	Special            bool
 	SkipBuilder        bool
@@ -44,11 +37,6 @@ func (d DyadicApplication) Type() Type {
 }
 
 // String function for interface
-func (do DyadicOperator) String() string {
-	return do.Left.String() + " " + fmt.Sprint(do.Operator) + " " + do.Right.String()
-}
-
-// String function for interface
 func (f DyadicFunction) String() (s string) {
 	s += "Δ " + f.AlphaType.String() + " " + f.Name.String() + " " +
 		f.OmegaType.String() + " -> " + f.Returns.String() + "\n"
@@ -67,21 +55,6 @@ func (f DyadicFunction) String() (s string) {
 // String function for interface
 func (d DyadicApplication) String() string {
 	return d.Left.String() + " " + d.Operator.Name.String() + " " + d.Right.String()
-}
-
-// Type property for interface
-//
-// Operators each return a type dependant on a different input
-func (do DyadicOperator) Type() Type {
-	switch do.Operator {
-	case KindMapOperator:
-		return VectorType{do.Left.Type()}
-	case KindReduceOperator:
-		return do.Left.Type()
-	}
-
-	Panic("Need to impl type")
-	panic(nil)
 }
 
 func (d DyadicFunction) IsSpecial() bool {

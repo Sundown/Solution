@@ -16,6 +16,8 @@ func (env *Environment) compileExpression(expr *prism.Expression) value.Value {
 	case prism.Morpheme:
 		return env.compileAtom(&t)
 	case prism.DyadicOperator:
+		panic("Can't do solo operators yet")
+	case prism.OperatorApplication:
 		return env.compileDyadicOperator(&t)
 	case prism.Function:
 		return env.compileFunction(&t)
@@ -38,18 +40,19 @@ func (env *Environment) compileExpression(expr *prism.Expression) value.Value {
 	panic(expr)
 }
 
-func (env *Environment) compileDyadicOperator(dop *prism.DyadicOperator) value.Value {
-	switch dop.Operator {
+func (env *Environment) compileDyadicOperator(dop *prism.OperatorApplication) value.Value {
+	switch dop.Op.Operator {
 	case prism.KindMapOperator:
 		return env.compileInlineMap(
-			dop.Left.(prism.MonadicFunction),
-			prism.Value{Value: env.compileExpression(&dop.Right), Type: dop.Right.Type()})
+			dop.Op.Fn.(prism.MonadicFunction),
+			prism.Value{Value: env.compileExpression(&dop.Expr), Type: dop.Expr.Type()})
 
 	case prism.KindReduceOperator:
 		return env.compileInlineReduce(
-			dop.Left.(prism.DyadicFunction),
-			prism.Value{Value: env.compileExpression(&dop.Right), Type: dop.Right.Type()})
+			dop.Op.Fn.(prism.DyadicFunction),
+			prism.Value{Value: env.compileExpression(&dop.Expr), Type: dop.Expr.Type()})
 	}
+
 	prism.Panic("unreachable")
 	panic(nil)
 }
