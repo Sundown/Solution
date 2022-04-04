@@ -29,7 +29,7 @@ func (env *Environment) compileBlock(body *[]prism.Expression) {
 	}
 }
 
-func (env *Environment) DeclareDyadicFunction(fn prism.DyadicFunction) *ir.Func {
+func (env *Environment) declareDyadicFunction(fn prism.DyadicFunction) *ir.Func {
 	return env.Module.NewFunc(
 		fn.LLVMise(),
 		toReturn(fn.Type()),
@@ -47,7 +47,7 @@ func (env *Environment) compileDyadicFunction(fn prism.DyadicFunction) *ir.Func 
 	env.CurrentFunction = env.LLDyadicFunctions[fn.LLVMise()]
 	env.CurrentFunctionIR = fn
 
-	env.Block = env.NewBlock(env.CurrentFunction)
+	env.Block = env.newBlock(env.CurrentFunction)
 	env.compileBlock(&fn.Body)
 
 	if fn.Returns.Kind() == prism.VoidType.ID {
@@ -65,7 +65,7 @@ func (env *Environment) compileMonadicFunction(fn prism.MonadicFunction) *ir.Fun
 	env.CurrentFunction = env.LLMonadicFunctions[fn.LLVMise()]
 	env.CurrentFunctionIR = fn
 
-	env.Block = env.NewBlock(env.CurrentFunction)
+	env.Block = env.newBlock(env.CurrentFunction)
 	env.compileBlock(&fn.Body)
 
 	if fn.Returns.Kind() == prism.VoidType.ID {
@@ -98,7 +98,7 @@ func (env *Environment) toParam(t prism.Type) (typ *ir.Param) {
 		typ = ir.NewParam("", t.Realise())
 	}
 
-	typ.SetName(fmt.Sprint(env.NewID()))
+	typ.SetName(fmt.Sprint(env.newID()))
 
 	return typ
 }

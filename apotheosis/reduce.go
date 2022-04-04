@@ -12,16 +12,16 @@ func (env *Environment) compileInlineReduce(fn prism.DyadicFunction, vec prism.V
 	vectyp := vec.Type.(prism.VectorType).Type
 
 	len := env.readVectorLength(vec)
-	counter := env.New(env.Block.NewSub(len, I32(3)))
+	counter := env.new(env.Block.NewSub(len, i32(3)))
 
-	accum := env.New(env.Apply(fn,
-		prism.Value{Value: env.UnsafereadVectorElement(vec, env.Block.NewSub(len, I32(2))), Type: vectyp},
-		prism.Value{Value: env.UnsafereadVectorElement(vec, env.Block.NewSub(len, I32(1))), Type: vectyp}))
+	accum := env.new(env.apply(fn,
+		prism.Value{Value: env.unsafeReadVectorElement(vec, env.Block.NewSub(len, i32(2))), Type: vectyp},
+		prism.Value{Value: env.unsafeReadVectorElement(vec, env.Block.NewSub(len, i32(1))), Type: vectyp}))
 
-	loopblock := env.NewBlock(env.CurrentFunction)
-	exitblock := env.NewBlock(env.CurrentFunction)
+	loopblock := env.newBlock(env.CurrentFunction)
+	exitblock := env.newBlock(env.CurrentFunction)
 
-	env.Block.NewCondBr(env.Block.NewICmp(enum.IPredEQ, len, I32(2)), exitblock, loopblock)
+	env.Block.NewCondBr(env.Block.NewICmp(enum.IPredEQ, len, i32(2)), exitblock, loopblock)
 
 	env.Block = loopblock
 
@@ -29,14 +29,14 @@ func (env *Environment) compileInlineReduce(fn prism.DyadicFunction, vec prism.V
 	lcount.SetName("counter_load")
 
 	loopblock.NewStore(
-		env.Apply(fn,
-			prism.Value{Value: env.UnsafereadVectorElement(vec, lcount), Type: vectyp},
+		env.apply(fn,
+			prism.Value{Value: env.unsafeReadVectorElement(vec, lcount), Type: vectyp},
 			prism.Value{Value: loopblock.NewLoad(vectyp.Realise(), accum), Type: vectyp}),
 		accum)
 
-	loopblock.NewStore(loopblock.NewSub(lcount, I32(1)), counter)
+	loopblock.NewStore(loopblock.NewSub(lcount, i32(1)), counter)
 
-	loopblock.NewCondBr(loopblock.NewICmp(enum.IPredNE, lcount, I32(0)), loopblock, exitblock)
+	loopblock.NewCondBr(loopblock.NewICmp(enum.IPredNE, lcount, i32(0)), loopblock, exitblock)
 
 	env.Block = exitblock
 	return env.Block.NewLoad(vectyp.Realise(), accum)

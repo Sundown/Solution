@@ -5,7 +5,7 @@ import (
 	"github.com/llir/llvm/ir/types"
 )
 
-func (env *Environment) GetCalloc() *ir.Func {
+func (env *Environment) getCalloc() *ir.Func {
 	if env.Specials["calloc"] == nil {
 		env.Specials["calloc"] = env.Module.NewFunc(
 			"calloc",
@@ -17,7 +17,7 @@ func (env *Environment) GetCalloc() *ir.Func {
 	return env.Specials["calloc"]
 }
 
-func (env *Environment) GetMemcpy() *ir.Func {
+func (env *Environment) getMemcpy() *ir.Func {
 	if env.Specials["memcpy"] == nil {
 		env.Specials["memcpy"] = env.Module.NewFunc(
 			"llvm.memcpy",
@@ -31,7 +31,7 @@ func (env *Environment) GetMemcpy() *ir.Func {
 	return env.Specials["memcpy"]
 }
 
-func (env *Environment) GetExit() *ir.Func {
+func (env *Environment) getExit() *ir.Func {
 	if env.Specials["exit"] == nil {
 		env.Specials["exit"] = env.Module.NewFunc(
 			"exit",
@@ -42,7 +42,7 @@ func (env *Environment) GetExit() *ir.Func {
 	return env.Specials["exit"]
 }
 
-func (env *Environment) GetMaxDouble() *ir.Func {
+func (env *Environment) getMaxDouble() *ir.Func {
 	if env.Specials["max.f64"] == nil {
 		env.Specials["max.f64"] = env.Module.NewFunc(
 			"llvm.maxnum.double",
@@ -55,7 +55,7 @@ func (env *Environment) GetMaxDouble() *ir.Func {
 	return env.Specials["max.f64"]
 }
 
-func (env *Environment) GetMinDouble() *ir.Func {
+func (env *Environment) getMinDouble() *ir.Func {
 	if env.Specials["min.f64"] == nil {
 		env.Specials["min.f64"] = env.Module.NewFunc(
 			"llvm.minnum.double",
@@ -68,7 +68,7 @@ func (env *Environment) GetMinDouble() *ir.Func {
 	return env.Specials["min.f64"]
 }
 
-func (env *Environment) GetPrintf() *ir.Func {
+func (env *Environment) getPrintf() *ir.Func {
 	if env.Specials["printf"] == nil {
 		env.Specials["printf"] = env.Module.NewFunc(
 			"printf",

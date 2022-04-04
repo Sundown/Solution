@@ -35,15 +35,15 @@ func (env Environment) boardTrain(
 			env.MonadicFunctions[t.Ident()] = &t
 
 			return t
-		} else {
-			t := env.d2Train(env.FetchMVerb(expr.Monadic.Verb),
-				env.FetchDVerb(expr.Monadic.Expression.Monadic.Verb),
-				left, right)
-
-			env.DyadicFunctions[t.Ident()] = &t
-
-			return t
 		}
+
+		t := env.d2Train(env.FetchMVerb(expr.Monadic.Verb),
+			env.FetchDVerb(expr.Monadic.Expression.Monadic.Verb),
+			left, right)
+
+		env.DyadicFunctions[t.Ident()] = &t
+
+		return t
 	} else if l == 3 {
 		if left == nil {
 			first := innerExpression(expr)
@@ -56,16 +56,16 @@ func (env Environment) boardTrain(
 			env.MonadicFunctions[t.Ident()] = &t
 
 			return t
-		} else {
-			t := env.d3Train(env.FetchDVerb(expr.Monadic.Verb),
-				env.FetchDVerb(expr.Monadic.Expression.Monadic.Verb),
-				env.FetchDVerb(expr.Monadic.Expression.Monadic.Expression.Monadic.Verb),
-				left, right)
-
-			env.DyadicFunctions[t.Ident()] = &t
-
-			return t
 		}
+
+		t := env.d3Train(env.FetchDVerb(expr.Monadic.Verb),
+			env.FetchDVerb(expr.Monadic.Expression.Monadic.Verb),
+			env.FetchDVerb(expr.Monadic.Expression.Monadic.Expression.Monadic.Verb),
+			left, right)
+
+		env.DyadicFunctions[t.Ident()] = &t
+
+		return t
 	} else if l%2 == 0 {
 		if left == nil {
 			t := env.m2Train(env.FetchMVerb(expr.Monadic.Verb),
@@ -74,14 +74,14 @@ func (env Environment) boardTrain(
 			env.MonadicFunctions[t.Ident()] = &t
 
 			return t
-		} else {
-			t := env.d2Train(env.FetchMVerb(expr.Monadic.Verb),
-				env.boardTrain(expr.Monadic.Expression, left, right).(prism.DyadicFunction),
-				left, right)
-			env.DyadicFunctions[t.Ident()] = &t
-
-			return t
 		}
+
+		t := env.d2Train(env.FetchMVerb(expr.Monadic.Verb),
+			env.boardTrain(expr.Monadic.Expression, left, right).(prism.DyadicFunction),
+			left, right)
+		env.DyadicFunctions[t.Ident()] = &t
+
+		return t
 	} else {
 		if left == nil {
 			t := env.m3Train(env.FetchMVerb(expr.Monadic.Verb),
@@ -91,16 +91,15 @@ func (env Environment) boardTrain(
 			env.MonadicFunctions[t.Ident()] = &t
 
 			return t
-		} else {
-
-			t := env.d3Train(env.FetchDVerb(expr.Monadic.Verb),
-				env.FetchDVerb(expr.Monadic.Expression.Monadic.Verb),
-				env.boardTrain(expr.Monadic.Expression.Monadic.Expression,
-					left, right).(prism.DyadicFunction), left, right)
-			env.DyadicFunctions[t.Ident()] = &t
-
-			return t
 		}
+
+		t := env.d3Train(env.FetchDVerb(expr.Monadic.Verb),
+			env.FetchDVerb(expr.Monadic.Expression.Monadic.Verb),
+			env.boardTrain(expr.Monadic.Expression.Monadic.Expression,
+				left, right).(prism.DyadicFunction), left, right)
+		env.DyadicFunctions[t.Ident()] = &t
+
+		return t
 	}
 }
 

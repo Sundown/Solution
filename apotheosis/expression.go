@@ -26,9 +26,10 @@ func (env *Environment) compileExpression(expr *prism.Expression) value.Value {
 	case prism.Omega:
 		if len(env.CurrentFunction.Params) == 1 {
 			return env.CurrentFunction.Params[0]
-		} else {
-			return env.CurrentFunction.Params[1]
 		}
+
+		return env.CurrentFunction.Params[1]
+
 	// TODO find out what's causing this
 	case prism.Cast:
 		return env.compileCast(t)

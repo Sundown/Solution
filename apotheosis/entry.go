@@ -9,11 +9,12 @@ import (
 	"github.com/llir/llvm/ir/types"
 )
 
+// Environment inherited from prism.Environment, enforced pointer
 type Environment struct {
 	*prism.Environment
 }
 
-// Entry point to Apotheosis codegen, pass prism.Environment with parsed AST
+// Compile parsed AST to LLVM IR, including datalayouts for NVVM
 func Compile(penv *prism.Environment) *prism.Environment {
 	prism.Verbose("Init compiler")
 
@@ -40,20 +41,20 @@ func Compile(penv *prism.Environment) *prism.Environment {
 	env.Module.DataLayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-i128:128:128-f32:32:32-f64:64:64-v16:16:16-v32:32:32-v64:64:64-v128:128:128-n16:32:64"
 
 	env.
-		DeclareFunctions().
+		declareFunctions().
 		compileFunctions().
-		InitMain()
+		initMain()
 
 	return env.Environment
 }
 
-func (env *Environment) DeclareFunctions() *Environment {
+func (env *Environment) declareFunctions() *Environment {
 	for _, fn := range env.DyadicFunctions {
 		if fn.Special {
 			continue
 		}
 
-		env.LLDyadicFunctions[fn.LLVMise()] = env.DeclareDyadicFunction(*fn)
+		env.LLDyadicFunctions[fn.LLVMise()] = env.declareDyadicFunction(*fn)
 	}
 	for _, fn := range env.MonadicFunctions {
 		if fn.Special {
@@ -85,10 +86,10 @@ func (env *Environment) compileFunctions() *Environment {
 	return env
 }
 
-func (env *Environment) InitMain() *Environment {
+func (env *Environment) initMain() *Environment {
 	env.CurrentFunction = env.Module.NewFunc("main", types.I32)
 	env.Block = env.CurrentFunction.NewBlock("entry")
-	env.Block.NewCall(env.LLMonadicFunctions[env.EntryFunction.LLVMise()], I64(0))
+	env.Block.NewCall(env.LLMonadicFunctions[env.EntryFunction.LLVMise()], i64(0))
 	env.Block.NewRet(constant.NewInt(types.I32, 0))
 
 	return env

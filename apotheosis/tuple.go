@@ -11,7 +11,7 @@ func (env *Environment) compileTuple(tuple *prism.Morpheme) value.Value {
 			val = env.Block.NewLoad(expr.TypeOf.AsLLType(), val)
 		}
 
-		env.Block.NewStore(val, env.GEP(ll_tuple, I32(0), I32(int64(index))))
+		env.Block.NewStore(val, env.gep(ll_tuple, i32(0), i32(int64(index))))
 	}
 
 	return ll_tuple
@@ -28,7 +28,7 @@ func (env *Environment) TupleGet(typ *prism.Type, real value.Value, index int) v
 
 	ptr := env.Block.NewGetElementPtr(
 		typ.AsLLType(), real,
-		I32(0), I32(int64(index)))
+		i32(0), i32(int64(index)))
 
 	if typ.Tuple[index].Atomic == nil {
 		return ptr
