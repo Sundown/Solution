@@ -82,10 +82,9 @@ func (env Environment) compileCast(cast prism.Cast) value.Value {
 
 	if pred {
 		return env.vectorCast(castfn, val, cast.ToType.(prism.VectorType).Type)
-	} else {
-		return castfn(val)
 	}
 
+	return castfn(val)
 }
 
 func (env *Environment) vectorCast(caster prism.MCallable, vec prism.Value, to prism.Type) value.Value {
@@ -106,21 +105,21 @@ func (env *Environment) vectorCast(caster prism.MCallable, vec prism.Value, to p
 
 	// Allocate a body of capacity * element width, and cast to element type
 	body = env.Block.NewBitCast(
-		env.Block.NewCall(env.GetCalloc(),
-			I32(to.Width()), // Byte size of elements
+		env.Block.NewCall(env.getCalloc(),
+			i32(to.Width()), // Byte size of elements
 			cap),            // How much memory to alloc
 		types.NewPointer(toElmType)) // Cast alloc'd memory to typ
 
 	// --- Loop body ---
 	vecBody := env.Block.NewLoad(
 		types.NewPointer(elmType),
-		env.Block.NewGetElementPtr(vec.Type.Realise(), vec.Value, I32(0), vectorBodyOffset))
+		env.Block.NewGetElementPtr(vec.Type.Realise(), vec.Value, i32(0), vectorBodyOffset))
 
 	counter := env.Block.NewAlloca(types.I32)
-	env.Block.NewStore(I32(0), counter)
+	env.Block.NewStore(i32(0), counter)
 
-	// Get elem, add to accum, increment counter, conditional jump to body
-	loopblock := env.NewBlock(env.CurrentFunction)
+	// get elem, add to accum, increment counter, conditional jump to body
+	loopblock := env.newBlock(env.CurrentFunction)
 	env.Block.NewBr(loopblock)
 	env.Block = loopblock
 	// Add to accum
@@ -138,11 +137,11 @@ func (env *Environment) vectorCast(caster prism.MCallable, vec prism.Value, to p
 			Type:  vec.Type.(prism.VectorType).Type}),
 		loopblock.NewGetElementPtr(toElmType, body, curCounter))
 
-	incr := loopblock.NewAdd(curCounter, I32(1))
+	incr := loopblock.NewAdd(curCounter, i32(1))
 
 	loopblock.NewStore(incr, counter)
 
-	exitblock := env.NewBlock(env.CurrentFunction)
+	exitblock := env.newBlock(env.CurrentFunction)
 
 	loopblock.NewCondBr(loopblock.NewICmp(enum.IPredSLT, incr, leng), loopblock, exitblock)
 

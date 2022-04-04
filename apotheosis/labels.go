@@ -6,11 +6,11 @@ import (
 	"github.com/llir/llvm/ir"
 )
 
-func (env *Environment) NewID() int {
+func (env *Environment) newID() int {
 	env.ApotheosisIter++
 	return env.ApotheosisIter
 }
 
-func (env *Environment) NewBlock(fn *ir.Func) *ir.Block {
-	return fn.NewBlock(fmt.Sprint(env.NewID()))
+func (env *Environment) newBlock(fn *ir.Func) *ir.Block {
+	return fn.NewBlock(fmt.Sprint(env.newID()))
 }

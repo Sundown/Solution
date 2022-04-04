@@ -5,10 +5,13 @@ import (
 	"github.com/sundown/solution/prism"
 )
 
+// Environment inherits from prism.Environment
 type Environment struct {
 	*prism.Environment
 }
 
+// Parse is entry point of Subtle,
+// receiving environment created by Prism where Palisade stage is complete
 func Parse(penv *prism.Environment) *prism.Environment {
 	env := Environment{penv}
 
@@ -30,7 +33,7 @@ func Parse(penv *prism.Environment) *prism.Environment {
 		if f := stmt.Function; f != nil {
 			// palisade.Function is agnostic to arity
 			// containing either monadic or dyadic
-			env.InternFunction(*f)
+			env.internFunction(*f)
 		}
 	}
 
@@ -53,9 +56,7 @@ func Parse(penv *prism.Environment) *prism.Environment {
 	return env.Environment
 }
 
-// Intern either monadic or dyadic function header into environment
-// will not handle body of function, declarations only
-func (env Environment) InternFunction(f palisade.Function) {
+func (env Environment) internFunction(f palisade.Function) {
 	if f.Dyadic != nil {
 		fn := prism.DyadicFunction{
 			Name:      prism.Intern(*f.Dyadic.Ident),

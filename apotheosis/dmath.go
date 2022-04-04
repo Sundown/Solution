@@ -76,18 +76,18 @@ func (env *Environment) compileInlineDiv(alpha, omega prism.Value) value.Value {
 func (env *Environment) compileInlineMax(alpha, omega prism.Value) value.Value {
 	switch alpha.Type.Kind() {
 	case prism.RealType.ID:
-		return env.Block.NewCall(env.GetMaxDouble(), alpha.Value, omega.Value)
+		return env.Block.NewCall(env.getMaxDouble(), alpha.Value, omega.Value)
 	case prism.IntType.ID:
 		// Branchless max, very important especially in array languages
 		// a - ((a-b) & (a-b) >> 31)
 		i1 := env.Block.NewSub(alpha.Value, omega.Value)
 		return env.Block.NewSub(alpha.Value,
-			env.Block.NewAnd(i1, env.Block.NewAShr(i1, I64(31))))
+			env.Block.NewAnd(i1, env.Block.NewAShr(i1, i64(31))))
 	case prism.CharType.ID:
 		// Might work, might not, who cares
 		i1 := env.Block.NewSub(alpha.Value, omega.Value)
 		return env.Block.NewSub(alpha.Value,
-			env.Block.NewAnd(i1, env.Block.NewAShr(i1, I64(31))))
+			env.Block.NewAnd(i1, env.Block.NewAShr(i1, i64(31))))
 	}
 
 	prism.Panic("unreachable")
@@ -97,13 +97,13 @@ func (env *Environment) compileInlineMax(alpha, omega prism.Value) value.Value {
 func (env *Environment) compileInlineMin(alpha, omega prism.Value) value.Value {
 	switch alpha.Type.Kind() {
 	case prism.RealType.ID:
-		return env.Block.NewCall(env.GetMinDouble(), alpha.Value, omega.Value)
+		return env.Block.NewCall(env.getMinDouble(), alpha.Value, omega.Value)
 	case prism.IntType.ID:
 		// Branchless max
 		// b + ((a-b) & (a-b) >> 31)
 		i1 := env.Block.NewSub(alpha.Value, omega.Value)
 		return env.Block.NewAdd(omega.Value,
-			env.Block.NewAnd(i1, env.Block.NewAShr(i1, I64(31))))
+			env.Block.NewAnd(i1, env.Block.NewAShr(i1, i64(31))))
 
 	case prism.CharType.ID:
 		return env.Block.NewMul(alpha.Value, omega.Value)
@@ -119,7 +119,7 @@ func (env *Environment) compileInlineCeil(omega prism.Value) value.Value {
 		return env.Block.NewSIToFP(
 			env.Block.NewAdd(
 				env.Block.NewFPToSI(omega.Value, types.I64),
-				I64(1)), types.Double)
+				i64(1)), types.Double)
 	case prism.IntType.ID:
 		return omega.Value
 	}

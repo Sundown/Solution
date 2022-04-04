@@ -9,35 +9,35 @@ import (
 )
 
 func (env *Environment) compileInlineMap(fn prism.MonadicFunction, vec prism.Value) (head *ir.InstAlloca) {
-	write_pred := fn.Type().Kind() != prism.VoidType.ID
+	writePred := fn.Type().Kind() != prism.VoidType.ID
 	leng := env.readVectorLength(vec)
 	var body *ir.InstBitCast
 
-	if write_pred {
-		head, body = env.LLVectorFactory(fn.Type(), leng)
+	if writePred {
+		head, body = env.vectorFactory(fn.Type(), leng)
 	}
 
-	counter_store := env.New(I32(0))
+	counterStore := env.new(i32(0))
 
-	loopblock := env.NewBlock(env.CurrentFunction)
+	loopblock := env.newBlock(env.CurrentFunction)
 	env.Block.NewBr(loopblock)
 	env.Block = loopblock
 
-	curCounter := loopblock.NewLoad(types.I32, counter_store)
+	curCounter := loopblock.NewLoad(types.I32, counterStore)
 
-	call := env.Apply(fn, prism.Value{
-		Value: env.UnsafereadVectorElement(vec, curCounter),
+	call := env.apply(fn, prism.Value{
+		Value: env.unsafeReadVectorElement(vec, curCounter),
 		Type:  vec.Type.(prism.VectorType).Type})
 
-	if write_pred {
+	if writePred {
 		loopblock.NewStore(call, loopblock.NewGetElementPtr(fn.Type().Realise(), body, curCounter))
 	}
 
-	incr := loopblock.NewAdd(curCounter, I32(1))
+	incr := loopblock.NewAdd(curCounter, i32(1))
 
-	loopblock.NewStore(incr, counter_store)
+	loopblock.NewStore(incr, counterStore)
 
-	env.Block = env.NewBlock(env.CurrentFunction)
+	env.Block = env.newBlock(env.CurrentFunction)
 	loopblock.NewCondBr(loopblock.NewICmp(enum.IPredNE, incr, leng), loopblock, env.Block)
 
 	return

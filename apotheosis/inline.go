@@ -10,34 +10,34 @@ import (
 func (env *Environment) compileInlinePrintln(val prism.Value) value.Value {
 	if val.Type.Equals(prism.StringType) {
 		return env.Block.NewCall(
-			env.GetPrintf(),
-			env.GetFormatStringln(&val.Type),
+			env.getPrintf(),
+			env.getFormatStringln(&val.Type),
 			env.Block.NewLoad(types.I8Ptr, env.Block.NewGetElementPtr(
 				val.Type.Realise(),
 				val.Value,
-				I32(0), vectorBodyOffset)))
+				i32(0), vectorBodyOffset)))
 	}
 
 	return env.Block.NewCall(
-		env.GetPrintf(),
-		env.GetFormatStringln(&val.Type),
+		env.getPrintf(),
+		env.getFormatStringln(&val.Type),
 		val.Value)
 }
 
 func (env *Environment) compileInlinePrint(val prism.Value) value.Value {
 	if val.Type.Equals(prism.StringType) {
 		return env.Block.NewCall(
-			env.GetPrintf(),
-			env.GetFormatString(&val.Type),
+			env.getPrintf(),
+			env.getFormatString(&val.Type),
 			env.Block.NewLoad(types.I8Ptr, env.Block.NewGetElementPtr(
 				val.Type.Realise(),
 				val.Value,
-				I32(0), vectorBodyOffset)))
+				i32(0), vectorBodyOffset)))
 	}
 
 	return env.Block.NewCall(
-		env.GetPrintf(),
-		env.GetFormatString(&val.Type),
+		env.getPrintf(),
+		env.getFormatString(&val.Type),
 		val.Value)
 }
 
@@ -46,7 +46,7 @@ func (env *Environment) compileInlineIndex(left, right prism.Value) value.Value 
 }
 
 func (env *Environment) compileInlinePanic(val prism.Value) value.Value {
-	env.Block.NewCall(env.GetExit(), env.Block.NewTrunc(val.Value, types.I32))
+	env.Block.NewCall(env.getExit(), env.Block.NewTrunc(val.Value, types.I32))
 	env.Block.NewUnreachable()
 	return nil
 }
