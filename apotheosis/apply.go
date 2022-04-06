@@ -12,6 +12,7 @@ func (env *Environment) apply(c prism.Callable, params ...prism.Value) value.Val
 		if fn.Special {
 			return env.apply(env.FetchDyadicCallable(fn.Ident().Name), params...)
 		}
+
 		v, ok := c.(prism.Expression)
 		if !ok {
 			prism.Panic("apply: not an expression")
