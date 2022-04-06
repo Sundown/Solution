@@ -26,81 +26,64 @@ func trainLength(expr *palisade.Expression) int {
 func (env Environment) boardTrain(
 	expr *palisade.Expression, left, right prism.Type,
 ) prism.Function {
+	var t prism.Function
 	if l := trainLength(expr); l == 2 {
 		if left == nil {
-			t := env.m2Train(env.FetchMVerb(expr.Monadic.Verb),
+			t = env.m2Train(env.FetchMVerb(expr.Monadic.Verb),
 				env.FetchMVerb(expr.Monadic.Expression.Monadic.Verb),
 				right)
-
-			env.MonadicFunctions[t.Ident()] = &t
-
-			return t
+		} else {
+			t = env.d2Train(env.FetchMVerb(expr.Monadic.Verb),
+				env.FetchDVerb(expr.Monadic.Expression.Monadic.Verb),
+				left, right)
 		}
-
-		t := env.d2Train(env.FetchMVerb(expr.Monadic.Verb),
-			env.FetchDVerb(expr.Monadic.Expression.Monadic.Verb),
-			left, right)
-
-		env.DyadicFunctions[t.Ident()] = &t
-
-		return t
 	} else if l == 3 {
 		if left == nil {
 			first := innerExpression(expr)
 
-			t := env.m3Train(env.operatorOrMonadic(expr, right),
+			t = env.m3Train(env.operatorOrMonadic(expr, right),
 				env.FetchDVerb(first.Monadic.Verb),
 				env.operatorOrMonadic(innerExpression(first), right),
 				right)
+		} else {
 
-			env.MonadicFunctions[t.Ident()] = &t
-
-			return t
+			t = env.d3Train(env.FetchDVerb(expr.Monadic.Verb),
+				env.FetchDVerb(expr.Monadic.Expression.Monadic.Verb),
+				env.FetchDVerb(expr.Monadic.Expression.Monadic.Expression.Monadic.Verb),
+				left, right)
 		}
-
-		t := env.d3Train(env.FetchDVerb(expr.Monadic.Verb),
-			env.FetchDVerb(expr.Monadic.Expression.Monadic.Verb),
-			env.FetchDVerb(expr.Monadic.Expression.Monadic.Expression.Monadic.Verb),
-			left, right)
-
-		env.DyadicFunctions[t.Ident()] = &t
-
-		return t
 	} else if l%2 == 0 {
 		if left == nil {
-			t := env.m2Train(env.FetchMVerb(expr.Monadic.Verb),
+			t = env.m2Train(env.operatorOrMonadic(expr, right),
 				env.boardTrain(expr.Monadic.Expression, left, right).(prism.MonadicFunction),
 				right)
-			env.MonadicFunctions[t.Ident()] = &t
+		} else {
 
-			return t
+			t = env.d2Train(env.FetchMVerb(expr.Monadic.Verb),
+				env.boardTrain(expr.Monadic.Expression, left, right).(prism.DyadicFunction),
+				left, right)
 		}
-
-		t := env.d2Train(env.FetchMVerb(expr.Monadic.Verb),
-			env.boardTrain(expr.Monadic.Expression, left, right).(prism.DyadicFunction),
-			left, right)
-		env.DyadicFunctions[t.Ident()] = &t
-
-		return t
 	} else {
 		if left == nil {
-			t := env.m3Train(env.FetchMVerb(expr.Monadic.Verb),
+			t = env.m3Train(env.FetchMVerb(expr.Monadic.Verb),
 				env.FetchDVerb(expr.Monadic.Expression.Monadic.Verb),
 				env.boardTrain(expr.Monadic.Expression.Monadic.Expression,
 					left, right).(prism.MonadicFunction), right)
-			env.MonadicFunctions[t.Ident()] = &t
-
-			return t
+		} else {
+			t = env.d3Train(env.FetchDVerb(expr.Monadic.Verb),
+				env.FetchDVerb(expr.Monadic.Expression.Monadic.Verb),
+				env.boardTrain(expr.Monadic.Expression.Monadic.Expression,
+					left, right).(prism.DyadicFunction), left, right)
 		}
-
-		t := env.d3Train(env.FetchDVerb(expr.Monadic.Verb),
-			env.FetchDVerb(expr.Monadic.Expression.Monadic.Verb),
-			env.boardTrain(expr.Monadic.Expression.Monadic.Expression,
-				left, right).(prism.DyadicFunction), left, right)
-		env.DyadicFunctions[t.Ident()] = &t
-
-		return t
 	}
+
+	if m, ok := t.(prism.MonadicFunction); ok {
+		env.MonadicFunctions[t.Ident()] = &m
+	} else if d, ok := t.(prism.DyadicFunction); ok {
+		env.DyadicFunctions[t.Ident()] = &d
+	}
+
+	return t
 }
 
 func innerExpression(expr *palisade.Expression) *palisade.Expression {
@@ -110,7 +93,7 @@ func innerExpression(expr *palisade.Expression) *palisade.Expression {
 		return (*expr).Operator.Expression
 	}
 
-	panic("aaa")
+	panic("Abominable expression structure")
 }
 
 func (env *Environment) operatorOrMonadic(expr *palisade.Expression, right prism.Type) prism.MonadicFunction {
