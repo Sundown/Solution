@@ -114,15 +114,13 @@ func (env Environment) analyseMBody(f *prism.MonadicFunction) {
 func (env Environment) analyseExpression(e *palisade.Expression) prism.Expression {
 	if e.Monadic != nil {
 		if e.Monadic.Expression == nil {
-			return env.FetchMVerb(e.Monadic.Verb)
+			return env.FetchMVerb(e.Monadic.Applicable.Verb)
 		}
 		return env.analyseMonadic(e.Monadic)
 	} else if e.Dyadic != nil {
 		return env.analyseDyadic(e.Dyadic)
 	} else if e.Morphemes != nil {
 		return env.analyseMorphemes(e.Morphemes)
-	} else if e.Operator != nil {
-		return env.analyseDyadicApplication(e.Operator)
 	}
 
 	prism.Panic("unreachable")

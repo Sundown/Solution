@@ -15,10 +15,10 @@ func (env *Environment) compileExpression(expr *prism.Expression) value.Value {
 		return env.compileDyadicApplication(&t)
 	case prism.Morpheme:
 		return env.compileAtom(&t)
-	case prism.DyadicOperator:
+	case prism.MonadicOperator:
 		panic("Can't do solo operators yet")
 	case prism.OperatorApplication:
-		return env.compileDyadicOperator(&t)
+		return env.compileMonadicOperator(&t)
 	case prism.Function:
 		return env.compileFunction(&t)
 	case prism.Alpha:
@@ -41,7 +41,7 @@ func (env *Environment) compileExpression(expr *prism.Expression) value.Value {
 	panic(expr)
 }
 
-func (env *Environment) compileDyadicOperator(dop *prism.OperatorApplication) value.Value {
+func (env *Environment) compileMonadicOperator(dop *prism.OperatorApplication) value.Value {
 	switch dop.Op.Operator {
 	case prism.KindMapOperator:
 		return env.compileInlineMap(

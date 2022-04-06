@@ -20,9 +20,8 @@ type MonadicFunction struct {
 }
 
 type MonadicApplication struct {
-	Operator   MonadicFunction
-	Operand    Expression
-	AutoVector bool
+	Operator MonadicFunction
+	Operand  Expression
 }
 
 // Type property for interface
