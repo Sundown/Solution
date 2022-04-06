@@ -29,27 +29,27 @@ func (env Environment) boardTrain(
 	var t prism.Function
 	if l := trainLength(expr); l == 2 {
 		if left == nil {
-			t = env.m2Train(env.FetchMVerb(expr.Monadic.Verb),
-				env.FetchMVerb(expr.Monadic.Expression.Monadic.Verb),
+			t = env.m2Train(env.analyseApplicable(*expr.Monadic.Applicable, left, right).(prism.MonadicFunction),
+				env.analyseApplicable(*expr.Monadic.Expression.Monadic.Applicable, left, right).(prism.MonadicFunction),
 				right)
 		} else {
-			t = env.d2Train(env.FetchMVerb(expr.Monadic.Verb),
-				env.FetchDVerb(expr.Monadic.Expression.Monadic.Verb),
+			t = env.d2Train(env.analyseApplicable(*expr.Monadic.Applicable, left, right).(prism.MonadicFunction),
+				env.analyseApplicable(*expr.Monadic.Expression.Monadic.Applicable, left, right).(prism.DyadicFunction),
 				left, right)
 		}
 	} else if l == 3 {
 		if left == nil {
-			first := innerExpression(expr)
+			//first := innerExpression(expr)
 
-			t = env.m3Train(env.operatorOrMonadic(expr, right),
-				env.FetchDVerb(first.Monadic.Verb),
-				env.operatorOrMonadic(innerExpression(first), right),
+			t = env.m3Train(env.analyseApplicable(*expr.Monadic.Applicable, left, right).(prism.MonadicFunction),
+				env.analyseApplicable(*expr.Monadic.Expression.Monadic.Applicable, left, right).(prism.DyadicFunction),
+				env.analyseApplicable(*expr.Monadic.Expression.Monadic.Expression.Monadic.Applicable, left, right).(prism.MonadicFunction),
 				right)
 		} else {
 
-			t = env.d3Train(env.FetchDVerb(expr.Monadic.Verb),
-				env.FetchDVerb(expr.Monadic.Expression.Monadic.Verb),
-				env.FetchDVerb(expr.Monadic.Expression.Monadic.Expression.Monadic.Verb),
+			t = env.d3Train(env.analyseApplicable(*expr.Monadic.Applicable, left, right).(prism.DyadicFunction),
+				env.analyseApplicable(*expr.Monadic.Expression.Monadic.Applicable, left, right).(prism.DyadicFunction),
+				env.analyseApplicable(*expr.Monadic.Expression.Monadic.Expression.Monadic.Applicable, left, right).(prism.DyadicFunction),
 				left, right)
 		}
 	} else if l%2 == 0 {
@@ -100,7 +100,7 @@ func (env *Environment) operatorOrMonadic(expr *palisade.Expression, right prism
 	if expr.Monadic != nil {
 		return env.FetchMVerb(expr.Monadic.Verb)
 	} else if expr.Operator != nil {
-		return env.operatorToFunction(env.analyseDyadicOperator(expr.Operator, right))
+		return env.operatorToFunction(env.analyseMonadicOperator(expr.Operator, right))
 	}
 
 	panic("aaa")

@@ -2,7 +2,7 @@ package prism
 
 import "fmt"
 
-type DyadicOperator struct {
+type MonadicOperator struct {
 	Operator int
 	Fn       Function
 	ExprType Type
@@ -10,19 +10,19 @@ type DyadicOperator struct {
 }
 
 type OperatorApplication struct {
-	Op   DyadicOperator
+	Op   MonadicOperator
 	Expr Expression
 }
 
 // String function for interface
-func (do DyadicOperator) String() string {
+func (do MonadicOperator) String() string {
 	return do.Fn.String() + " " + fmt.Sprint(do.Operator)
 }
 
 // Type property for interface
 //
 // Operators each return a type dependant on a different input
-func (do DyadicOperator) Type() Type {
+func (do MonadicOperator) Type() Type {
 	switch do.Operator {
 	case KindMapOperator:
 		return VectorType{do.Fn.Type()}
@@ -41,17 +41,17 @@ func (d OperatorApplication) Type() Type {
 	return d.Op.Type()
 }
 
-func (do DyadicOperator) LLVMise() string {
+func (do MonadicOperator) LLVMise() string {
 	return do.Fn.LLVMise() + "_" + fmt.Sprint(do.Operator)
 }
 
-func (do DyadicOperator) IsSpecial() bool {
+func (do MonadicOperator) IsSpecial() bool {
 	return false
 }
-func (do DyadicOperator) ShouldInline() bool {
+func (do MonadicOperator) ShouldInline() bool {
 	return true
 }
 
-func (do DyadicOperator) Ident() Ident {
+func (do MonadicOperator) Ident() Ident {
 	return Ident{}
 }

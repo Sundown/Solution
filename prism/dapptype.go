@@ -70,7 +70,6 @@ func DeferDyadicApplicationTypes(function *DyadicFunction, x, y *Expression) {
 	// 		the types within the sum.
 	if newX := function.AlphaType.Resolve((*x).Type()); newX != nil { // 1
 		function.AlphaType = newX
-
 	} else if QueryCast((*x).Type(), function.AlphaType) { // 2
 		*x = DelegateCast(*x, function.AlphaType)
 	} else if cast := RoundhouseCast(*x, (*y).Type(), function.AlphaType); cast != nil { // 3

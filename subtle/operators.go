@@ -7,10 +7,10 @@ import (
 	"github.com/sundown/solution/prism"
 )
 
-func (env *Environment) createMapOperator(function prism.MonadicFunction, exprType prism.Type) prism.DyadicOperator {
-	if !exprType.Equals(function.OmegaType) {
-		if !prism.QueryCast(exprType, function.OmegaType) {
-			tmp := exprType
+func (env *Environment) createMapOperator(function prism.MonadicFunction, rType prism.Type) prism.MonadicOperator {
+	if !rType.Equals(function.OmegaType) {
+		if !prism.QueryCast(rType, function.OmegaType) {
+			tmp := rType
 			_, err := prism.Delegate(&function.OmegaType, &tmp)
 			if err != nil {
 				prism.Panic(*err)
@@ -22,18 +22,18 @@ func (env *Environment) createMapOperator(function prism.MonadicFunction, exprTy
 		function.Returns = function.Returns.Resolve(function.OmegaType)
 	}
 
-	return prism.DyadicOperator{
+	return prism.MonadicOperator{
 		Operator: prism.KindMapOperator,
 		Fn:       function,
-		ExprType: prism.VectorType{Type: exprType},
+		ExprType: prism.VectorType{Type: rType},
 		Returns:  function.Type(),
 	}
 }
 
-func (env *Environment) createReduceOperator(function prism.DyadicFunction, exprType prism.Type) prism.DyadicOperator {
-	if !exprType.Equals(function.OmegaType) {
-		if !prism.QueryCast(exprType, function.OmegaType) {
-			tmp := exprType
+func (env *Environment) createReduceOperator(function prism.DyadicFunction, rType prism.Type) prism.MonadicOperator {
+	if !rType.Equals(function.OmegaType) {
+		if !prism.QueryCast(rType, function.OmegaType) {
+			tmp := rType
 			_, err := prism.Delegate(&function.OmegaType, &tmp)
 			if err != nil {
 				prism.Panic(*err)
@@ -41,9 +41,9 @@ func (env *Environment) createReduceOperator(function prism.DyadicFunction, expr
 		}
 	}
 
-	if !exprType.Equals(function.AlphaType) {
-		if !prism.QueryCast(exprType, function.AlphaType) {
-			tmp := exprType
+	if !rType.Equals(function.AlphaType) {
+		if !prism.QueryCast(rType, function.AlphaType) {
+			tmp := rType
 			_, err := prism.Delegate(&function.AlphaType, &tmp)
 			if err != nil {
 				prism.Panic(*err)
@@ -58,64 +58,54 @@ func (env *Environment) createReduceOperator(function prism.DyadicFunction, expr
 	if function.Returns.IsAlgebraic() {
 		function.Returns = function.Returns.Resolve(function.AlphaType)
 	}
-	return prism.DyadicOperator{
+	return prism.MonadicOperator{
 		Operator: prism.KindReduceOperator,
 		Fn:       function,
-		ExprType: prism.VectorType{Type: exprType},
+		ExprType: prism.VectorType{Type: rType},
 		Returns:  function.Type(),
 	}
 }
 
-func (env *Environment) analyseDyadicOperator(d *palisade.Operator, exprType prism.Type) prism.DyadicOperator {
+func (env *Environment) analyseMonadicOperator(d *palisade.Operator, function prism.Function, rType prism.Type) prism.MonadicOperator {
 	switch *d.Operator {
 	case "¨":
-		if d.Subexpr != nil {
-			prism.Panic("Not implemented")
+		if !prism.IsVector(rType) {
+			prism.Panic("Right operand is not a vector")
 		}
 
-		if !prism.IsVector(exprType) {
-			prism.Panic("Right operand is not a vector")
+		if _, ok := function.(prism.MonadicFunction); !ok {
+			prism.Panic("Right operand is not a monadic function")
 		}
 
 		return env.createMapOperator(
-			env.FetchMVerb(d.Verb),
-			exprType.(prism.VectorType).Type)
+			function.(prism.MonadicFunction),
+			rType.(prism.VectorType).Type)
 	case "/":
-		var lexpr prism.Expression
-		if d.Verb != nil {
-			lexpr = env.FetchDVerb(d.Verb)
-		}
-		if _, ok := exprType.(prism.VectorType); !ok {
+		if _, ok := rType.(prism.VectorType); !ok {
 			prism.Panic("Right operand is not a vector")
 		}
 
-		if d.Subexpr != nil {
-			t := exprType.(prism.VectorType).Type
-			lexpr = env.analyseDyadicPartial(d.Subexpr, t, t)
-		}
-
-		if _, ok := lexpr.(prism.DyadicFunction); !ok {
+		if _, ok := function.(prism.DyadicFunction); !ok {
 			prism.Panic("Left operand is not a function")
 		}
 
-		fn := lexpr.(prism.DyadicFunction)
 		return env.createReduceOperator(
-			fn,
-			exprType.(prism.VectorType).Type)
+			function.(prism.DyadicFunction),
+			rType.(prism.VectorType).Type)
 	}
 
 	panic("Unknown operator")
 }
 
-func (env Environment) analyseDyadicApplication(d *palisade.Operator) prism.OperatorApplication {
+/* func (env Environment) analyseDyadicApplication(d *palisade.Operator) prism.OperatorApplication {
 	rexpr := env.analyseExpression(d.Expression)
 	return prism.OperatorApplication{
-		Op:   env.analyseDyadicOperator(d, rexpr.Type()),
+		Op:   env.analyseMonadicOperator(d, rexpr.Type()),
 		Expr: rexpr,
 	}
-}
+} */
 
-func (env Environment) operatorToFunction(op prism.DyadicOperator) prism.MonadicFunction {
+func (env Environment) monadicOperatorToFunction(op prism.MonadicOperator) prism.MonadicFunction {
 	fn := prism.MonadicFunction{
 		Special:     false,
 		SkipBuilder: true,

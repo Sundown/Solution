@@ -9,10 +9,10 @@ func (env Environment) analyseMonadic(d *palisade.Monadic) prism.MonadicApplicat
 	right := env.analyseExpression(d.Expression)
 
 	var fn prism.MonadicFunction
-	if d.Verb == nil {
-		fn = env.analyseMonadicPartial(d.Subexpr, right.Type())
+	if d.Applicable.Verb == nil {
+		fn = env.analyseMonadicPartial(d.Applicable.Subexpr, right.Type())
 	} else {
-		fn = env.FetchMVerb(d.Verb)
+		fn = env.FetchMVerb(d.Applicable.Verb)
 		prism.DeferMonadicApplicationTypes(&fn, &right)
 
 		if fn.Name.Package == "_" && fn.Name.Name == "Return" {

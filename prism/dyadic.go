@@ -20,10 +20,9 @@ type DyadicFunction struct {
 }
 
 type DyadicApplication struct {
-	Operator   DyadicFunction
-	Left       Expression
-	Right      Expression
-	AutoVector bool
+	Operator DyadicFunction
+	Left     Expression
+	Right    Expression
 }
 
 // Type property for interface
