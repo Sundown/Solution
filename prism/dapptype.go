@@ -35,10 +35,10 @@ func DeferMonadicApplicationTypes(function *MonadicFunction, y *Expression) {
 	}
 
 	// Function return type may be reliant on the input type, substitute.
-	// TODO more vigorous substitution, giving consideration to LHS type.
 	if function.Returns.IsAlgebraic() {
 		function.Returns = function.Returns.Resolve((*y).Type())
 	}
+
 }
 
 func DeferDyadicApplicationTypes(function *DyadicFunction, x, y *Expression) {

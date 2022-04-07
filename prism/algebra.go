@@ -97,14 +97,14 @@ func Derive(this, like Type) Type {
 		if !j.IsAlgebraic() {
 			Panic("Vector is not algebraic")
 		} else if like.IsAlgebraic() {
-			Panic("Cannot derive algebraic type from algebraic type")
+			panic("Cannot derive algebraic type from algebraic type")
 		}
 
 		if v, ok := like.(VectorType); ok {
 			return Derive(j.Type, v.Type)
+		} else {
+			return Derive(j.Type, like)
 		}
-
-		return nil
 	case SumType:
 		for _, e := range j.Types {
 			if e.Equals(like) {

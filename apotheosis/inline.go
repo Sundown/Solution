@@ -7,6 +7,12 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
+func (env *Environment) compileInlineEnclose(val prism.Value) value.Value {
+	head, body := env.vectorFactory(val.Type, i32(1))
+	env.Block.NewStore(val.Value, env.Block.NewGetElementPtr(val.Type.Realise(), body, i32(0)))
+	return head
+}
+
 func (env *Environment) compileInlinePrintln(val prism.Value) value.Value {
 	if val.Type.Equals(prism.StringType) {
 		return env.Block.NewCall(

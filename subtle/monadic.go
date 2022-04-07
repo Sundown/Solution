@@ -16,6 +16,8 @@ func (env Environment) analyseMonadic(d *palisade.Monadic) prism.MonadicApplicat
 
 	function := fn.(prism.MonadicFunction)
 
+	prism.DeferMonadicApplicationTypes(&function, &right)
+
 	if function.Name.Package == "_" && function.Name.Name == "Return" {
 		if !env.CurrentFunctionIR.Type().Equals(function.Returns) {
 			if !env.CurrentFunctionIR.Type().IsAlgebraic() {

@@ -84,6 +84,8 @@ func NewEnvironment() *Environment {
 	env.MonadicFunctions[CeilSpecial.Name] = &CeilSpecial
 	env.MonadicFunctions[FloorSpecial.Name] = &FloorSpecial
 	env.MonadicFunctions[RightTacM.Name] = &RightTacM
+	env.MonadicFunctions[Enclose.Name] = &Enclose
+
 	return &env
 }
 

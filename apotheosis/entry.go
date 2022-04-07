@@ -110,6 +110,7 @@ func (env *Environment) insertCallables() {
 	env.LLDyadicCallables["⊢"] = prism.MakeDC(env.compileInlineRightTacD, false)
 	env.LLDyadicCallables["⊣"] = prism.MakeDC(env.compileInlineLeftTacD, false)
 
+	env.LLMonadicCallables["⊂"] = prism.MakeMC(env.compileInlineEnclose, true)
 	env.LLMonadicCallables["⊢"] = prism.MakeMC(env.compileInlineRightTacM, false)
 	env.LLMonadicCallables["Println"] = prism.MakeMC(env.compileInlinePrintln, false)
 	env.LLMonadicCallables["Print"] = prism.MakeMC(env.compileInlinePrint, false)
