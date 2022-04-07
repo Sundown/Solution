@@ -8,26 +8,26 @@ import (
 func (env Environment) analyseMonadic(d *palisade.Monadic) prism.MonadicApplication {
 	right := env.analyseExpression(d.Expression)
 
-	var fn prism.MonadicFunction
-	if d.Applicable.Verb == nil {
-		fn = env.analyseMonadicPartial(d.Applicable.Subexpr, right.Type())
-	} else {
-		fn = env.FetchMVerb(d.Applicable.Verb)
-		prism.DeferMonadicApplicationTypes(&fn, &right)
+	fn := env.analyseApplicable(*d.Applicable, nil, right.Type())
 
-		if fn.Name.Package == "_" && fn.Name.Name == "Return" {
-			if !env.CurrentFunctionIR.Type().Equals(fn.Returns) {
-				if !env.CurrentFunctionIR.Type().IsAlgebraic() {
-					prism.Panic("Return receives type which does not match determined-function's type")
-				} else {
-					prism.Panic("Not implemented, pain")
-				}
+	if _, ok := fn.(prism.MonadicFunction); !ok {
+		prism.Panic("Expected monadic function, got " + fn.String())
+	}
+
+	function := fn.(prism.MonadicFunction)
+
+	if function.Name.Package == "_" && function.Name.Name == "Return" {
+		if !env.CurrentFunctionIR.Type().Equals(function.Returns) {
+			if !env.CurrentFunctionIR.Type().IsAlgebraic() {
+				prism.Panic("Return receives type which does not match determined-function's type")
+			} else {
+				prism.Panic("Not implemented, pain")
 			}
 		}
 	}
 
 	return prism.MonadicApplication{
-		Operator: fn,
+		Operator: function,
 		Operand:  right,
 	}
 }

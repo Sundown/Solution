@@ -1,6 +1,8 @@
 package prism
 
-import "github.com/llir/llvm/ir/types"
+import (
+	"github.com/llir/llvm/ir/types"
+)
 
 // Interface Type width for LLVM codegen
 func (s SumType) Width() int64 {

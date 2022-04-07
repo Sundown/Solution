@@ -6,14 +6,13 @@ import (
 )
 
 /* type Applicable struct {
-    Pos      lexer.Position
+
     Subexpr  *Expression `parser:"(('(' @@ ')')"`
     Verb     *Ident      `parser:"| @@)"`
     Operator *Operator   `parser:"@@?"`
 } */
 
-func (env *Environment) analyseApplicable(app palisade.Applicable, lType, rType prism.Type) prism.Function {
-	// Simple function, no train or operator
+func (env *Environment) analysePrimeApplicable(app palisade.Applicable, lType, rType prism.Type) prism.Function {
 	var function prism.Function
 	if app.Verb != nil {
 		if lType == nil {
@@ -23,18 +22,27 @@ func (env *Environment) analyseApplicable(app palisade.Applicable, lType, rType 
 		}
 	} else if app.Subexpr != nil {
 		// Monadic/dyadic cases are handled within train system
+
 		function = env.boardTrain(app.Subexpr, lType, rType)
 	}
+	return function
+}
 
+func (env *Environment) analyseApplicable(app palisade.Applicable, lType, rType prism.Type) prism.Function {
+	var function prism.Function
 	if app.Operator != nil {
 		if lType == nil {
-			function = env.monadicOperatorToFunction(env.analyseMonadicOperator(app.Operator, function, rType))
+			function = env.monadicOperatorToFunction(env.analyseMonadicOperator(app, rType))
 		}
 		// TODO implement dyadic operators
 		/* else {
 			function = env.analyseDyadicOperator(app.Operator, function)
 		} */
+	} else {
+		function = env.analysePrimeApplicable(app, lType, rType)
 	}
 
 	return function
 }
+
+// Inductive cast cardinality mismatch within algebraic group
