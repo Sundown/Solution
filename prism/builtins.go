@@ -169,6 +169,7 @@ var (
 		OmegaType:          GenericType{},
 		Returns:            GenericType{},
 	}
+
 	LeftTacD = DyadicFunction{
 		Special:            true,
 		disallowAutoVector: false,
@@ -176,5 +177,13 @@ var (
 		AlphaType:          GenericType{},
 		OmegaType:          GenericType{},
 		Returns:            GenericType{},
+	}
+
+	Enclose = MonadicFunction{
+		Special:            true,
+		disallowAutoVector: true,
+		Name:               Ident{Package: "_", Name: "⊂"},
+		OmegaType:          GenericType{},
+		Returns:            VectorType{Type: GenericType{}},
 	}
 )

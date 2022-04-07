@@ -59,7 +59,7 @@ type Vector struct {
 // Resolve composes Integrate with Derive,
 // Fills in sum/generic type based on a concrete type
 func (v VectorType) Resolve(t Type) Type {
-	return VectorType{Integrate(v.Type, Derive(v, t))}
+	return VectorType{Type: Integrate(v.Type, Derive(v, t))}
 }
 
 // String function for interface
