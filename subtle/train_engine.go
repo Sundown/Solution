@@ -16,8 +16,6 @@ func (env Environment) analyseMonadicPartial(expr *palisade.Expression, right pr
 func trainLength(expr *palisade.Expression) int {
 	if expr.Monadic != nil && expr.Monadic.Expression != nil {
 		return 1 + trainLength(expr.Monadic.Expression)
-	} else if expr.Operator != nil && expr.Operator.Expression != nil {
-		return 1 + trainLength(expr.Operator.Expression)
 	} else {
 		return 1
 	}
@@ -54,24 +52,24 @@ func (env Environment) boardTrain(
 		}
 	} else if l%2 == 0 {
 		if left == nil {
-			t = env.m2Train(env.operatorOrMonadic(expr, right),
+			t = env.m2Train(env.analyseApplicable(*expr.Monadic.Applicable, left, right).(prism.MonadicFunction),
 				env.boardTrain(expr.Monadic.Expression, left, right).(prism.MonadicFunction),
 				right)
 		} else {
 
-			t = env.d2Train(env.FetchMVerb(expr.Monadic.Verb),
+			t = env.d2Train(env.analyseApplicable(*expr.Monadic.Applicable, left, right).(prism.MonadicFunction),
 				env.boardTrain(expr.Monadic.Expression, left, right).(prism.DyadicFunction),
 				left, right)
 		}
 	} else {
 		if left == nil {
-			t = env.m3Train(env.FetchMVerb(expr.Monadic.Verb),
-				env.FetchDVerb(expr.Monadic.Expression.Monadic.Verb),
+			t = env.m3Train(env.analyseApplicable(*expr.Monadic.Applicable, left, right).(prism.MonadicFunction),
+				env.analyseApplicable(*expr.Monadic.Expression.Monadic.Applicable, left, right).(prism.DyadicFunction),
 				env.boardTrain(expr.Monadic.Expression.Monadic.Expression,
 					left, right).(prism.MonadicFunction), right)
 		} else {
-			t = env.d3Train(env.FetchDVerb(expr.Monadic.Verb),
-				env.FetchDVerb(expr.Monadic.Expression.Monadic.Verb),
+			t = env.d3Train(env.analyseApplicable(*expr.Monadic.Applicable, left, right).(prism.DyadicFunction),
+				env.analyseApplicable(*expr.Monadic.Expression.Monadic.Applicable, left, right).(prism.DyadicFunction),
 				env.boardTrain(expr.Monadic.Expression.Monadic.Expression,
 					left, right).(prism.DyadicFunction), left, right)
 		}
@@ -86,7 +84,7 @@ func (env Environment) boardTrain(
 	return t
 }
 
-func innerExpression(expr *palisade.Expression) *palisade.Expression {
+/* func innerExpression(expr *palisade.Expression) *palisade.Expression {
 	if (*expr).Monadic != nil {
 		return (*expr).Monadic.Expression
 	} else if (*expr).Operator != nil {
@@ -94,9 +92,9 @@ func innerExpression(expr *palisade.Expression) *palisade.Expression {
 	}
 
 	panic("Abominable expression structure")
-}
+} */
 
-func (env *Environment) operatorOrMonadic(expr *palisade.Expression, right prism.Type) prism.MonadicFunction {
+/* func (env *Environment) operatorOrMonadic(expr *palisade.Expression, right prism.Type) prism.MonadicFunction {
 	if expr.Monadic != nil {
 		return env.FetchMVerb(expr.Monadic.Verb)
 	} else if expr.Operator != nil {
@@ -104,13 +102,12 @@ func (env *Environment) operatorOrMonadic(expr *palisade.Expression, right prism
 	}
 
 	panic("aaa")
-}
+} */
 
 func match(e *prism.Type, t *prism.Type) {
-	if !(*e).Equals(*t) {
-		if !prism.QueryCast(*e, *t) {
-			_, err := prism.Delegate(t, e)
-			if err != nil {
+	if !(*e).Equals(*t) { // perhaps?
+		if !prism.QueryCast(*e, *t) { // maybe?
+			if _, err := prism.Delegate(t, e); err != nil { // possibly?
 				panic(*err)
 			}
 		}

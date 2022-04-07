@@ -66,12 +66,15 @@ func (env *Environment) createReduceOperator(function prism.DyadicFunction, rTyp
 	}
 }
 
-func (env *Environment) analyseMonadicOperator(d *palisade.Operator, function prism.Function, rType prism.Type) prism.MonadicOperator {
-	switch *d.Operator {
+func (env *Environment) analyseMonadicOperator(app palisade.Applicable, rType prism.Type) prism.MonadicOperator {
+	switch *app.Operator.Operator {
 	case "¨":
-		if !prism.IsVector(rType) {
+		typ, ok := rType.(prism.VectorType)
+		if !ok {
 			prism.Panic("Right operand is not a vector")
 		}
+
+		function := env.analysePrimeApplicable(app, nil, typ)
 
 		if _, ok := function.(prism.MonadicFunction); !ok {
 			prism.Panic("Right operand is not a monadic function")
@@ -81,9 +84,12 @@ func (env *Environment) analyseMonadicOperator(d *palisade.Operator, function pr
 			function.(prism.MonadicFunction),
 			rType.(prism.VectorType).Type)
 	case "/":
-		if _, ok := rType.(prism.VectorType); !ok {
+		typ, ok := rType.(prism.VectorType)
+		if !ok {
 			prism.Panic("Right operand is not a vector")
 		}
+
+		function := env.analysePrimeApplicable(app, typ.Type, typ.Type)
 
 		if _, ok := function.(prism.DyadicFunction); !ok {
 			prism.Panic("Left operand is not a function")
