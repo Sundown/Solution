@@ -14,7 +14,7 @@ import (
 // d3Train: dyadic 3 train
 // 		a (fgh) b <=> (a f b) g (a h b)
 //
-// d2Train: dyadi 2 train
+// d2Train: dyadic 2 train
 // 		a (gh) b <=> g (a h b)
 //
 // m3Train: monadic 3 train
