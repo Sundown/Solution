@@ -5,20 +5,12 @@ import (
 	"github.com/sundown/solution/prism"
 )
 
-func (env Environment) analyseDyadicPartial(expr *palisade.Expression, left, right prism.Type) prism.DyadicFunction {
-	return env.boardTrain(expr, left, right).(prism.DyadicFunction)
-}
-
-func (env Environment) analyseMonadicPartial(expr *palisade.Expression, right prism.Type) prism.MonadicFunction {
-	return env.boardTrain(expr, nil, right).(prism.MonadicFunction)
-}
-
 func trainLength(expr *palisade.Expression) int {
 	if expr.Monadic != nil && expr.Monadic.Expression != nil {
 		return 1 + trainLength(expr.Monadic.Expression)
-	} else {
-		return 1
 	}
+
+	return 1
 }
 
 func (env Environment) boardTrain(

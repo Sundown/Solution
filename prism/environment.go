@@ -62,6 +62,7 @@ func NewEnvironment() *Environment {
 	env.Types[Ident{"_", "String"}] = StringType
 	env.Types[Ident{"_", "Bool"}] = BoolType
 	env.Types[Ident{"_", "Void"}] = VoidType
+	env.Types[Ident{"_", "T"}] = GenericType{}
 
 	env.MonadicFunctions[ReturnSpecial.Name] = &ReturnSpecial
 	env.MonadicFunctions[PrintlnSpecial.Name] = &PrintlnSpecial
@@ -85,7 +86,7 @@ func NewEnvironment() *Environment {
 	env.MonadicFunctions[FloorSpecial.Name] = &FloorSpecial
 	env.MonadicFunctions[RightTacM.Name] = &RightTacM
 	env.MonadicFunctions[Enclose.Name] = &Enclose
-
+	env.MonadicFunctions[Iota.Name] = &Iota
 	return &env
 }
 

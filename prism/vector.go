@@ -102,4 +102,4 @@ func (v VectorType) Kind() int {
 	return TypeKindVector
 }
 
-func (t Vector) _atomicflag() { return }
+func (t Vector) _atomicflag() {}

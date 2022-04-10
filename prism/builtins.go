@@ -1,8 +1,8 @@
 package prism
 
 var (
-	Numeric = SumType{[]Type{IntType, RealType, CharType, BoolType}}
-
+	Numeric       = SumType{[]Type{RealType, IntType, CharType, BoolType}}
+	Countable     = SumType{[]Type{IntType, CharType, BoolType}}
 	ReturnSpecial = MonadicFunction{
 		Special:   true,
 		Name:      Ident{Package: "_", Name: "Return"},
@@ -185,5 +185,13 @@ var (
 		Name:               Ident{Package: "_", Name: "⊂"},
 		OmegaType:          GenericType{},
 		Returns:            VectorType{Type: GenericType{}},
+	}
+
+	Iota = MonadicFunction{
+		Special:            true,
+		disallowAutoVector: true,
+		Name:               Ident{Package: "_", Name: "⍳"},
+		OmegaType:          Countable,
+		Returns:            VectorType{Type: Countable},
 	}
 )

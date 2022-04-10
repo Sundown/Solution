@@ -45,4 +45,4 @@ func (t Char) IsAlgebraic() bool {
 	return false
 }
 
-func (t Char) _atomicflag() { return }
+func (t Char) _atomicflag() {}
