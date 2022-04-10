@@ -3,7 +3,6 @@ package subtle
 import (
 	"fmt"
 
-	"github.com/alecthomas/repr"
 	"github.com/sundown/solution/palisade"
 	"github.com/sundown/solution/prism"
 )
@@ -80,8 +79,6 @@ func (env *Environment) analyseMonadicOperator(app palisade.Applicable, rType pr
 		if _, ok := function.(prism.MonadicFunction); !ok {
 			prism.Panic("Right operand is not a monadic function")
 		}
-
-		repr.Println(function)
 
 		return env.createMapOperator(
 			function.(prism.MonadicFunction),

@@ -49,4 +49,4 @@ func (t Real) IsAlgebraic() bool {
 	return false
 }
 
-func (t Real) _atomicflag() { return }
+func (t Real) _atomicflag() {}

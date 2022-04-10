@@ -38,4 +38,4 @@ func (t String) IsAlgebraic() bool {
 	return false
 }
 
-func (t String) _atomicflag() { return }
+func (t String) _atomicflag() {}

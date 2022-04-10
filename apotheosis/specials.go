@@ -17,6 +17,17 @@ func (env *Environment) getCalloc() *ir.Func {
 	return env.Specials["calloc"]
 }
 
+func (env *Environment) getPutchar() *ir.Func {
+	if env.Specials["putchar"] == nil {
+		env.Specials["putchar"] = env.Module.NewFunc(
+			"putchar",
+			types.I32,
+			ir.NewParam("c", types.I32))
+	}
+
+	return env.Specials["putchar"]
+}
+
 func (env *Environment) getMemcpy() *ir.Func {
 	if env.Specials["memcpy"] == nil {
 		env.Specials["memcpy"] = env.Module.NewFunc(

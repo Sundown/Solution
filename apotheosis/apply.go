@@ -44,6 +44,10 @@ func (env *Environment) apply(c prism.Callable, params ...prism.Value) value.Val
 		}
 		return fn.DCallable(params[0], params[1])
 	case prism.MonadicCallable:
+		if prism.IsVector(params[0].Type) && !fn.NoAutoVector() {
+			return env.compileInlineMap(fn, params[0])
+		}
+
 		return fn.MCallable(params[0])
 	}
 

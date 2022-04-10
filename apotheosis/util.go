@@ -88,36 +88,29 @@ func (env *Environment) agnosticMult(t *prism.Type, x, y value.Value) value.Valu
 	panic(nil)
 }
 
-func (env *Environment) getFormatStringln(t *prism.Type) value.Value {
-	if (*t).Equals(prism.StringType) {
-		return env.Block.NewGetElementPtr(types.NewArray(4, types.I8), env.Module.NewGlobalDef("", constant.NewCharArrayFromString("%s\x0A\x00")), i32(0), i32(0))
-	} else if (*t).Equals(prism.IntType) {
-		return env.Block.NewGetElementPtr(types.NewArray(4, types.I8), env.Module.NewGlobalDef("", constant.NewCharArrayFromString("%d\x0A\x00")), i32(0), i32(0))
-	} else if (*t).Equals(prism.RealType) {
-		return env.Block.NewGetElementPtr(types.NewArray(4, types.I8), env.Module.NewGlobalDef("", constant.NewCharArrayFromString("%f\x0A\x00")), i32(0), i32(0))
-	} else if (*t).Equals(prism.CharType) {
-		return env.Block.NewGetElementPtr(types.NewArray(4, types.I8), env.Module.NewGlobalDef("", constant.NewCharArrayFromString("%c\x0A\x00")), i32(0), i32(0))
-	} else if (*t).Equals(prism.BoolType) {
-		return env.Block.NewGetElementPtr(types.NewArray(4, types.I8), env.Module.NewGlobalDef("", constant.NewCharArrayFromString("%d\x0A\x00")), i32(0), i32(0))
-	} else {
-		return env.Block.NewGetElementPtr(types.NewArray(2, types.I8), env.Module.NewGlobalDef("", constant.NewCharArrayFromString("\x0A\x00")), i32(0), i32(0))
+func (env *Environment) getFormatString(t prism.Type, end string) value.Value {
+	format, size := "", 3
+	switch t.Kind() {
+	case prism.StringType.Kind():
+		format = "%s"
+	case prism.IntType.Kind():
+		format = "%d"
+	case prism.RealType.Kind():
+		format = "%f"
+	case prism.CharType.Kind():
+		format = "%c"
+	case prism.BoolType.Kind():
+		format = "%d"
+	default:
+		size = 2
+		format = ""
 	}
-}
 
-func (env *Environment) getFormatString(t *prism.Type) value.Value {
-	if (*t).Equals(prism.StringType) {
-		return env.Block.NewGetElementPtr(types.NewArray(3, types.I8), env.Module.NewGlobalDef("", constant.NewCharArrayFromString("%s\x00")), i32(0), i32(0))
-	} else if (*t).Equals(prism.IntType) {
-		return env.Block.NewGetElementPtr(types.NewArray(3, types.I8), env.Module.NewGlobalDef("", constant.NewCharArrayFromString("%d\x00")), i32(0), i32(0))
-	} else if (*t).Equals(prism.RealType) {
-		return env.Block.NewGetElementPtr(types.NewArray(3, types.I8), env.Module.NewGlobalDef("", constant.NewCharArrayFromString("%f\x00")), i32(0), i32(0))
-	} else if (*t).Equals(prism.CharType) {
-		return env.Block.NewGetElementPtr(types.NewArray(3, types.I8), env.Module.NewGlobalDef("", constant.NewCharArrayFromString("%c\x00")), i32(0), i32(0))
-	} else if (*t).Equals(prism.BoolType) {
-		return env.Block.NewGetElementPtr(types.NewArray(3, types.I8), env.Module.NewGlobalDef("", constant.NewCharArrayFromString("%d\x00")), i32(0), i32(0))
-	} else {
-		return env.Block.NewGetElementPtr(types.NewArray(1, types.I8), env.Module.NewGlobalDef("", constant.NewCharArrayFromString("\x00")), i32(0), i32(0))
-	}
+	return env.Block.NewGetElementPtr(
+		types.NewArray(uint64(size+len(end)), types.I8),
+		env.Module.NewGlobalDef("",
+			constant.NewCharArrayFromString(format+end+"\x00")),
+		i32(0), i32(0))
 }
 
 // Supply the block in which to generate message and exit call, a printf formatter, and variadic params

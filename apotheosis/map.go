@@ -8,13 +8,22 @@ import (
 	"github.com/llir/llvm/ir/types"
 )
 
-func (env *Environment) compileInlineMap(fn prism.MonadicFunction, vec prism.Value) (head *ir.InstAlloca) {
-	writePred := fn.Type().Kind() != prism.VoidType.ID
+func (env *Environment) compileInlineMap(in prism.Callable, vec prism.Value) (head *ir.InstAlloca) {
+	var retType prism.Type
+	if fn, ok := in.(prism.MonadicFunction); ok {
+		retType = fn.Type()
+	} else {
+		// TODO figure this out
+		//retType = a.Type.(prism.VectorType).Type
+		retType = prism.VoidType
+	}
+
+	writePred := retType.Kind() != prism.VoidType.ID
 	leng := env.readVectorLength(vec)
 	var body *ir.InstBitCast
 
 	if writePred {
-		head, body = env.vectorFactory(fn.Type(), leng)
+		head, body = env.vectorFactory(retType, leng)
 	}
 
 	counterStore := env.new(i32(0))
@@ -25,12 +34,12 @@ func (env *Environment) compileInlineMap(fn prism.MonadicFunction, vec prism.Val
 
 	curCounter := loopblock.NewLoad(types.I32, counterStore)
 
-	call := env.apply(fn, prism.Value{
+	call := env.apply(in, prism.Value{
 		Value: env.unsafeReadVectorElement(vec, curCounter),
 		Type:  vec.Type.(prism.VectorType).Type})
 
 	if writePred {
-		loopblock.NewStore(call, loopblock.NewGetElementPtr(fn.Type().Realise(), body, curCounter))
+		loopblock.NewStore(call, loopblock.NewGetElementPtr(retType.Realise(), body, curCounter))
 	}
 
 	incr := loopblock.NewAdd(curCounter, i32(1))

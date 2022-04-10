@@ -22,11 +22,12 @@ func Lex(env *Environment) *Environment {
 
 	if !env.IsPilotRun {
 		r, err := os.Open(env.File)
-		defer r.Close()
 
 		if err != nil {
 			Error(err.Error()).Exit()
 		}
+
+		defer r.Close()
 
 		err = parser.Parse(env.File, r, &res)
 
@@ -64,7 +65,7 @@ var basicLexer = lexer.MustSimple([]lexer.Rule{
 	{Name: "String", Pattern: `"(\\"|[^"])*"`, Action: nil},
 	{Name: "Float", Pattern: `(\-)?(\d*\.)\d+`, Action: nil},
 	{Name: "Int", Pattern: `(\-)?\d+`, Action: nil},
-	{Name: "Ident", Pattern: `([\w]+|[-*+÷&|=⊢⊣,⊃⊂≢])`, Action: nil},
+	{Name: "Ident", Pattern: `([\w]+|[-*+÷&|=⊢⊣,⊃⊂≢⍳])`, Action: nil},
 	{Name: "Operator", Pattern: `([/¨])`, Action: nil},
 	{Name: "Punct", Pattern: `[-[!@#$%^&*()+_=-{}\|:;"'<,>.?→]|]`, Action: nil},
 	{Name: "Alpha", Pattern: "α", Action: nil},
