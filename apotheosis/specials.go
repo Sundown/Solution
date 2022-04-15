@@ -17,6 +17,29 @@ func (env *Environment) getCalloc() *ir.Func {
 	return env.Specials["calloc"]
 }
 
+// TODO This is quite seriously bad, needs to be i64
+func (env *Environment) getPowInt() *ir.Func {
+	if env.Specials["powi"] == nil {
+		env.Specials["powi"] = env.Module.NewFunc(
+			"llvm.powi.f64.i32",
+			types.Double,
+			ir.NewParam("b", types.Double),
+			ir.NewParam("e", types.I32))
+	}
+
+	return env.Specials["powi"]
+}
+func (env *Environment) getPowReal() *ir.Func {
+	if env.Specials["powf"] == nil {
+		env.Specials["powf"] = env.Module.NewFunc(
+			"llvm.powi.f64",
+			types.Double,
+			ir.NewParam("b", types.Double),
+			ir.NewParam("e", types.Double))
+	}
+
+	return env.Specials["powf"]
+}
 func (env *Environment) getPutchar() *ir.Func {
 	if env.Specials["putchar"] == nil {
 		env.Specials["putchar"] = env.Module.NewFunc(

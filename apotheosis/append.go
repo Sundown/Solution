@@ -32,7 +32,7 @@ func (env *Environment) compileInlineAppend(alpha prism.Value, omega prism.Value
 		i32(alpha.Type.(prism.VectorType).Type.Width()),
 		capF)
 
-	// memcpy(body, alpha, alpha len)
+	// memcpy(body, alpha, |alpha|)
 	env.Block.NewCall(env.getMemcpy(),
 		body,
 		env.Block.NewBitCast(

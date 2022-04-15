@@ -1,7 +1,6 @@
 package apotheosis
 
 import (
-	"github.com/alecthomas/repr"
 	"github.com/sundown/solution/prism"
 
 	"github.com/llir/llvm/ir/value"
@@ -37,7 +36,6 @@ func (env *Environment) compileExpression(expr *prism.Expression) value.Value {
 		return env.compileCast(*t)
 	}
 
-	repr.Println(*expr)
 	panic(expr)
 }
 

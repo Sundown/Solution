@@ -64,30 +64,25 @@ func NewEnvironment() *Environment {
 	env.Types[Ident{"_", "Void"}] = VoidType
 	env.Types[Ident{"_", "T"}] = GenericType{}
 
-	env.MonadicFunctions[ReturnSpecial.Name] = &ReturnSpecial
-	env.MonadicFunctions[PrintlnSpecial.Name] = &PrintlnSpecial
-	env.MonadicFunctions[PrintSpecial.Name] = &PrintSpecial
-	env.MonadicFunctions[LenSpecial.Name] = &LenSpecial
-	env.MonadicFunctions[CapSpecial.Name] = &CapSpecial
-	env.DyadicFunctions[PickSpecial.Name] = &PickSpecial
-	env.DyadicFunctions[AppendSpecial.Name] = &AppendSpecial
-	env.DyadicFunctions[AddSpecial.Name] = &AddSpecial
-	env.DyadicFunctions[SubSpecial.Name] = &SubSpecial
-	env.DyadicFunctions[MulSpecial.Name] = &MulSpecial
-	env.DyadicFunctions[DivSpecial.Name] = &DivSpecial
-	env.DyadicFunctions[LeftTacD.Name] = &LeftTacD
-	env.DyadicFunctions[RightTacD.Name] = &RightTacD
-	env.DyadicFunctions[MaxSpecial.Name] = &MaxSpecial
-	env.DyadicFunctions[MinSpecial.Name] = &MinSpecial
-	env.DyadicFunctions[EqSpecial.Name] = &EqSpecial
-	env.DyadicFunctions[AndSpecial.Name] = &AndSpecial
-	env.DyadicFunctions[OrSpecial.Name] = &OrSpecial
-	env.MonadicFunctions[CeilSpecial.Name] = &CeilSpecial
-	env.MonadicFunctions[FloorSpecial.Name] = &FloorSpecial
-	env.MonadicFunctions[RightTacM.Name] = &RightTacM
-	env.MonadicFunctions[Enclose.Name] = &Enclose
-	env.MonadicFunctions[Iota.Name] = &Iota
+	env.InternBuiltins()
+
 	return &env
+}
+
+func (env Environment) Intern(f Function) {
+	if fn, ok := f.(MonadicFunction); ok {
+		if _, ok := env.MonadicFunctions[fn.Name]; ok {
+			panic("Monadic function " + fn.Name.String() + " already exists")
+		}
+
+		env.MonadicFunctions[fn.Name] = &fn
+	} else if fn, ok := f.(DyadicFunction); ok {
+		if _, ok := env.DyadicFunctions[fn.Name]; ok {
+			panic("Dyadic function " + fn.Name.String() + " already exists")
+		}
+
+		env.DyadicFunctions[fn.Name] = &fn
+	}
 }
 
 func (e *Environment) Iterate() int {
@@ -101,7 +96,6 @@ func (env Environment) FetchDVerb(v *palisade.Ident) DyadicFunction {
 	}
 
 	panic("Dyadic verb " + *v.Ident + " not found")
-	//panic(nil)
 }
 
 func (env Environment) FetchMVerb(v *palisade.Ident) MonadicFunction {

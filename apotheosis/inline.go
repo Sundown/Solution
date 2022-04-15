@@ -52,7 +52,7 @@ func (env *Environment) invokePrint(val prism.Value, end string) value.Value {
 
 	// TODO extend this once matrices work so it is recursive
 	if prism.IsVector(val.Type) {
-		env.compileInlineMap(prism.MakeMC(env.compileInlinePrintSpace, false), val)
+		env.compileInlineMap(prism.MakeMC(env.compileInlinePrintSpace, true), val)
 
 		if end == "\x0A" {
 			return env.Block.NewCall(env.getPutchar(), i32(0x0A)) // newline

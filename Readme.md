@@ -37,7 +37,7 @@ Solution is a compiler for an array-oriented language, providing the cognition o
 
 - **Packaging**: no efforts will be made to package Solution in the near future. Currently, `git clone https://github.com/Sundown/Solution` and `go build` do the job.
 
-- **Libraries**: if this project matures to the state of requiring a package manager, git will do the hard work similar to Go.
+- **Libraries**: if this project matures to the state of requiring a package manager, git will do the hard work similar to Go's package manager.
 
 ### 🏷 Name
 

@@ -9,6 +9,22 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
+func (env *Environment) compileInlineNot(omega prism.Value) value.Value {
+	switch omega.Type.Kind() {
+	case prism.BoolType.ID:
+		return env.Block.NewAnd(omega.Value, constant.NewInt(types.I1, 0))
+	case prism.RealType.ID:
+		return env.Block.NewFCmp(enum.FPredOEQ, omega.Value, f64(0))
+	case prism.IntType.ID:
+		return env.Block.NewICmp(enum.IPredEQ, omega.Value, i64(0))
+	case prism.CharType.ID:
+		return env.Block.NewICmp(enum.IPredEQ, omega.Value, constant.NewInt(types.I8, 0))
+	}
+
+	prism.Panic("unreachable")
+	panic(nil)
+}
+
 func (env *Environment) compileInlineAnd(alpha, omega prism.Value) value.Value {
 	switch alpha.Type.Kind() {
 	case prism.BoolType.ID:
