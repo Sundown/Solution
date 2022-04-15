@@ -1,0 +1,415 @@
+[32m + [0m Solution init...
+&prism.MonadicFunction{
+  SkipBuilder: true,
+  Inline: true,
+  Name: prism.Ident{
+    Package: "_",
+    Name: "m_op_1",
+  },
+  OmegaType: prism.VectorType{
+    Type: prism.AtomicType{
+      ID: 10,
+      WidthInBytes: 1,
+      Name: prism.Ident{
+        Package: "_",
+        Name: "Bool",
+      },
+      Actual: &types.IntType{
+        BitSize: 1,
+      },
+    },
+  },
+  Returns: prism.AtomicType{
+    ID: 11,
+    Name: prism.Ident{
+      Package: "_",
+      Name: "Void",
+    },
+    Actual: &types.VoidType{
+    },
+  },
+  Body: []prism.Expression{
+    prism.MonadicApplication{
+      Operator: prism.MonadicFunction{
+        Name: prism.Ident{
+          Package: "_",
+          Name: "Return",
+        },
+        Returns: prism.AtomicType{
+          ID: 11,
+          Name: prism.Ident{
+            Package: "_",
+            Name: "Void",
+          },
+          Actual: &types.VoidType{
+          },
+        },
+      },
+      Operand: prism.OperatorApplication{
+        Op: prism.MonadicOperator{
+          Operator: 5,
+          Fn: prism.MonadicFunction{
+            Special: true,
+            Name: prism.Ident{
+              Package: "_",
+              Name: "Println",
+            },
+            OmegaType: prism.AtomicType{
+              ID: 10,
+              WidthInBytes: 1,
+              Name: prism.Ident{
+                Package: "_",
+                Name: "Bool",
+              },
+              Actual: &types.IntType{
+                BitSize: 1,
+              },
+            },
+            Returns: prism.AtomicType{
+              ID: 11,
+              Name: prism.Ident{
+                Package: "_",
+                Name: "Void",
+              },
+              Actual: &types.VoidType{
+              },
+            },
+          },
+          ExprType: prism.VectorType{
+            Type: prism.AtomicType{
+              ID: 10,
+              WidthInBytes: 1,
+              Name: prism.Ident{
+                Package: "_",
+                Name: "Bool",
+              },
+              Actual: &types.IntType{
+                BitSize: 1,
+              },
+            },
+          },
+          Returns: prism.AtomicType{
+            ID: 11,
+            Name: prism.Ident{
+              Package: "_",
+              Name: "Void",
+            },
+            Actual: &types.VoidType{
+            },
+          },
+        },
+        Expr: prism.Omega{
+          TypeOf: prism.VectorType{
+            Type: prism.AtomicType{
+              ID: 10,
+              WidthInBytes: 1,
+              Name: prism.Ident{
+                Package: "_",
+                Name: "Bool",
+              },
+              Actual: &types.IntType{
+                BitSize: 1,
+              },
+            },
+          },
+        },
+      },
+    },
+  },
+}
+&prism.MonadicFunction{
+  Name: prism.Ident{
+    Package: "_",
+    Name: "Main",
+  },
+  OmegaType: prism.AtomicType{
+    ID: 7,
+    WidthInBytes: 8,
+    Name: prism.Ident{
+      Package: "_",
+      Name: "Int",
+    },
+    Actual: &types.IntType{
+      BitSize: 64,
+    },
+  },
+  Returns: prism.AtomicType{
+    ID: 7,
+    WidthInBytes: 8,
+    Name: prism.Ident{
+      Package: "_",
+      Name: "Int",
+    },
+    Actual: &types.IntType{
+      BitSize: 64,
+    },
+  },
+  PreBody: &[]palisade.Expression{
+    {
+      Monadic: &palisade.Monadic{
+        Applicable: &palisade.Applicable{
+          Verb: &palisade.Ident{
+            Ident: &"Println",
+          },
+          Operator: &palisade.Operator{
+            Operator: &"¨",
+          },
+        },
+        Expression: &palisade.Expression{
+          Monadic: &palisade.Monadic{
+            Applicable: &palisade.Applicable{
+              Verb: &palisade.Ident{
+                Ident: &"~",
+              },
+            },
+            Expression: &palisade.Expression{
+              Morphemes: &palisade.Morpheme{
+                Int: &[]int64{
+                  10,
+                  1,
+                  5,
+                  0,
+                },
+              },
+            },
+          },
+        },
+      },
+    },
+    {
+      Monadic: &palisade.Monadic{
+        Applicable: &palisade.Applicable{
+          Verb: &palisade.Ident{
+            Ident: &"Return",
+          },
+        },
+        Expression: &palisade.Expression{
+          Morphemes: &palisade.Morpheme{
+            Int: &[]int64{
+              1,
+            },
+          },
+        },
+      },
+    },
+  },
+  Body: []prism.Expression{
+    prism.MonadicApplication{
+      Operator: prism.MonadicFunction{
+        SkipBuilder: true,
+        Inline: true,
+        Name: prism.Ident{
+          Package: "_",
+          Name: "m_op_1",
+        },
+        OmegaType: prism.VectorType{
+          Type: prism.AtomicType{
+            ID: 10,
+            WidthInBytes: 1,
+            Name: prism.Ident{
+              Package: "_",
+              Name: "Bool",
+            },
+            Actual: &types.IntType{
+              BitSize: 1,
+            },
+          },
+        },
+        Returns: prism.AtomicType{
+          ID: 11,
+          Name: prism.Ident{
+            Package: "_",
+            Name: "Void",
+          },
+          Actual: &types.VoidType{
+          },
+        },
+        Body: []prism.Expression{
+          prism.MonadicApplication{
+            Operator: prism.MonadicFunction{
+              Name: prism.Ident{
+                Package: "_",
+                Name: "Return",
+              },
+              Returns: prism.AtomicType{
+                ID: 11,
+                Name: prism.Ident{
+                  Package: "_",
+                  Name: "Void",
+                },
+                Actual: &types.VoidType{
+                },
+              },
+            },
+            Operand: prism.OperatorApplication{
+              Op: prism.MonadicOperator{
+                Operator: 5,
+                Fn: prism.MonadicFunction{
+                  Special: true,
+                  Name: prism.Ident{
+                    Package: "_",
+                    Name: "Println",
+                  },
+                  OmegaType: prism.AtomicType{
+                    ID: 10,
+                    WidthInBytes: 1,
+                    Name: prism.Ident{
+                      Package: "_",
+                      Name: "Bool",
+                    },
+                    Actual: &types.IntType{
+                      BitSize: 1,
+                    },
+                  },
+                  Returns: prism.AtomicType{
+                    ID: 11,
+                    Name: prism.Ident{
+                      Package: "_",
+                      Name: "Void",
+                    },
+                    Actual: &types.VoidType{
+                    },
+                  },
+                },
+                ExprType: prism.VectorType{
+                  Type: prism.AtomicType{
+                    ID: 10,
+                    WidthInBytes: 1,
+                    Name: prism.Ident{
+                      Package: "_",
+                      Name: "Bool",
+                    },
+                    Actual: &types.IntType{
+                      BitSize: 1,
+                    },
+                  },
+                },
+                Returns: prism.AtomicType{
+                  ID: 11,
+                  Name: prism.Ident{
+                    Package: "_",
+                    Name: "Void",
+                  },
+                  Actual: &types.VoidType{
+                  },
+                },
+              },
+              Expr: prism.Omega{
+                TypeOf: prism.VectorType{
+                  Type: prism.AtomicType{
+                    ID: 10,
+                    WidthInBytes: 1,
+                    Name: prism.Ident{
+                      Package: "_",
+                      Name: "Bool",
+                    },
+                    Actual: &types.IntType{
+                      BitSize: 1,
+                    },
+                  },
+                },
+              },
+            },
+          },
+        },
+      },
+      Operand: prism.MonadicApplication{
+        Operator: prism.MonadicFunction{
+          Special: true,
+          Name: prism.Ident{
+            Package: "_",
+            Name: "~",
+          },
+          OmegaType: prism.VectorType{
+            Type: prism.AtomicType{
+              ID: 7,
+              WidthInBytes: 8,
+              Name: prism.Ident{
+                Package: "_",
+                Name: "Int",
+              },
+              Actual: &types.IntType{
+                BitSize: 64,
+              },
+            },
+          },
+          Returns: prism.VectorType{
+            Type: prism.AtomicType{
+              ID: 10,
+              WidthInBytes: 1,
+              Name: prism.Ident{
+                Package: "_",
+                Name: "Bool",
+              },
+              Actual: &types.IntType{
+                BitSize: 1,
+              },
+            },
+          },
+        },
+        Operand: prism.Vector{
+          ElementType: prism.VectorType{
+            Type: prism.AtomicType{
+              ID: 7,
+              WidthInBytes: 8,
+              Name: prism.Ident{
+                Package: "_",
+                Name: "Int",
+              },
+              Actual: &types.IntType{
+                BitSize: 64,
+              },
+            },
+          },
+          Body: &[]prism.Expression{
+            prism.Int{
+              Value: 10,
+            },
+            prism.Int{
+              Value: 1,
+            },
+            prism.Int{
+              Value: 5,
+            },
+            prism.Int{
+            },
+          },
+        },
+      },
+    },
+    prism.MonadicApplication{
+      Operator: prism.MonadicFunction{
+        Special: true,
+        Name: prism.Ident{
+          Package: "_",
+          Name: "Return",
+        },
+        OmegaType: prism.AtomicType{
+          ID: 7,
+          WidthInBytes: 8,
+          Name: prism.Ident{
+            Package: "_",
+            Name: "Int",
+          },
+          Actual: &types.IntType{
+            BitSize: 64,
+          },
+        },
+        Returns: prism.AtomicType{
+          ID: 7,
+          WidthInBytes: 8,
+          Name: prism.Ident{
+            Package: "_",
+            Name: "Int",
+          },
+          Actual: &types.IntType{
+            BitSize: 64,
+          },
+        },
+      },
+      Operand: prism.Int{
+        Value: 1,
+      },
+    },
+  },
+}

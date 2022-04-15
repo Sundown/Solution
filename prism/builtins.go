@@ -1,197 +1,234 @@
 package prism
 
 var (
-	Numeric       = SumType{[]Type{RealType, IntType, CharType, BoolType}}
-	Countable     = SumType{[]Type{IntType, CharType, BoolType}}
-	ReturnSpecial = MonadicFunction{
+	Numeric   = SumType{[]Type{RealType, IntType, CharType, BoolType}}
+	Countable = SumType{[]Type{IntType, CharType, BoolType}}
+)
+
+func (env Environment) InternBuiltins() {
+
+	env.Intern(MonadicFunction{
 		Special:   true,
 		Name:      Ident{Package: "_", Name: "Return"},
 		OmegaType: GenericType{},
 		Returns:   GenericType{},
-	}
+	})
 
-	PrintlnSpecial = MonadicFunction{
+	env.Intern(MonadicFunction{
 		Special:   true,
 		Name:      Ident{Package: "_", Name: "Println"},
 		OmegaType: GenericType{},
 		Returns:   VoidType,
-	}
+	})
 
-	PrintSpecial = MonadicFunction{
+	env.Intern(MonadicFunction{
 		Special:   true,
 		Name:      Ident{Package: "_", Name: "Print"},
 		OmegaType: GenericType{},
 		Returns:   VoidType,
-	}
+	})
 
-	LenSpecial = MonadicFunction{
+	env.Intern(MonadicFunction{
 		Special:   true,
 		Name:      Ident{Package: "_", Name: "≢"},
 		OmegaType: VectorType{GenericType{}},
 		Returns:   IntType,
-	}
+	})
 
-	CapSpecial = MonadicFunction{
+	env.Intern(MonadicFunction{
 		Special:   true,
 		Name:      Ident{Package: "_", Name: "__Cap"},
 		OmegaType: VectorType{GenericType{}},
 		Returns:   IntType,
-	}
+	})
 
-	PickSpecial = DyadicFunction{
+	env.Intern(DyadicFunction{
 		Special:            true,
 		disallowAutoVector: true,
 		Name:               Ident{Package: "_", Name: "⊃"},
 		AlphaType:          IntType,
 		OmegaType:          VectorType{GenericType{}},
 		Returns:            GenericType{},
-	}
+	})
 
-	AppendSpecial = DyadicFunction{
+	env.Intern(DyadicFunction{
 		Special:            true,
 		disallowAutoVector: true,
 		Name:               Ident{Package: "_", Name: ","},
 		AlphaType:          VectorType{GenericType{}},
 		OmegaType:          VectorType{GenericType{}},
 		Returns:            VectorType{GenericType{}},
-	}
+	})
 
-	EqSpecial = DyadicFunction{
+	env.Intern(DyadicFunction{
 		Special:            true,
 		disallowAutoVector: false,
 		Name:               Ident{Package: "_", Name: "="},
 		AlphaType:          GenericType{},
 		OmegaType:          GenericType{},
 		Returns:            BoolType,
-	}
+	})
 
-	AddSpecial = DyadicFunction{
+	env.Intern(DyadicFunction{
 		Special:            true,
 		disallowAutoVector: false,
 		Name:               Ident{Package: "_", Name: "+"},
 		AlphaType:          Numeric,
 		OmegaType:          Numeric,
 		Returns:            Numeric,
-	}
+	})
 
-	SubSpecial = DyadicFunction{
+	env.Intern(DyadicFunction{
 		Special:            true,
 		disallowAutoVector: false,
 		Name:               Ident{Package: "_", Name: "-"},
 		AlphaType:          Numeric,
 		OmegaType:          Numeric,
 		Returns:            Numeric,
-	}
+	})
 
-	MulSpecial = DyadicFunction{
+	env.Intern(MonadicFunction{
 		Special:            true,
 		disallowAutoVector: false,
-		Name:               Ident{Package: "_", Name: "*"},
+		Name:               Ident{Package: "_", Name: "-"},
+		OmegaType:          Numeric,
+		Returns:            Numeric,
+	})
+
+	env.Intern(DyadicFunction{
+		Special:            true,
+		disallowAutoVector: false,
+		Name:               Ident{Package: "_", Name: "×"},
 		AlphaType:          Numeric,
 		OmegaType:          Numeric,
 		Returns:            Numeric,
-	}
+	})
 
-	DivSpecial = DyadicFunction{
+	env.Intern(DyadicFunction{
 		Special:            true,
 		disallowAutoVector: false,
 		Name:               Ident{Package: "_", Name: "÷"},
 		AlphaType:          Numeric,
 		OmegaType:          Numeric,
 		Returns:            RealType,
-	}
+	})
 
-	MaxSpecial = DyadicFunction{
+	env.Intern(DyadicFunction{
+		Special:            true,
+		disallowAutoVector: false,
+		Name:               Ident{Package: "_", Name: "*"},
+		AlphaType:          Numeric,
+		OmegaType:          Numeric,
+		Returns:            RealType,
+	})
+
+	env.Intern(MonadicFunction{
+		Special:            true,
+		disallowAutoVector: false,
+		Name:               Ident{Package: "_", Name: "*"},
+		OmegaType:          Numeric,
+		Returns:            RealType,
+	})
+
+	env.Intern(DyadicFunction{
 		Special:            true,
 		disallowAutoVector: false,
 		Name:               Ident{Package: "_", Name: "Max"},
 		AlphaType:          Numeric,
 		OmegaType:          Numeric,
 		Returns:            Numeric,
-	}
+	})
 
-	AndSpecial = DyadicFunction{
+	env.Intern(DyadicFunction{
 		Special:            true,
 		disallowAutoVector: false,
-		Name:               Ident{Package: "_", Name: "&"},
+		Name:               Ident{Package: "_", Name: "∧"},
 		AlphaType:          Numeric,
 		OmegaType:          Numeric,
 		Returns:            BoolType,
-	}
+	})
 
-	OrSpecial = DyadicFunction{
+	env.Intern(DyadicFunction{
 		Special:            true,
 		disallowAutoVector: false,
-		Name:               Ident{Package: "_", Name: "|"},
+		Name:               Ident{Package: "_", Name: "∨"},
 		AlphaType:          Numeric,
 		OmegaType:          Numeric,
 		Returns:            BoolType,
-	}
+	})
 
-	CeilSpecial = MonadicFunction{
+	env.Intern(MonadicFunction{
 		Special:            true,
 		disallowAutoVector: false,
 		Name:               Ident{Package: "_", Name: "Max"},
 		OmegaType:          Numeric,
 		Returns:            Numeric,
-	}
+	})
 
-	MinSpecial = DyadicFunction{
+	env.Intern(DyadicFunction{
 		Special:            true,
 		disallowAutoVector: false,
 		Name:               Ident{Package: "_", Name: "Min"},
 		AlphaType:          Numeric,
 		OmegaType:          Numeric,
 		Returns:            Numeric,
-	}
+	})
 
-	FloorSpecial = MonadicFunction{
+	env.Intern(MonadicFunction{
 		Special:            true,
 		disallowAutoVector: false,
 		Name:               Ident{Package: "_", Name: "Min"},
 		OmegaType:          Numeric,
 		Returns:            Numeric,
-	}
+	})
 
-	RightTacD = DyadicFunction{
+	env.Intern(DyadicFunction{
 		Special:            true,
 		disallowAutoVector: false,
 		Name:               Ident{Package: "_", Name: "⊢"},
 		AlphaType:          GenericType{},
 		OmegaType:          GenericType{},
 		Returns:            GenericType{},
-	}
+	})
 
-	RightTacM = MonadicFunction{
+	env.Intern(MonadicFunction{
 		Special:            true,
 		disallowAutoVector: false,
 		Name:               Ident{Package: "_", Name: "⊢"},
 		OmegaType:          GenericType{},
 		Returns:            GenericType{},
-	}
+	})
 
-	LeftTacD = DyadicFunction{
+	env.Intern(DyadicFunction{
 		Special:            true,
 		disallowAutoVector: false,
 		Name:               Ident{Package: "_", Name: "⊣"},
 		AlphaType:          GenericType{},
 		OmegaType:          GenericType{},
 		Returns:            GenericType{},
-	}
+	})
 
-	Enclose = MonadicFunction{
+	env.Intern(MonadicFunction{
 		Special:            true,
 		disallowAutoVector: true,
 		Name:               Ident{Package: "_", Name: "⊂"},
 		OmegaType:          GenericType{},
 		Returns:            VectorType{Type: GenericType{}},
-	}
+	})
 
-	Iota = MonadicFunction{
+	env.Intern(MonadicFunction{
 		Special:            true,
 		disallowAutoVector: true,
 		Name:               Ident{Package: "_", Name: "⍳"},
 		OmegaType:          Countable,
 		Returns:            VectorType{Type: Countable},
-	}
-)
+	})
+
+	env.Intern(MonadicFunction{
+		Special:            true,
+		disallowAutoVector: false,
+		Name:               Ident{Package: "_", Name: "~"},
+		OmegaType:          Countable,
+		Returns:            BoolType,
+	})
+}

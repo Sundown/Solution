@@ -3,11 +3,11 @@ package apotheosis
 import (
 	"github.com/sundown/solution/prism"
 
+	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
 )
 
-// ⊢
 func (env *Environment) compileInlineRightTacD(alpha, omega prism.Value) value.Value {
 	return omega.Value
 }
@@ -20,7 +20,7 @@ func (env *Environment) compileInlineLeftTacD(alpha, omega prism.Value) value.Va
 	return alpha.Value
 }
 
-func (env *Environment) compileInlineAdd(alpha, omega prism.Value) value.Value {
+func (env *Environment) compileInlineDAdd(alpha, omega prism.Value) value.Value {
 	switch alpha.Type.Kind() {
 	case prism.RealType.ID:
 		return env.Block.NewFAdd(alpha.Value, omega.Value)
@@ -33,7 +33,57 @@ func (env *Environment) compileInlineAdd(alpha, omega prism.Value) value.Value {
 	panic(nil)
 }
 
-func (env *Environment) compileInlineSub(alpha, omega prism.Value) value.Value {
+func (env *Environment) compileInlineMSub(omega prism.Value) value.Value {
+	switch omega.Type.Kind() {
+	case prism.RealType.ID:
+		return env.Block.NewFSub(f64(0), omega.Value)
+	case prism.IntType.ID:
+		return env.Block.NewSub(i64(0), omega.Value)
+	case prism.CharType.ID:
+		return env.Block.NewSub(constant.NewInt(types.I8, 0), omega.Value)
+	}
+
+	prism.Panic("unreachable")
+	panic(nil)
+}
+
+func (env *Environment) compileInlinePow(alpha, omega prism.Value) value.Value {
+	switch alpha.Type.Kind() {
+	case prism.RealType.ID:
+		return env.Block.NewCall(env.getPowReal(), alpha.Value, omega.Value)
+	case prism.IntType.ID:
+		return env.Block.NewCall(env.getPowInt(),
+			env.Block.NewSIToFP(alpha.Value, types.Double),
+			env.Block.NewTrunc(omega.Value, types.I32))
+	case prism.CharType.ID:
+		return env.Block.NewCall(env.getPowInt(),
+			env.Block.NewSIToFP(alpha.Value, types.Double),
+			env.Block.NewSExt(omega.Value, types.I32))
+	}
+
+	prism.Panic("unreachable")
+	panic(nil)
+}
+
+func (env *Environment) compileInlineExp(omega prism.Value) value.Value {
+	switch omega.Type.Kind() {
+	case prism.RealType.ID:
+		return env.Block.NewCall(env.getPowReal(), f64(2.7182818284590452354), omega.Value)
+	case prism.IntType.ID:
+		return env.Block.NewCall(env.getPowInt(),
+			f64(2.7182818284590452354),
+			env.Block.NewTrunc(omega.Value, types.I32))
+	case prism.CharType.ID:
+		return env.Block.NewCall(env.getPowInt(),
+			f64(2.7182818284590452354),
+			env.Block.NewSExt(omega.Value, types.I32))
+	}
+
+	prism.Panic("unreachable")
+	panic(nil)
+}
+
+func (env *Environment) compileInlineDSub(alpha, omega prism.Value) value.Value {
 	switch alpha.Type.Kind() {
 	case prism.RealType.ID:
 		return env.Block.NewFSub(alpha.Value, omega.Value)
