@@ -25,7 +25,7 @@ func (env Environment) analyseDyadic(d *palisade.Dyadic) prism.DyadicApplication
 
 	prism.DeferDyadicApplicationTypes(&function, &left, &right)
 
-	if function.Ident().Package == "_" && function.Ident().Name == "Return" {
+	if function.Ident().Package == "_" && function.Ident().Name == "←" {
 		if !env.CurrentFunctionIR.Type().Equals(function.Type()) {
 			if !env.CurrentFunctionIR.Type().IsAlgebraic() {
 				prism.Panic("Return receives type which does not match determined-function's type")

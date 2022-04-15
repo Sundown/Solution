@@ -37,8 +37,8 @@ func (d DyadicApplication) Type() Type {
 
 // String function for interface
 func (f DyadicFunction) String() (s string) {
-	s += "Δ " + f.AlphaType.String() + " " + f.Name.String() + " " +
-		f.OmegaType.String() + " -> " + f.Returns.String() + "\n"
+	s += f.AlphaType.String() + " " + f.Name.String() + " " +
+		f.OmegaType.String() + " -> " + f.Returns.String() + " {\n"
 
 	if f.Body != nil {
 		for _, p := range f.Body {
@@ -48,7 +48,7 @@ func (f DyadicFunction) String() (s string) {
 		fmt.Println("PREBODY")
 	}
 
-	return s + "∇\n"
+	return s + "}\n"
 }
 
 // String function for interface

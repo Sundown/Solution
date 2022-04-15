@@ -1,6 +1,9 @@
 @Package jan;
 
 Main Int → Void {
-	Println 2*32;
-	Println *32;
+	Println 1 ≠ 5;
+}
+
+Int ≠ Int → Bool {
+	← ~ α = ω;
 }
