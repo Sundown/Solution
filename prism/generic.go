@@ -30,8 +30,7 @@ func (g GenericType) Resolve(t Type) Type {
 }
 
 func (s GenericType) Realise() types.Type {
-	Panic("Impossible")
-	panic(nil)
+	panic("Impossible")
 }
 
 func (s GenericType) Kind() int {

@@ -65,9 +65,9 @@ var basicLexer = lexer.MustSimple([]lexer.Rule{
 	{Name: "String", Pattern: `"(\\"|[^"])*"`, Action: nil},
 	{Name: "Float", Pattern: `(\-)?(\d*\.)\d+`, Action: nil},
 	{Name: "Int", Pattern: `(\-)?\d+`, Action: nil},
-	{Name: "Ident", Pattern: `([\w]+|[-*+÷∨∧|=⊢⊣,⊃⊂≢⍳~])`, Action: nil},
+	{Name: "Ident", Pattern: `([\w]+|[-*+÷∨∧|=⊢⊣,⊃⊂←≢⍳≠~])`, Action: nil},
 	{Name: "Operator", Pattern: `([/¨])`, Action: nil},
-	{Name: "Punct", Pattern: `[-[!@#$%^&*()+_=-{}\|:;"'<,>.?→~]|]`, Action: nil},
+	{Name: "Punct", Pattern: `[-[!@#$%^&*()+_=-{}\|←:;"'<,>.?≠→~]|]`, Action: nil},
 	{Name: "Alpha", Pattern: "α", Action: nil},
 	{Name: "Omega", Pattern: "ω", Action: nil},
 })

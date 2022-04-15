@@ -9,7 +9,7 @@ func (env Environment) InternBuiltins() {
 
 	env.Intern(MonadicFunction{
 		Special:   true,
-		Name:      Ident{Package: "_", Name: "Return"},
+		Name:      Ident{Package: "_", Name: "←"},
 		OmegaType: GenericType{},
 		Returns:   GenericType{},
 	})

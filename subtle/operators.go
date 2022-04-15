@@ -124,7 +124,7 @@ func (env Environment) monadicOperatorToFunction(op prism.MonadicOperator) prism
 			prism.MonadicApplication{
 				Operator: prism.MonadicFunction{
 					Special: false,
-					Name:    prism.Ident{Package: "_", Name: "Return"},
+					Name:    prism.Ident{Package: "_", Name: "←"},
 					Returns: op.Returns,
 				},
 				Operand: prism.OperatorApplication{

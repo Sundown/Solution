@@ -103,8 +103,8 @@ func (env Environment) FetchMVerb(v *palisade.Ident) MonadicFunction {
 		return *found
 	}
 
-	panic("Monadic verb " + *v.Ident + " not found")
-	//panic(nil)
+	Panic("Monadic verb " + *v.Ident + " not found")
+	panic(nil)
 }
 
 func (env Environment) FetchVerb(v *palisade.Ident) Expression {

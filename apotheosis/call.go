@@ -6,7 +6,7 @@ import (
 )
 
 func (env *Environment) compileMonadicApplication(app *prism.MonadicApplication) value.Value {
-	if name := app.Operator.Ident().Name; name == "Return" {
+	if name := app.Operator.Ident().Name; name == "←" {
 		env.Block.NewRet(env.compileExpression(&app.Operand))
 		return nil
 	} else if fn := env.FetchMonadicCallable(name); fn != nil {

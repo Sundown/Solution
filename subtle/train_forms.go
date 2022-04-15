@@ -58,7 +58,7 @@ func (env Environment) d3Train(f, g, h prism.DyadicFunction, APre, BPre prism.Ty
 			prism.MonadicApplication{
 				Operator: prism.MonadicFunction{
 					Special: false,
-					Name:    prism.Ident{Package: "_", Name: "Return"},
+					Name:    prism.Ident{Package: "_", Name: "←"},
 					Returns: g.Returns,
 				},
 				Operand: prism.DyadicApplication{
@@ -109,7 +109,7 @@ func (env Environment) d2Train(g prism.MonadicFunction, h prism.DyadicFunction, 
 			prism.MonadicApplication{
 				Operator: prism.MonadicFunction{
 					Special: false,
-					Name:    prism.Ident{Package: "_", Name: "Return"},
+					Name:    prism.Ident{Package: "_", Name: "←"},
 					Returns: g.Returns,
 				},
 				Operand: prism.MonadicApplication{
@@ -159,7 +159,7 @@ func (env Environment) m3Train(f prism.MonadicFunction, g prism.DyadicFunction, 
 			prism.MonadicApplication{
 				Operator: prism.MonadicFunction{
 					Special: false,
-					Name:    prism.Ident{Package: "_", Name: "Return"},
+					Name:    prism.Ident{Package: "_", Name: "←"},
 					Returns: g.Returns,
 				},
 				Operand: prism.DyadicApplication{
@@ -206,7 +206,7 @@ func (env Environment) m2Train(g prism.MonadicFunction, h prism.MonadicFunction,
 			prism.MonadicApplication{
 				Operator: prism.MonadicFunction{
 					Special: false,
-					Name:    prism.Ident{Package: "_", Name: "Return"},
+					Name:    prism.Ident{Package: "_", Name: "←"},
 					Returns: g.Returns,
 				},
 				Operand: prism.MonadicApplication{
