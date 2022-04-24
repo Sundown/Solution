@@ -6,7 +6,6 @@ var (
 )
 
 func (env Environment) InternBuiltins() {
-
 	env.Intern(MonadicFunction{
 		Special:   true,
 		Name:      Ident{Package: "_", Name: "←"},
@@ -29,10 +28,11 @@ func (env Environment) InternBuiltins() {
 	})
 
 	env.Intern(MonadicFunction{
-		Special:   true,
-		Name:      Ident{Package: "_", Name: "≢"},
-		OmegaType: VectorType{GenericType{}},
-		Returns:   IntType,
+		Special:            true,
+		disallowAutoVector: true,
+		Name:               Ident{Package: "_", Name: "≢"},
+		OmegaType:          VectorType{GenericType{}},
+		Returns:            IntType,
 	})
 
 	env.Intern(MonadicFunction{

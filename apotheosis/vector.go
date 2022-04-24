@@ -118,7 +118,6 @@ func (env *Environment) writeLLVectorCapacity(vec prism.Value, cap value.Value) 
 }
 
 func (env *Environment) readVectorLength(vec prism.Value) value.Value {
-
 	return env.Block.NewLoad(types.I32,
 		env.Block.NewGetElementPtr(
 			vec.Type.Realise(),

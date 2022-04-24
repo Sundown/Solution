@@ -120,7 +120,7 @@ func (env *Environment) insertCallables() {
 	env.LLMonadicCallables["Println"] = prism.MakeMC(env.compileInlinePrintln, true)
 	env.LLMonadicCallables["Print"] = prism.MakeMC(env.compileInlinePrint, true)
 	env.LLMonadicCallables["Panic"] = prism.MakeMC(env.compileInlinePanic, false)
-	env.LLMonadicCallables["≢"] = prism.MakeMC(env.readVectorLength, false)
+	env.LLMonadicCallables["≢"] = prism.MakeMC(env.readVectorLength, true)
 	env.LLMonadicCallables["__Cap"] = prism.MakeMC(env.readVectorCapacity, false)
 	env.LLMonadicCallables["Max"] = prism.MakeMC(env.compileInlineCeil, false)
 	env.LLMonadicCallables["Min"] = prism.MakeMC(env.compileInlineFloor, false)
