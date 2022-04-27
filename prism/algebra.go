@@ -11,7 +11,8 @@ func Delegate(mould, cast *Type) (determined Type, failure *string) {
 	if _, sd := (*cast).(GenericType); sd {
 		return nil, Ref("Cast cannot be T: " + (*cast).String())
 	}
-	if _, sdg := (*cast).(SumType); sdg {
+
+	if _, sdg := (*cast).(Group); sdg {
 		return nil, Ref("Cast cannot be sum: " + (*cast).String())
 	}
 
@@ -50,8 +51,12 @@ func Delegate(mould, cast *Type) (determined Type, failure *string) {
 		return *cast, nil
 	}
 
-	if group, tgp := (*mould).(SumType); tgp {
-		for _, elm := range group.Types {
+	if group, tgp := (*mould).(Group); tgp {
+		if group.Universal() {
+			panic("TODO")
+		}
+
+		for _, elm := range group.(TypeGroup).Set {
 			typ, fail := Delegate(&elm, cast)
 
 			// Errors are expected, don't check for them
@@ -77,11 +82,13 @@ func Integrate(this, from Type) Type {
 		} else {
 			Panic("Vector is not algebraic")
 		}
-	case SumType:
-		for _, e := range j.Types {
-			if e.Equals(from) {
-				return e
-			}
+	case Group:
+		if j.Universal() {
+			return from
+		}
+
+		if j.Has(from) {
+			return from
 		}
 	case GenericType:
 		return from
@@ -105,11 +112,17 @@ func Derive(this, like Type) Type {
 		} else {
 			return Derive(j.Type, like)
 		}
-	case SumType:
-		for _, e := range j.Types {
-			if e.Equals(like) {
-				return e
-			}
+	case Group:
+		if j.Universal() {
+			return like
+		}
+
+		if like.IsAlgebraic() {
+			panic("Cannot derive algebraic type from algebraic type")
+		}
+
+		if j.Has(like) {
+			return like
 		}
 	case GenericType:
 		return like

@@ -1,5 +1,7 @@
 package prism
 
+import "github.com/llir/llvm/ir/types"
+
 type Group interface {
 	String() string
 	Universal() bool
@@ -12,6 +14,63 @@ type Universal struct{}
 
 type TypeGroup struct {
 	Set []Type
+}
+
+func (g Universal) Kind() int {
+	return TypeKindGroup
+}
+func (g TypeGroup) Kind() int {
+	return TypeKindGroup
+}
+
+func (g Universal) IsAlgebraic() bool {
+	return true
+}
+func (g TypeGroup) IsAlgebraic() bool {
+	return true
+}
+
+func (g Universal) Width() int64 {
+	panic("Impossible")
+}
+func (g TypeGroup) Width() int64 {
+	panic("Impossible")
+}
+
+func (g Universal) Realise() types.Type {
+	panic("Impossible")
+}
+func (g TypeGroup) Realise() types.Type {
+	panic("Impossible")
+}
+
+// Resolve composes Integrate with Derive,
+// Fills in sum/generic type based on a concrete type
+func (s Universal) Resolve(t Type) Type {
+	return t
+}
+
+// Resolve composes Integrate with Derive,
+// Fills in sum/generic type based on a concrete type
+func (s TypeGroup) Resolve(t Type) Type {
+	return Integrate(s, Derive(s, t))
+}
+
+func (g Universal) Equals(t Type) bool {
+	return t.Kind() == TypeKindGroup && t.(Group).Universal()
+}
+func (g TypeGroup) Equals(t Type) bool {
+	if t.Kind() != TypeKindGroup || t.(Group).Universal() || len(t.(Group).String()) == len(g.String()) {
+		return false
+	}
+
+	for _, tt := range g.Set {
+		if !t.(Group).Has(tt) {
+			return false
+		}
+	}
+
+	return true
 }
 
 func (g TypeGroup) String() (s string) {

@@ -5,6 +5,7 @@ const (
 	TypeKindVector
 	TypeKindStruct
 	TypeKindSemiDetermined
+	TypeKindGroup
 	TypeKindSemiDeterminedGroup
 	KindMapOperator
 	KindReduceOperator

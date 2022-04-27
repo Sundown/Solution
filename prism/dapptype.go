@@ -107,13 +107,17 @@ func RoundhouseCast(from Expression, otherside Type, to Type) (res *Cast) {
 		panic("RoundhouseCast: to is not algebraic")
 	}
 
-	if sum, ok := to.(SumType); ok {
+	if sum, ok := to.(Group); ok {
 		// Iterate through types within the sum, if one of them is equal to the
 		// opposite-hand type, use that, otherwise the first one is used.
 		// TODO this is broken currently and is non-deterministic depending on
 		// the order of the types in the sum.
 		// Probably need type-sorting algorithm
-		for _, t := range sum.Types {
+		if sum.Universal() {
+			panic("TODO")
+		}
+
+		for _, t := range sum.(TypeGroup).Set {
 			if otherside != nil && otherside.Equals(t) && QueryCast(from.Type(), t) {
 				res = &Cast{Value: from, ToType: t}
 			} else if QueryCast(from.Type(), t) {

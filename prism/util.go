@@ -14,6 +14,15 @@ import (
 	"strings"
 )
 
+func IsConstant(e Expression) bool {
+	switch e.(type) {
+	case Int, Real, Char, Bool:
+		return true
+	}
+
+	return false
+}
+
 func Init(env *Environment) *Environment {
 	if len(os.Args) == 1 {
 		Error("No files input").Exit()
