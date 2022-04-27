@@ -1,9 +1,12 @@
 package apotheosis
 
 import (
+	"fmt"
+
 	"github.com/sundown/solution/prism"
 
 	"github.com/llir/llvm/ir"
+	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/enum"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
@@ -27,15 +30,42 @@ func (env *Environment) compileVector(vector prism.Vector) value.Value {
 	// Store vector capacity
 	env.writeVectorCapacity(head, cap, headType)
 
+	isConstant := true
+	for _, elm := range *vector.Body {
+		if !prism.IsConstant(elm) {
+			isConstant = false
+			break
+		}
+	}
+
 	body := env.buildVectorBody(elmType, cap, vector.Type().(prism.VectorType).Width())
 
 	if len(*vector.Body) > 0 {
-		env.populateBody(body, elmType, *vector.Body)
+		if isConstant {
+			env.Block.NewCall(
+				env.getMemcpy(),
+				env.Block.NewBitCast(body, types.I8Ptr),
+				env.Block.NewBitCast(env.populateConstBody(elmType, *vector.Body), types.I8Ptr),
+				env.Block.NewMul(i64(int64(len(*vector.Body))),
+					i64(vector.Type().(prism.VectorType).Type.Width())),
+				constant.NewInt(types.I1, 0))
+		} else {
+			env.populateBody(body, elmType, *vector.Body)
+		}
 	}
 
 	env.writeVectorPointer(head, body, headType)
 
 	return head
+}
+
+func (env *Environment) populateConstBody(elementType types.Type, exprVec []prism.Expression) value.Value {
+	accum := make([]constant.Constant, len(exprVec))
+	for i, expr := range exprVec {
+		accum[i] = env.compileExpression(&expr).(constant.Constant)
+	}
+
+	return env.Module.NewGlobalDef(fmt.Sprint(env.newID()), constant.NewArray(types.NewArray(uint64(len(exprVec)), elementType), accum...))
 }
 
 // Maps from expression[] to vector in LLVM
@@ -45,6 +75,7 @@ func (env *Environment) populateBody(
 	exprVec []prism.Expression) {
 
 	irElmType := exprVec[0].Type()
+
 	for index, element := range exprVec {
 		v := env.compileExpression(&element)
 

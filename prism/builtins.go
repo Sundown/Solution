@@ -1,8 +1,8 @@
 package prism
 
 var (
-	Numeric   = SumType{[]Type{RealType, IntType, CharType, BoolType}}
-	Countable = SumType{[]Type{IntType, CharType, BoolType}}
+	Numeric   = TypeGroup{[]Type{RealType, IntType, CharType, BoolType}}
+	Countable = TypeGroup{[]Type{IntType, CharType, BoolType}}
 )
 
 func (env Environment) InternBuiltins() {

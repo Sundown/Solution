@@ -1,5 +1,5 @@
 @Package jan;
 
 Main Int → Void {
-	Println (+/÷≢) 1 6 3;
+	Println 1 5 4;
 }
