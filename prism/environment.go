@@ -62,7 +62,7 @@ func NewEnvironment() *Environment {
 	env.Types[Ident{"_", "String"}] = StringType
 	env.Types[Ident{"_", "Bool"}] = BoolType
 	env.Types[Ident{"_", "Void"}] = VoidType
-	env.Types[Ident{"_", "T"}] = GenericType{}
+	env.Types[Ident{"_", "T"}] = Universal{}
 
 	env.InternBuiltins()
 

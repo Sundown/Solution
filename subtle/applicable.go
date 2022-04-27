@@ -5,26 +5,29 @@ import (
 	"github.com/sundown/solution/prism"
 )
 
-/* type Applicable struct {
-
-    Subexpr  *Expression `parser:"(('(' @@ ')')"`
-    Verb     *Ident      `parser:"| @@)"`
-    Operator *Operator   `parser:"@@?"`
-} */
-
 func (env *Environment) analysePrimeApplicable(app palisade.Applicable, lType, rType prism.Type) prism.Function {
 	var function prism.Function
 	if app.Verb != nil {
 		if lType == nil {
-			function = env.FetchMVerb(app.Verb)
+			f := env.FetchMVerb(app.Verb)
+			if g, ok := f.OmegaType.(prism.Universal); ok && g.Has(rType) {
+				f.Name.Name = "GFI_(" + rType.String() + ")_" + f.Name.Name
+				f.OmegaType = rType
+				if f.Returns.IsAlgebraic() {
+					f.Returns = f.Returns.Resolve(rType)
+				}
+			}
+			env.analyseMBody(&f)
+			env.MonadicFunctions[f.Name] = &f
+			function = f
 		} else {
 			function = env.FetchDVerb(app.Verb)
 		}
 	} else if app.Subexpr != nil {
 		// Monadic/dyadic cases are handled within train system
-
 		function = env.boardTrain(app.Subexpr, lType, rType)
 	}
+
 	return function
 }
 
@@ -44,5 +47,3 @@ func (env *Environment) analyseApplicable(app palisade.Applicable, lType, rType 
 
 	return function
 }
-
-// Inductive cast cardinality mismatch within algebraic group
