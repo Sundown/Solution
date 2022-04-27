@@ -69,6 +69,14 @@ func (env *Environment) invokePrint(val prism.Value, end string) value.Value {
 		val.Value)
 }
 
+func (env *Environment) compileInlineTally(val prism.Value) value.Value {
+	return env.Block.NewSExt(env.readVectorLength(val), types.I64)
+}
+
+func (env *Environment) compileInlineCapacity(val prism.Value) value.Value {
+	return env.Block.NewSExt(env.readVectorCapacity(val), types.I64)
+}
+
 func (env *Environment) compileInlinePrintSpace(val prism.Value) value.Value {
 	return env.invokePrint(val, "\x20")
 }
@@ -82,7 +90,7 @@ func (env *Environment) compileInlinePrint(val prism.Value) value.Value {
 }
 
 func (env *Environment) compileInlineIndex(left, right prism.Value) value.Value {
-	return env.readVectorElement(right, left.Value)
+	return env.readVectorElement(right, env.Block.NewTrunc(env.Block.NewSub(left.Value, i64(1)), types.I32))
 }
 
 func (env *Environment) compileInlinePanic(val prism.Value) value.Value {

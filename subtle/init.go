@@ -98,10 +98,11 @@ func (env Environment) analyseDBody(f *prism.DyadicFunction) {
 }
 
 func (env Environment) analyseMBody(f *prism.MonadicFunction) {
-	if f.Special || f.SkipBuilder {
+	if _, ok := f.OmegaType.(prism.Universal); ok || f.Special || f.SkipBuilder {
 		return
 	}
 
+	t := env.CurrentFunctionIR
 	env.CurrentFunctionIR = *f
 
 	if len(f.Body) == 0 {
@@ -109,6 +110,8 @@ func (env Environment) analyseMBody(f *prism.MonadicFunction) {
 			f.Body = append(f.Body, env.analyseExpression(&expr))
 		}
 	}
+
+	env.CurrentFunctionIR = t // TODO might be wrong/useless
 }
 
 func (env Environment) analyseExpression(e *palisade.Expression) prism.Expression {

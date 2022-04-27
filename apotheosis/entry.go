@@ -61,6 +61,10 @@ func (env *Environment) declareFunctions() *Environment {
 			continue
 		}
 
+		if _, ok := (*fn).OmegaType.(prism.Universal); ok {
+			continue
+		}
+
 		env.LLMonadicFunctions[fn.LLVMise()] = env.declareMonadicFunction(*fn)
 	}
 
@@ -80,6 +84,9 @@ func (env *Environment) compileFunctions() *Environment {
 			continue
 		}
 
+		if _, ok := (*fn).OmegaType.(prism.Universal); ok {
+			continue
+		}
 		env.LLMonadicFunctions[fn.LLVMise()] = env.compileMonadicFunction(*fn)
 	}
 
@@ -120,8 +127,8 @@ func (env *Environment) insertCallables() {
 	env.LLMonadicCallables["Println"] = prism.MakeMC(env.compileInlinePrintln, true)
 	env.LLMonadicCallables["Print"] = prism.MakeMC(env.compileInlinePrint, true)
 	env.LLMonadicCallables["Panic"] = prism.MakeMC(env.compileInlinePanic, false)
-	env.LLMonadicCallables["≢"] = prism.MakeMC(env.readVectorLength, true)
-	env.LLMonadicCallables["__Cap"] = prism.MakeMC(env.readVectorCapacity, false)
+	env.LLMonadicCallables["≢"] = prism.MakeMC(env.compileInlineTally, true)
+	env.LLMonadicCallables["__Cap"] = prism.MakeMC(env.compileInlineCapacity, false)
 	env.LLMonadicCallables["Max"] = prism.MakeMC(env.compileInlineCeil, false)
 	env.LLMonadicCallables["Min"] = prism.MakeMC(env.compileInlineFloor, false)
 }

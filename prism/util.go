@@ -56,9 +56,9 @@ func Init(env *Environment) *Environment {
 				}
 			case "verbose":
 				quietP = false
-			case "optimisation", "optimization":
-				if len(os.Args) > i+1 {
-					i++
+			case "O":
+				i++
+				if len(os.Args) > i {
 					switch os.Args[i] {
 					case "0", "1", "2", "3":
 						l, err := strconv.ParseInt(os.Args[i], 10, 32)
@@ -105,7 +105,7 @@ func Emit(env *Environment) {
 
 	VerifyClangVersion()
 
-	opt := "-Ofast"
+	opt := "-O1" // TODO change to fast once trap bug fixed
 	if env.Optimisation != nil {
 		f := strconv.FormatInt(*env.Optimisation, 10)
 		Verbose("Optimisation level", f)
