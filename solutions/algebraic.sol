@@ -1,9 +1,9 @@
 @Package jan;
 
 Main Int → Void {
-	Println ⊂ 1;
+	Println E 1;
 }
 
-GenericEnclose T → [T] {
+E T → [T] {
 	← ⊂ ω;
 }

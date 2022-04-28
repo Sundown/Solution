@@ -1,7 +1,6 @@
 package subtle
 
 import (
-	"github.com/alecthomas/repr"
 	"github.com/sundown/solution/palisade"
 	"github.com/sundown/solution/prism"
 )
@@ -85,7 +84,6 @@ func (env Environment) analyseMorpheme(m *palisade.Morpheme) prism.Expression {
 					TypeOf: f.OmegaType,
 				}
 			} else if f, ok := env.CurrentFunctionIR.(prism.MonadicFunction); ok {
-				repr.Println(f)
 				return prism.Omega{
 					TypeOf: f.OmegaType,
 				}

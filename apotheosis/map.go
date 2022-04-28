@@ -6,9 +6,10 @@ import (
 	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/enum"
 	"github.com/llir/llvm/ir/types"
+	"github.com/llir/llvm/ir/value"
 )
 
-func (env *Environment) compileInlineMap(in prism.Callable, vec prism.Value) (head *ir.InstAlloca) {
+func (env *Environment) compileInlineMap(in prism.Callable, vec prism.Value) (head value.Value) {
 	var retType prism.Type
 	if fn, ok := in.(prism.MonadicFunction); ok {
 		retType = fn.Type()
