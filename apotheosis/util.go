@@ -14,6 +14,7 @@ func (env Environment) new(val value.Value) (res value.Value) {
 	env.Block.NewStore(val, res)
 	return
 }
+
 func i64(v int64) constant.Constant {
 	return constant.NewInt(types.I64, v)
 }
@@ -23,69 +24,6 @@ func f64(v float64) constant.Constant {
 }
 func i32(v int64) constant.Constant {
 	return constant.NewInt(types.I32, int64(int32(v)))
-}
-
-// Abstract LLIR's stupid gep implementation
-func (env *Environment) gep(source *ir.InstAlloca, indices ...value.Value) *ir.InstGetElementPtr {
-	return env.Block.NewGetElementPtr(source.Typ.ElemType, source, indices...)
-}
-
-// Will work for vectors too once they can be mutated
-func (env *Environment) defaultValue(t prism.Type) value.Value {
-	if t.Equals(prism.IntType) {
-		return i64(0)
-	} else if t.Equals(prism.RealType) {
-		return constant.NewFloat(types.Double, 0)
-	} else if t.Equals(prism.CharType) {
-		return constant.NewInt(types.I8, 0)
-	} else if t.Equals(prism.BoolType) {
-		return constant.NewBool(false)
-	} else {
-		prism.Panic("Not yet implemented")
-	}
-	panic(nil)
-}
-
-// Will work for vectors too once they can be mutated
-func (env *Environment) number(t *prism.Type, n float64) value.Value {
-	if (*t).Equals(prism.IntType) {
-		return i64(int64(n))
-	} else if (*t).Equals(prism.RealType) {
-		return constant.NewFloat(types.Double, n)
-	} else if (*t).Equals(prism.CharType) {
-		return constant.NewInt(types.I8, int64(n))
-	} else if (*t).Equals(prism.BoolType) {
-		return constant.NewBool(false)
-	} else {
-		prism.Panic("Not yet implemented")
-	}
-	panic(nil)
-}
-
-func (env *Environment) agnosticAdd(t *prism.Type, x, y value.Value) value.Value {
-	if (*t).Equals(prism.IntType) {
-		return env.Block.NewAdd(x, y)
-	} else if (*t).Equals(prism.RealType) {
-		return env.Block.NewFAdd(x, y)
-	} else if (*t).Equals(prism.CharType) {
-		return env.Block.NewAdd(x, y)
-	} else {
-		prism.Panic("Not yet implemented")
-	}
-	panic(nil)
-}
-
-func (env *Environment) agnosticMult(t *prism.Type, x, y value.Value) value.Value {
-	if (*t).Equals(prism.IntType) {
-		return env.Block.NewMul(x, y)
-	} else if (*t).Equals(prism.RealType) {
-		return env.Block.NewFMul(x, y)
-	} else if (*t).Equals(prism.CharType) {
-		return env.Block.NewMul(x, y)
-	} else {
-		prism.Panic("Not yet implemented")
-	}
-	panic(nil)
 }
 
 func (env *Environment) getFormatString(t prism.Type, end string) value.Value {
