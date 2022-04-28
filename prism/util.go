@@ -105,7 +105,7 @@ func Emit(env *Environment) {
 
 	VerifyClangVersion()
 
-	opt := "-O1" // TODO change to fast once trap bug fixed
+	opt := "-Ofast" // TODO change to fast once trap bug fixed
 	if env.Optimisation != nil {
 		f := strconv.FormatInt(*env.Optimisation, 10)
 		Verbose("Optimisation level", f)
