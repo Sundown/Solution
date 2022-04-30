@@ -102,6 +102,18 @@ func (env *Environment) getMinDouble() *ir.Func {
 	return env.Specials["min.f64"]
 }
 
+func (env *Environment) getStrlen() *ir.Func {
+	if env.Specials["strlen"] == nil {
+		env.Specials["strlen"] = env.Module.NewFunc(
+			"strlen",
+			types.I64,
+			ir.NewParam("s", types.I8Ptr))
+		env.Specials["strlen"].Sig.Variadic = true
+	}
+
+	return env.Specials["strlen"]
+}
+
 func (env *Environment) getPrintf() *ir.Func {
 	if env.Specials["printf"] == nil {
 		env.Specials["printf"] = env.Module.NewFunc(

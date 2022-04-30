@@ -4,7 +4,6 @@ import (
 	"github.com/sundown/solution/prism"
 
 	"github.com/llir/llvm/ir"
-	"github.com/llir/llvm/ir/constant"
 	"github.com/llir/llvm/ir/enum"
 	"github.com/llir/llvm/ir/types"
 )
@@ -54,6 +53,14 @@ func (env *Environment) declareFunctions() *Environment {
 			continue
 		}
 
+		if _, ok := (*fn).OmegaType.(prism.Universal); ok {
+			continue
+		}
+
+		if _, ok := (*fn).AlphaType.(prism.Universal); ok {
+			continue
+		}
+
 		env.LLDyadicFunctions[fn.LLVMise()] = env.declareDyadicFunction(*fn)
 	}
 	for _, fn := range env.MonadicFunctions {
@@ -77,8 +84,17 @@ func (env *Environment) compileFunctions() *Environment {
 			continue
 		}
 
+		if _, ok := (*fn).OmegaType.(prism.Universal); ok {
+			continue
+		}
+
+		if _, ok := (*fn).AlphaType.(prism.Universal); ok {
+			continue
+		}
+
 		env.LLDyadicFunctions[fn.LLVMise()] = env.compileDyadicFunction(*fn)
 	}
+
 	for _, fn := range env.MonadicFunctions {
 		if fn.Special {
 			continue
@@ -87,17 +103,38 @@ func (env *Environment) compileFunctions() *Environment {
 		if _, ok := (*fn).OmegaType.(prism.Universal); ok {
 			continue
 		}
+
 		env.LLMonadicFunctions[fn.LLVMise()] = env.compileMonadicFunction(*fn)
+
 	}
 
 	return env
 }
 
 func (env *Environment) initMain() *Environment {
-	env.CurrentFunction = env.Module.NewFunc("main", types.I32)
+	env.CurrentFunction = env.Module.NewFunc("main", types.I32, ir.NewParam("argc", types.I32), ir.NewParam("argv", types.NewPointer(types.I8Ptr)))
 	env.Block = env.CurrentFunction.NewBlock("entry")
-	env.Block.NewCall(env.LLMonadicFunctions[env.EntryFunction.LLVMise()], i64(0))
-	env.Block.NewRet(constant.NewInt(types.I32, 0))
+	/*
+		curString := env.Block.NewLoad(
+			types.I8Ptr,
+			env.Block.NewGetElementPtr(
+				types.I8Ptr,
+				env.CurrentFunction.Params[1],
+				i32(1)))
+
+		strlen := env.Block.NewCall(env.getStrlen(), curString)
+
+		head, body := env.vectorFactory(
+			prism.CharType,
+			env.Block.NewTrunc(strlen, types.I32))
+
+		env.Block.NewCall(
+			env.getMemcpy(),
+			body, curString, strlen, constant.NewInt(types.I1, 0)) */
+
+	env.Block.NewCall(env.LLMonadicFunctions[env.EntryFunction.LLVMise()], i64(1))
+
+	env.Block.NewRet(i32(0))
 
 	return env
 }

@@ -8,6 +8,7 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
+// TODO fix this and use helpers
 func (env *Environment) compileInlineAppend(alpha prism.Value, omega prism.Value) value.Value {
 	vecT := alpha.Type.Realise()
 	elmT := alpha.Type.(prism.VectorType).Type.Realise()

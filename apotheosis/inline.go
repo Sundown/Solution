@@ -9,7 +9,7 @@ import (
 )
 
 func (env *Environment) compileInlineIota(val prism.Value) value.Value {
-	head, body := env.vectorFactory(val.Type, env.Block.NewTrunc(env.castInt(val), types.I32))
+	head := env.vectorFactory(val.Type, env.Block.NewTrunc(env.castInt(val), types.I32))
 
 	counterStore := env.new(i64(0))
 
@@ -19,24 +19,22 @@ func (env *Environment) compileInlineIota(val prism.Value) value.Value {
 
 	curCounter := loopblock.NewLoad(types.I64, counterStore)
 
-	ptr := loopblock.NewGetElementPtr(val.Type.Realise(), body, curCounter)
-
 	incr := loopblock.NewAdd(curCounter, i64(1))
 
-	loopblock.NewStore(incr, ptr)
+	env.writeElement(head, incr, curCounter)
 
 	loopblock.NewStore(incr, counterStore)
 
 	env.Block = env.newBlock(env.CurrentFunction)
 	loopblock.NewCondBr(loopblock.NewICmp(enum.IPredNE, incr, val.Value), loopblock, env.Block)
 
-	return head
+	return head.Value
 }
 
 func (env *Environment) compileInlineEnclose(val prism.Value) value.Value {
-	head, body := env.vectorFactory(val.Type, i32(1))
-	env.Block.NewStore(val.Value, env.Block.NewGetElementPtr(val.Type.Realise(), body, i32(0)))
-	return head
+	head := env.vectorFactory(val.Type, i32(1))
+	env.writeElement(head, val.Value, i32(0))
+	return head.Value
 }
 
 func (env *Environment) invokePrint(val prism.Value, end string) value.Value {

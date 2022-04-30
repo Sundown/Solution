@@ -46,6 +46,12 @@ func (a VectorType) IsAlgebraic() bool {
 }
 
 func (v VectorType) Realise() types.Type {
+	if IsVector(v.Type) {
+		return types.NewStruct(
+			types.I32, types.I32,
+			types.NewPointer(types.NewPointer(v.Type.Realise())))
+	}
+
 	return types.NewStruct(
 		types.I32, types.I32,
 		types.NewPointer(v.Type.Realise()))
