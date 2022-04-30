@@ -65,7 +65,7 @@ func (d DyadicFunction) Ident() Ident {
 }
 
 func (f DyadicFunction) LLVMise() string {
-	return f.Name.Package + "_" + f.Name.Name + "_" + f.AlphaType.String() + "_" + f.OmegaType.String() + "$" + f.Returns.String()
+	return f.Name.Package + "." + f.Name.Name + "_" + f.AlphaType.String() + "." + f.OmegaType.String() + "." + f.Returns.String()
 }
 
 func (f DyadicFunction) ShouldInline() bool {

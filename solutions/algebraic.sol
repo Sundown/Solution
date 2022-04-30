@@ -1,9 +1,6 @@
 @Package jan;
 
-Main Int → Void {
-	Println E 1;
-}
-
-E T → [T] {
-	← ⊂ ω;
+Main String → Int {
+	Println ω;
+	← 0;
 }

@@ -3,13 +3,12 @@ package apotheosis
 import (
 	"github.com/sundown/solution/prism"
 
-	"github.com/llir/llvm/ir"
 	"github.com/llir/llvm/ir/enum"
 	"github.com/llir/llvm/ir/types"
 	"github.com/llir/llvm/ir/value"
 )
 
-func (env *Environment) compileInlineMap(in prism.Callable, vec prism.Value) (head value.Value) {
+func (env *Environment) compileInlineMap(in prism.Callable, vec prism.Value) value.Value {
 	var retType prism.Type
 	if fn, ok := in.(prism.MonadicFunction); ok {
 		retType = fn.Type()
@@ -21,10 +20,10 @@ func (env *Environment) compileInlineMap(in prism.Callable, vec prism.Value) (he
 
 	writePred := retType.Kind() != prism.VoidType.ID
 	leng := env.readVectorLength(vec)
-	var body *ir.InstBitCast
 
+	var head prism.Value
 	if writePred {
-		head, body = env.vectorFactory(retType, leng)
+		head = env.vectorFactory(retType, leng)
 	}
 
 	counterStore := env.new(i32(0))
@@ -40,7 +39,7 @@ func (env *Environment) compileInlineMap(in prism.Callable, vec prism.Value) (he
 		Type:  vec.Type.(prism.VectorType).Type})
 
 	if writePred {
-		loopblock.NewStore(call, loopblock.NewGetElementPtr(retType.Realise(), body, curCounter))
+		env.writeElement(head, call, curCounter)
 	}
 
 	incr := loopblock.NewAdd(curCounter, i32(1))
@@ -50,5 +49,5 @@ func (env *Environment) compileInlineMap(in prism.Callable, vec prism.Value) (he
 	env.Block = env.newBlock(env.CurrentFunction)
 	loopblock.NewCondBr(loopblock.NewICmp(enum.IPredNE, incr, leng), loopblock, env.Block)
 
-	return
+	return head.Value
 }

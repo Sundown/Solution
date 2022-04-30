@@ -11,17 +11,37 @@ func (env *Environment) analysePrimeApplicable(app palisade.Applicable, lType, r
 		if lType == nil {
 			f := env.FetchMVerb(app.Verb)
 			if g, ok := f.OmegaType.(prism.Universal); ok && g.Has(rType) {
-				f.Name.Name = "GFI_(" + rType.String() + ")_" + f.Name.Name
+				f.Name.Name = rType.String() + "." + f.Name.Name
 				f.OmegaType = rType
 				if f.Returns.IsAlgebraic() {
 					f.Returns = f.Returns.Resolve(rType)
 				}
 			}
+
 			env.analyseMBody(&f)
 			env.MonadicFunctions[f.Name] = &f
 			function = f
 		} else {
-			function = env.FetchDVerb(app.Verb)
+			f := env.FetchDVerb(app.Verb)
+			if g, ok := f.OmegaType.(prism.Universal); ok && g.Has(rType) {
+				f.Name.Name = rType.String() + "." + f.Name.Name
+				f.OmegaType = rType
+				if f.Returns.IsAlgebraic() {
+					f.Returns = f.Returns.Resolve(rType)
+				}
+			}
+
+			if g, ok := f.AlphaType.(prism.Universal); ok && g.Has(rType) {
+				f.Name.Name = lType.String() + "." + f.Name.Name
+				f.AlphaType = lType
+				if f.Returns.IsAlgebraic() {
+					f.Returns = f.Returns.Resolve(lType)
+				}
+			}
+
+			env.analyseDBody(&f)
+			env.DyadicFunctions[f.Name] = &f
+			function = f
 		}
 	} else if app.Subexpr != nil {
 		// Monadic/dyadic cases are handled within train system

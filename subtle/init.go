@@ -86,7 +86,11 @@ func (env Environment) internFunction(f palisade.Function) {
 }
 
 func (env Environment) analyseDBody(f *prism.DyadicFunction) {
-	if f.Special || f.SkipBuilder {
+	if _, okr := f.OmegaType.(prism.Universal); okr || f.Special || f.SkipBuilder {
+		return
+	}
+
+	if _, okl := f.AlphaType.(prism.Universal); okl {
 		return
 	}
 

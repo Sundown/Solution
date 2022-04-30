@@ -28,7 +28,7 @@ func (env Environment) combineOf(in prism.Callable, a, b prism.Value) value.Valu
 
 	len := env.readVectorLength(a)
 
-	newvec, body := env.vectorFactory(retType, len)
+	newvec, body := env.dualVectorFactory(retType, len)
 
 	env.Block.NewCondBr(
 		env.Block.NewICmp(enum.IPredEQ, len, env.readVectorLength(b)),
@@ -42,12 +42,12 @@ func (env Environment) combineOf(in prism.Callable, a, b prism.Value) value.Valu
 		prism.Value{Value: env.unsafeReadVectorElement(a, lcount), Type: a.Type.(prism.VectorType).Type},
 		prism.Value{Value: env.unsafeReadVectorElement(b, lcount), Type: b.Type.(prism.VectorType).Type})
 
-	loopblock.NewStore(call, loopblock.NewGetElementPtr(retType.Realise(), body, lcount))
+	loopblock.NewStore(call, loopblock.NewGetElementPtr(retType.Realise(), body, lcount)) // TODO simplify this
 
 	loopblock.NewStore(loopblock.NewAdd(lcount, i32(1)), counter)
 
 	env.Block = env.newBlock(env.CurrentFunction)
 	loopblock.NewCondBr(loopblock.NewICmp(enum.IPredNE, lcount, len), loopblock, env.Block)
 
-	return env.writeVectorPointer(newvec, body, prism.VectorType{Type: retType}.Realise())
+	return newvec
 }
