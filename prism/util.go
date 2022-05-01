@@ -31,11 +31,13 @@ func Init(env *Environment) *Environment {
 		Error("No files input").Exit()
 	}
 	var other []string
-	os.Args = append(os.Args[:1], lo.Filter(os.Args, func(s string, i int) (p bool) {
-		p = s[0] == '-' || (i > 0 && os.Args[i-1][0] == '-')
-		other = append(other, s)
+	os.Args = append(os.Args[:1], lo.Filter(os.Args, func(s string, i int) bool {
+		if s[0] == '-' || (i > 0 && os.Args[i-1][0] == '-') {
+			return true
+		}
 
-		return
+		other = append(other, s)
+		return false
 	})...)
 
 	emitFormat := flag.String("emit", "exec", "Emit format")
