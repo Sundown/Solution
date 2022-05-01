@@ -28,8 +28,8 @@ type Environment struct {
 	//
 	EmitFormat   string
 	Output       string
-	Verbose      *bool
-	Optimisation *int64
+	Verbose      bool
+	Optimisation string
 	File         string
 	//
 	ApotheosisIter     int

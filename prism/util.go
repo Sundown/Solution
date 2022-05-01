@@ -3,6 +3,7 @@ package prism
 import (
 	"crypto/sha256"
 	"encoding/hex"
+	"flag"
 	"fmt"
 	"io/ioutil"
 	"os"
@@ -12,6 +13,8 @@ import (
 	"runtime"
 	"strconv"
 	"strings"
+
+	lo "github.com/samber/lo"
 )
 
 func IsConstant(e Expression) bool {
@@ -27,63 +30,35 @@ func Init(env *Environment) *Environment {
 	if len(os.Args) == 1 {
 		Error("No files input").Exit()
 	}
+	var other []string
+	os.Args = append(os.Args[:1], lo.Filter(os.Args, func(s string, i int) (p bool) {
+		p = s[0] == '-' || (i > 0 && os.Args[i-1][0] == '-')
+		other = append(other, s)
 
-	var err error
-	for i, s := range os.Args {
-		if s[0:2] == "--" {
-			switch s[2:] {
-			case "emit":
-				i++
-				if len(os.Args) > i {
-					switch os.Args[i] {
-					case "llvm", "asm", "purellvm":
-						env.EmitFormat = os.Args[i]
-					default:
-						Error("emit expected one of llvm, asm.").Exit()
-					}
+		return
+	})...)
 
-					Verbose("Emitting", env.EmitFormat)
-				} else {
-					Error("emit requires argument").Exit()
-				}
+	emitFormat := flag.String("emit", "exec", "Emit format")
+	optimisationLevel := flag.String("opt", "fast", "Optimisation level")
+	flag.BoolVar(&env.Verbose, "verbose", false, "Verbose")
 
-			case "o":
-				if len(os.Args) > i+1 {
-					i++
-					env.Output = os.Args[i]
-				} else {
-					Error("output expected filename").Exit()
-				}
-			case "verbose":
-				quietP = false
-			case "O":
-				i++
-				if len(os.Args) > i {
-					switch os.Args[i] {
-					case "0", "1", "2", "3":
-						l, err := strconv.ParseInt(os.Args[i], 10, 32)
-						if err != nil {
-							Error("optimisation expected integer (0, 1, 3) or \"fast\"").Exit()
-						}
+	flag.Parse()
 
-						env.Optimisation = &l
+	switch *emitFormat {
+	case "purellvm", "llvm", "asm", "exec":
+		env.EmitFormat = *emitFormat
+	}
 
-					case "fast":
-						l := int64(4)
-						env.Optimisation = &l
-					}
-				} else {
-					Error("optimisation expected level").Exit()
-				}
-			}
+	switch *optimisationLevel {
+	case "0", "1", "2", "3", "fast":
+		env.Optimisation = *optimisationLevel
+	}
 
-		} else {
-			env.File, err = filepath.Abs(os.Args[1])
-			if err != nil {
-				Error("Trying to use " + os.Args[1] + " as input file, not found.").Exit()
-			}
-
-		}
+	f, err := filepath.Abs(other[1])
+	if err != nil {
+		Error("Trying to use " + os.Args[1] + " as input file, not found.").Exit()
+	} else {
+		env.File = f
 	}
 
 	return env
@@ -92,7 +67,7 @@ func Init(env *Environment) *Environment {
 func Emit(env *Environment) {
 	out := []byte((*env.Module).String())
 
-	var sum [32]byte = sha256.Sum256(out)
+	var sum [32]byte = sha256.Sum256(out) // collision perhaps, error even?
 	temp_name := env.Output + "_" + hex.EncodeToString(sum[:]) + ".ll"
 
 	if env.EmitFormat == "purellvm" {
@@ -105,12 +80,7 @@ func Emit(env *Environment) {
 
 	VerifyClangVersion()
 
-	opt := "-Ofast" // TODO change to fast once trap bug fixed
-	if env.Optimisation != nil {
-		f := strconv.FormatInt(*env.Optimisation, 10)
-		Verbose("Optimisation level", f)
-		opt = "-O" + f
-	}
+	Verbose("Optimisation level", env.Optimisation)
 
 	sp := ""
 	lp := ""
@@ -132,13 +102,9 @@ func Emit(env *Environment) {
 		lp = "-emit-llvm"
 		str = "LLVM"
 		ext = ".ll"
-	} else if env.EmitFormat == "asm" {
-		sp = "-S"
-		str = "Assembly"
-		ext = ".s"
 	}
 
-	err := exec.Command("clang", temp_name, opt, sp, lp, "-o", env.Output+ext).Run()
+	err := exec.Command("clang", temp_name, "-O"+env.Optimisation, sp, lp, "-o", env.Output+ext).Run()
 	exec.Command("rm", "-f", temp_name).Run()
 	if err != nil {
 		Error(err.Error()).Exit()
@@ -163,6 +129,7 @@ func PilotEmit(env *Environment) (string, bool) {
 
 	res, err := exec.Command("./" + env.Output).Output()
 	exec.Command("rm", "-f", temp_name, env.Output).Run()
+
 	if err != nil {
 		return err.Error(), false
 	} else {
