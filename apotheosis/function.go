@@ -77,12 +77,10 @@ func (env *Environment) compileMonadicFunction(fn prism.MonadicFunction) *ir.Fun
 
 // Complex types decay to pointers, atomic types do not
 func toReturn(t prism.Type) (typ types.Type) {
-	if t.Kind() == prism.VoidType.ID {
-		typ = types.Void
-	} else if _, ok := t.(prism.AtomicType); !ok {
+	typ = t.Realise()
+
+	if prism.IsVector(t) {
 		typ = types.NewPointer(t.Realise())
-	} else {
-		typ = t.Realise()
 	}
 
 	return typ

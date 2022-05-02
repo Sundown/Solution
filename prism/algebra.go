@@ -1,6 +1,6 @@
 package prism
 
-/* This is perfect in every single way */
+// I have no clue what this does
 func Delegate(mould, cast *Type) (determined Type, failure *string) {
 	if mould == nil {
 		return nil, Ref("mould is nil")

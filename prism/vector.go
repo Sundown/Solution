@@ -45,13 +45,12 @@ func (a VectorType) IsAlgebraic() bool {
 	return a.Type.IsAlgebraic()
 }
 
-func (v VectorType) Realise() types.Type {
-	if IsVector(v.Type) {
-		return types.NewStruct(
-			types.I32, types.I32,
-			types.NewPointer(types.NewPointer(v.Type.Realise())))
-	}
+// Vec shorthand
+func Vec(t Type) Type {
+	return VectorType{Type: t}
+}
 
+func (v VectorType) Realise() types.Type {
 	return types.NewStruct(
 		types.I32, types.I32,
 		types.NewPointer(v.Type.Realise()))

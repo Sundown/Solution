@@ -51,6 +51,7 @@ func (env *Environment) getPutchar() *ir.Func {
 	return env.Specials["putchar"]
 }
 
+// memcpy(i8* dest, i8* src, i64 len, i1 is_volatile)
 func (env *Environment) getMemcpy() *ir.Func {
 	if env.Specials["memcpy"] == nil {
 		env.Specials["memcpy"] = env.Module.NewFunc(
@@ -63,6 +64,19 @@ func (env *Environment) getMemcpy() *ir.Func {
 	}
 
 	return env.Specials["memcpy"]
+}
+
+// realloc(i8* dest, i64 len)
+func (env *Environment) getRealloc() *ir.Func {
+	if env.Specials["realloc"] == nil {
+		env.Specials["realloc"] = env.Module.NewFunc(
+			"realloc",
+			types.Void,
+			ir.NewParam("mem", types.I8Ptr),
+			ir.NewParam("len", types.I64))
+	}
+
+	return env.Specials["realloc"]
 }
 
 func (env *Environment) getExit() *ir.Func {

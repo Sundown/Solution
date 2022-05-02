@@ -66,53 +66,51 @@ func Init(env *Environment) *Environment {
 	return env
 }
 
+// Emit observes emit specifier and writes LLVM IR to file and invokes Clang
+// Will exit.
 func Emit(env *Environment) {
 	out := []byte((*env.Module).String())
-
-	var sum [32]byte = sha256.Sum256(out) // collision perhaps, error even?
-	temp_name := env.Output + "_" + hex.EncodeToString(sum[:]) + ".ll"
 
 	if env.EmitFormat == "purellvm" {
 		ioutil.WriteFile(env.Output+".ll", out, 0644)
 		Notify("compiled", env.Output, "to LLVM").Exit()
-	} else {
-		Verbose("Temp file", temp_name)
-		ioutil.WriteFile(temp_name, out, 0644)
 	}
+
+	var sum [32]byte = sha256.Sum256(out) // collision perhaps, error even?
+	temp_name := env.Output + "_" + hex.EncodeToString(sum[:]) + ".ll"
+
+	Verbose("Temp file", temp_name)
+	ioutil.WriteFile(temp_name, out, 0644)
 
 	VerifyClangVersion()
 
 	Verbose("Optimisation level", env.Optimisation)
 
-	sp := ""
-	lp := ""
-	str := "executable"
-	ext := ""
+	var str string
+	var args []string
 
-	if env.EmitFormat == "asm" {
-		err := exec.Command("clang", temp_name, "-o", env.Output+".s", "-S").Run()
-		exec.Command("rm", "-f", temp_name).Run()
-		if err != nil {
-			Error(err.Error()).Exit()
-		}
-
-		Notify("compiled", env.Output, "to Assembly").Exit()
+	switch env.EmitFormat {
+	case "asm":
+		str = "Assembly"
+		args = []string{"-S", "-o", env.Output + ".s"}
+	case "llvm":
+		str = "LLVM IR"
+		args = []string{"-S", "-emit-llvm", "-o", env.Output + ".ll"}
+	case "exec":
+		str = "Executable"
+		args = []string{"-o", env.Output}
 	}
 
-	if env.EmitFormat == "llvm" {
-		sp = "-S"
-		lp = "-emit-llvm"
-		str = "LLVM"
-		ext = ".ll"
-	}
+	err := exec.Command("clang", append(args, temp_name, "-O"+env.Optimisation)...).Run()
 
-	err := exec.Command("clang", temp_name, "-O"+env.Optimisation, sp, lp, "-o", env.Output+ext).Run()
 	exec.Command("rm", "-f", temp_name).Run()
+
 	if err != nil {
+		Error("Clang returned non-zero exit code")
 		Error(err.Error()).Exit()
-	} else {
-		Notify("compiled", env.Output, "to", str)
 	}
+
+	Notify("compiled", env.Output, "to", str).Exit()
 }
 
 func PilotEmit(env *Environment) (string, bool) {
@@ -138,14 +136,6 @@ func PilotEmit(env *Environment) (string, bool) {
 		return string(res), true
 	}
 
-}
-
-type Runtime struct {
-	EmitFormat   string
-	Output       string
-	Verbose      *bool
-	Optimisation *int64
-	File         string
 }
 
 // VerifyClangVersion ensures Clang is installed and at least v12
