@@ -42,6 +42,7 @@ func (env *Environment) apply(c prism.Callable, params ...prism.Value) value.Val
 		if prism.IsVector(params[0].Type) && prism.IsVector(params[1].Type) && !c.NoAutoVector() {
 			return env.combineOf(fn, params[0], params[1])
 		}
+
 		return fn.DCallable(params[0], params[1])
 	case prism.MonadicCallable:
 		if prism.IsVector(params[0].Type) && !fn.NoAutoVector() {

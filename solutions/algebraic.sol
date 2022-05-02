@@ -1,6 +1,6 @@
 @Package jan;
 
-Main String → Int {
-	Println ω;
+Main Int → Int {
+	Println ,/"a" "b" "c" "1";
 	← 0;
 }

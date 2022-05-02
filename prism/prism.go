@@ -11,6 +11,10 @@ type Value struct {
 	Type  Type
 }
 
+func Val(v value.Value, t Type) Value {
+	return Value{Value: v, Type: t}
+}
+
 type Expression interface {
 	Type() Type
 	String() string
