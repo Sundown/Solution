@@ -1,6 +1,5 @@
 @Package jan;
 
-Main Int → Int {
-	Println ,/"a" "b" "c" "1";
-	← 0;
+Main Int → Void {
+	Println +/1 2 3 4;
 }
