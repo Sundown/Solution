@@ -9,53 +9,89 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
+// TODO:
+// Consider binary/ternary system for reducing, only checking n every so many iterations.
+// Create different blocks to handle 1, 2, or 3 operations at a time, branching probably
+// makes this slow even with Clang vectorisation
+
+/* Code roughly represents
+T Reduce(F, A) {
+	T accum = A[-1]
+	if len(A) == 1 {
+		return accum
+	}
+
+	for i := len(A) - 2; i != 0; i-- {
+		accum = F(accum, A[i])
+	}
+
+	return accum
+}*/
+
+// FoldR
 func (env *Environment) compileInlineReduce(fn prism.DyadicFunction, vec prism.Value) value.Value {
 	vectyp := vec.Type.(prism.VectorType).Type
 
 	len := env.readVectorLength(vec)
-	counter := env.new(env.Block.NewSub(len, i32(2)))
+	storeCounter := env.new(env.Block.NewSub(len, i32(2)))
 
-	accum := env.Block.NewBitCast(value.Value(env.Block.NewCall(env.getCalloc(), i32(1), i32(vectyp.Width()))), types.NewPointer(vectyp.Realise()))
+	// Alloc memory for accum, bitcast to ptr of vector element type
+	accum := env.Block.NewBitCast(
+		value.Value(env.Block.NewCall(env.getCalloc(), i32(1), i32(vectyp.Width()))),
+		types.NewPointer(vectyp.Realise()))
 
+	// Load the last element of vector
 	e := env.unsafeReadVectorElement(vec, env.Block.NewSub(len, i32(1)))
 	if prism.IsVector(vectyp) {
+		// Memcpy if subtype is vector
 		e = env.Block.NewBitCast(e, types.I8Ptr)
-		env.Block.NewCall(env.getMemcpy(), env.Block.NewBitCast(accum, types.I8Ptr), env.Block.NewBitCast(e, types.I8Ptr), i64(vectyp.Width()), constant.NewBool(false))
+		env.Block.NewCall(
+			env.getMemcpy(),
+			env.Block.NewBitCast(accum, types.I8Ptr),
+			env.Block.NewBitCast(e, types.I8Ptr),
+			i64(vectyp.Width()),
+			constant.NewBool(false))
 	} else {
+		// Store if not
 		env.Block.NewStore(e, env.Block.NewBitCast(accum, types.NewPointer(vectyp.Realise())))
 	}
 
-	// TODO urgent: add check for short vectors
-
 	loopblock := env.newBlock(env.CurrentFunction)
 	exitblock := env.newBlock(env.CurrentFunction)
-	env.Block.NewBr(loopblock)
+
+	// Return immediately if only one element in vector
+	env.Block.NewCondBr(env.Block.NewICmp(enum.IPredEQ, len, i32(1)), exitblock, loopblock)
+
 	env.Block = loopblock
 
-	lcount := loopblock.NewLoad(types.I32, counter)
+	curCounter := loopblock.NewLoad(types.I32, storeCounter)
 
+	// Same idea as accum setup, memcpy if subtype is vector, otherwise store
 	if prism.IsVector(vectyp) {
 		env.Block.NewCall(
 			env.getMemcpy(),
 			env.Block.NewBitCast(accum, types.I8Ptr),
 			env.Block.NewBitCast(env.apply(fn,
-				prism.Value{Value: env.unsafeReadVectorElement(vec, lcount), Type: vectyp},
+				prism.Val(env.unsafeReadVectorElement(vec, curCounter), vectyp),
 				prism.Val(accum, vectyp)), types.I8Ptr),
 			i64(vectyp.Width()), constant.NewBool(false))
 	} else {
 		env.Block.NewStore(
 			env.apply(fn,
-				prism.Value{Value: env.unsafeReadVectorElement(vec, lcount), Type: vectyp},
+				prism.Val(env.unsafeReadVectorElement(vec, curCounter), vectyp),
 				prism.Val(env.Block.NewLoad(vectyp.Realise(), accum), vectyp)),
 			env.Block.NewBitCast(accum, types.NewPointer(vectyp.Realise())))
 	}
 
-	env.Block.NewStore(env.Block.NewSub(lcount, i32(1)), counter)
+	// i--
+	env.Block.NewStore(env.Block.NewSub(curCounter, i32(1)), storeCounter)
 
-	env.Block.NewCondBr(env.Block.NewICmp(enum.IPredNE, lcount, i32(0)), loopblock, exitblock)
+	// if i != 0 { goto loop } else { goto exit }
+	env.Block.NewCondBr(env.Block.NewICmp(enum.IPredNE, curCounter, i32(0)), loopblock, exitblock)
 
 	env.Block = exitblock
 
+	// Vectors are always returned as pointers
 	if prism.IsVector(vectyp) {
 		return accum
 	}
