@@ -40,6 +40,7 @@ func (env *Environment) getPowReal() *ir.Func {
 
 	return env.Specials["powf"]
 }
+
 func (env *Environment) getPutchar() *ir.Func {
 	if env.Specials["putchar"] == nil {
 		env.Specials["putchar"] = env.Module.NewFunc(

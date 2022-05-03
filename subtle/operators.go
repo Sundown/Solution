@@ -22,11 +22,16 @@ func (env *Environment) createMapOperator(function prism.MonadicFunction, rType 
 		function.Returns = function.Returns.Resolve(function.OmegaType)
 	}
 
+	retType := prism.Type(prism.VectorType{Type: function.Type()})
+	if retType.(prism.VectorType).SubIsVoid() {
+		retType = prism.VoidType
+	}
+
 	return prism.MonadicOperator{
 		Operator: prism.KindMapOperator,
 		Fn:       function,
 		ExprType: prism.VectorType{Type: rType},
-		Returns:  function.Type(),
+		Returns:  retType,
 	}
 }
 

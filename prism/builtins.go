@@ -133,7 +133,7 @@ func (env Environment) InternBuiltins() {
 	env.Intern(DyadicFunction{
 		Special:            true,
 		disallowAutoVector: false,
-		Name:               Ident{Package: "_", Name: "Max"},
+		Name:               Ident{Package: "_", Name: "⌈"},
 		AlphaType:          Numeric,
 		OmegaType:          Numeric,
 		Returns:            Numeric,
@@ -160,7 +160,7 @@ func (env Environment) InternBuiltins() {
 	env.Intern(MonadicFunction{
 		Special:            true,
 		disallowAutoVector: false,
-		Name:               Ident{Package: "_", Name: "Max"},
+		Name:               Ident{Package: "_", Name: "⌈"},
 		OmegaType:          Numeric,
 		Returns:            Numeric,
 	})
@@ -168,7 +168,7 @@ func (env Environment) InternBuiltins() {
 	env.Intern(DyadicFunction{
 		Special:            true,
 		disallowAutoVector: false,
-		Name:               Ident{Package: "_", Name: "Min"},
+		Name:               Ident{Package: "_", Name: "⌊"},
 		AlphaType:          Numeric,
 		OmegaType:          Numeric,
 		Returns:            Numeric,
@@ -177,7 +177,7 @@ func (env Environment) InternBuiltins() {
 	env.Intern(MonadicFunction{
 		Special:            true,
 		disallowAutoVector: false,
-		Name:               Ident{Package: "_", Name: "Min"},
+		Name:               Ident{Package: "_", Name: "⌊"},
 		OmegaType:          Numeric,
 		Returns:            Numeric,
 	})

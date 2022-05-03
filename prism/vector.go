@@ -50,7 +50,15 @@ func Vec(t Type) Type {
 	return VectorType{Type: t}
 }
 
+func (v VectorType) SubIsVoid() bool {
+	return v.Type.Kind() == VoidType.ID
+}
+
 func (v VectorType) Realise() types.Type {
+	if v.SubIsVoid() {
+		return types.Void
+	} // TODO this might be silly
+
 	return types.NewStruct(
 		types.I32, types.I32,
 		types.NewPointer(v.Type.Realise()))

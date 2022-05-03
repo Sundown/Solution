@@ -20,7 +20,7 @@ func (env Environment) combineOf(in prism.Callable, a, b prism.Value) value.Valu
 	loopblock := env.newBlock(env.CurrentFunction)
 	panicblock := env.newBlock(env.CurrentFunction)
 
-	env.compilePanic(panicblock, "Combination: vector range mismatch\x0A\x00") // "...\n\0"
+	env.compilePanic(panicblock, "Combination: vector cardinality not equal\x0A\x00")
 	panicblock.NewUnreachable()
 
 	counter := env.Block.NewAlloca(types.I32)
@@ -28,26 +28,25 @@ func (env Environment) combineOf(in prism.Callable, a, b prism.Value) value.Valu
 
 	len := env.readVectorLength(a)
 
-	newvec, body := env.dualVectorFactory(retType, len)
+	newvec := env.vectorFactory(retType, len)
 
 	env.Block.NewCondBr(
 		env.Block.NewICmp(enum.IPredEQ, len, env.readVectorLength(b)),
-		loopblock,
-		panicblock)
+		loopblock, panicblock)
 
 	env.Block = loopblock
 
 	lcount := loopblock.NewLoad(types.I32, counter)
 	call := env.apply(in,
-		prism.Value{Value: env.unsafeReadVectorElement(a, lcount), Type: a.Type.(prism.VectorType).Type},
-		prism.Value{Value: env.unsafeReadVectorElement(b, lcount), Type: b.Type.(prism.VectorType).Type})
+		prism.Val(env.unsafeReadVectorElement(a, lcount), a.Type.(prism.VectorType).Type),
+		prism.Val(env.unsafeReadVectorElement(b, lcount), b.Type.(prism.VectorType).Type))
 
-	loopblock.NewStore(call, loopblock.NewGetElementPtr(retType.Realise(), body, lcount)) // TODO simplify this
+	env.writeElement(newvec, call, lcount)
 
 	loopblock.NewStore(loopblock.NewAdd(lcount, i32(1)), counter)
 
 	env.Block = env.newBlock(env.CurrentFunction)
 	loopblock.NewCondBr(loopblock.NewICmp(enum.IPredNE, lcount, len), loopblock, env.Block)
 
-	return newvec
+	return newvec.Value
 }

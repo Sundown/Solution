@@ -147,7 +147,7 @@ func (env *Environment) vectorCast(caster prism.MCallable, vec prism.Value, to p
 
 	env.Block = exitblock
 
-	env.writeVectorPointer(prism.Value{head, irToHeadType}, body)
+	env.writeVectorPointer(prism.Val(head, irToHeadType), body)
 
 	return head
 }
