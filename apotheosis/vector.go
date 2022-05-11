@@ -31,7 +31,8 @@ func (env *Environment) compileVector(vector prism.Vector) value.Value {
 	env.writeVectorLength(head, leng, headType)
 	env.writeVectorCapacity(head, cap, headType)
 
-	isConstant := !lo.ContainsBy(*vector.Body, prism.IsConstant)
+	// TODO recent change here seems like it could be wrong, was negated
+	isConstant := lo.ContainsBy(*vector.Body, prism.IsConstant)
 
 	body := env.buildVectorBody(elmType, cap, vector.Type().(prism.VectorType).Width())
 

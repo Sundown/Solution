@@ -30,8 +30,10 @@ func (env Environment) combineOf(in prism.Callable, a, b prism.Value) value.Valu
 
 	newvec := env.vectorFactory(retType, len)
 
+	blen := env.readVectorLength(b)
+
 	env.Block.NewCondBr(
-		env.Block.NewICmp(enum.IPredEQ, len, env.readVectorLength(b)),
+		env.Block.NewICmp(enum.IPredEQ, len, blen),
 		loopblock, panicblock)
 
 	env.Block = loopblock

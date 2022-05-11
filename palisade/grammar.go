@@ -29,6 +29,7 @@ type Applicable struct {
 	Operator *Operator   `parser:"@@?"`
 }
 
+// TODO allow 1 2 omega 3 ...
 type Morpheme struct {
 	Char   *[]string  `parser:"@Char+"`
 	Alpha  *[]string  `parser:"| @Alpha+"`

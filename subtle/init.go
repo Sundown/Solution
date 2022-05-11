@@ -94,11 +94,18 @@ func (env Environment) analyseDBody(f *prism.DyadicFunction) {
 		return
 	}
 
+	t := env.CurrentFunctionIR
 	env.CurrentFunctionIR = *f
 
-	for _, expr := range *f.PreBody {
-		f.Body = append(f.Body, env.analyseExpression(&expr))
+	if len(f.Body) == 0 {
+		for _, expr := range *f.PreBody {
+			f.Body = append(f.Body, env.analyseExpression(&expr))
+		}
+	} else {
+		panic("Body already filled somehow")
 	}
+
+	env.CurrentFunctionIR = t
 }
 
 func (env Environment) analyseMBody(f *prism.MonadicFunction) {
@@ -115,7 +122,7 @@ func (env Environment) analyseMBody(f *prism.MonadicFunction) {
 		}
 	}
 
-	env.CurrentFunctionIR = t // TODO might be wrong/useless
+	env.CurrentFunctionIR = t
 }
 
 func (env Environment) analyseExpression(e *palisade.Expression) prism.Expression {
