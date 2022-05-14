@@ -57,7 +57,7 @@ func (v VectorType) SubIsVoid() bool {
 func (v VectorType) Realise() types.Type {
 	if v.SubIsVoid() {
 		return types.Void
-	} // TODO this might be silly
+	}
 
 	return types.NewStruct(
 		types.I32, types.I32,

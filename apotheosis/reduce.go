@@ -16,19 +16,18 @@ import (
 
 /* Code roughly represents
 T Reduce(F, A) {
-	T accum = A[-1]
+	T accum = A[-1] // last element
 	if len(A) == 1 {
 		return accum
 	}
 
-	for i := len(A) - 2; i != 0; i-- {
+	for i := len(A) - 2; i != 0; i-- { // step through backwards
 		accum = F(accum, A[i])
-	}
+ 	}
 
 	return accum
 }*/
 
-// FoldR
 func (env *Environment) compileInlineReduce(fn prism.DyadicFunction, vec prism.Value) value.Value {
 	vectyp := vec.Type.(prism.VectorType).Type
 

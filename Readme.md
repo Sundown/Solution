@@ -42,5 +42,3 @@ Solution is a compiler for an array-oriented language, providing the cognition o
 ### 🏷 Name
 
 Programming languages are sometimes thought of as tools for solving problems, however, it appears more accurate to say programming languages are a way of describing a problem to a compiler, which will produce a tool to solve your problem, or put simply: a **Solution**. This parlance is also used in the Navy when computers calculate the launching/firing vector of a projectile weapon, the result is called a *firing solution*.
-
-<p align="center"><img width="10%" src="https://raw.githubusercontent.com/Sundown/Soldoc/master/So.svg?sanitize=true"/></p>
