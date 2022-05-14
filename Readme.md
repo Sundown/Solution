@@ -1,7 +1,8 @@
 <h2 align="center"> Solution</h2>
 <p align="center">
-Solution is a compiler for an array-oriented language, providing the cognition of APL in an accessible, compiled, and open-source platform. The Solution Language is inspired by the work of Kenneth Iverson and Dyalog.
+Solution is a compiler for an array-oriented language, providing the cognition of APL in an accessible, compiled, and open-source platform. The Solution Language is inspired by the work of Kenneth Iverson.
 </p>
+
 
 <p align="center">
   <a href="https://github.com/Sundown/Solution/blob/master/go.mod">
@@ -17,7 +18,6 @@ Solution is a compiler for an array-oriented language, providing the cognition o
 </p>
 
 
-
 ---
 ### 🔍 Why?
 
@@ -29,16 +29,6 @@ Solution is a compiler for an array-oriented language, providing the cognition o
 
 **Features**: in a short time, Solution will operate correctly with all syntactic features: this includes but is not limited to packages, namespaces, compiler directives, and operators (functions that receive functions). This does not mean the language is complete, simply that future features will extend rather than change the language.
 
-**CUDA**: alongside the implementation of functions and algorithms, compilation options targetting NVIDIA GPUs will be made available. At present this is possible, however, a significant amount of work is needed to make it an easy process.
+**CUDA**: ability to emit LLVM which can be compiled for NVIDIA GPUs will be added once the lanauge is stable.
 
-**Currently**: at present, the language is unable to provide a Solution to many problems, apart from taking up a lot of spare time...
-
-### 📦 Distribution
-
-- **Packaging**: no efforts will be made to package Solution in the near future. Currently, `git clone https://github.com/Sundown/Solution` and `go build` do the job.
-
-- **Libraries**: if this project matures to the state of requiring a package manager, git will do the hard work similar to Go's package manager.
-
-### 🏷 Name
-
-Programming languages are sometimes thought of as tools for solving problems, however, it appears more accurate to say programming languages are a way of describing a problem to a compiler, which will produce a tool to solve your problem, or put simply: a **Solution**. This parlance is also used in the Navy when computers calculate the launching/firing vector of a projectile weapon, the result is called a *firing solution*.
+**Currently**: the compiler isn't doing much, apart from taking up a lot of my spare time...
