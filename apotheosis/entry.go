@@ -1,5 +1,6 @@
 package apotheosis
 
+// TODO use official LLVM bindings
 import (
 	"github.com/sundown/solution/prism"
 
