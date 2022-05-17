@@ -1,8 +1,7 @@
 @Package jan;
 
-Main Int → Void {
-	Println 6 9 a 19 84;
-	Println "##" a "%'";
+jan::Main Int → Void {
+	Println 1 a 2;
 }
 
 a ← α + ω;

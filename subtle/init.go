@@ -47,7 +47,7 @@ func Parse(penv *prism.Environment) *prism.Environment {
 
 	if fn, ok := env.MonadicFunctions[prism.Ident{Package: "_", Name: tempEntry}]; ok {
 		env.EntryFunction = *fn
-	} else if fn, ok := env.MonadicFunctions[prism.Ident{Package: "_", Name: "Main"}]; ok {
+	} else if fn, ok := env.MonadicFunctions[prism.Ident{Package: env.Output, Name: "Main"}]; ok {
 		env.EntryFunction = *fn
 	} else {
 		prism.Panic("No entry function found")
@@ -65,11 +65,11 @@ func (env Environment) internFunction(f palisade.Function) {
 	if p := f.TypedFunction; p != nil {
 		if p.Dyadic != nil {
 			dyadic = true
-			ident = prism.Intern(*p.Dyadic.Ident)
+			ident = env.AwareIntern(*p.Dyadic.Ident)
 			alpha = env.SubstantiateType(*p.Dyadic.Alpha)
 			omega = env.SubstantiateType(*p.Dyadic.Omega)
 		} else if p.Monadic != nil {
-			ident = prism.Intern(*p.Monadic.Ident)
+			ident = env.AwareIntern(*p.Monadic.Ident)
 			omega = env.SubstantiateType(*p.Monadic.Omega)
 		}
 
@@ -79,7 +79,7 @@ func (env Environment) internFunction(f palisade.Function) {
 		alpha = prism.Universal{}
 		omega = prism.Universal{}
 		sigma = prism.Universal{}
-		ident = prism.Intern(*p.Ident)
+		ident = env.AwareIntern(*p.Ident)
 	}
 
 	if f.Tacit != nil {

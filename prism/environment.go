@@ -91,11 +91,17 @@ func (e *Environment) Iterate() int {
 }
 
 func (env Environment) FetchDVerb(v *palisade.Ident) DyadicFunction {
-	if found, ok := env.DyadicFunctions[Intern(*v)]; ok {
+	if found, ok := env.DyadicFunctions[env.AwareIntern(*v)]; ok {
 		return *found
 	}
 
-	if _, ok := env.MonadicFunctions[Intern(*v)]; ok {
+	if v.Namespace == nil {
+		if found, ok := env.DyadicFunctions[Intern(*v)]; ok {
+			return *found
+		}
+	}
+
+	if _, ok := env.MonadicFunctions[env.AwareIntern(*v)]; ok {
 		Panic("Dyadic verb " + *v.Ident + " not found, but monadic verb exists of same name")
 	}
 
@@ -104,11 +110,17 @@ func (env Environment) FetchDVerb(v *palisade.Ident) DyadicFunction {
 }
 
 func (env Environment) FetchMVerb(v *palisade.Ident) MonadicFunction {
-	if found, ok := env.MonadicFunctions[Intern(*v)]; ok {
+	if found, ok := env.MonadicFunctions[env.AwareIntern(*v)]; ok {
 		return *found
 	}
 
-	if _, ok := env.DyadicFunctions[Intern(*v)]; ok {
+	if v.Namespace == nil {
+		if found, ok := env.MonadicFunctions[Intern(*v)]; ok {
+			return *found
+		}
+	}
+
+	if _, ok := env.DyadicFunctions[env.AwareIntern(*v)]; ok {
 		Panic("Monadic verb " + *v.Ident + " not found, but dyadic verb exists of same name")
 	}
 
@@ -117,9 +129,9 @@ func (env Environment) FetchMVerb(v *palisade.Ident) MonadicFunction {
 }
 
 func (env Environment) FetchVerb(v *palisade.Ident) Expression {
-	if found, ok := env.MonadicFunctions[Intern(*v)]; ok {
+	if found, ok := env.MonadicFunctions[env.AwareIntern(*v)]; ok {
 		return *found
-	} else if found, ok := env.DyadicFunctions[Intern(*v)]; ok {
+	} else if found, ok := env.DyadicFunctions[env.AwareIntern(*v)]; ok {
 		return *found
 	}
 
