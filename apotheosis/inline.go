@@ -8,7 +8,7 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-func (env *Environment) compileInlineIota(val prism.Value) value.Value {
+func (env *Environment) newInlineIota(val prism.Value) value.Value {
 	head := env.vectorFactory(val.Type, env.Block.NewTrunc(env.castInt(val), types.I32))
 
 	counterStore := env.new(i64(0))
@@ -31,7 +31,7 @@ func (env *Environment) compileInlineIota(val prism.Value) value.Value {
 	return head.Value
 }
 
-func (env *Environment) compileInlineEnclose(val prism.Value) value.Value {
+func (env *Environment) newInlineEnclose(val prism.Value) value.Value {
 	head := env.vectorFactory(val.Type, i32(1))
 	env.writeElement(head, val.Value, i32(0))
 	return head.Value
@@ -50,7 +50,7 @@ func (env *Environment) invokePrint(val prism.Value, end string) value.Value {
 
 	// TODO extend this once matrices work so it is recursive
 	if prism.IsVector(val.Type) {
-		env.compileInlineMap(prism.MakeMC(env.compileInlinePrintSpace, true), val)
+		env.newInlineMap(prism.MakeMC(env.newInlinePrintSpace, true), val)
 
 		if end == "\x0A" {
 			return env.Block.NewCall(env.getPutchar(), i32(0x0A)) // newline
@@ -67,31 +67,31 @@ func (env *Environment) invokePrint(val prism.Value, end string) value.Value {
 		val.Value)
 }
 
-func (env *Environment) compileInlineTally(val prism.Value) value.Value {
+func (env *Environment) newInlineTally(val prism.Value) value.Value {
 	return env.Block.NewSExt(env.readVectorLength(val), types.I64)
 }
 
-func (env *Environment) compileInlineCapacity(val prism.Value) value.Value {
+func (env *Environment) newInlineCapacity(val prism.Value) value.Value {
 	return env.Block.NewSExt(env.readVectorCapacity(val), types.I64)
 }
 
-func (env *Environment) compileInlinePrintSpace(val prism.Value) value.Value {
+func (env *Environment) newInlinePrintSpace(val prism.Value) value.Value {
 	return env.invokePrint(val, "\x20")
 }
 
-func (env *Environment) compileInlinePrintln(val prism.Value) value.Value {
+func (env *Environment) newInlinePrintln(val prism.Value) value.Value {
 	return env.invokePrint(val, "\x0A")
 }
 
-func (env *Environment) compileInlinePrint(val prism.Value) value.Value {
+func (env *Environment) newInlinePrint(val prism.Value) value.Value {
 	return env.invokePrint(val, "")
 }
 
-func (env *Environment) compileInlineIndex(left, right prism.Value) value.Value {
+func (env *Environment) newInlineIndex(left, right prism.Value) value.Value {
 	return env.readVectorElement(right, env.Block.NewTrunc(env.Block.NewSub(left.Value, i64(1)), types.I32))
 }
 
-func (env *Environment) compileInlinePanic(val prism.Value) value.Value {
+func (env *Environment) newInlinePanic(val prism.Value) value.Value {
 	env.Block.NewCall(env.getExit(), env.Block.NewTrunc(val.Value, types.I32))
 	env.Block.NewUnreachable()
 	return nil

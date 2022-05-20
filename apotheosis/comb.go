@@ -20,7 +20,7 @@ func (env Environment) combineOf(in prism.Callable, a, b prism.Value) value.Valu
 	loopblock := env.newBlock(env.CurrentFunction)
 	panicblock := env.newBlock(env.CurrentFunction)
 
-	env.compilePanic(panicblock, "Combination: vector cardinality not equal\x0A\x00")
+	env.newPanic(panicblock, "Combination: vector cardinality not equal\x0A\x00")
 	panicblock.NewUnreachable()
 
 	counter := env.Block.NewAlloca(types.I32)

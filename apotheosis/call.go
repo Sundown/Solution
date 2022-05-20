@@ -5,36 +5,36 @@ import (
 	"github.com/sundown/solution/prism"
 )
 
-func (env *Environment) compileMonadicApplication(app *prism.MonadicApplication) value.Value {
+func (env *Environment) newMonadicApplication(app *prism.MonadicApplication) value.Value {
 	if name := app.Operator.Ident().Name; name == "←" {
-		env.Block.NewRet(env.compileExpression(&app.Operand))
+		env.Block.NewRet(env.newExpression(&app.Operand))
 		return nil
 	} else if fn := env.FetchMonadicCallable(name); fn != nil {
 		return env.apply(fn, prism.Value{
-			Value: env.compileExpression(&app.Operand),
+			Value: env.newExpression(&app.Operand),
 			Type:  app.Operand.Type()})
 	}
 
 	return env.Block.NewCall(
 		env.LLMonadicFunctions[app.Operator.LLVMise()],
-		env.compileExpression(&app.Operand))
+		env.newExpression(&app.Operand))
 
 }
 
-func (env *Environment) compileDyadicApplication(app *prism.DyadicApplication) value.Value {
+func (env *Environment) newDyadicApplication(app *prism.DyadicApplication) value.Value {
 	if fn := env.FetchDyadicCallable(app.Operator.Ident().Name); fn != nil {
 		return env.apply(fn, prism.Value{
-			Value: env.compileExpression(&app.Left),
+			Value: env.newExpression(&app.Left),
 			Type:  app.Operator.AlphaType},
 			prism.Value{
-				Value: env.compileExpression(&app.Right),
+				Value: env.newExpression(&app.Right),
 				Type:  app.Operator.OmegaType})
 	}
 
 	call := env.Block.NewCall(
 		env.LLDyadicFunctions[app.Operator.LLVMise()],
-		env.compileExpression(&app.Left),
-		env.compileExpression(&app.Right))
+		env.newExpression(&app.Left),
+		env.newExpression(&app.Right))
 
 	return call
 

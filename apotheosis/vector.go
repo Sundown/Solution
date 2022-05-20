@@ -19,7 +19,7 @@ var (
 	vectorBodyOffset = i32(2)
 )
 
-func (env *Environment) compileVector(vector prism.Vector) value.Value {
+func (env *Environment) newVector(vector prism.Vector) value.Value {
 	leng, cap := calculateVectorSizes(len(*vector.Body))
 	elmType := vector.Type().(prism.VectorType).Type.Realise()
 	headType := vector.Type().Realise()
@@ -31,13 +31,11 @@ func (env *Environment) compileVector(vector prism.Vector) value.Value {
 	env.writeVectorLength(head, leng, headType)
 	env.writeVectorCapacity(head, cap, headType)
 
-	// TODO recent change here seems like it could be wrong, was negated
-	isConstant := lo.ContainsBy(*vector.Body, prism.IsConstant)
-
 	body := env.buildVectorBody(elmType, cap, vector.Type().(prism.VectorType).Width())
 
 	if len(*vector.Body) > 0 {
-		if isConstant {
+		// Are all elements const?
+		if lo.ContainsBy(*vector.Body, prism.IsConstant) {
 			env.Block.NewCall(
 				env.getMemcpy(),
 				env.Block.NewBitCast(body, types.I8Ptr),
@@ -58,7 +56,7 @@ func (env *Environment) compileVector(vector prism.Vector) value.Value {
 func (env *Environment) populateConstBody(elementType types.Type, exprVec []prism.Expression) value.Value {
 	accum := make([]constant.Constant, len(exprVec))
 	for i, expr := range exprVec {
-		accum[i] = env.compileExpression(&expr).(constant.Constant)
+		accum[i] = env.newExpression(&expr).(constant.Constant)
 	}
 
 	return env.Module.NewGlobalDef(
@@ -69,7 +67,7 @@ func (env *Environment) populateConstBody(elementType types.Type, exprVec []pris
 // Maps from expression[] to vector in LLVM
 func (env *Environment) populateBody(body value.Value, elmType types.Type, exprVec []prism.Expression) {
 	for index, element := range exprVec {
-		v := env.compileExpression(&element)
+		v := env.newExpression(&element)
 
 		if _, ok := exprVec[0].Type().(prism.AtomicType); !ok {
 			v = env.Block.NewLoad(elmType, v)
@@ -225,7 +223,7 @@ func (env *Environment) validateVectorIndex(vec prism.Value, index value.Value) 
 
 	leng := env.readVectorLength(vec)
 
-	env.compilePanic(bfalse, "RUBICON: index %d out of bounds [%d]\n", index, leng)
+	env.newPanic(bfalse, "RUBICON: index %d out of bounds [%d]\n", index, leng)
 
 	bfalse.NewUnreachable()
 

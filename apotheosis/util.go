@@ -52,7 +52,7 @@ func (env *Environment) getFormatString(t prism.Type, end string) value.Value {
 }
 
 // Supply the block in which to generate message and exit call, a printf formatter, and variadic params
-func (env *Environment) compilePanic(block *ir.Block, format string, args ...value.Value) {
+func (env *Environment) newPanic(block *ir.Block, format string, args ...value.Value) {
 	// Certain panic strings are very common, such as bounds checks, this ensured they are not double-allocated.
 	fmtGlob := env.PanicStrings[format]
 	if fmtGlob == nil {

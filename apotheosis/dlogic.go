@@ -9,7 +9,7 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-func (env *Environment) compileInlineNot(omega prism.Value) value.Value {
+func (env *Environment) newInlineNot(omega prism.Value) value.Value {
 	switch omega.Type.Kind() {
 	case prism.BoolType.ID:
 		return env.Block.NewICmp(enum.IPredEQ, omega.Value, constant.NewInt(types.I1, 0))
@@ -25,7 +25,7 @@ func (env *Environment) compileInlineNot(omega prism.Value) value.Value {
 	panic(nil)
 }
 
-func (env *Environment) compileInlineAnd(alpha, omega prism.Value) value.Value {
+func (env *Environment) newInlineAnd(alpha, omega prism.Value) value.Value {
 	switch alpha.Type.Kind() {
 	case prism.BoolType.ID:
 		return env.Block.NewAnd(alpha.Value, omega.Value)
@@ -46,7 +46,7 @@ func (env *Environment) compileInlineAnd(alpha, omega prism.Value) value.Value {
 	prism.Panic("unreachable")
 	panic(nil)
 }
-func (env *Environment) compileInlineOr(alpha, omega prism.Value) value.Value {
+func (env *Environment) newInlineOr(alpha, omega prism.Value) value.Value {
 	switch alpha.Type.Kind() {
 	case prism.BoolType.ID:
 		return env.Block.NewOr(alpha.Value, omega.Value)

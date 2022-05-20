@@ -6,20 +6,20 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-func (env *Environment) compileExpression(expr *prism.Expression) value.Value {
+func (env *Environment) newExpression(expr *prism.Expression) value.Value {
 	switch t := (*expr).(type) {
 	case prism.MonadicApplication:
-		return env.compileMonadicApplication(&t)
+		return env.newMonadicApplication(&t)
 	case prism.DyadicApplication:
-		return env.compileDyadicApplication(&t)
+		return env.newDyadicApplication(&t)
 	case prism.Morpheme:
-		return env.compileAtom(&t)
+		return env.newAtom(&t)
 	case prism.MonadicOperator:
 		panic("Can't do solo operators yet")
 	case prism.OperatorApplication:
-		return env.compileMonadicOperator(&t)
+		return env.newMonadicOperator(&t)
 	case prism.Function:
-		return env.compileFunction(&t)
+		return env.newFunction(&t)
 	case prism.Alpha:
 		return env.CurrentFunction.Params[0]
 	case prism.Omega:
@@ -36,17 +36,17 @@ func (env *Environment) compileExpression(expr *prism.Expression) value.Value {
 	panic(expr)
 }
 
-func (env *Environment) compileMonadicOperator(dop *prism.OperatorApplication) value.Value {
+func (env *Environment) newMonadicOperator(dop *prism.OperatorApplication) value.Value {
 	switch dop.Op.Operator {
 	case prism.KindMapOperator:
-		return env.compileInlineMap(
+		return env.newInlineMap(
 			dop.Op.Fn.(prism.MonadicFunction),
-			prism.Value{Value: env.compileExpression(&dop.Expr), Type: dop.Expr.Type()})
+			prism.Value{Value: env.newExpression(&dop.Expr), Type: dop.Expr.Type()})
 
 	case prism.KindReduceOperator:
-		return env.compileInlineReduce(
+		return env.newInlineReduce(
 			dop.Op.Fn.(prism.DyadicFunction),
-			prism.Value{Value: env.compileExpression(&dop.Expr), Type: dop.Expr.Type()})
+			prism.Value{Value: env.newExpression(&dop.Expr), Type: dop.Expr.Type()})
 	}
 
 	prism.Panic("unreachable")

@@ -8,7 +8,7 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-func (env *Environment) compileInlineMap(in prism.Callable, vec prism.Value) value.Value {
+func (env *Environment) newInlineMap(in prism.Callable, vec prism.Value) value.Value {
 	var retType prism.Type
 	if fn, ok := in.(prism.MonadicFunction); ok {
 		retType = fn.Type()
