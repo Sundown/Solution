@@ -2,7 +2,7 @@ package prism
 
 func DeferMonadicApplicationTypes(function *MonadicFunction, y *Expression) {
 	// Enclose all function-side types in a vector if operand is vector and the function is not a vector-function (auto map)
-	if !function.NoAutoVector() &&
+	if !function.Attrs().DisallowAutoVector &&
 		QueryAutoVector(function.OmegaType, (*y).Type()) {
 		function.OmegaType = VectorType{Type: function.OmegaType}
 		function.Returns = VectorType{Type: function.Returns}
@@ -44,7 +44,7 @@ func DeferMonadicApplicationTypes(function *MonadicFunction, y *Expression) {
 func DeferDyadicApplicationTypes(function *DyadicFunction, x, y *Expression) {
 	// Enclose all function-side types in a vector if operands are vectors and the function is not a vector-function
 	// TOOD allow X f Y : A f [B] -> A f B.0, A f B.1, ... ,A f B.n
-	if !function.NoAutoVector() &&
+	if !function.Attrs().DisallowAutoVector &&
 		QueryAutoVector(function.OmegaType, (*y).Type()) &&
 		QueryAutoVector(function.AlphaType, (*x).Type()) {
 		function.AlphaType = VectorType{Type: function.AlphaType}

@@ -51,7 +51,7 @@ func Compile(penv *prism.Environment) *prism.Environment {
 
 func (env *Environment) declareFunctions() *Environment {
 	for _, fn := range env.DyadicFunctions {
-		if fn.Special {
+		if fn.Attrs().Special {
 			continue
 		}
 
@@ -66,7 +66,7 @@ func (env *Environment) declareFunctions() *Environment {
 		env.LLDyadicFunctions[fn.LLVMise()] = env.declareDyadicFunction(*fn)
 	}
 	for _, fn := range env.MonadicFunctions {
-		if fn.Special {
+		if fn.Attrs().Special {
 			continue
 		}
 
@@ -82,7 +82,7 @@ func (env *Environment) declareFunctions() *Environment {
 
 func (env *Environment) buildFunctions() *Environment {
 	for _, fn := range env.DyadicFunctions {
-		if fn.Special {
+		if fn.Attrs().Special {
 			continue
 		}
 
@@ -98,7 +98,7 @@ func (env *Environment) buildFunctions() *Environment {
 	}
 
 	for _, fn := range env.MonadicFunctions {
-		if fn.Special {
+		if fn.Attrs().Special {
 			continue
 		}
 

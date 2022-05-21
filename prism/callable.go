@@ -6,7 +6,7 @@ import (
 
 type Callable interface {
 	Arity() int
-	NoAutoVector() bool
+	Attrs() Attribute
 }
 
 type MCallable func(val Value) value.Value
@@ -15,35 +15,29 @@ type DCallable func(left, right Value) value.Value
 type MonadicCallable struct {
 	MCallable
 	disallowAutoVector bool
+	Attribute          Attribute
 }
 
 func MakeDC(d DCallable, noAutoVec bool) Callable {
-	return DyadicCallable{DCallable: DCallable(d), disallowAutoVector: noAutoVec}
+	return DyadicCallable{DCallable: DCallable(d), Attribute: Attribute{DisallowAutoVector: noAutoVec}}
 }
 
 func MakeMC(d MCallable, noAutoVec bool) Callable {
-	return MonadicCallable{MCallable: MCallable(d), disallowAutoVector: noAutoVec}
+	return MonadicCallable{MCallable: MCallable(d), Attribute: Attribute{DisallowAutoVector: noAutoVec}}
 }
 
-func (m MonadicCallable) NoAutoVector() bool {
-	return m.disallowAutoVector
+func (m MonadicCallable) Attrs() Attribute {
+	return m.Attribute
 }
 
-func (m DyadicCallable) NoAutoVector() bool {
-	return m.disallowAutoVector
-}
-
-func (m MonadicFunction) NoAutoVector() bool {
-	return m.disallowAutoVector
-}
-
-func (m DyadicFunction) NoAutoVector() bool {
-	return m.disallowAutoVector
+func (d DyadicCallable) Attrs() Attribute {
+	return d.Attribute
 }
 
 type DyadicCallable struct {
 	DCallable
 	disallowAutoVector bool
+	Attribute          Attribute
 }
 
 func (MonadicCallable) Arity() int {

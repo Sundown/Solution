@@ -119,7 +119,7 @@ func (env Environment) internFunction(f palisade.Function) {
 }
 
 func (env Environment) analyseDBody(f *prism.DyadicFunction) {
-	if _, okr := f.OmegaType.(prism.Universal); okr || f.Special || f.SkipBuilder {
+	if _, okr := f.OmegaType.(prism.Universal); okr || f.Attrs().Special || f.Attrs().SkipBuilder {
 		return
 	}
 
@@ -142,7 +142,7 @@ func (env Environment) analyseDBody(f *prism.DyadicFunction) {
 }
 
 func (env Environment) analyseMBody(f *prism.MonadicFunction) {
-	if _, ok := f.OmegaType.(prism.Universal); ok || f.Special || f.SkipBuilder {
+	if _, ok := f.OmegaType.(prism.Universal); ok || f.Attrs().Special || f.Attrs().SkipBuilder {
 		return
 	}
 

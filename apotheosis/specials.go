@@ -29,6 +29,7 @@ func (env *Environment) getPowInt() *ir.Func {
 
 	return env.Specials["powi"]
 }
+
 func (env *Environment) getPowReal() *ir.Func {
 	if env.Specials["powf"] == nil {
 		env.Specials["powf"] = env.Module.NewFunc(

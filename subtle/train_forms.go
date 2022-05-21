@@ -46,18 +46,19 @@ func (env Environment) d3Train(f, g, h prism.DyadicFunction, APre, BPre prism.Ty
 	}
 
 	dy := prism.DyadicFunction{
-		Special:     false,
-		SkipBuilder: true,
-		Inline:      true,
-		Name:        prism.Ident{Package: "_", Name: "d3_train_" + fmt.Sprint(env.Iterate())},
-		AlphaType:   APre,
-		OmegaType:   BPre,
-		Returns:     g.Returns,
-		PreBody:     nil,
+		Attribute: prism.Attribute{
+			Special:     false,
+			SkipBuilder: true,
+			ForceInline: true,
+		},
+		Name:      prism.Ident{Package: "_", Name: "d3_train_" + fmt.Sprint(env.Iterate())},
+		AlphaType: APre,
+		OmegaType: BPre,
+		Returns:   g.Returns,
+		PreBody:   nil,
 		Body: []prism.Expression{
 			prism.MonadicApplication{
 				Operator: prism.MonadicFunction{
-					Special: false,
 					Name:    prism.Ident{Package: "_", Name: "←"},
 					Returns: g.Returns,
 				},
@@ -97,18 +98,19 @@ func (env Environment) d2Train(g prism.MonadicFunction, h prism.DyadicFunction, 
 	}
 
 	dy := prism.DyadicFunction{
-		Special:     false,
-		SkipBuilder: true,
-		Inline:      true,
-		Name:        prism.Ident{Package: "_", Name: "d2_train_" + fmt.Sprint(env.Iterate())},
-		AlphaType:   APre,
-		OmegaType:   BPre,
-		Returns:     g.Returns,
-		PreBody:     nil,
+		Attribute: prism.Attribute{
+			Special:     false,
+			SkipBuilder: true,
+			ForceInline: true,
+		},
+		Name:      prism.Ident{Package: "_", Name: "d2_train_" + fmt.Sprint(env.Iterate())},
+		AlphaType: APre,
+		OmegaType: BPre,
+		Returns:   g.Returns,
+		PreBody:   nil,
 		Body: []prism.Expression{
 			prism.MonadicApplication{
 				Operator: prism.MonadicFunction{
-					Special: false,
 					Name:    prism.Ident{Package: "_", Name: "←"},
 					Returns: g.Returns,
 				},
@@ -148,17 +150,18 @@ func (env Environment) m3Train(f prism.MonadicFunction, g prism.DyadicFunction, 
 	}
 
 	dy := prism.MonadicFunction{
-		Special:     false,
-		SkipBuilder: true,
-		Inline:      true,
-		Name:        prism.Ident{Package: "_", Name: "m3_train_" + fmt.Sprint(env.Iterate())},
-		OmegaType:   BPre,
-		Returns:     g.Returns,
-		PreBody:     nil,
+		Attribute: prism.Attribute{
+			Special:     false,
+			SkipBuilder: true,
+			ForceInline: true,
+		},
+		Name:      prism.Ident{Package: "_", Name: "m3_train_" + fmt.Sprint(env.Iterate())},
+		OmegaType: BPre,
+		Returns:   g.Returns,
+		PreBody:   nil,
 		Body: []prism.Expression{
 			prism.MonadicApplication{
 				Operator: prism.MonadicFunction{
-					Special: false,
 					Name:    prism.Ident{Package: "_", Name: "←"},
 					Returns: g.Returns,
 				},
@@ -195,17 +198,18 @@ func (env Environment) m2Train(g prism.MonadicFunction, h prism.MonadicFunction,
 	}
 
 	dy := prism.MonadicFunction{
-		Special:     false,
-		SkipBuilder: true,
-		Inline:      true,
-		Name:        prism.Ident{Package: "_", Name: "m2_train_" + fmt.Sprint(env.Iterate())},
-		OmegaType:   BPre,
-		Returns:     g.Returns,
-		PreBody:     nil,
+		Attribute: prism.Attribute{
+			Special:     false,
+			SkipBuilder: true,
+			ForceInline: true,
+		},
+		Name:      prism.Ident{Package: "_", Name: "m2_train_" + fmt.Sprint(env.Iterate())},
+		OmegaType: BPre,
+		Returns:   g.Returns,
+		PreBody:   nil,
 		Body: []prism.Expression{
 			prism.MonadicApplication{
 				Operator: prism.MonadicFunction{
-					Special: false,
 					Name:    prism.Ident{Package: "_", Name: "←"},
 					Returns: g.Returns,
 				},

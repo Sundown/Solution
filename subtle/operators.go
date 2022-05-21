@@ -108,27 +108,19 @@ func (env *Environment) analyseMonadicOperator(app palisade.Applicable, rType pr
 	panic("Unknown operator")
 }
 
-/* func (env Environment) analyseDyadicApplication(d *palisade.Operator) prism.OperatorApplication {
-	rexpr := env.analyseExpression(d.Expression)
-	return prism.OperatorApplication{
-		Op:   env.analyseMonadicOperator(d, rexpr.Type()),
-		Expr: rexpr,
-	}
-} */
-
 func (env Environment) monadicOperatorToFunction(op prism.MonadicOperator) prism.MonadicFunction {
 	fn := prism.MonadicFunction{
-		Special:     false,
-		SkipBuilder: true,
-		Inline:      true,
-		Name:        prism.Ident{Package: "_", Name: "m_op_" + fmt.Sprint(env.Iterate())},
-		OmegaType:   op.ExprType,
-		Returns:     op.Returns,
-		PreBody:     nil,
+		Attribute: prism.Attribute{
+			SkipBuilder: true,
+			ForceInline: true,
+		},
+		Name:      prism.Ident{Package: "_", Name: "m_op_" + fmt.Sprint(env.Iterate())},
+		OmegaType: op.ExprType,
+		Returns:   op.Returns,
+		PreBody:   nil,
 		Body: []prism.Expression{
 			prism.MonadicApplication{
 				Operator: prism.MonadicFunction{
-					Special: false,
 					Name:    prism.Ident{Package: "_", Name: "←"},
 					Returns: op.Returns,
 				},
