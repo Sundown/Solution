@@ -1,0 +1,9 @@
+[package]
+name = "solution"
+version = "0.0.1"
+authors = ["Sundown"]
+edition = "2021"
+
+[dependencies]
+pest = "2.1.0"
+pest_derive = "2.1.0"

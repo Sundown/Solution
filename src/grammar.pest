@@ -1,0 +1,119 @@
+program = _{
+  SOI
+  ~ "\n"*
+  ~ ( stmt ~ ";" )*
+  ~ stmt?
+  ~ EOI
+}
+
+stmt = _{ function }
+
+expr = {
+      monadicExpr
+    | dyadicExpr
+    | morphemes
+}
+
+typeWord = {
+  name
+  | ( "[" ~ name ~ "]" )
+}
+
+typedFunctionHead = {
+  (
+    ( typeWord ~ ident ~ typeWord )
+    | ( ident ~ typeWord )
+  )
+  ~ "->"
+  ~ typeWord
+}
+
+ambiguousFunctionHead = {
+  ident
+  ~ ( "->" ~ typeWord )?
+}
+
+block = {
+  "{"
+  ~ (expr ~ ";")+
+  ~ "}"
+}
+
+function = {
+  ( typedFunctionHead | ambiguousFunctionHead )
+  ~ ( block | expr )
+}
+
+applicable = {
+    ( "(" ~ expr ~ ")" | ident )
+    ~ ( operator? )
+  }
+
+monadicExpr = {
+  applicable
+  ~ expr
+}
+
+dyadicExpr = {
+  ( monadicExpr | morphemes )
+  ~ applicable
+  ~ expr
+}
+
+operator = {
+  ident
+  ~ operator?
+}
+
+assgmtExpr = {
+  ident
+  ~ "=:"
+  ~ expr
+}
+
+morphemes = {
+  morpheme+
+}
+
+morpheme = _{
+  real | integer
+}
+
+integer = @{
+  "_"?
+  ~ ASCII_DIGIT+
+}
+
+real = @{
+  "_"?
+  ~ ASCII_DIGIT+
+  ~ "."
+  ~ ASCII_DIGIT*
+}
+
+name = @{
+  ASCII_ALPHA
+  ~ ( ASCII_ALPHANUMERIC | "_" )*
+}
+
+ident = @{
+  ASCII_ALPHA
+  ~ ( ASCII_ALPHANUMERIC | "_" )*
+}
+
+string = @{
+  "'"
+  ~ ( "''" | ( !"'" ~ ANY ) )*
+  ~ "'"
+}
+
+WHITESPACE = _{
+  " "
+  | "\t"
+  | "\n"
+}
+
+COMMENT = _{
+  "NB."
+  ~ ( !"\n" ~ ANY )*
+}
