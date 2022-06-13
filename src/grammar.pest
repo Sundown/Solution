@@ -1,8 +1,7 @@
 program = _{
   SOI
   ~ "\n"*
-  ~ ( stmt ~ ";" )*
-  ~ stmt?
+  ~ stmt*
   ~ EOI
 }
 
@@ -14,23 +13,38 @@ expr = {
     | morphemes
 }
 
-typeWord = {
+typeActual = {
+  vectorType | atomicType
+}
+
+atomicType = {
   name
-  | ( "[" ~ name ~ "]" )
+}
+
+vectorType = {
+  "[" ~ typeActual ~ "]"
+}
+
+typedDyadic = {
+  ( typeActual ~ ident ~ typeActual )
+}
+
+typedMonadic = {
+  ident ~ typeActual
 }
 
 typedFunctionHead = {
   (
-    ( typeWord ~ ident ~ typeWord )
-    | ( ident ~ typeWord )
+    typedDyadic
+    | typedMonadic
   )
-  ~ "->"
-  ~ typeWord
+  ~ "→"
+  ~ typeActual
 }
 
 ambiguousFunctionHead = {
   ident
-  ~ ( "->" ~ typeWord )?
+  ~ ( "→" ~ typeActual )?
 }
 
 block = {

@@ -2,7 +2,7 @@ extern crate pest;
 #[macro_use]
 extern crate pest_derive;
 
-use self::AstNode::*;
+use core::panic;
 use pest::error::Error;
 use pest::Parser;
 use std::ffi::CString;
@@ -11,39 +11,44 @@ use std::ffi::CString;
 #[grammar = "grammar.pest"]
 pub struct Palisade;
 
-#[derive(PartialEq, Eq, Debug, Clone)]
-pub enum MonadicVerb {
-    Negate,
+#[derive(Debug, Clone, PartialEq)]
+pub struct Ident {
+    pub package: String,
+    pub name: String,
 }
 
-#[derive(PartialEq, Eq, Debug, Clone)]
-pub enum DyadicVerb {
-    Plus,
-    Minus,
+#[derive(Debug, Clone, PartialEq)]
+pub enum AtomicType {
+    Bool,
+    Char,
+    Int,
+    Real,
+    Void,
 }
 
-#[derive(PartialEq, Eq, Debug, Clone)]
-pub enum MonadicOperator {
-    Each,
-    Reduce,
+#[derive(Debug, Clone, PartialEq)]
+pub struct Function {
+    pub package: String,
+    pub name: String,
+    pub alpha: Option<Type>,
+    pub omega: Type,
+    pub sigma: Type,
+    pub body: Box<AstNode>,
+}
+
+#[derive(Debug, Clone, PartialEq)]
+pub enum Type {
+    Atomic(AtomicType),
+    Vector(Box<Type>),
 }
 
 #[derive(PartialEq, Debug, Clone)]
 pub enum AstNode {
-    Print(Box<AstNode>),
     Integer(i64),
     Real(f64),
-    Type(String),
-    VectorType(String),
     Operator {
-        verb: MonadicOperator,
+        verb: Ident,
         op: Box<AstNode>,
-    },
-    Function {
-        alpha: String,
-        ident: String,
-        omega: String,
-        body: Box<AstNode>,
     },
     Block {
         body: Vec<AstNode>,
@@ -54,11 +59,11 @@ pub enum AstNode {
         operator: Box<AstNode>,
     },
     MonadicOp {
-        verb: MonadicVerb,
+        verb: Ident,
         expr: Box<AstNode>,
     },
     DyadicOp {
-        verb: DyadicVerb,
+        verb: Ident,
         lhs: Box<AstNode>,
         rhs: Box<AstNode>,
     },
@@ -77,10 +82,10 @@ pub fn parse(source: &str) -> Result<Vec<AstNode>, Error<Rule>> {
     let pairs = Palisade::parse(Rule::program, source)?;
     for pair in pairs {
         match pair.as_rule() {
-            Rule::expr => {
-                ast.push(Print(Box::new(build_ast_from_expr(pair))));
+            Rule::function => ast.push(build_ast_from_expr(pair)),
+            _ => {
+                println!("FA");
             }
-            _ => {}
         }
     }
 
@@ -97,6 +102,7 @@ fn build_ast_from_expr(pair: pest::iterators::Pair<Rule>) -> AstNode {
             let expr = build_ast_from_expr(expr);
             parse_monadic_verb(verb, expr)
         }
+        Rule::function => parse_function(pair.into_inner()),
         Rule::dyadicExpr => {
             let mut pair = pair.into_inner();
             let lhspair = pair.next().unwrap();
@@ -112,12 +118,8 @@ fn build_ast_from_expr(pair: pest::iterators::Pair<Rule>) -> AstNode {
             // wrapping it in a Terms node.
             match terms.len() {
                 1 => terms.get(0).unwrap().clone(),
-                _ => Morphemes(terms),
+                _ => AstNode::Morphemes(terms),
             }
-        }
-        Rule::typeWord => {
-            println!("{:?}", pair.as_str());
-            Type(pair.as_str().to_string())
         }
         Rule::string => {
             let str = &pair.as_str();
@@ -135,19 +137,77 @@ fn parse_dyadic_verb(pair: pest::iterators::Pair<Rule>, lhs: AstNode, rhs: AstNo
     AstNode::DyadicOp {
         lhs: Box::new(lhs),
         rhs: Box::new(rhs),
-        verb: match pair.as_str() {
-            "+" => DyadicVerb::Plus,
-            "-" => DyadicVerb::Minus,
-            _ => panic!("Unexpected dyadic verb: {}", pair.as_str()),
+        verb: Ident {
+            package: "".to_string(),
+            name: pair.to_string(),
         },
+    }
+}
+
+fn parse_type(t: pest::iterators::Pair<Rule>) -> Type {
+    match t.as_rule() {
+        Rule::typeActual => parse_type(t.into_inner().next().unwrap()),
+        Rule::atomicType => Type::Atomic(match t.as_str() {
+            "Bool" => AtomicType::Bool,
+            "Char" => AtomicType::Char,
+            "Int" => AtomicType::Int,
+            "Real" => AtomicType::Real,
+            "Void" => AtomicType::Void,
+            _ => panic!("Unexpected type: {:?}", t.as_str()),
+        }),
+        Rule::vectorType => Type::Vector(Box::new(parse_type(t.into_inner().next().unwrap()))),
+        _ => panic!("Unexpected type: {:?} as {:?}", t.as_str(), t.as_rule()),
+    }
+}
+
+fn parse_function(mut pair: pest::iterators::Pairs<Rule>) -> Function {
+    let head = pair.next().unwrap();
+
+    let (alpha_t, ident_s, omega_t) = match head.as_rule() {
+        Rule::typedFunctionHead => {
+            let front = head.into_inner().next().unwrap();
+            match front.as_rule() {
+                Rule::typedDyadic => {
+                    let mut front = front.into_inner();
+                    (
+                        Some(parse_type(front.next().unwrap())),
+                        front.next().unwrap().as_str(),
+                        parse_type(front.next().unwrap()),
+                    )
+                }
+                Rule::typedMonadic => {
+                    let mut front = front.into_inner();
+                    (
+                        None,
+                        front.next().unwrap().as_str(),
+                        parse_type(front.next().unwrap()),
+                    )
+                }
+                _ => {
+                    panic!("Unexpected typed function head: {:?}", front.as_rule())
+                }
+            }
+        }
+        Rule::ambiguousFunctionHead => {
+            panic!("TODO")
+        }
+        _ => panic!("Unexpected function head: {:?}", head.as_rule()),
+    };
+
+    Function {
+        alpha: alpha_t,
+        package: "".to_string(),
+        name: ident_s.to_string(),
+        omega: omega_t,
+        body: Box::new(build_ast_from_expr(body)),
     }
 }
 
 fn parse_monadic_verb(pair: pest::iterators::Pair<Rule>, expr: AstNode) -> AstNode {
     AstNode::MonadicOp {
-        verb: match pair.as_str() {
-            "-" => MonadicVerb::Negate,
-            _ => panic!("Unsupported monadic verb: {}", pair.as_str()),
+        verb: Ident {
+            package: "".to_string(),
+            name: pair.to_string(),
         },
         expr: Box::new(expr),
     }
@@ -177,6 +237,7 @@ fn build_ast_from_term(pair: pest::iterators::Pair<Rule>) -> AstNode {
             }
             AstNode::Real(flt)
         }
+
         Rule::expr => build_ast_from_expr(pair),
         Rule::ident => AstNode::Ident(String::from(pair.as_str())),
         unknown_term => panic!("Unexpected term: {:?}", unknown_term),
@@ -184,7 +245,7 @@ fn build_ast_from_term(pair: pest::iterators::Pair<Rule>) -> AstNode {
 }
 
 fn main() {
-    let unparsed_file = std::fs::read_to_string("example.ijs").expect("cannot read ijs file");
-    let astnode = parse(&unparsed_file).expect("unsuccessful parse");
+    let unparsed_file = std::fs::read_to_string("code.sol").expect("Cannot read file");
+    let astnode = parse(&unparsed_file).expect("Unsuccessful parse");
     println!("{:?}", &astnode);
 }

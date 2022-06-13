@@ -1,7 +1,3 @@
-@Package jan;
-
-jan::Main Int → Void {
-	Println 1 a 2;
+[Int] Main Int → Void {
+	1;
 }
-
-a ← α + ω;
