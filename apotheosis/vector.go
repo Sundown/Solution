@@ -3,6 +3,7 @@ package apotheosis
 import (
 	"fmt"
 
+	"github.com/samber/lo"
 	"github.com/sundown/solution/prism"
 
 	"github.com/llir/llvm/ir"
@@ -23,21 +24,14 @@ func (env *Environment) compileVector(vector prism.Vector) value.Value {
 	elmType := vector.Type().(prism.VectorType).Type.Realise()
 	headType := vector.Type().Realise()
 
-	head := env.Block.NewBitCast(env.Block.NewCall(env.getCalloc(), i32(3), i32(8)), types.NewPointer(headType))
+	head := env.Block.NewBitCast(
+		env.Block.NewCall(env.getCalloc(), i32(3), i32(8)),
+		types.NewPointer(headType))
 
-	// Store vector length
 	env.writeVectorLength(head, leng, headType)
-
-	// Store vector capacity
 	env.writeVectorCapacity(head, cap, headType)
 
-	isConstant := true
-	for _, elm := range *vector.Body {
-		if !prism.IsConstant(elm) {
-			isConstant = false
-			break
-		}
-	}
+	isConstant := !lo.ContainsBy(*vector.Body, prism.IsConstant)
 
 	body := env.buildVectorBody(elmType, cap, vector.Type().(prism.VectorType).Width())
 
@@ -55,7 +49,7 @@ func (env *Environment) compileVector(vector prism.Vector) value.Value {
 		}
 	}
 
-	env.writeVectorPointer(prism.Value{head, vector.Type()}, body)
+	env.writeVectorPointer(prism.Val(head, vector.Type()), body)
 
 	return head
 }
@@ -66,29 +60,21 @@ func (env *Environment) populateConstBody(elementType types.Type, exprVec []pris
 		accum[i] = env.compileExpression(&expr).(constant.Constant)
 	}
 
-	return env.Module.NewGlobalDef(fmt.Sprint(env.newID()), constant.NewArray(types.NewArray(uint64(len(exprVec)), elementType), accum...))
+	return env.Module.NewGlobalDef(
+		fmt.Sprint(env.newID()),
+		constant.NewArray(types.NewArray(uint64(len(exprVec)), elementType), accum...))
 }
 
 // Maps from expression[] to vector in LLVM
-func (env *Environment) populateBody(
-	allocatedBody *ir.InstBitCast,
-	elementType types.Type,
-	exprVec []prism.Expression) {
-
-	irElmType := exprVec[0].Type()
-
+func (env *Environment) populateBody(body value.Value, elmType types.Type, exprVec []prism.Expression) {
 	for index, element := range exprVec {
 		v := env.compileExpression(&element)
 
-		if _, ok := irElmType.(prism.AtomicType); !ok {
-			v = env.Block.NewLoad(elementType, v)
+		if _, ok := exprVec[0].Type().(prism.AtomicType); !ok {
+			v = env.Block.NewLoad(elmType, v)
 		}
 
-		env.Block.NewStore(v,
-			env.Block.NewGetElementPtr(
-				elementType,
-				allocatedBody,
-				i32(int64(index))))
+		env.Block.NewStore(v, env.Block.NewGetElementPtr(elmType, body, i32(int64(index))))
 	}
 }
 
@@ -175,7 +161,7 @@ func (env *Environment) writeElement(vec prism.Value, elm value.Value, index val
 		elm,
 		env.Block.NewGetElementPtr(
 			vec.Type.(prism.VectorType).Type.Realise(),
-			env.Block.NewGetElementPtr(vec.Type.Realise(), vec.Value, i32(0), vectorBodyOffset),
+			env.Block.NewLoad(types.NewPointer(vec.Type.(prism.VectorType).Type.Realise()), env.Block.NewGetElementPtr(vec.Type.Realise(), vec.Value, i32(0), vectorBodyOffset)),
 			index))
 }
 
