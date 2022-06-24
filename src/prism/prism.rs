@@ -1,7 +1,14 @@
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Ident {
     pub package: String,
     pub name: String,
+}
+
+pub fn base_ident(name: &str) -> Ident {
+    Ident {
+        package: "primary".to_string(),
+        name: name.to_string(),
+    }
 }
 
 #[derive(Debug, Clone, PartialEq)]

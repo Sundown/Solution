@@ -11,6 +11,21 @@ pub use crate::subtle::*;
 #[grammar = "grammar.pest"]
 pub struct Palisade;
 
+impl prism::Environment {
+    pub fn parse_unit(source: pest::iterators::Pairs<Rule>) -> Option<Error<String>> {
+        for component in source {
+            match component.as_rule() {
+                Rule::function => ast.push(parse_expression(pair)),
+                _ => {
+                    println!("Not implemeneted or incorrectly placed");
+                }
+            }
+        }
+
+        None
+    }
+}
+
 pub fn parse_unit(source: &str) -> Result<Vec<AstNode>, Error<Rule>> {
     let mut ast = vec![];
 
