@@ -45,6 +45,29 @@ pub fn new_environment() -> Environment {
     }
 }
 
+impl Environment {
+    pub fn get_function(&self, package: &str, name: &str) -> Option<&Function> {
+        let package = package.to_string();
+        let name = name.to_string();
+
+        if let Some(fn_) = self
+            .mon_fns
+            .get(&base_ident(&format!("{}.{}", package, name)))
+        {
+            return Some(fn_);
+        }
+
+        if let Some(fn_) = self
+            .dya_fns
+            .get(&base_ident(&format!("{}.{}", package, name)))
+        {
+            return Some(fn_);
+        }
+
+        None
+    }
+}
+
 enum Opt {
     Pure,
     None,

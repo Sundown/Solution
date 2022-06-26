@@ -11,6 +11,32 @@ pub fn base_ident(name: &str) -> Ident {
     }
 }
 
+pub struct Application {
+    pub alpha: Option<Box<dyn Expression>>,
+    pub app: Box<dyn Expression>,
+    pub omega: Box<dyn Expression>,
+}
+
+impl Expression for Application {
+    fn as_str(&self) -> &str {
+        if self.alpha.is_some() {
+            format!(
+                "({} {} {})",
+                self.alpha.unwrap().as_str(),
+                self.app.as_str(),
+                self.omega.as_str(),
+            )
+            .as_str()
+        } else {
+            format!("({} {})", self.app.as_str(), self.omega.as_str(),).as_str()
+        }
+    }
+
+    fn kind(&self) -> Type {
+        self.app.kind()
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum AtomicType {
     Bool,
@@ -31,7 +57,7 @@ impl Expression for Morpheme {
         }
     }
 
-    fn r#type(&self) -> Type {
+    fn kind(&self) -> Type {
         match self {
             Morpheme::Bool(x) => Type::Atomic(AtomicType::Bool),
             Morpheme::Char(x) => Type::Atomic(AtomicType::Char),
@@ -50,9 +76,23 @@ pub enum Morpheme {
     Void,
 }
 
+pub struct Vector {
+    pub body: Vec<Box<dyn Expression>>,
+}
+
+impl Expression for Vector {
+    fn as_str(&self) -> &'static str {
+        format!("[{}]", self.body.into_iter().map(|x| x.as_str())).as_str()
+    }
+
+    fn kind(&self) -> Type {
+        self.body[0].kind()
+    }
+}
+
 pub trait Expression {
     fn as_str(&self) -> &str;
-    fn r#type(&self) -> Type;
+    fn kind(&self) -> Type;
 }
 
 pub struct Function {
@@ -64,10 +104,60 @@ pub struct Function {
     pub body: std::option::Option<Box<dyn Expression>>,
 }
 
+impl Expression for Function {
+    fn as_str(&self) -> &'static str {
+        if self.alpha.is_some() {
+            format!(
+                "{} {}::{} {} -> {}",
+                self.alpha.unwrap().as_str(),
+                self.package,
+                self.name,
+                self.omega.as_str(),
+                self.sigma.as_str()
+            )
+            .as_str()
+        } else {
+            format!(
+                "{}::{} {} -> {}",
+                self.package,
+                self.name,
+                self.omega.as_str(),
+                self.sigma.as_str()
+            )
+            .as_str()
+        }
+    }
+
+    fn kind(&self) -> Type {
+        self.sigma.clone()
+    }
+}
+
 #[derive(Debug, Clone, PartialEq)]
 pub enum Type {
     Atomic(AtomicType),
     Vector(Box<Type>),
+}
+
+impl Type {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            Type::Atomic(x) => x.as_str(),
+            Type::Vector(x) => format!("[{}]", x.as_str()).as_str(),
+        }
+    }
+}
+
+impl AtomicType {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            AtomicType::Bool => "Bool",
+            AtomicType::Char => "Char",
+            AtomicType::Int => "Int",
+            AtomicType::Real => "Real",
+            AtomicType::Void => "Void",
+        }
+    }
 }
 
 // TODO
