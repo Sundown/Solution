@@ -1,6 +1,5 @@
-use std::collections::HashMap;
-
 pub use crate::prism::*;
+use std::collections::HashMap;
 
 use super::base_ident;
 
@@ -19,8 +18,8 @@ pub struct Environment {
     // TOOD
 
     // Emit
-    emit_format: Format,
-    emit_name: String,
+    pub emit_format: Format,
+    pub emit_name: String,
 }
 
 pub fn new_environment() -> Environment {
@@ -68,15 +67,15 @@ impl Environment {
     }
 }
 
-enum Opt {
-    Pure,
-    None,
-    Size,
+pub enum Opt {
+    // Pure,
+    // None,
+    // Size,
     Fast,
 }
 
-enum Format {
-    IR,
+pub enum Format {
+    //IR,
     LLVM(Opt),
-    Assembly,
+    //Assembly,
 }

@@ -1,8 +1,9 @@
 pub use crate::pest::Parser;
-
 pub use crate::prism;
+use crate::prism::Expression;
 use core::panic;
 pub use pest::error::Error;
+
 use std::ffi::CString;
 
 pub use crate::subtle::*;
@@ -12,7 +13,7 @@ pub use crate::subtle::*;
 pub struct Palisade;
 
 impl prism::Environment {
-    pub fn parse_unit(&self, source: &str) -> Option<Error<String>> {
+    pub fn parse_unit(&self, source: &str) -> Result<&prism::Environment, Error<String>> {
         let pairs = Palisade::parse(Rule::program, source).unwrap().into_iter();
 
         for pair in pairs {
@@ -20,24 +21,25 @@ impl prism::Environment {
                 Rule::function => {
                     self.parse_expression(pair);
                 }
+                Rule::EOI => {
+                    return Ok(self);
+                }
                 _ => {
+                    println!("{:?}", pair);
                     panic!("Not implemeneted");
                 }
             }
         }
 
-        None
+        panic!("Not implemented");
     }
 
     fn parse_expression(&self, pair: pest::iterators::Pair<Rule>) -> Box<dyn prism::Expression> {
         match pair.as_rule() {
             Rule::expr => self.parse_expression(pair.into_inner().next().unwrap()),
-            Rule::monadicExpr => self.parse_monadic_verb(pair.into_inner()),
             Rule::function => self.parse_function(pair.into_inner()),
-            Rule::dyadicExpr => {
-                let mut pair = pair.into_inner();
-                self.parse_dyadic_verb(pair)
-            }
+            Rule::monadicExpr => self.parse_monadic_app(pair.into_inner()),
+            Rule::dyadicExpr => self.parse_dyadic_app(pair.into_inner()),
             Rule::morphemes => {
                 let terms: Vec<Box<dyn prism::Expression>> =
                     pair.into_inner().map(|x| self.parse_morpheme(x)).collect();
@@ -51,27 +53,38 @@ impl prism::Environment {
         }
     }
 
-    fn parse_dyadic_verb(&self, pair: pest::iterators::Pairs<Rule>) -> Box<dyn prism::Expression> {
+    fn parse_dyadic_app(
+        &self,
+        mut pair: pest::iterators::Pairs<Rule>,
+    ) -> Box<dyn prism::Expression> {
         let lhspair = pair.next().unwrap();
         let verb = pair.next().unwrap();
         let rhspair = pair.next().unwrap();
 
         Box::new(prism::Application {
             alpha: Some(self.parse_expression(lhspair)),
-            app: Box::new(self.get_function("".to_string(), verb.as_str()).unwrap()),
+            app: prism::Ident {
+                // TODO check this is valid type
+                package: "".to_string(),
+                name: verb.into_inner().as_str().to_string(),
+            },
             omega: self.parse_expression(rhspair),
         })
     }
 
-    fn parse_monadic_verb(&self, pair: pest::iterators::Pairs<Rule>) -> Box<dyn prism::Expression> {
+    fn parse_monadic_app(
+        &self,
+        mut pair: pest::iterators::Pairs<Rule>,
+    ) -> Box<dyn prism::Expression> {
         let verb = pair.next().unwrap();
         let rhspair = pair.next().unwrap();
 
         Box::new(prism::Application {
             alpha: None,
             app: prism::Ident {
+                // TODO check this is valid type
                 package: "".to_string(),
-                name: pair.to_string(),
+                name: verb.into_inner().as_str().to_string(),
             },
             omega: self.parse_expression(rhspair),
         })
@@ -116,46 +129,42 @@ impl prism::Environment {
             Rule::typedFunctionHead => {
                 let mut head = head.into_inner();
                 let front = head.next().unwrap();
-                match front.as_rule() {
-                    Rule::typedDyadic => {
-                        let mut front = front.into_inner();
-                        (
-                            Some(parse_type(front.next().unwrap())),
-                            front.next().unwrap().as_str(),
-                            parse_type(front.next().unwrap()),
-                            parse_type(head.next().unwrap()),
-                        )
-                    }
-                    Rule::typedMonadic => {
-                        let mut front = front.into_inner();
-                        (
-                            None,
-                            front.next().unwrap().as_str(),
-                            parse_type(front.next().unwrap()),
-                            parse_type(head.next().unwrap()),
-                        )
-                    }
-                    _ => {
-                        panic!("Unexpected typed function head: {:?}", front.as_rule())
-                    }
-                }
+                let rule = front.as_rule();
+                let mut front = front.into_inner();
+                (
+                    match rule {
+                        Rule::typedDyadic => Some(parse_type(front.next().unwrap())),
+                        _ => None,
+                    },
+                    front.next().unwrap().as_str(),
+                    parse_type(front.next().unwrap()),
+                    parse_type(head.next().unwrap()),
+                )
             }
+
             Rule::ambiguousFunctionHead => {
                 panic!("TODO")
             }
             _ => panic!("Unexpected function head: {:?}", head.as_rule()),
         };
 
-        //let body = pair.next().unwrap().into_inner();
-
-        Box::new(prism::Function {
+        let f = Box::new(prism::Function {
             alpha: alpha_t,
             package: "".to_string(),
             name: ident_s.to_string(),
             omega: omega_t,
             sigma: sigma_t,
-            body: None,
-        })
+            body: Some(
+                pair.next()
+                    .unwrap()
+                    .into_inner()
+                    .into_iter()
+                    .map(|e| self.parse_expression(e))
+                    .collect::<Vec<_>>(),
+            ),
+        });
+        println!("{}", f.as_str());
+        f
     }
 }
 

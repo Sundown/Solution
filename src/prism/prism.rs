@@ -1,7 +1,15 @@
+use std::collections::HashSet;
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Ident {
     pub package: String,
     pub name: String,
+}
+
+impl Ident {
+    pub fn as_str(&self) -> String {
+        format!("{}::{}", &self.package, &self.name)
+    }
 }
 
 pub fn base_ident(name: &str) -> Ident {
@@ -13,31 +21,30 @@ pub fn base_ident(name: &str) -> Ident {
 
 pub struct Application {
     pub alpha: Option<Box<dyn Expression>>,
-    pub app: Box<dyn Expression>,
+    pub app: Ident,
     pub omega: Box<dyn Expression>,
 }
 
 impl Expression for Application {
-    fn as_str(&self) -> &str {
-        if self.alpha.is_some() {
-            format!(
-                "({} {} {})",
-                self.alpha.unwrap().as_str(),
-                self.app.as_str(),
-                self.omega.as_str(),
-            )
-            .as_str()
-        } else {
-            format!("({} {})", self.app.as_str(), self.omega.as_str(),).as_str()
-        }
+    fn as_str(&self) -> String {
+        format!(
+            "({}{} {})",
+            match &self.alpha {
+                Some(a) => format!("{} ", a.as_str()),
+                None => "".to_string(),
+            },
+            self.app.as_str(),
+            self.omega.as_str(),
+        )
     }
 
     fn kind(&self) -> Type {
-        self.app.kind()
+        // TODO - this is wrong, change to app once there is helper
+        self.omega.kind()
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Hash, Eq)]
 pub enum AtomicType {
     Bool,
     Char,
@@ -47,27 +54,28 @@ pub enum AtomicType {
 }
 
 impl Expression for Morpheme {
-    fn as_str(&self) -> &'static str {
+    fn as_str(&self) -> String {
         match self {
-            Morpheme::Bool(x) => x.to_string().as_str(),
-            Morpheme::Char(x) => x.to_string().as_str(),
-            Morpheme::Int(x) => x.to_string().as_str(),
-            Morpheme::Real(x) => x.to_string().as_str(),
-            Morpheme::Void => "Void",
+            Morpheme::Bool(x) => x.to_string(),
+            Morpheme::Char(x) => x.to_string(),
+            Morpheme::Int(x) => x.to_string(),
+            Morpheme::Real(x) => x.to_string(),
+            Morpheme::Void => "Void".to_string(),
         }
     }
 
     fn kind(&self) -> Type {
         match self {
-            Morpheme::Bool(x) => Type::Atomic(AtomicType::Bool),
-            Morpheme::Char(x) => Type::Atomic(AtomicType::Char),
-            Morpheme::Int(x) => Type::Atomic(AtomicType::Int),
-            Morpheme::Real(x) => Type::Atomic(AtomicType::Real),
+            Morpheme::Bool(_) => Type::Atomic(AtomicType::Bool),
+            Morpheme::Char(_) => Type::Atomic(AtomicType::Char),
+            Morpheme::Int(_) => Type::Atomic(AtomicType::Int),
+            Morpheme::Real(_) => Type::Atomic(AtomicType::Real),
             Morpheme::Void => Type::Atomic(AtomicType::Void),
         }
     }
 }
 
+#[derive(Clone)]
 pub enum Morpheme {
     Bool(bool),
     Char(char),
@@ -81,8 +89,15 @@ pub struct Vector {
 }
 
 impl Expression for Vector {
-    fn as_str(&self) -> &'static str {
-        format!("[{}]", self.body.into_iter().map(|x| x.as_str())).as_str()
+    fn as_str(&self) -> String {
+        format!(
+            "{}",
+            self.body
+                .iter()
+                .map(|x| x.as_str())
+                .collect::<Vec<_>>()
+                .join(" ")
+        )
     }
 
     fn kind(&self) -> Type {
@@ -91,7 +106,7 @@ impl Expression for Vector {
 }
 
 pub trait Expression {
-    fn as_str(&self) -> &str;
+    fn as_str(&self) -> String;
     fn kind(&self) -> Type;
 }
 
@@ -101,31 +116,30 @@ pub struct Function {
     pub alpha: Option<Type>,
     pub omega: Type,
     pub sigma: Type,
-    pub body: std::option::Option<Box<dyn Expression>>,
+    pub body: std::option::Option<Vec<Box<dyn Expression>>>,
 }
 
 impl Expression for Function {
-    fn as_str(&self) -> &'static str {
-        if self.alpha.is_some() {
-            format!(
-                "{} {}::{} {} -> {}",
-                self.alpha.unwrap().as_str(),
-                self.package,
-                self.name,
-                self.omega.as_str(),
-                self.sigma.as_str()
-            )
-            .as_str()
-        } else {
-            format!(
-                "{}::{} {} -> {}",
-                self.package,
-                self.name,
-                self.omega.as_str(),
-                self.sigma.as_str()
-            )
-            .as_str()
-        }
+    fn as_str(&self) -> String {
+        format!(
+            "{}{}::{} {} -> {}\n\t{}",
+            match &self.alpha {
+                Some(x) => format!("{} ", x.as_str()),
+                None => "".to_string(),
+            },
+            self.package,
+            self.name,
+            self.omega.as_str(),
+            self.sigma.as_str(),
+            match &self.body {
+                Some(x) => x
+                    .iter()
+                    .map(|x| x.as_str())
+                    .collect::<Vec<_>>()
+                    .join("\n\t"),
+                None => "".to_string(),
+            },
+        )
     }
 
     fn kind(&self) -> Type {
@@ -133,23 +147,40 @@ impl Expression for Function {
     }
 }
 
-#[derive(Debug, Clone, PartialEq)]
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub struct TypeGroup {
+    pub gamma: HashSet<Type>,
+}
+
+impl TypeGroup {
+    pub fn new() -> TypeGroup {
+        TypeGroup {
+            gamma: HashSet::new(),
+        }
+    }
+
+    pub fn universal(&self) -> bool {
+        self.gamma.len() == 0
+    }
+}
+
+#[derive(Debug, Clone, PartialEq, Hash, Eq)]
 pub enum Type {
     Atomic(AtomicType),
     Vector(Box<Type>),
 }
 
 impl Type {
-    pub fn as_str(&self) -> &'static str {
+    pub fn as_str(&self) -> String {
         match self {
             Type::Atomic(x) => x.as_str(),
-            Type::Vector(x) => format!("[{}]", x.as_str()).as_str(),
+            Type::Vector(x) => format!("[{}]", x.as_str()),
         }
     }
 }
 
 impl AtomicType {
-    pub fn as_str(&self) -> &'static str {
+    pub fn as_str(&self) -> String {
         match self {
             AtomicType::Bool => "Bool",
             AtomicType::Char => "Char",
@@ -157,6 +188,7 @@ impl AtomicType {
             AtomicType::Real => "Real",
             AtomicType::Void => "Void",
         }
+        .to_string()
     }
 }
 
