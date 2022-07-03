@@ -1,6 +1,4 @@
 pub use crate::pest::Parser;
-pub use crate::prism;
-use crate::prism::Expression;
 use core::panic;
 pub use pest::error::Error;
 
@@ -12,14 +10,14 @@ pub use crate::subtle::*;
 #[grammar = "grammar.pest"]
 pub struct Palisade;
 
-impl prism::Environment {
-    pub fn parse_unit(&self, source: &str) -> Result<&prism::Environment, Error<String>> {
+impl Environment {
+    pub fn parse_unit(&mut self, source: &str) -> Result<&Environment, Error<String>> {
         let pairs = Palisade::parse(Rule::program, source).unwrap().into_iter();
 
         for pair in pairs {
             match pair.as_rule() {
                 Rule::function => {
-                    self.parse_expression(pair);
+                    self.parse_function_head(pair.into_inner());
                 }
                 Rule::EOI => {
                     return Ok(self);
@@ -31,66 +29,65 @@ impl prism::Environment {
             }
         }
 
-        panic!("Not implemented");
+        Ok(self)
     }
 
-    fn parse_expression(&self, pair: pest::iterators::Pair<Rule>) -> Box<dyn prism::Expression> {
+    fn parse_expression(&self, pair: pest::iterators::Pair<Rule>) -> Box<Expression> {
         match pair.as_rule() {
             Rule::expr => self.parse_expression(pair.into_inner().next().unwrap()),
-            Rule::function => self.parse_function(pair.into_inner()),
             Rule::monadicExpr => self.parse_monadic_app(pair.into_inner()),
             Rule::dyadicExpr => self.parse_dyadic_app(pair.into_inner()),
             Rule::morphemes => {
-                let terms: Vec<Box<dyn prism::Expression>> =
-                    pair.into_inner().map(|x| self.parse_morpheme(x)).collect();
+                let terms: Vec<Expression> = pair
+                    .into_inner()
+                    .map(|x| self.parse_morpheme(x).expr())
+                    .collect();
 
                 match terms.len() {
                     //1 => Box::new(terms.get(0).unwrap()),
-                    _ => Box::new(prism::Vector { body: terms }),
+                    _ => Box::new(Vector { body: terms }.expr()),
                 }
             }
             unknown_expr => panic!("Unexpected expression: {:?}", unknown_expr),
         }
     }
 
-    fn parse_dyadic_app(
-        &self,
-        mut pair: pest::iterators::Pairs<Rule>,
-    ) -> Box<dyn prism::Expression> {
+    fn parse_dyadic_app(&self, mut pair: pest::iterators::Pairs<Rule>) -> Box<Expression> {
         let lhspair = pair.next().unwrap();
         let verb = pair.next().unwrap();
         let rhspair = pair.next().unwrap();
 
-        Box::new(prism::Application {
-            alpha: Some(self.parse_expression(lhspair)),
-            app: prism::Ident {
-                // TODO check this is valid type
-                package: "".to_string(),
-                name: verb.into_inner().as_str().to_string(),
-            },
-            omega: self.parse_expression(rhspair),
-        })
+        Box::new(
+            Application {
+                alpha: Some(self.parse_expression(lhspair)),
+                app: Ident {
+                    package: "".to_string(),
+                    name: verb.into_inner().as_str().to_string(),
+                },
+                omega: self.parse_expression(rhspair),
+            }
+            .expr(),
+        )
     }
 
-    fn parse_monadic_app(
-        &self,
-        mut pair: pest::iterators::Pairs<Rule>,
-    ) -> Box<dyn prism::Expression> {
+    fn parse_monadic_app(&self, mut pair: pest::iterators::Pairs<Rule>) -> Box<Expression> {
         let verb = pair.next().unwrap();
         let rhspair = pair.next().unwrap();
 
-        Box::new(prism::Application {
-            alpha: None,
-            app: prism::Ident {
-                // TODO check this is valid type
-                package: "".to_string(),
-                name: verb.into_inner().as_str().to_string(),
-            },
-            omega: self.parse_expression(rhspair),
-        })
+        Box::new(
+            Application {
+                alpha: None,
+                app: Ident {
+                    package: "".to_string(),
+                    name: verb.into_inner().as_str().to_string(),
+                },
+                omega: self.parse_expression(rhspair),
+            }
+            .expr(),
+        )
     }
 
-    fn parse_morpheme(&self, pair: pest::iterators::Pair<Rule>) -> Box<dyn prism::Expression> {
+    fn parse_morpheme(&self, pair: pest::iterators::Pair<Rule>) -> Box<Expression> {
         match pair.as_rule() {
             Rule::integer => {
                 let istr = pair.as_str();
@@ -99,7 +96,7 @@ impl prism::Environment {
                     _ => (1, &istr[..]),
                 };
                 let integer: i64 = istr.parse().unwrap();
-                Box::new(prism::Morpheme::Int(sign * integer))
+                Box::new(Morpheme::Int(sign * integer).expr())
             }
             Rule::real => {
                 let dstr = pair.as_str();
@@ -113,16 +110,30 @@ impl prism::Environment {
                     flt *= sign;
                 }
 
-                Box::new(prism::Morpheme::Real(flt))
+                Box::new(Morpheme::Real(flt).expr())
             }
+            Rule::string => {
+                let sstr = pair.as_str();
+
+                Box::new(
+                    Vector {
+                        body: (&sstr[1..sstr.len() - 1])
+                            .to_string()
+                            .into_bytes()
+                            .into_iter()
+                            .map(|c| Morpheme::Char(c).expr())
+                            .collect(),
+                    }
+                    .expr(),
+                )
+            }
+            Rule::rune => Box::new(Morpheme::Char(pair.as_str().as_bytes()[1]).expr()),
+            Rule::boolean => Box::new(Morpheme::Bool(pair.as_str().parse().unwrap()).expr()),
             unknown_term => panic!("Unexpected term: {:?}", unknown_term),
         }
     }
 
-    pub fn parse_function(
-        &self,
-        mut pair: pest::iterators::Pairs<Rule>,
-    ) -> Box<dyn prism::Expression> {
+    pub fn parse_function_head(&mut self, mut pair: pest::iterators::Pairs<Rule>) -> Ident {
         let head = pair.next().unwrap();
 
         let (alpha_t, ident_s, omega_t, sigma_t) = match head.as_rule() {
@@ -134,7 +145,7 @@ impl prism::Environment {
                 (
                     match rule {
                         Rule::typedDyadic => Some(parse_type(front.next().unwrap())),
-                        _ => None,
+                        _ => None, // monadic, no alpha type to parse
                     },
                     front.next().unwrap().as_str(),
                     parse_type(front.next().unwrap()),
@@ -147,13 +158,12 @@ impl prism::Environment {
             }
             _ => panic!("Unexpected function head: {:?}", head.as_rule()),
         };
-
-        let f = Box::new(prism::Function {
-            alpha: alpha_t,
-            package: "".to_string(),
-            name: ident_s.to_string(),
-            omega: omega_t,
-            sigma: sigma_t,
+        let id = Ident::new("", ident_s);
+        let f = Function {
+            alpha: Some(TypeGroup::of(&alpha_t.clone().unwrap())),
+            ident: id.clone(),
+            omega: TypeGroup::of(&omega_t),
+            sigma: TypeGroup::of(&sigma_t),
             body: Some(
                 pair.next()
                     .unwrap()
@@ -162,42 +172,13 @@ impl prism::Environment {
                     .map(|e| self.parse_expression(e))
                     .collect::<Vec<_>>(),
             ),
-        });
-        println!("{}", f.as_str());
-        f
-    }
-}
+        };
 
-#[derive(PartialEq, Debug, Clone)]
-pub enum AstNode {
-    Integer(i64),
-    Real(f64),
-    Operator {
-        verb: prism::Ident,
-        op: Box<AstNode>,
-    },
-    Block {
-        body: Vec<AstNode>,
-    },
-    Applicable {
-        expr: Box<AstNode>,
-        ident: String,
-        operator: Box<AstNode>,
-    },
-    MonadicOp {
-        verb: prism::Ident,
-        expr: Box<AstNode>,
-    },
-    DyadicOp {
-        verb: prism::Ident,
-        lhs: Box<AstNode>,
-        rhs: Box<AstNode>,
-    },
-    Morphemes(Vec<AstNode>),
-    IsGlobal {
-        ident: String,
-        expr: Box<AstNode>,
-    },
-    Ident(String),
-    Str(CString),
+        match alpha_t {
+            Some(_) => &self.dya_fns.insert(id.clone(), f),
+            None => &self.mon_fns.insert(id.clone(), f),
+        };
+
+        id.clone()
+    }
 }

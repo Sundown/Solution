@@ -90,7 +90,11 @@ morphemes = {
 }
 
 morpheme = _{
-  real | integer
+  real | integer | rune | string | boolean
+}
+
+boolean = @{
+  "true" | "false"
 }
 
 integer = @{
@@ -116,6 +120,12 @@ ident = @{
 }
 
 string = @{
+  "\""
+  ~ ( "\"\"" | ( !"\"" ~ ANY ) )*
+  ~ "\""
+}
+
+rune = @{
   "'"
   ~ ( "''" | ( !"'" ~ ANY ) )*
   ~ "'"

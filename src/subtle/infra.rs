@@ -1,5 +1,5 @@
 use std::collections::HashSet;
-
+use std::option::Option;
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Ident {
     pub package: String,
@@ -10,6 +10,13 @@ impl Ident {
     pub fn as_str(&self) -> String {
         format!("{}::{}", &self.package, &self.name)
     }
+
+    pub fn new(package: &str, name: &str) -> Self {
+        Ident {
+            package: package.to_string(),
+            name: name.to_string(),
+        }
+    }
 }
 
 pub fn base_ident(name: &str) -> Ident {
@@ -19,13 +26,14 @@ pub fn base_ident(name: &str) -> Ident {
     }
 }
 
+#[derive(Debug, Clone, PartialEq)]
 pub struct Application {
-    pub alpha: Option<Box<dyn Expression>>,
+    pub alpha: Option<Box<Expression>>,
     pub app: Ident,
-    pub omega: Box<dyn Expression>,
+    pub omega: Box<Expression>,
 }
 
-impl Expression for Application {
+impl Application {
     fn as_str(&self) -> String {
         format!(
             "({}{} {})",
@@ -38,9 +46,8 @@ impl Expression for Application {
         )
     }
 
-    fn kind(&self) -> Type {
-        // TODO - this is wrong, change to app once there is helper
-        self.omega.kind()
+    pub fn expr(&self) -> Expression {
+        Expression::Application(self.clone())
     }
 }
 
@@ -53,42 +60,37 @@ pub enum AtomicType {
     Void,
 }
 
-impl Expression for Morpheme {
+impl Morpheme {
     fn as_str(&self) -> String {
         match self {
             Morpheme::Bool(x) => x.to_string(),
-            Morpheme::Char(x) => x.to_string(),
+            Morpheme::Char(x) => format!("'{}'", (*x as char).to_string()),
             Morpheme::Int(x) => x.to_string(),
             Morpheme::Real(x) => x.to_string(),
             Morpheme::Void => "Void".to_string(),
         }
     }
 
-    fn kind(&self) -> Type {
-        match self {
-            Morpheme::Bool(_) => Type::Atomic(AtomicType::Bool),
-            Morpheme::Char(_) => Type::Atomic(AtomicType::Char),
-            Morpheme::Int(_) => Type::Atomic(AtomicType::Int),
-            Morpheme::Real(_) => Type::Atomic(AtomicType::Real),
-            Morpheme::Void => Type::Atomic(AtomicType::Void),
-        }
+    pub fn expr(&self) -> Expression {
+        Expression::Morpheme(*self)
     }
 }
 
-#[derive(Clone)]
+#[derive(Debug, Clone, Copy, PartialEq)]
 pub enum Morpheme {
     Bool(bool),
-    Char(char),
+    Char(u8),
     Int(i64),
     Real(f64),
     Void,
 }
 
+#[derive(Debug, Clone, PartialEq)]
 pub struct Vector {
-    pub body: Vec<Box<dyn Expression>>,
+    pub body: Vec<Expression>,
 }
 
-impl Expression for Vector {
+impl Vector {
     fn as_str(&self) -> String {
         format!(
             "{}",
@@ -100,35 +102,53 @@ impl Expression for Vector {
         )
     }
 
-    fn kind(&self) -> Type {
-        self.body[0].kind()
+    pub fn expr(&self) -> Expression {
+        Expression::Vector(self.clone())
     }
 }
 
-pub trait Expression {
-    fn as_str(&self) -> String;
-    fn kind(&self) -> Type;
+#[derive(Debug, Clone, PartialEq)]
+pub enum Expression {
+    Application(Application),
+    Vector(Vector),
+    Morpheme(Morpheme),
+}
+
+impl Expression {
+    pub fn as_str(&self) -> String {
+        match self {
+            Expression::Application(x) => x.as_str(),
+            Expression::Vector(x) => x.as_str(),
+            Expression::Morpheme(x) => x.as_str(),
+        }
+    }
+
+    pub fn expr(&self) -> Expression {
+        match self {
+            Expression::Application(x) => x.expr(),
+            Expression::Vector(x) => x.expr(),
+            Expression::Morpheme(x) => x.expr(),
+        }
+    }
 }
 
 pub struct Function {
-    pub package: String,
-    pub name: String,
-    pub alpha: Option<Type>,
-    pub omega: Type,
-    pub sigma: Type,
-    pub body: std::option::Option<Vec<Box<dyn Expression>>>,
+    pub ident: Ident,
+    pub alpha: Option<TypeGroup>,
+    pub omega: TypeGroup,
+    pub sigma: TypeGroup,
+    pub body: Option<Vec<Box<Expression>>>,
 }
 
-impl Expression for Function {
-    fn as_str(&self) -> String {
+impl Function {
+    pub fn as_str(&self) -> String {
         format!(
-            "{}{}::{} {} -> {}\n\t{}",
+            "{}{} {} -> {}\n\t{}",
             match &self.alpha {
                 Some(x) => format!("{} ", x.as_str()),
                 None => "".to_string(),
             },
-            self.package,
-            self.name,
+            self.ident.as_str(),
             self.omega.as_str(),
             self.sigma.as_str(),
             match &self.body {
@@ -140,10 +160,6 @@ impl Expression for Function {
                 None => "".to_string(),
             },
         )
-    }
-
-    fn kind(&self) -> Type {
-        self.sigma.clone()
     }
 }
 
@@ -164,8 +180,28 @@ impl TypeGroup {
     }
 }
 
+impl TypeGroup {
+    pub fn as_str(&self) -> String {
+        format!(
+            "{{{}}}",
+            self.gamma
+                .iter()
+                .map(|x| x.as_str())
+                .collect::<Vec<_>>()
+                .join(" ")
+        )
+    }
+
+    pub fn of(ts: &Type) -> TypeGroup {
+        let mut gamma = HashSet::new();
+        gamma.insert(ts.clone());
+        TypeGroup { gamma }
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Hash, Eq)]
 pub enum Type {
+    Unknown(Ident),
     Atomic(AtomicType),
     Vector(Box<Type>),
 }
@@ -173,6 +209,7 @@ pub enum Type {
 impl Type {
     pub fn as_str(&self) -> String {
         match self {
+            Type::Unknown(x) => x.as_str(),
             Type::Atomic(x) => x.as_str(),
             Type::Vector(x) => format!("[{}]", x.as_str()),
         }
@@ -191,6 +228,3 @@ impl AtomicType {
         .to_string()
     }
 }
-
-// TODO
-//pub type TypeGroup = HashSet<Type>;
