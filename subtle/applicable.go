@@ -16,12 +16,14 @@ func (env *Environment) analysePrimeApplicable(app palisade.Applicable, lType, r
 				if f.Returns.IsAlgebraic() {
 					f.Returns = f.Returns.Resolve(rType)
 				}
+
+				env.analyseMBody(&f)
 			}
 
-			env.analyseMBody(&f)
 			env.MonadicFunctions[f.Name] = &f
 			function = f
 		} else {
+			didGeneric := false
 			f := env.FetchDVerb(app.Verb)
 			if g, ok := f.OmegaType.(prism.Universal); ok && g.Has(rType) {
 				f.Name.Name = rType.String() + "." + f.Name.Name
@@ -29,6 +31,8 @@ func (env *Environment) analysePrimeApplicable(app palisade.Applicable, lType, r
 				if f.Returns.IsAlgebraic() {
 					f.Returns = f.Returns.Resolve(rType)
 				}
+
+				didGeneric = true
 			}
 
 			if g, ok := f.AlphaType.(prism.Universal); ok && g.Has(rType) {
@@ -37,9 +41,14 @@ func (env *Environment) analysePrimeApplicable(app palisade.Applicable, lType, r
 				if f.Returns.IsAlgebraic() {
 					f.Returns = f.Returns.Resolve(lType)
 				}
+
+				didGeneric = true
 			}
 
-			env.analyseDBody(&f)
+			if didGeneric {
+				env.analyseDBody(&f)
+			}
+
 			env.DyadicFunctions[f.Name] = &f
 			function = f
 		}

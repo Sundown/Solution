@@ -21,6 +21,8 @@ func IsConstant(e Expression) bool {
 	switch e.(type) {
 	case Int, Real, Char, Bool:
 		return true
+	case Vector:
+		return true // TODO probably not safe
 	}
 
 	return false
