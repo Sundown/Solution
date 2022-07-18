@@ -18,7 +18,7 @@ typeActual = {
 }
 
 atomicType = {
-  name
+  ident
 }
 
 vectorType = {
@@ -114,9 +114,9 @@ name = @{
   ~ ( ASCII_ALPHANUMERIC | "_" )*
 }
 
-ident = @{
-  ASCII_ALPHA
-  ~ ( ASCII_ALPHANUMERIC | "_" )*
+ident = {
+  (name ~ "::")?
+  ~ name
 }
 
 string = @{

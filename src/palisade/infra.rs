@@ -1,5 +1,6 @@
 use std::collections::HashSet;
 use std::option::Option;
+
 #[derive(Debug, Clone, PartialEq, Eq, Hash)]
 pub struct Ident {
     pub package: String,
@@ -166,21 +167,19 @@ impl Function {
 #[derive(Debug, Clone, PartialEq, Eq)]
 pub struct TypeGroup {
     pub gamma: HashSet<Type>,
+    void: bool,
+    universal: bool,
 }
 
 impl TypeGroup {
-    pub fn new() -> TypeGroup {
-        TypeGroup {
-            gamma: HashSet::new(),
-        }
-    }
-
     pub fn universal(&self) -> bool {
-        self.gamma.len() == 0
+        self.universal
     }
-}
 
-impl TypeGroup {
+    pub fn void(&self) -> bool {
+        self.void
+    }
+
     pub fn as_str(&self) -> String {
         format!(
             "{{{}}}",
@@ -195,7 +194,27 @@ impl TypeGroup {
     pub fn of(ts: &Type) -> TypeGroup {
         let mut gamma = HashSet::new();
         gamma.insert(ts.clone());
-        TypeGroup { gamma }
+        TypeGroup {
+            gamma: gamma,
+            void: false,
+            universal: false,
+        }
+    }
+
+    pub fn of_void() -> TypeGroup {
+        TypeGroup {
+            gamma: HashSet::new(),
+            void: true,
+            universal: false,
+        }
+    }
+
+    pub fn of_universal() -> TypeGroup {
+        TypeGroup {
+            gamma: HashSet::new(),
+            void: false,
+            universal: true,
+        }
     }
 }
 

@@ -1,10 +1,9 @@
-pub use crate::subtle::*;
+pub use crate::palisade::*;
 use std::collections::HashMap;
 
 pub struct Environment {
     pub types: HashMap<Ident, Type>,
-    pub mon_fns: HashMap<Ident, Function>,
-    pub dya_fns: HashMap<Ident, Function>,
+    pub functions: HashMap<Ident, Function>,
 }
 
 pub fn new_environment() -> Environment {
@@ -19,21 +18,13 @@ pub fn new_environment() -> Environment {
 
             types
         },
-        mon_fns: HashMap::new(),
-        dya_fns: HashMap::new(),
+
+        functions: HashMap::new(),
     }
 }
 
 impl Environment {
     pub fn get_function(&self, id: &Ident) -> Option<&Function> {
-        if let Some(fn_) = self.mon_fns.get(&id) {
-            return Some(fn_);
-        }
-
-        if let Some(fn_) = self.dya_fns.get(&id) {
-            return Some(fn_);
-        }
-
-        None
+        self.functions.get(&id)
     }
 }

@@ -2,9 +2,7 @@ pub use crate::pest::Parser;
 use core::panic;
 pub use pest::error::Error;
 
-use std::ffi::CString;
-
-pub use crate::subtle::*;
+pub use crate::palisade::*;
 
 #[derive(Parser)]
 #[grammar = "grammar.pest"]
@@ -32,7 +30,7 @@ impl Environment {
         Ok(self)
     }
 
-    fn parse_expression(&self, pair: pest::iterators::Pair<Rule>) -> Box<Expression> {
+    fn parse_expression(&mut self, pair: pest::iterators::Pair<Rule>) -> Box<Expression> {
         match pair.as_rule() {
             Rule::expr => self.parse_expression(pair.into_inner().next().unwrap()),
             Rule::monadicExpr => self.parse_monadic_app(pair.into_inner()),
@@ -52,7 +50,7 @@ impl Environment {
         }
     }
 
-    fn parse_dyadic_app(&self, mut pair: pest::iterators::Pairs<Rule>) -> Box<Expression> {
+    fn parse_dyadic_app(&mut self, mut pair: pest::iterators::Pairs<Rule>) -> Box<Expression> {
         let lhspair = pair.next().unwrap();
         let verb = pair.next().unwrap();
         let rhspair = pair.next().unwrap();
@@ -60,27 +58,21 @@ impl Environment {
         Box::new(
             Application {
                 alpha: Some(self.parse_expression(lhspair)),
-                app: Ident {
-                    package: "".to_string(),
-                    name: verb.into_inner().as_str().to_string(),
-                },
+                app: self.parse_ident(verb),
                 omega: self.parse_expression(rhspair),
             }
             .expr(),
         )
     }
 
-    fn parse_monadic_app(&self, mut pair: pest::iterators::Pairs<Rule>) -> Box<Expression> {
+    fn parse_monadic_app(&mut self, mut pair: pest::iterators::Pairs<Rule>) -> Box<Expression> {
         let verb = pair.next().unwrap();
         let rhspair = pair.next().unwrap();
 
         Box::new(
             Application {
                 alpha: None,
-                app: Ident {
-                    package: "".to_string(),
-                    name: verb.into_inner().as_str().to_string(),
-                },
+                app: self.parse_ident(verb),
                 omega: self.parse_expression(rhspair),
             }
             .expr(),
@@ -133,7 +125,7 @@ impl Environment {
         }
     }
 
-    pub fn parse_function_head(&mut self, mut pair: pest::iterators::Pairs<Rule>) -> Ident {
+    pub fn parse_function_head(&mut self, mut pair: pest::iterators::Pairs<Rule>) {
         let head = pair.next().unwrap();
 
         let (alpha_t, ident_s, omega_t, sigma_t) = match head.as_rule() {
@@ -144,26 +136,39 @@ impl Environment {
                 let mut front = front.into_inner();
                 (
                     match rule {
-                        Rule::typedDyadic => Some(parse_type(front.next().unwrap())),
+                        Rule::typedDyadic => {
+                            Some(TypeGroup::of(&parse_type(front.next().unwrap())))
+                        }
                         _ => None, // monadic, no alpha type to parse
                     },
-                    front.next().unwrap().as_str(),
-                    parse_type(front.next().unwrap()),
-                    parse_type(head.next().unwrap()),
+                    front.next().unwrap(),
+                    TypeGroup::of(&parse_type(front.next().unwrap())),
+                    TypeGroup::of(&parse_type(head.next().unwrap())),
                 )
             }
 
             Rule::ambiguousFunctionHead => {
-                panic!("TODO")
+                let mut head = head.into_inner();
+                (
+                    Some(TypeGroup::of_universal()),
+                    head.next().unwrap(),
+                    TypeGroup::of_universal(),
+                    match head.next() {
+                        Some(t) => TypeGroup::of(&parse_type(t)),
+                        _ => TypeGroup::of_universal(),
+                    },
+                )
             }
             _ => panic!("Unexpected function head: {:?}", head.as_rule()),
         };
-        let id = Ident::new("", ident_s);
+
+        // TODO parse ident properly, perhaps sub fn
+        let id = self.parse_ident(ident_s);
         let f = Function {
-            alpha: Some(TypeGroup::of(&alpha_t.clone().unwrap())),
+            alpha: alpha_t,
             ident: id.clone(),
-            omega: TypeGroup::of(&omega_t),
-            sigma: TypeGroup::of(&sigma_t),
+            omega: omega_t,
+            sigma: sigma_t,
             body: Some(
                 pair.next()
                     .unwrap()
@@ -174,11 +179,15 @@ impl Environment {
             ),
         };
 
-        match alpha_t {
-            Some(_) => &self.dya_fns.insert(id.clone(), f),
-            None => &self.mon_fns.insert(id.clone(), f),
-        };
+        self.functions.insert(id, f);
+    }
 
-        id.clone()
+    fn parse_ident(&mut self, pair: pest::iterators::Pair<Rule>) -> Ident {
+        let mut p = pair.clone().into_inner();
+        let first = p.next().unwrap().as_str();
+        match p.next() {
+            Some(p) => Ident::new(first, p.as_str()),
+            _ => Ident::new("", first),
+        }
     }
 }

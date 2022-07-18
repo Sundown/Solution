@@ -1,9 +1,10 @@
-pub use crate::subtle::*;
+pub use crate::palisade::*;
 
 pub fn parse_type(t: pest::iterators::Pair<Rule>) -> Type {
     match t.as_rule() {
         Rule::typeActual => parse_type(t.into_inner().next().unwrap()),
         Rule::atomicType => Type::Atomic(match t.as_str() {
+            // TODO Change this to parse_ident
             "Bool" => AtomicType::Bool,
             "Char" => AtomicType::Char,
             "Int" => AtomicType::Int,
