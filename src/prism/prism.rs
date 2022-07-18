@@ -1,5 +1,33 @@
-use std::collections::HashSet;
+pub use crate::prism::*;
+use std::collections::{HashMap, HashSet};
 
+// Needs Environment to be singleton
+pub struct Environment {
+    pub base_types: HashMap<Ident, TypeInstance>,
+    pub monadic_functions: HashMap<Ident, MonadicFunction>,
+    pub dyadic_functions: HashMap<Ident, DyadicFunction>,
+}
+
+// Needs Environment to be singleton
+impl DyadicApplication {
+    pub fn kind(&self, env: &Environment) -> Type {
+        env.dyadic_functions.get(&self.phi).unwrap().kind()
+    }
+}
+// Needs Environment to be singleton
+impl MonadicApplication {
+    pub fn kind(&self, env: &Environment) -> Type {
+        env.monadic_functions.get(&self.phi).unwrap().kind()
+    }
+}
+
+pub enum Expression {
+    Morpheme(Morpheme),
+    Monadic(MonadicApplication),
+    Dyadic(DyadicApplication),
+}
+
+#[derive(Hash, PartialEq, Eq)]
 pub struct Ident {
     pub package: String,
     pub name: String,
@@ -13,14 +41,52 @@ impl Ident {
     }
 }
 
+pub struct MonadicApplication {
+    pub phi: Ident,
+    pub omega: Box<Expression>,
+}
+
+pub struct DyadicApplication {
+    pub alpha: Box<Expression>,
+    pub phi: Ident,
+    pub omega: Box<Expression>,
+}
+
 pub struct MonadicFunction {
     pub ident: Ident,
     pub omega: Type,
     pub sigma: Type,
-    pub body: Vec<Type>, // TODO Expression
+    pub body: Vec<Expression>,
+    pub attrs: FuncAttrs,
 }
 
-#[derive(Eq, PartialEq)]
+impl MonadicFunction {
+    pub fn kind(&self) -> Type {
+        self.sigma.clone()
+    }
+}
+
+impl DyadicFunction {
+    pub fn kind(&self) -> Type {
+        self.sigma.clone()
+    }
+}
+
+pub struct DyadicFunction {
+    pub ident: Ident,
+    pub alpha: Type,
+    pub omega: Type,
+    pub sigma: Type,
+    pub body: Vec<Expression>,
+    pub attrs: FuncAttrs,
+}
+
+pub struct FuncAttrs {
+    pub inline: bool, // For LLVM func attr
+    pub elide: bool,  // Subtle stage should ignore
+}
+
+#[derive(Eq, PartialEq, Clone)]
 pub struct Type {
     set: HashSet<TypeInstance>,
     any: bool,
@@ -42,7 +108,7 @@ impl Type {
     }
 }
 
-#[derive(Hash, Eq, PartialEq)]
+#[derive(Hash, Eq, PartialEq, Clone)]
 pub enum TypeInstance {
     Void,
     Bool,
@@ -55,10 +121,6 @@ pub enum TypeInstance {
 
 impl TypeInstance {
     pub fn is_atomic(&self) -> bool {
-        // TODO probably a 1 liner for this
-        match self {
-            TypeInstance::Vector(_) => false,
-            _ => true,
-        }
+        !matches!(self, TypeInstance::Vector(_))
     }
 }

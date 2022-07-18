@@ -5,6 +5,7 @@ extern crate pest_derive;
 
 pub mod palisade;
 pub mod prism;
+pub mod subtle;
 
 fn main() {
     let mut env = palisade::new_environment();
