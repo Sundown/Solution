@@ -47,6 +47,7 @@ pub enum TypeInstance {
     Void,
     Bool,
     Char,
+    Nat,
     Int,
     Real,
     Vector(Box<TypeInstance>), // TODO Type, once I figure out how to hash a HashSet
