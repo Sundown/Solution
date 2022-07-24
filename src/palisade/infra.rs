@@ -1,27 +1,8 @@
-use std::collections::HashSet;
+use crate::prism;
 use std::option::Option;
 
-#[derive(Debug, Clone, PartialEq, Eq, Hash)]
-pub struct Ident {
-    pub package: String,
-    pub name: String,
-}
-
-impl Ident {
-    pub fn as_str(&self) -> String {
-        format!("{}::{}", &self.package, &self.name)
-    }
-
-    pub fn new(package: &str, name: &str) -> Self {
-        Ident {
-            package: package.to_string(),
-            name: name.to_string(),
-        }
-    }
-}
-
-pub fn base_ident(name: &str) -> Ident {
-    Ident {
+pub fn base_ident(name: &str) -> prism::Ident {
+    prism::Ident {
         package: "primary".to_string(),
         name: name.to_string(),
     }
@@ -30,7 +11,7 @@ pub fn base_ident(name: &str) -> Ident {
 #[derive(Debug, Clone, PartialEq)]
 pub struct Application {
     pub alpha: Option<Box<Expression>>,
-    pub app: Ident,
+    pub app: prism::Ident,
     pub omega: Box<Expression>,
 }
 
@@ -134,10 +115,10 @@ impl Expression {
 }
 
 pub struct Function {
-    pub ident: Ident,
-    pub alpha: Option<TypeGroup>,
-    pub omega: TypeGroup,
-    pub sigma: TypeGroup,
+    pub ident: prism::Ident,
+    pub alpha: Option<prism::Type>,
+    pub omega: prism::Type,
+    pub sigma: prism::Type,
     pub body: Option<Vec<Box<Expression>>>,
 }
 
@@ -161,89 +142,5 @@ impl Function {
                 None => "".to_string(),
             },
         )
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Eq)]
-pub struct TypeGroup {
-    pub gamma: HashSet<Type>,
-    void: bool,
-    universal: bool,
-}
-
-impl TypeGroup {
-    pub fn universal(&self) -> bool {
-        self.universal
-    }
-
-    pub fn void(&self) -> bool {
-        self.void
-    }
-
-    pub fn as_str(&self) -> String {
-        format!(
-            "{{{}}}",
-            self.gamma
-                .iter()
-                .map(|x| x.as_str())
-                .collect::<Vec<_>>()
-                .join(" ")
-        )
-    }
-
-    pub fn of(ts: &Type) -> TypeGroup {
-        let mut gamma = HashSet::new();
-        gamma.insert(ts.clone());
-        TypeGroup {
-            gamma: gamma,
-            void: false,
-            universal: false,
-        }
-    }
-
-    pub fn of_void() -> TypeGroup {
-        TypeGroup {
-            gamma: HashSet::new(),
-            void: true,
-            universal: false,
-        }
-    }
-
-    pub fn of_universal() -> TypeGroup {
-        TypeGroup {
-            gamma: HashSet::new(),
-            void: false,
-            universal: true,
-        }
-    }
-}
-
-#[derive(Debug, Clone, PartialEq, Hash, Eq)]
-pub enum Type {
-    Unknown(Ident),
-    Atomic(AtomicType),
-    Vector(Box<Type>),
-}
-
-impl Type {
-    pub fn as_str(&self) -> String {
-        match self {
-            Type::Unknown(x) => x.as_str(),
-            Type::Atomic(x) => x.as_str(),
-            Type::Vector(x) => format!("[{}]", x.as_str()),
-        }
-    }
-}
-
-impl AtomicType {
-    pub fn as_str(&self) -> String {
-        match self {
-            AtomicType::Bool => "Bool",
-            AtomicType::Char => "Char",
-            AtomicType::Int => "Int",
-            AtomicType::Real => "Real",
-            AtomicType::Void => "Void",
-        }
-        .to_string()
     }
 }

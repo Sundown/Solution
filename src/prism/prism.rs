@@ -1,33 +1,70 @@
+pub use crate::palisade;
 pub use crate::prism::*;
 use std::collections::{HashMap, HashSet};
 
-// Needs Environment to be singleton
 pub struct Environment {
-    pub base_types: HashMap<Ident, TypeInstance>,
+    pub types: HashMap<Ident, TypeInstance>,
+    pub pre_functions: HashMap<Ident, palisade::Function>,
     pub monadic_functions: HashMap<Ident, MonadicFunction>,
     pub dyadic_functions: HashMap<Ident, DyadicFunction>,
 }
 
-// Needs Environment to be singleton
-impl DyadicApplication {
-    pub fn kind(&self, env: &Environment) -> Type {
-        env.dyadic_functions.get(&self.phi).unwrap().kind()
+impl Environment {
+    pub fn new() -> Environment {
+        Environment {
+            types: {
+                let mut h = HashMap::new();
+                h.insert(Ident::new("", "Bool"), TypeInstance::Bool);
+                h.insert(Ident::new("", "Char"), TypeInstance::Char);
+                h.insert(Ident::new("", "Word"), TypeInstance::Word);
+                h.insert(Ident::new("", "Nat"), TypeInstance::Nat);
+                h.insert(Ident::new("", "Int"), TypeInstance::Int);
+                h.insert(Ident::new("", "Real"), TypeInstance::Real);
+                h
+            },
+            pre_functions: HashMap::new(),
+            monadic_functions: HashMap::new(),
+            dyadic_functions: HashMap::new(),
+        }
     }
 }
-// Needs Environment to be singleton
+
+impl DyadicApplication {
+    pub fn kind(&self) -> Type {
+        self.sigma_t.clone()
+    }
+}
+
 impl MonadicApplication {
-    pub fn kind(&self, env: &Environment) -> Type {
-        env.monadic_functions.get(&self.phi).unwrap().kind()
+    pub fn kind(&self) -> Type {
+        self.sigma_t.clone()
     }
 }
 
 pub enum Expression {
     Morpheme(Morpheme),
+    Vector(Vector),
     Monadic(MonadicApplication),
     Dyadic(DyadicApplication),
 }
 
-#[derive(Hash, PartialEq, Eq)]
+pub struct Vector {
+    element_type: Type,
+    pub body: Vec<Expression>,
+}
+
+impl Expression {
+    pub fn kind(&self) -> Type {
+        match &self {
+            Expression::Morpheme(m) => m.kind(),
+            Expression::Vector(v) => v.element_type.clone(),
+            Expression::Monadic(m) => m.kind(),
+            Expression::Dyadic(d) => d.kind(),
+        }
+    }
+}
+
+#[derive(Hash, PartialEq, Eq, Debug, Clone, PartialOrd, Ord)]
 pub struct Ident {
     pub package: String,
     pub name: String,
@@ -39,34 +76,40 @@ impl Ident {
             .as_str()
             .to_string()
     }
+
+    pub fn new(package: &str, name: &str) -> Self {
+        Ident {
+            package: package.to_string(),
+            name: name.to_string(),
+        }
+    }
 }
 
 pub struct MonadicApplication {
     pub phi: Ident,
+    pub sigma_t: Type,
+    pub omega_t: Type,
     pub omega: Box<Expression>,
 }
 
 pub struct DyadicApplication {
     pub alpha: Box<Expression>,
+    pub alpha_t: Type,
     pub phi: Ident,
+    pub sigma_t: Type,
     pub omega: Box<Expression>,
+    pub omega_t: Type,
 }
 
 pub struct MonadicFunction {
     pub ident: Ident,
     pub omega: Type,
     pub sigma: Type,
-    pub body: Vec<Expression>,
+    pub body: Option<Vec<Expression>>,
     pub attrs: FuncAttrs,
 }
 
 impl MonadicFunction {
-    pub fn kind(&self) -> Type {
-        self.sigma.clone()
-    }
-}
-
-impl DyadicFunction {
     pub fn kind(&self) -> Type {
         self.sigma.clone()
     }
@@ -77,8 +120,14 @@ pub struct DyadicFunction {
     pub alpha: Type,
     pub omega: Type,
     pub sigma: Type,
-    pub body: Vec<Expression>,
+    pub body: Option<Vec<Expression>>,
     pub attrs: FuncAttrs,
+}
+
+impl DyadicFunction {
+    pub fn kind(&self) -> Type {
+        self.sigma.clone()
+    }
 }
 
 pub struct FuncAttrs {
@@ -86,41 +135,87 @@ pub struct FuncAttrs {
     pub elide: bool,  // Subtle stage should ignore
 }
 
-#[derive(Eq, PartialEq, Clone)]
+impl FuncAttrs {
+    pub fn new() -> FuncAttrs {
+        FuncAttrs {
+            inline: false,
+            elide: false,
+        }
+    }
+}
+
+#[derive(Eq, PartialEq, Clone, Debug)]
 pub struct Type {
-    set: HashSet<TypeInstance>,
-    any: bool,
+    gamma: HashSet<TypeInstance>,
 }
 
 impl Type {
     pub fn any(&self) -> bool {
-        self.any
+        self.gamma.contains(&TypeInstance::Any)
+    }
+
+    pub fn new_any() -> Type {
+        Type {
+            gamma: HashSet::from([TypeInstance::Any]),
+        }
     }
 
     pub fn none(&self) -> bool {
-        self.set.len() > 0
+        self.gamma.len() > 0
+    }
+
+    pub fn single(&self) -> bool {
+        self.gamma.len() == 1
     }
 
     pub fn of(t: TypeInstance) -> Type {
-        let mut h = HashSet::new();
-        h.insert(t);
-        Type { set: h, any: false }
+        Type {
+            gamma: HashSet::from([t]),
+        }
+    }
+
+    pub fn as_str(&self) -> String {
+        format!(
+            "{{{}}}",
+            self.gamma
+                .iter()
+                .map(|x| x.as_str())
+                .collect::<Vec<_>>()
+                .join(" ")
+        )
     }
 }
 
-#[derive(Hash, Eq, PartialEq, Clone)]
+#[derive(Hash, Eq, PartialEq, Clone, PartialOrd, Ord, Debug)]
 pub enum TypeInstance {
+    Any,
     Void,
     Bool,
     Char,
+    Word,
     Nat,
     Int,
     Real,
-    Vector(Box<TypeInstance>), // TODO Type, once I figure out how to hash a HashSet
+    Vector(Box<TypeInstance>),
 }
 
 impl TypeInstance {
     pub fn is_atomic(&self) -> bool {
         !matches!(self, TypeInstance::Vector(_))
+    }
+
+    pub fn as_str(&self) -> String {
+        match self {
+            TypeInstance::Any => "T",
+            TypeInstance::Bool => "Bool",
+            TypeInstance::Char => "Char",
+            TypeInstance::Word => "Word",
+            TypeInstance::Nat => "Nat",
+            TypeInstance::Int => "Int",
+            TypeInstance::Real => "Real",
+            TypeInstance::Void => "Void",
+            TypeInstance::Vector(v) => return format!("[{}]", v.as_str()),
+        }
+        .to_string()
     }
 }

@@ -3,13 +3,14 @@ use core::panic;
 pub use pest::error::Error;
 
 pub use crate::palisade::*;
+pub use crate::prism;
 
 #[derive(Parser)]
 #[grammar = "grammar.pest"]
 pub struct Palisade;
 
-impl Environment {
-    pub fn parse_unit(&mut self, source: &str) -> Result<&Environment, Error<String>> {
+impl prism::Environment {
+    pub fn parse_unit(&mut self, source: &str) -> Result<&prism::Environment, Error<String>> {
         let pairs = Palisade::parse(Rule::program, source).unwrap().into_iter();
 
         for pair in pairs {
@@ -137,32 +138,31 @@ impl Environment {
                 (
                     match rule {
                         Rule::typedDyadic => {
-                            Some(TypeGroup::of(&parse_type(front.next().unwrap())))
+                            Some(prism::Type::of(parse_type(front.next().unwrap())))
                         }
                         _ => None, // monadic, no alpha type to parse
                     },
                     front.next().unwrap(),
-                    TypeGroup::of(&parse_type(front.next().unwrap())),
-                    TypeGroup::of(&parse_type(head.next().unwrap())),
+                    prism::Type::of(parse_type(front.next().unwrap())),
+                    prism::Type::of(parse_type(head.next().unwrap())),
                 )
             }
 
             Rule::ambiguousFunctionHead => {
                 let mut head = head.into_inner();
                 (
-                    Some(TypeGroup::of_universal()),
+                    Some(prism::Type::new_any()),
                     head.next().unwrap(),
-                    TypeGroup::of_universal(),
+                    prism::Type::new_any(),
                     match head.next() {
-                        Some(t) => TypeGroup::of(&parse_type(t)),
-                        _ => TypeGroup::of_universal(),
+                        Some(t) => prism::Type::of(parse_type(t)),
+                        _ => prism::Type::new_any(),
                     },
                 )
             }
             _ => panic!("Unexpected function head: {:?}", head.as_rule()),
         };
 
-        // TODO parse ident properly, perhaps sub fn
         let id = self.parse_ident(ident_s);
         let f = Function {
             alpha: alpha_t,
@@ -179,15 +179,21 @@ impl Environment {
             ),
         };
 
-        self.functions.insert(id, f);
+        self.pre_functions.insert(id, f);
     }
 
-    fn parse_ident(&mut self, pair: pest::iterators::Pair<Rule>) -> Ident {
-        let mut p = pair.clone().into_inner();
-        let first = p.next().unwrap().as_str();
-        match p.next() {
-            Some(p) => Ident::new(first, p.as_str()),
-            _ => Ident::new("", first),
-        }
+    fn parse_ident(&mut self, pair: pest::iterators::Pair<Rule>) -> prism::Ident {
+        let p = pair.clone().into_inner().next().unwrap();
+        let mut q = p.clone().into_inner();
+
+        // Normalise identifiers from user
+        // "x" -> ( , x) -> ::x
+        // "y::x" -> (y, x) -> y::x
+        let (package, name) = match &q.clone().count() {
+            0 => ("", p.as_str()),
+            _ => (q.next().unwrap().as_str(), q.next().unwrap().as_str()),
+        };
+
+        prism::Ident::new(package, name)
     }
 }

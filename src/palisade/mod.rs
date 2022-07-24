@@ -6,6 +6,3 @@ pub use parse_type::*;
 
 mod infra;
 pub use infra::*;
-
-mod environment;
-pub use environment::*;
