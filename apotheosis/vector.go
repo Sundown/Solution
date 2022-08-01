@@ -225,7 +225,7 @@ func (env *Environment) validateVectorIndex(vec prism.Value, index value.Value) 
 
 	leng := env.readVectorLength(vec)
 
-	env.compilePanic(bfalse, "Panic: index %d out of bounds [%d]\n", index, leng)
+	env.compilePanic(bfalse, "RUBICON: index %d out of bounds [%d]\n", index, leng)
 
 	bfalse.NewUnreachable()
 

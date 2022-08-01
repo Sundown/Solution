@@ -1,10 +1,9 @@
 @Package jan;
 
 Main Int → Void {
-	Println 1.0 A 1.5;
-	Println 1 A 1;
-	Println 1 3 A 1 2 1;
-	Println "AA" A "aa";
+	Println 1.5 1.0 0.1 A 5.51 100.42 1.0;
+	Println 1 5 A 6 8;
+	Println "*!" A "!*";
 }
 
 T A T → T {
