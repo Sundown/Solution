@@ -16,11 +16,11 @@ impl prism::Environment {
                 }
             };
         }
+
         for (i, f) in &self.pre_functions {
-            // TODO make this check function isn't being redefined differently
-            // if self.monadic_functions.contains_key(i) || self.monadic_functions.contains_key(i) {
-            //     continue;
-            // }
+            if self.monadic_functions.contains_key(i) || self.monadic_functions.contains_key(i) {
+                panic!();
+            }
 
             match f.alpha.clone() {
                 Some(_) => {
@@ -130,17 +130,16 @@ impl prism::Environment {
         // Check if function is in level 2 functions
         // If yes, use type information to continue
 
-        let f = match self.monadic_functions.get(&a.app) {
-            Some(f) => f,
-            None => {
-                let n = self.pre_functions.get(&a.app).unwrap();
-                let n = self.regulate_monadic_function(n);
+        let f = self.monadic_functions.get(&a.app).unwrap();
+        let expr = self.regulate_expression(&a.omega);
+        let transformation = inspect_mapp_type(&f, &expr);
 
-                self.monadic_functions.insert(n.ident.clone(), n);
-                self.monadic_functions.get(&a.app).unwrap() // &n
-            }
-        };
+        let (_, active_t) = transformation;
 
-        panic!();
+        prism::MonadicApplication {
+            phi: f.ident.clone(),
+            omega: Box::new(expr),
+            omega_t: active_t,
+        }
     }
 }

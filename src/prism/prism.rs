@@ -146,12 +146,16 @@ impl FuncAttrs {
 
 #[derive(Eq, PartialEq, Clone, Debug)]
 pub struct Type {
-    gamma: HashSet<TypeInstance>,
+    pub gamma: HashSet<TypeInstance>,
 }
 
 impl Type {
     pub fn any(&self) -> bool {
         self.gamma.contains(&TypeInstance::Any)
+    }
+
+    pub fn allows(&self, t: &TypeInstance) -> bool {
+        self.gamma.contains(t)
     }
 
     pub fn new_any() -> Type {
@@ -164,8 +168,11 @@ impl Type {
         self.gamma.len() > 0
     }
 
-    pub fn single(&self) -> bool {
-        self.gamma.len() == 1
+    pub fn single(&self) -> Option<TypeInstance> {
+        match self.gamma.iter().next() {
+            Some(t) => Some(t.clone()),
+            None => None,
+        }
     }
 
     pub fn of(t: TypeInstance) -> Type {
@@ -201,7 +208,10 @@ pub enum TypeInstance {
 
 impl TypeInstance {
     pub fn is_atomic(&self) -> bool {
-        !matches!(self, TypeInstance::Vector(_))
+        match self {
+            TypeInstance::Any | TypeInstance::Void | TypeInstance::Vector(_) => false,
+            _ => true,
+        }
     }
 
     pub fn as_str(&self) -> String {
