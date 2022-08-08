@@ -20,7 +20,6 @@ pub fn integrate_type(
         return model.clone();
     };
 
-
     if matches!(model, prism::TypeInstance::Any) {
         return by.clone();
     };
@@ -34,6 +33,23 @@ pub fn integrate_type(
     };
 
     panic!()
+}
+
+pub fn inspect_dapp_type(
+    f: &prism::DyadicFunction,
+    _lhs: &prism::Expression,
+    rhs: &prism::Expression,
+) -> (Relationship, prism::Type) {
+    if f.omega == rhs.kind() {
+        return (Relationship::Match, rhs.kind());
+    }
+    // TODO doesn't yet check alpha type
+    // maybe this should be merged with monadic typesystem anyway...
+    if f.omega.any() || f.omega.allows(&rhs.kind().single().unwrap()) {
+        return (Relationship::FunctionFlexible, rhs.kind());
+    }
+
+    panic!("Casting not implemented yet")
 }
 
 pub fn inspect_mapp_type(

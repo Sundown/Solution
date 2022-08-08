@@ -1,3 +1,3 @@
 Main → Void {
-	1 b::a 1;
+	1 Main 1;
 }

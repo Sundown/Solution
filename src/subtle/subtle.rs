@@ -52,8 +52,15 @@ impl prism::Environment {
             palisade::Expression::Morpheme(m) => {
                 prism::Expression::Morpheme(self.regulate_morpheme(m))
             }
-            palisade::Expression::Application(_) => panic!("TODO app"),
-            palisade::Expression::Vector(_) => panic!("TODO vec"),
+            palisade::Expression::Application(a) => self.regulate_application(a),
+            palisade::Expression::Vector(v) => prism::Expression::Vector(self.regulate_vector(v)),
+        }
+    }
+
+    fn regulate_vector(&self, v: &palisade::Vector) -> prism::Vector {
+        prism::Vector {
+            element_type: v.kind().clone(),
+            body: v.body.iter().map(|e| self.regulate_expression(e)).collect(),
         }
     }
 
@@ -123,10 +130,35 @@ impl prism::Environment {
         }
     }
 
-    fn regulate_monadic_application(
-        &mut self,
-        a: &palisade::Application,
-    ) -> prism::MonadicApplication {
+    fn regulate_application(&self, a: &palisade::Application) -> prism::Expression {
+        match a.alpha {
+            Some(_) => prism::Expression::Dyadic(self.regulate_dyadic_application(a)),
+            None => prism::Expression::Monadic(self.regulate_monadic_application(a)),
+        }
+    }
+
+    fn regulate_dyadic_application(&self, a: &palisade::Application) -> prism::DyadicApplication {
+        // Check if function is in level 2 functions
+        // If yes, use type information to continue
+
+        let f = self.dyadic_functions.get(&a.app).unwrap();
+        let lhs = self.regulate_expression(&a.alpha.as_ref().unwrap());
+        let rhs = self.regulate_expression(&a.omega);
+        let transformation = inspect_dapp_type(&f, &lhs, &rhs);
+
+        let (_, active_t) = transformation;
+
+        prism::DyadicApplication {
+            alpha_t: f.alpha.clone(),
+            alpha: Box::new(lhs),
+            phi: f.ident.clone(),
+            omega: Box::new(rhs),
+            omega_t: active_t,
+            sigma_t: f.sigma.clone(),
+        }
+    }
+
+    fn regulate_monadic_application(&self, a: &palisade::Application) -> prism::MonadicApplication {
         // Check if function is in level 2 functions
         // If yes, use type information to continue
 
@@ -140,6 +172,7 @@ impl prism::Environment {
             phi: f.ident.clone(),
             omega: Box::new(expr),
             omega_t: active_t,
+            sigma_t: f.sigma.clone(),
         }
     }
 }

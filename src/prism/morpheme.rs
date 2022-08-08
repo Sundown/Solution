@@ -22,4 +22,16 @@ impl Morpheme {
             Morpheme::Void => TypeInstance::Void,
         });
     }
+
+    pub fn as_str(&self) -> String {
+        return match &self {
+            Morpheme::Bool(b) => b.to_string(),
+            Morpheme::Char(c) => c.to_string(),
+            Morpheme::Word(w) => w.to_string(),
+            Morpheme::Nat(n) => n.to_string(),
+            Morpheme::Int(i) => i.to_string(),
+            Morpheme::Real(r) => r.to_string(),
+            Morpheme::Void => "Void".to_string(),
+        };
+    }
 }

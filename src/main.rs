@@ -19,4 +19,14 @@ fn main() {
     for (_, fn_) in env.pre_functions.iter() {
         println!("{}", fn_.as_str());
     }
+
+    println!("------");
+
+    for (_, fn_) in env.dyadic_functions.iter() {
+        println!("{}", fn_.as_str());
+    }
+
+    for (_, fn_) in env.monadic_functions.iter() {
+        println!("{}", fn_.as_str());
+    }
 }

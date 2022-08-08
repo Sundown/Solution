@@ -59,7 +59,7 @@ impl prism::Environment {
         Box::new(
             Application {
                 alpha: Some(self.parse_expression(lhspair)),
-                app: self.parse_ident(verb),
+                app: self.parse_ident(verb.into_inner().next().unwrap()),
                 omega: self.parse_expression(rhspair),
             }
             .expr(),

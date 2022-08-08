@@ -56,6 +56,16 @@ impl Morpheme {
     pub fn expr(&self) -> Expression {
         Expression::Morpheme(*self)
     }
+
+    pub fn kind(&self) -> prism::TypeInstance {
+        match self {
+            Morpheme::Bool(_) => prism::TypeInstance::Bool,
+            Morpheme::Char(_) => prism::TypeInstance::Char,
+            Morpheme::Int(_) => prism::TypeInstance::Int,
+            Morpheme::Real(_) => prism::TypeInstance::Real,
+            Morpheme::Void => prism::TypeInstance::Void,
+        }
+    }
 }
 
 #[derive(Debug, Clone, Copy, PartialEq)]
@@ -86,6 +96,13 @@ impl Vector {
 
     pub fn expr(&self) -> Expression {
         Expression::Vector(self.clone())
+    }
+
+    pub fn kind(&self) -> prism::TypeInstance {
+        match self.body.get(0).unwrap() {
+            Expression::Morpheme(m) => m.kind(),
+            _ => panic!("Vector body must be a list of Morpheme"),
+        }
     }
 }
 

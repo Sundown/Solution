@@ -29,18 +29,6 @@ impl Environment {
     }
 }
 
-impl DyadicApplication {
-    pub fn kind(&self) -> Type {
-        self.sigma_t.clone()
-    }
-}
-
-impl MonadicApplication {
-    pub fn kind(&self) -> Type {
-        self.sigma_t.clone()
-    }
-}
-
 pub enum Expression {
     Morpheme(Morpheme),
     Vector(Vector),
@@ -49,17 +37,36 @@ pub enum Expression {
 }
 
 pub struct Vector {
-    element_type: Type,
+    pub element_type: TypeInstance,
     pub body: Vec<Expression>,
 }
-
+impl Vector {
+    pub fn as_str(&self) -> String {
+        let mut s = String::new();
+        s.push_str("[");
+        for e in &self.body {
+            s.push_str(&format!("{}", e.as_str()));
+        }
+        s.push_str("]");
+        s
+    }
+}
 impl Expression {
     pub fn kind(&self) -> Type {
         match &self {
             Expression::Morpheme(m) => m.kind(),
-            Expression::Vector(v) => v.element_type.clone(),
+            Expression::Vector(v) => Type::of(v.element_type.clone()),
             Expression::Monadic(m) => m.kind(),
             Expression::Dyadic(d) => d.kind(),
+        }
+    }
+
+    pub fn as_str(&self) -> String {
+        match &self {
+            Expression::Morpheme(m) => m.as_str(),
+            Expression::Vector(v) => v.as_str(),
+            Expression::Monadic(m) => m.as_str(),
+            Expression::Dyadic(d) => d.as_str(),
         }
     }
 }
@@ -92,6 +99,16 @@ pub struct MonadicApplication {
     pub omega: Box<Expression>,
 }
 
+impl MonadicApplication {
+    pub fn kind(&self) -> Type {
+        self.sigma_t.clone()
+    }
+
+    pub fn as_str(&self) -> String {
+        format!("{} {}", self.phi.as_str(), self.omega.as_str(),)
+    }
+}
+
 pub struct DyadicApplication {
     pub alpha: Box<Expression>,
     pub alpha_t: Type,
@@ -99,6 +116,21 @@ pub struct DyadicApplication {
     pub sigma_t: Type,
     pub omega: Box<Expression>,
     pub omega_t: Type,
+}
+
+impl DyadicApplication {
+    pub fn kind(&self) -> Type {
+        self.sigma_t.clone()
+    }
+
+    pub fn as_str(&self) -> String {
+        format!(
+            "{} {} {}",
+            self.alpha.as_str(),
+            self.phi.as_str(),
+            self.omega.as_str(),
+        )
+    }
 }
 
 pub struct MonadicFunction {
@@ -112,6 +144,23 @@ pub struct MonadicFunction {
 impl MonadicFunction {
     pub fn kind(&self) -> Type {
         self.sigma.clone()
+    }
+
+    pub fn as_str(&self) -> String {
+        format!(
+            "{} {} -> {}\n\t{}",
+            self.ident.as_str(),
+            self.omega.as_str(),
+            self.sigma.as_str(),
+            match &self.body {
+                Some(x) => x
+                    .iter()
+                    .map(|x| x.as_str())
+                    .collect::<Vec<_>>()
+                    .join("\n\t"),
+                None => "".to_string(),
+            },
+        )
     }
 }
 
@@ -127,6 +176,24 @@ pub struct DyadicFunction {
 impl DyadicFunction {
     pub fn kind(&self) -> Type {
         self.sigma.clone()
+    }
+
+    pub fn as_str(&self) -> String {
+        format!(
+            "{} {} {} -> {}\n\t{}",
+            self.alpha.as_str(),
+            self.ident.as_str(),
+            self.omega.as_str(),
+            self.sigma.as_str(),
+            match &self.body {
+                Some(x) => x
+                    .iter()
+                    .map(|x| x.as_str())
+                    .collect::<Vec<_>>()
+                    .join("\n\t"),
+                None => "".to_string(),
+            },
+        )
     }
 }
 
