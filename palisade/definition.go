@@ -18,19 +18,26 @@ type Ident struct {
 }
 
 type Function struct {
-	Dyadic *struct {
-		Alpha *Type  `parser:"@@ "`
-		Ident *Ident `parser:"@@ "`
-		Omega *Type  `parser:"@@ "`
-	} `parser:"(@@"`
+	TypedFunction *struct {
+		Dyadic *struct {
+			Alpha *Type  `parser:"@@ "`
+			Ident *Ident `parser:"@@ "`
+			Omega *Type  `parser:"@@ "`
+		} `parser:"(@@"`
+		Monadic *struct {
+			Ident *Ident `parser:"@@"`
+			Omega *Type  `parser:"@@"`
+		} `parser:"| @@)"`
+		Returns *Type `parser:"'→'  @@ "`
+	} `parser:"(@@ |"`
 
-	Monadic *struct {
-		Ident *Ident `parser:"@@"`
-		Omega *Type  `parser:"@@"`
-	} `parser:"| @@)"`
+	AmbiguousFunction *struct {
+		Ident   *Ident `parser:"@@"`
+		Returns *Type  `parser:"('→' @@)?"`
+	} `parser:"@@)"`
 
-	Returns *Type         `parser:"'→'  @@  '{'"`
-	Body    *[]Expression `parser:"(@@ ';')+ '}'"`
+	Body  *[]Expression `parser:"(('{' (@@ ';')+ '}')"`
+	Tacit *Expression   `parser:"| (@@ ';'))"`
 }
 
 type Type struct {

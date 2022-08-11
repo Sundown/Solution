@@ -7,6 +7,7 @@ import (
 
 	"github.com/alecthomas/participle/v2"
 	"github.com/alecthomas/participle/v2/lexer"
+	"github.com/alecthomas/repr"
 )
 
 var parser = participle.MustBuild(
@@ -107,8 +108,10 @@ func (env Environment) SubstantiateType(t palisade.Type) Type {
 		}
 
 		return StructType{FieldTypes: acc}
+	} else {
+		return Universal{}
 	}
-
+	repr.Println(t)
 	Panic("Unknown type")
 	return nil
 }

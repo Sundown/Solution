@@ -95,12 +95,21 @@ func (env Environment) FetchDVerb(v *palisade.Ident) DyadicFunction {
 		return *found
 	}
 
-	panic("Dyadic verb " + *v.Ident + " not found")
+	if _, ok := env.MonadicFunctions[Intern(*v)]; ok {
+		Panic("Dyadic verb " + *v.Ident + " not found, but monadic verb exists of same name")
+	}
+
+	Panic("Dyadic verb " + *v.Ident + " not found")
+	panic(nil)
 }
 
 func (env Environment) FetchMVerb(v *palisade.Ident) MonadicFunction {
 	if found, ok := env.MonadicFunctions[Intern(*v)]; ok {
 		return *found
+	}
+
+	if _, ok := env.DyadicFunctions[Intern(*v)]; ok {
+		Panic("Monadic verb " + *v.Ident + " not found, but dyadic verb exists of same name")
 	}
 
 	Panic("Monadic verb " + *v.Ident + " not found")

@@ -57,26 +57,59 @@ func Parse(penv *prism.Environment) *prism.Environment {
 }
 
 func (env Environment) internFunction(f palisade.Function) {
-	if f.Dyadic != nil {
-		fn := prism.DyadicFunction{
-			Name:      prism.Intern(*f.Dyadic.Ident),
-			AlphaType: env.SubstantiateType(*f.Dyadic.Alpha),
-			OmegaType: env.SubstantiateType(*f.Dyadic.Omega),
-			Returns:   env.SubstantiateType(*f.Returns),
-			PreBody:   f.Body,
+	var alpha, omega, sigma prism.Type
+	dyadic := false
+	var ident prism.Ident
+	var body []palisade.Expression
+
+	if p := f.TypedFunction; p != nil {
+		if p.Dyadic != nil {
+			dyadic = true
+			ident = prism.Intern(*p.Dyadic.Ident)
+			alpha = env.SubstantiateType(*p.Dyadic.Alpha)
+			omega = env.SubstantiateType(*p.Dyadic.Omega)
+		} else if p.Monadic != nil {
+			ident = prism.Intern(*p.Monadic.Ident)
+			omega = env.SubstantiateType(*p.Monadic.Omega)
 		}
+
+		sigma = env.SubstantiateType(*p.Returns)
+	} else if p := f.AmbiguousFunction; p != nil {
+		dyadic = env.determineArity(&f)
+		alpha = prism.Universal{}
+		omega = prism.Universal{}
+		sigma = prism.Universal{}
+		ident = prism.Intern(*p.Ident)
+	}
+
+	if f.Tacit != nil {
+		body = []palisade.Expression{*f.Tacit}
+	} else if f.Body != nil {
+		body = *f.Body
+	}
+
+	if dyadic {
+		fn := prism.DyadicFunction{
+			Name:      ident,
+			AlphaType: alpha,
+			OmegaType: omega,
+			Returns:   sigma,
+			PreBody:   &body,
+		}
+
 		if _, ok := env.DyadicFunctions[fn.Name]; ok {
 			prism.Panic("Dyadic function " + fn.Name.String() + " is already defined")
 		} else {
 			env.DyadicFunctions[fn.Name] = &fn
 		}
-	} else if f.Monadic != nil {
+	} else {
 		fn := prism.MonadicFunction{
-			Name:      prism.Intern(*f.Monadic.Ident),
-			OmegaType: env.SubstantiateType(*f.Monadic.Omega),
-			Returns:   env.SubstantiateType(*f.Returns),
-			PreBody:   f.Body,
+			Name:      ident,
+			OmegaType: omega,
+			Returns:   sigma,
+			PreBody:   &body,
 		}
+
 		if _, ok := env.MonadicFunctions[fn.Name]; ok {
 			prism.Panic("Monadic function " + fn.Name.String() + " is already defined")
 		} else {
