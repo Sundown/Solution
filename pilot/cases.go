@@ -8,6 +8,4 @@ var Cases = []Test{
 	{Name: "Train #2", Code: `Print 1.2(+++++)11.3;`, Result: "37.500000", Expr: true},
 	{Name: "Train #3", Code: `Print 1.2(⌈+⌊+⌊)11.3;`, Result: "13.700000", Expr: true},
 	{Name: "Vectored-op #1", Code: `Print+/13.4 4.1+5.1 4.1;`, Result: "26.700000", Expr: true},
-
-	// TODO remove all references to panic() in Solution, make prism.Panic() send signal, learn about channels
 }

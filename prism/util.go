@@ -22,7 +22,7 @@ func IsConstant(e Expression) bool {
 	case Int, Real, Char, Bool:
 		return true
 	case Vector:
-		return true // TODO probably not safe
+		return true // TODO: not always safe
 	}
 
 	return false

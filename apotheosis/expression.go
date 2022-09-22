@@ -29,11 +29,8 @@ func (env *Environment) compileExpression(expr *prism.Expression) value.Value {
 
 		return env.CurrentFunction.Params[1]
 
-	// TODO find out what's causing this
-	case prism.Cast:
-		return env.compileCast(t)
-	case *prism.Cast:
-		return env.compileCast(*t)
+	case prism.Cast, *prism.Cast:
+		panic("Casts dont' exist yet really")
 	}
 
 	panic(expr)
