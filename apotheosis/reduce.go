@@ -12,7 +12,7 @@ import (
 // TODO:
 // Consider binary/ternary system for reducing, only checking n every so many iterations.
 // Create different blocks to handle 1, 2, or 3 operations at a time, branching probably
-// makes this slow even with Clang vectorisation
+// makes this slow
 
 /* Code roughly represents
 T Reduce(F, A) {
