@@ -7,7 +7,6 @@ import (
 
 	"github.com/alecthomas/participle/v2"
 	"github.com/alecthomas/participle/v2/lexer"
-	"github.com/alecthomas/repr"
 )
 
 var parser = participle.MustBuild(
@@ -51,6 +50,17 @@ func Lex(env *Environment) *Environment {
 func Intern(i palisade.Ident) (p Ident) {
 	if i.Namespace == nil {
 		p.Package = "_"
+	} else {
+		p.Package = *i.Namespace
+	}
+
+	p.Name = *i.Ident
+	return
+}
+
+func (env Environment) AwareIntern(i palisade.Ident) (p Ident) {
+	if i.Namespace == nil {
+		p.Package = env.Output
 	} else {
 		p.Package = *i.Namespace
 	}
@@ -111,7 +121,7 @@ func (env Environment) SubstantiateType(t palisade.Type) Type {
 	} else {
 		return Universal{}
 	}
-	repr.Println(t)
+
 	Panic("Unknown type")
 	return nil
 }
