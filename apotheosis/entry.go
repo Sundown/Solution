@@ -37,12 +37,13 @@ func Compile(penv *prism.Environment) *prism.Environment {
 		ir.NewModule().AttrGroupDefs,
 		&ir.AttrGroupDef{ID: 0, FuncAttrs: []ir.FuncAttribute{enum.FuncAttrAlwaysInline}})
 
-	env.Module.TargetTriple = "nvptx64-unknown-cuda"
-	env.Module.DataLayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-i128:128:128-f32:32:32-f64:64:64-v16:16:16-v32:32:32-v64:64:64-v128:128:128-n16:32:64"
+	// For CUDA
+	//env.Module.TargetTriple = "nvptx64-unknown-cuda"
+	//env.Module.DataLayout = "e-p:64:64:64-i1:8:8-i8:8:8-i16:16:16-i32:32:32-i64:64:64-i128:128:128-f32:32:32-f64:64:64-v16:16:16-v32:32:32-v64:64:64-v128:128:128-n16:32:64"
 
 	env.
 		declareFunctions().
-		compileFunctions().
+		buildFunctions().
 		initMain()
 
 	return env.Environment
@@ -79,7 +80,7 @@ func (env *Environment) declareFunctions() *Environment {
 	return env
 }
 
-func (env *Environment) compileFunctions() *Environment {
+func (env *Environment) buildFunctions() *Environment {
 	for _, fn := range env.DyadicFunctions {
 		if fn.Special {
 			continue
@@ -93,7 +94,7 @@ func (env *Environment) compileFunctions() *Environment {
 			continue
 		}
 
-		env.LLDyadicFunctions[fn.LLVMise()] = env.compileDyadicFunction(*fn)
+		env.LLDyadicFunctions[fn.LLVMise()] = env.newDyadicFunction(*fn)
 	}
 
 	for _, fn := range env.MonadicFunctions {
@@ -105,7 +106,7 @@ func (env *Environment) compileFunctions() *Environment {
 			continue
 		}
 
-		env.LLMonadicFunctions[fn.LLVMise()] = env.compileMonadicFunction(*fn)
+		env.LLMonadicFunctions[fn.LLVMise()] = env.newMonadicFunction(*fn)
 
 	}
 
@@ -141,32 +142,32 @@ func (env *Environment) initMain() *Environment {
 }
 
 func (env *Environment) insertCallables() {
-	env.LLDyadicCallables[","] = prism.MakeDC(env.compileInlineAppend, true)
-	env.LLDyadicCallables["+"] = prism.MakeDC(env.compileInlineDAdd, false)
-	env.LLDyadicCallables["-"] = prism.MakeDC(env.compileInlineDSub, false)
-	env.LLDyadicCallables["×"] = prism.MakeDC(env.compileInlineMul, false)
-	env.LLDyadicCallables["÷"] = prism.MakeDC(env.compileInlineDiv, false)
-	env.LLDyadicCallables["*"] = prism.MakeDC(env.compileInlinePow, false)
-	env.LLDyadicCallables["="] = prism.MakeDC(env.compileInlineEqual, false)
-	env.LLDyadicCallables["⌈"] = prism.MakeDC(env.compileInlineMax, false)
-	env.LLDyadicCallables["⌊"] = prism.MakeDC(env.compileInlineMin, false)
-	env.LLDyadicCallables["∧"] = prism.MakeDC(env.compileInlineAnd, false)
-	env.LLDyadicCallables["∨"] = prism.MakeDC(env.compileInlineOr, false)
-	env.LLDyadicCallables["⊃"] = prism.MakeDC(env.compileInlineIndex, true)
-	env.LLDyadicCallables["⊢"] = prism.MakeDC(env.compileInlineRightTacD, false)
-	env.LLDyadicCallables["⊣"] = prism.MakeDC(env.compileInlineLeftTacD, false)
+	env.LLDyadicCallables[","] = prism.MakeDC(env.newInlineAppend, true)
+	env.LLDyadicCallables["+"] = prism.MakeDC(env.newInlineDAdd, false)
+	env.LLDyadicCallables["-"] = prism.MakeDC(env.newInlineDSub, false)
+	env.LLDyadicCallables["×"] = prism.MakeDC(env.newInlineMul, false)
+	env.LLDyadicCallables["÷"] = prism.MakeDC(env.newInlineDiv, false)
+	env.LLDyadicCallables["*"] = prism.MakeDC(env.newInlinePow, false)
+	env.LLDyadicCallables["="] = prism.MakeDC(env.newInlineEqual, false)
+	env.LLDyadicCallables["⌈"] = prism.MakeDC(env.newInlineMax, false)
+	env.LLDyadicCallables["⌊"] = prism.MakeDC(env.newInlineMin, false)
+	env.LLDyadicCallables["∧"] = prism.MakeDC(env.newInlineAnd, false)
+	env.LLDyadicCallables["∨"] = prism.MakeDC(env.newInlineOr, false)
+	env.LLDyadicCallables["⊃"] = prism.MakeDC(env.newInlineIndex, true)
+	env.LLDyadicCallables["⊢"] = prism.MakeDC(env.newInlineRightTacD, false)
+	env.LLDyadicCallables["⊣"] = prism.MakeDC(env.newInlineLeftTacD, false)
 
-	env.LLMonadicCallables["*"] = prism.MakeMC(env.compileInlineExp, false)
-	env.LLMonadicCallables["-"] = prism.MakeMC(env.compileInlineMSub, false)
-	env.LLMonadicCallables["~"] = prism.MakeMC(env.compileInlineNot, false)
-	env.LLMonadicCallables["⍳"] = prism.MakeMC(env.compileInlineIota, true)
-	env.LLMonadicCallables["⊂"] = prism.MakeMC(env.compileInlineEnclose, true)
-	env.LLMonadicCallables["⊢"] = prism.MakeMC(env.compileInlineRightTacM, false)
-	env.LLMonadicCallables["Println"] = prism.MakeMC(env.compileInlinePrintln, true)
-	env.LLMonadicCallables["Print"] = prism.MakeMC(env.compileInlinePrint, true)
-	env.LLMonadicCallables["Panic"] = prism.MakeMC(env.compileInlinePanic, false)
-	env.LLMonadicCallables["≢"] = prism.MakeMC(env.compileInlineTally, true)
-	env.LLMonadicCallables["__Cap"] = prism.MakeMC(env.compileInlineCapacity, false)
-	env.LLMonadicCallables["⌈"] = prism.MakeMC(env.compileInlineCeil, false)
-	env.LLMonadicCallables["⌊"] = prism.MakeMC(env.compileInlineFloor, false)
+	env.LLMonadicCallables["*"] = prism.MakeMC(env.newInlineExp, false)
+	env.LLMonadicCallables["-"] = prism.MakeMC(env.newInlineMSub, false)
+	env.LLMonadicCallables["~"] = prism.MakeMC(env.newInlineNot, false)
+	env.LLMonadicCallables["⍳"] = prism.MakeMC(env.newInlineIota, true)
+	env.LLMonadicCallables["⊂"] = prism.MakeMC(env.newInlineEnclose, true)
+	env.LLMonadicCallables["⊢"] = prism.MakeMC(env.newInlineRightTacM, false)
+	env.LLMonadicCallables["Println"] = prism.MakeMC(env.newInlinePrintln, true)
+	env.LLMonadicCallables["Print"] = prism.MakeMC(env.newInlinePrint, true)
+	env.LLMonadicCallables["Panic"] = prism.MakeMC(env.newInlinePanic, false)
+	env.LLMonadicCallables["≢"] = prism.MakeMC(env.newInlineTally, true)
+	env.LLMonadicCallables["__Cap"] = prism.MakeMC(env.newInlineCapacity, false)
+	env.LLMonadicCallables["⌈"] = prism.MakeMC(env.newInlineCeil, false)
+	env.LLMonadicCallables["⌊"] = prism.MakeMC(env.newInlineFloor, false)
 }

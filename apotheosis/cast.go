@@ -55,8 +55,8 @@ func (env Environment) castBool(from prism.Value) value.Value {
 	panic(nil)
 }
 
-func (env Environment) compileCast(cast prism.Cast) value.Value {
-	val := prism.Value{Value: env.compileExpression(&cast.Value), Type: cast.Value.Type()}
+func (env Environment) newCast(cast prism.Cast) value.Value {
+	val := prism.Value{Value: env.newExpression(&cast.Value), Type: cast.Value.Type()}
 	var castfn prism.MCallable
 	var from prism.Type
 	pred := false

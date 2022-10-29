@@ -28,7 +28,7 @@ T Reduce(F, A) {
 	return accum
 }*/
 
-func (env *Environment) compileInlineReduce(fn prism.DyadicFunction, vec prism.Value) value.Value {
+func (env *Environment) newInlineReduce(fn prism.DyadicFunction, vec prism.Value) value.Value {
 	vectyp := vec.Type.(prism.VectorType).Type
 
 	len := env.readVectorLength(vec)

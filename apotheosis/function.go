@@ -11,7 +11,7 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-func (env *Environment) compileFunction(f *prism.Function) value.Value {
+func (env *Environment) newFunction(f *prism.Function) value.Value {
 	if mfn, ok := env.LLMonadicFunctions[(*f).LLVMise()]; ok {
 		return mfn
 	} else if dfn, ok := env.LLDyadicFunctions[(*f).LLVMise()]; ok {
@@ -22,10 +22,10 @@ func (env *Environment) compileFunction(f *prism.Function) value.Value {
 	panic(nil)
 }
 
-func (env *Environment) compileBlock(body *[]prism.Expression) {
+func (env *Environment) buildBlock(body *[]prism.Expression) {
 	// Block is just an expression[]
 	for _, stmt := range *body {
-		env.compileExpression(&stmt)
+		env.newExpression(&stmt)
 	}
 }
 
@@ -43,12 +43,12 @@ func (env *Environment) declareMonadicFunction(fn prism.MonadicFunction) *ir.Fun
 		env.toParam(fn.OmegaType))
 }
 
-func (env *Environment) compileDyadicFunction(fn prism.DyadicFunction) *ir.Func {
+func (env *Environment) newDyadicFunction(fn prism.DyadicFunction) *ir.Func {
 	env.CurrentFunction = env.LLDyadicFunctions[fn.LLVMise()]
 	env.CurrentFunctionIR = fn
 
 	env.Block = env.newBlock(env.CurrentFunction)
-	env.compileBlock(&fn.Body)
+	env.buildBlock(&fn.Body)
 
 	if fn.Returns.Kind() == prism.VoidType.ID {
 		env.Block.NewRet(nil)
@@ -61,12 +61,12 @@ func (env *Environment) compileDyadicFunction(fn prism.DyadicFunction) *ir.Func 
 	return env.CurrentFunction
 }
 
-func (env *Environment) compileMonadicFunction(fn prism.MonadicFunction) *ir.Func {
+func (env *Environment) newMonadicFunction(fn prism.MonadicFunction) *ir.Func {
 	env.CurrentFunction = env.LLMonadicFunctions[fn.LLVMise()]
 	env.CurrentFunctionIR = fn
 
 	env.Block = env.newBlock(env.CurrentFunction)
-	env.compileBlock(&fn.Body)
+	env.buildBlock(&fn.Body)
 
 	if fn.Returns.Kind() == prism.VoidType.ID {
 		env.Block.NewRet(nil)

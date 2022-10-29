@@ -8,19 +8,19 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-func (env *Environment) compileInlineRightTacD(alpha, omega prism.Value) value.Value {
+func (env *Environment) newInlineRightTacD(alpha, omega prism.Value) value.Value {
 	return omega.Value
 }
 
-func (env *Environment) compileInlineRightTacM(omega prism.Value) value.Value {
+func (env *Environment) newInlineRightTacM(omega prism.Value) value.Value {
 	return omega.Value
 }
 
-func (env *Environment) compileInlineLeftTacD(alpha, omega prism.Value) value.Value {
+func (env *Environment) newInlineLeftTacD(alpha, omega prism.Value) value.Value {
 	return alpha.Value
 }
 
-func (env *Environment) compileInlineDAdd(alpha, omega prism.Value) value.Value {
+func (env *Environment) newInlineDAdd(alpha, omega prism.Value) value.Value {
 	switch alpha.Type.Kind() {
 	case prism.RealType.ID:
 		return env.Block.NewFAdd(alpha.Value, omega.Value)
@@ -33,7 +33,7 @@ func (env *Environment) compileInlineDAdd(alpha, omega prism.Value) value.Value 
 	panic(nil)
 }
 
-func (env *Environment) compileInlineMSub(omega prism.Value) value.Value {
+func (env *Environment) newInlineMSub(omega prism.Value) value.Value {
 	switch omega.Type.Kind() {
 	case prism.RealType.ID:
 		return env.Block.NewFSub(f64(0), omega.Value)
@@ -47,7 +47,7 @@ func (env *Environment) compileInlineMSub(omega prism.Value) value.Value {
 	panic(nil)
 }
 
-func (env *Environment) compileInlinePow(alpha, omega prism.Value) value.Value {
+func (env *Environment) newInlinePow(alpha, omega prism.Value) value.Value {
 	switch alpha.Type.Kind() {
 	case prism.RealType.ID:
 		return env.Block.NewCall(env.getPowReal(), alpha.Value, omega.Value)
@@ -65,7 +65,7 @@ func (env *Environment) compileInlinePow(alpha, omega prism.Value) value.Value {
 	panic(nil)
 }
 
-func (env *Environment) compileInlineExp(omega prism.Value) value.Value {
+func (env *Environment) newInlineExp(omega prism.Value) value.Value {
 	switch omega.Type.Kind() {
 	case prism.RealType.ID:
 		return env.Block.NewCall(env.getPowReal(), f64(2.7182818284590452354), omega.Value)
@@ -83,7 +83,7 @@ func (env *Environment) compileInlineExp(omega prism.Value) value.Value {
 	panic(nil)
 }
 
-func (env *Environment) compileInlineDSub(alpha, omega prism.Value) value.Value {
+func (env *Environment) newInlineDSub(alpha, omega prism.Value) value.Value {
 	switch alpha.Type.Kind() {
 	case prism.RealType.ID:
 		return env.Block.NewFSub(alpha.Value, omega.Value)
@@ -97,7 +97,7 @@ func (env *Environment) compileInlineDSub(alpha, omega prism.Value) value.Value 
 	panic(nil)
 }
 
-func (env *Environment) compileInlineMul(alpha, omega prism.Value) value.Value {
+func (env *Environment) newInlineMul(alpha, omega prism.Value) value.Value {
 	switch alpha.Type.Kind() {
 	case prism.RealType.ID:
 		return env.Block.NewFMul(alpha.Value, omega.Value)
@@ -111,7 +111,7 @@ func (env *Environment) compileInlineMul(alpha, omega prism.Value) value.Value {
 	panic(nil)
 }
 
-func (env *Environment) compileInlineDiv(alpha, omega prism.Value) value.Value {
+func (env *Environment) newInlineDiv(alpha, omega prism.Value) value.Value {
 	switch alpha.Type.Kind() {
 	case prism.IntType.ID:
 		return env.Block.NewFDiv(env.Block.NewSIToFP(alpha.Value, types.Double), env.Block.NewSIToFP(omega.Value, types.Double))
@@ -123,7 +123,7 @@ func (env *Environment) compileInlineDiv(alpha, omega prism.Value) value.Value {
 	panic(nil)
 }
 
-func (env *Environment) compileInlineMax(alpha, omega prism.Value) value.Value {
+func (env *Environment) newInlineMax(alpha, omega prism.Value) value.Value {
 	switch alpha.Type.Kind() {
 	case prism.RealType.ID:
 		return env.Block.NewCall(env.getMaxDouble(), alpha.Value, omega.Value)
@@ -144,7 +144,7 @@ func (env *Environment) compileInlineMax(alpha, omega prism.Value) value.Value {
 	panic(nil)
 }
 
-func (env *Environment) compileInlineMin(alpha, omega prism.Value) value.Value {
+func (env *Environment) newInlineMin(alpha, omega prism.Value) value.Value {
 	switch alpha.Type.Kind() {
 	case prism.RealType.ID:
 		return env.Block.NewCall(env.getMinDouble(), alpha.Value, omega.Value)
@@ -163,7 +163,7 @@ func (env *Environment) compileInlineMin(alpha, omega prism.Value) value.Value {
 	panic(nil)
 }
 
-func (env *Environment) compileInlineCeil(omega prism.Value) value.Value {
+func (env *Environment) newInlineCeil(omega prism.Value) value.Value {
 	switch omega.Type.Kind() {
 	case prism.RealType.ID:
 		return env.Block.NewSIToFP(
@@ -178,7 +178,7 @@ func (env *Environment) compileInlineCeil(omega prism.Value) value.Value {
 	panic(nil)
 }
 
-func (env *Environment) compileInlineFloor(omega prism.Value) value.Value {
+func (env *Environment) newInlineFloor(omega prism.Value) value.Value {
 	switch omega.Type.Kind() {
 	case prism.RealType.ID:
 		return env.Block.NewSIToFP(env.Block.NewFPToSI(

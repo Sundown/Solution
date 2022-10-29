@@ -9,7 +9,7 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-func (env *Environment) compileInlineAppend(alpha prism.Value, omega prism.Value) value.Value {
+func (env *Environment) newInlineAppend(alpha prism.Value, omega prism.Value) value.Value {
 	alphaLen, alphaCap := env.readVectorSizes(alpha)
 	omegaLen, _ := env.readVectorSizes(omega)
 

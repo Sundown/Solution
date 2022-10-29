@@ -7,7 +7,7 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-func (env *Environment) compileInlineEqual(left prism.Value, right prism.Value) value.Value {
+func (env *Environment) newInlineEqual(left prism.Value, right prism.Value) value.Value {
 	switch left.Type.Kind() {
 	case prism.RealType.ID:
 		return env.Block.NewFCmp(enum.FPredOEQ, left.Value, right.Value)

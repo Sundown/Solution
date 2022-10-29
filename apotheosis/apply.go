@@ -22,7 +22,7 @@ func (env *Environment) apply(c prism.Callable, params ...prism.Value) value.Val
 			return env.combineOf(fn, params[0], params[1])
 		}
 
-		return env.Block.NewCall(env.compileExpression(&v), params[0].Value, params[1].Value)
+		return env.Block.NewCall(env.newExpression(&v), params[0].Value, params[1].Value)
 	case prism.MonadicFunction:
 		if fn.Special {
 			return env.apply(env.FetchMonadicCallable(fn.Ident().Name), params...)
@@ -34,10 +34,10 @@ func (env *Environment) apply(c prism.Callable, params ...prism.Value) value.Val
 		}
 
 		if prism.IsVector(params[0].Type) && !fn.NoAutoVector() {
-			return env.compileInlineMap(fn, params[0])
+			return env.newInlineMap(fn, params[0])
 		}
 
-		return env.Block.NewCall(env.compileExpression(&v), params[0].Value)
+		return env.Block.NewCall(env.newExpression(&v), params[0].Value)
 	case prism.DyadicCallable:
 		if prism.IsVector(params[0].Type) && prism.IsVector(params[1].Type) && !c.NoAutoVector() {
 			return env.combineOf(fn, params[0], params[1])
@@ -46,7 +46,7 @@ func (env *Environment) apply(c prism.Callable, params ...prism.Value) value.Val
 		return fn.DCallable(params[0], params[1])
 	case prism.MonadicCallable:
 		if prism.IsVector(params[0].Type) && !fn.NoAutoVector() {
-			return env.compileInlineMap(fn, params[0])
+			return env.newInlineMap(fn, params[0])
 		}
 
 		return fn.MCallable(params[0])
