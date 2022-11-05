@@ -32,8 +32,7 @@ type Type interface {
 
 type Function interface {
 	LLVMise() string
-	IsSpecial() bool
-	ShouldInline() bool
+	Attrs() Attribute
 	Type() Type
 	Ident() Ident
 	String() string

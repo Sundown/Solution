@@ -7,16 +7,14 @@ import (
 )
 
 type MonadicFunction struct {
-	Special            bool
-	SkipBuilder        bool
-	Inline             bool
-	disallowAutoVector bool
-	Name               Ident
-	OmegaType          Type
+	Name      Ident
+	OmegaType Type
 
 	Returns Type
 	PreBody *[]palisade.Expression
 	Body    []Expression
+
+	Attribute Attribute
 }
 
 type MonadicApplication struct {
@@ -58,12 +56,10 @@ func (m MonadicFunction) Ident() Ident {
 	return m.Name
 }
 
-func (d MonadicFunction) IsSpecial() bool {
-	return d.Special
+func (d MonadicFunction) Attrs() Attribute {
+	return d.Attribute
 }
-func (f MonadicFunction) ShouldInline() bool {
-	return f.Inline
-}
+
 func (f MonadicFunction) LLVMise() string {
 	return f.Name.Package + "." + f.Name.Name + "_" + f.OmegaType.String() + "." + f.Returns.String()
 }

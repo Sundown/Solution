@@ -7,16 +7,15 @@ import (
 )
 
 type DyadicFunction struct {
-	Special            bool
-	SkipBuilder        bool
-	Inline             bool
-	disallowAutoVector bool
-	Name               Ident
-	AlphaType          Type
-	OmegaType          Type
-	Returns            Type
-	PreBody            *[]palisade.Expression
-	Body               []Expression
+	Name      Ident
+	AlphaType Type
+	OmegaType Type
+	Returns   Type
+
+	PreBody *[]palisade.Expression
+	Body    []Expression
+
+	Attribute Attribute
 }
 
 type DyadicApplication struct {
@@ -56,8 +55,8 @@ func (d DyadicApplication) String() string {
 	return d.Left.String() + " " + d.Operator.Name.String() + " " + d.Right.String()
 }
 
-func (d DyadicFunction) IsSpecial() bool {
-	return d.Special
+func (d DyadicFunction) Attrs() Attribute {
+	return d.Attribute
 }
 
 func (d DyadicFunction) Ident() Ident {
@@ -66,8 +65,4 @@ func (d DyadicFunction) Ident() Ident {
 
 func (f DyadicFunction) LLVMise() string {
 	return f.Name.Package + "." + f.Name.Name + "_" + f.AlphaType.String() + "." + f.OmegaType.String() + "." + f.Returns.String()
-}
-
-func (f DyadicFunction) ShouldInline() bool {
-	return f.Inline
 }

@@ -54,7 +54,7 @@ func (env *Environment) newDyadicFunction(fn prism.DyadicFunction) *ir.Func {
 		env.Block.NewRet(nil)
 	}
 
-	if fn.ShouldInline() {
+	if fn.Attrs().ForceInline {
 		env.CurrentFunction.FuncAttrs = []ir.FuncAttribute{enum.FuncAttrAlwaysInline}
 	}
 

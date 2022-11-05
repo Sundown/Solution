@@ -57,6 +57,7 @@ func (env Environment) analyseMorpheme(m *palisade.Morpheme) prism.Expression {
 
 			}
 
+			// TODO get rid of this, use -n functions in LLVM instead
 			vec[len(str)] = prism.Char{Value: "\000"} // null termination for C utils
 
 			outer[i] = prism.Vector{
