@@ -17,7 +17,7 @@ func (env *Environment) getCalloc() *ir.Func {
 	return env.Specials["calloc"]
 }
 
-// TODO This is quite seriously bad, needs to be i64
+// TODO needs to be i64
 func (env *Environment) getPowInt() *ir.Func {
 	if env.Specials["powi"] == nil {
 		env.Specials["powi"] = env.Module.NewFunc(
