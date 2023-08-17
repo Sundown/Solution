@@ -5,8 +5,8 @@ import (
 )
 
 type Callable interface {
-	Arity() int
 	Attrs() Attribute
+	Arity() int
 }
 
 type MCallable func(val Value) value.Value
@@ -62,12 +62,4 @@ func (env Environment) FetchMonadicCallable(v string) Callable {
 	}
 
 	return nil
-}
-
-func (DyadicFunction) Arity() int {
-	return 2
-}
-
-func (MonadicFunction) Arity() int {
-	return 1
 }

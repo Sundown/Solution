@@ -42,7 +42,7 @@ func (env Environment) castChar(from prism.Value) value.Value {
 	}
 
 	prism.Panic("Unreachable")
-	panic(nil)
+		panic(nil)
 }
 
 func (env Environment) castBool(from prism.Value) value.Value {
@@ -52,6 +52,7 @@ func (env Environment) castBool(from prism.Value) value.Value {
 	}
 
 	prism.Panic("Unreachable")
+	
 	panic(nil)
 }
 
@@ -108,7 +109,7 @@ func (env *Environment) vectorCast(caster prism.MCallable, vec prism.Value, to p
 		env.Block.NewCall(env.getCalloc(),
 			i32(to.Width()), // Byte size of elements
 			cap),            // How much memory to alloc
-		types.NewPointer(toElmType)) // Cast alloc'd memory to typ
+		types.NewPointer(toElmType)) // Cast alloc'd memory to type
 
 	// --- Loop body ---
 	vecBody := env.Block.NewLoad(

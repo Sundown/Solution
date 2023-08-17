@@ -4,7 +4,7 @@ go 1.18
 
 require (
 	github.com/alecthomas/participle/v2 v2.0.0-alpha7 // direct
-	github.com/alecthomas/repr v0.0.0-20220113201626-b1b626ac65ae // indirect; direct
+	github.com/alecthomas/repr v0.1.1 // indirect; direct
 	github.com/llir/llvm v0.3.4 // direct
 )
 

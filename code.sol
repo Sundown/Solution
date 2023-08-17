@@ -1,6 +1,10 @@
-@Package jan;
-jan::Main Int → Void {
-	Println 1.0 a 8;
+@Package nov;
+Main Int → Void {
+	show 1;
+	show 1.5;
 }
 
-a ← α + ω;
+show {
+	Print ω;
+	← ω;
+}

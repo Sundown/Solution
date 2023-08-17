@@ -17,6 +17,10 @@ type MonadicFunction struct {
 	Attribute Attribute
 }
 
+func (MonadicFunction) Arity() int {
+	return 1
+}
+
 type MonadicApplication struct {
 	Operator MonadicFunction
 	Operand  Expression
