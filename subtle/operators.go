@@ -8,6 +8,7 @@ import (
 )
 
 func (env *Environment) createMapOperator(function prism.MonadicFunction, rType prism.Type) prism.MonadicOperator {
+
 	if !rType.Equals(function.OmegaType) {
 		if !prism.QueryCast(rType, function.OmegaType) {
 			tmp := rType
@@ -79,7 +80,7 @@ func (env *Environment) analyseMonadicOperator(app palisade.Applicable, rType pr
 			prism.Panic("Right operand is not a vector")
 		}
 
-		function := env.analysePrimeApplicable(app, nil, typ)
+		function := env.analysePrimeApplicable(app, nil, typ.Type)
 
 		if _, ok := function.(prism.MonadicFunction); !ok {
 			prism.Panic("Right operand is not a monadic function")

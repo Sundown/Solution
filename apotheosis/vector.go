@@ -19,6 +19,7 @@ var (
 	vectorBodyOffset = i32(2)
 )
 
+// newVector maps from prism.Vector to Value contaning LLVM vector.
 func (env *Environment) newVector(vector prism.Vector) value.Value {
 	leng, cap := calculateVectorSizes(len(*vector.Body))
 	elmType := vector.Type().(prism.VectorType).Type.Realise()
@@ -30,7 +31,8 @@ func (env *Environment) newVector(vector prism.Vector) value.Value {
 
 	env.writeVectorLength(head, leng, headType)
 	env.writeVectorCapacity(head, cap, headType)
-
+	// Perform calloc for body and place width and capacity and let LLVM know the type.
+	//
 	body := env.buildVectorBody(elmType, cap, vector.Type().(prism.VectorType).Width())
 
 	if len(*vector.Body) > 0 {

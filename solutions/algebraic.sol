@@ -1,9 +1,10 @@
 @Package jan;
 
 Main Int → Void {
-	Println 1 2 A 8 4;
+	Println+/Generic¨0 1 2 3;
 }
 
-T A T → T {
-	← α + ω;
+Generic → T {
+	Println ω;
+	← 1.5;
 }
