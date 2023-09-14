@@ -1,12 +1,15 @@
 package subtle
 
 import (
-	"fmt"
-
 	"github.com/sundown/solution/palisade"
 	"github.com/sundown/solution/prism"
 )
 
+func isReturn(m prism.MonadicFunction) bool {
+	return m.Name.Package == "_" && m.Name.Name == "←"
+}
+
+// Everything wrong with the compiler starts in this function
 func (env *Environment) analysePrimeApplicable(app palisade.Applicable, lType, rType prism.Type) prism.Function {
 	var function prism.Function
 	if app.Verb != nil {
@@ -15,11 +18,22 @@ func (env *Environment) analysePrimeApplicable(app palisade.Applicable, lType, r
 			if g, ok := f.OmegaType.(prism.Universal); ok && g.Has(rType) {
 				f.Name.Name = rType.String() + "." + f.Name.Name
 				f.OmegaType = rType
+				env.analyseMBody(&f)
+
 				if f.Returns.IsAlgebraic() {
-					f.Returns = f.Returns.Resolve(rType)
+					ret := rType
+					for _, expr := range f.Body {
+						// Iter until we find a return (←) statement
+						if res, ok := expr.(prism.MonadicApplication); ok {
+							if isReturn(res.Operator) {
+								ret = res.Operand.Type()
+								break
+							}
+						}
+					}
+					f.Returns = f.Returns.Resolve(ret)
 				}
 
-				env.analyseMBody(&f)
 			}
 
 			env.MonadicFunctions[f.Name] = &f
@@ -30,9 +44,6 @@ func (env *Environment) analysePrimeApplicable(app palisade.Applicable, lType, r
 			if g, ok := f.OmegaType.(prism.Universal); ok && g.Has(rType) {
 				f.Name.Name = rType.String() + "." + f.Name.Name
 				f.OmegaType = rType
-				if f.Returns.IsAlgebraic() {
-					f.Returns = f.Returns.Resolve(rType)
-				}
 
 				didGeneric = true
 			}
@@ -40,15 +51,25 @@ func (env *Environment) analysePrimeApplicable(app palisade.Applicable, lType, r
 			if g, ok := f.AlphaType.(prism.Universal); ok && g.Has(rType) {
 				f.Name.Name = lType.String() + "." + f.Name.Name
 				f.AlphaType = lType
-				if f.Returns.IsAlgebraic() {
-					f.Returns = f.Returns.Resolve(lType)
-				}
 
 				didGeneric = true
 			}
 
 			if didGeneric {
 				env.analyseDBody(&f)
+				if f.Returns.IsAlgebraic() {
+					ret := rType
+					for _, expr := range f.Body {
+						// Iter until we find a return (←) statement
+						if res, ok := expr.(prism.MonadicApplication); ok {
+							if isReturn(res.Operator) {
+								ret = res.Operand.Type()
+								break
+							}
+						}
+					}
+					f.Returns = f.Returns.Resolve(ret)
+				}
 			}
 
 			env.DyadicFunctions[f.Name] = &f
@@ -69,7 +90,7 @@ func (env *Environment) analyseApplicable(app palisade.Applicable, lType, rType 
 		if lType == nil {
 			function = env.monadicOperatorToFunction(env.analyseMonadicOperator(app, rType))
 		} else {
-			panic(fmt.Sprintf("Dyadic operators not implemented: %s", app.Operator))
+			panic("Dyadic operators not implemented")
 		}
 		// TODO implement dyadic operators
 		/* else {
