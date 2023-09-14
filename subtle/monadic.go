@@ -1,6 +1,8 @@
 package subtle
 
 import (
+	"fmt"
+
 	"github.com/sundown/solution/palisade"
 	"github.com/sundown/solution/prism"
 )
@@ -20,7 +22,7 @@ func (env Environment) analyseMonadic(d *palisade.Monadic) prism.MonadicApplicat
 	if function.Name.Package == "_" && function.Name.Name == "←" {
 		if !env.CurrentFunctionIR.Type().Equals(function.Returns) {
 			if !env.CurrentFunctionIR.Type().IsAlgebraic() {
-				prism.Panic("Return receives type which does not match determined-function's type")
+				prism.Panic(fmt.Sprintf("Return receives type (%s) which does not match determined-function's type (%s)", env.CurrentFunctionIR.Type(), function.Returns))
 			} else {
 				prism.Panic("Not implemented, pain")
 			}

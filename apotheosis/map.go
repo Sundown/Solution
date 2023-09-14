@@ -1,7 +1,6 @@
 package apotheosis
 
 import (
-	"github.com/alecthomas/repr"
 	"github.com/sundown/solution/prism"
 
 	"github.com/llir/llvm/ir/enum"
@@ -15,7 +14,6 @@ func (env *Environment) newInlineMap(in prism.Callable, vec prism.Value) value.V
 	if fn, ok := in.(prism.MonadicFunction); ok {
 		retType = fn.Type()
 	} else {
-		repr.Println(in.(prism.MonadicCallable).MCallable)
 		panic("Unreachable")
 	}
 

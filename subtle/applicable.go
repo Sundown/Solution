@@ -1,6 +1,8 @@
 package subtle
 
 import (
+	"fmt"
+
 	"github.com/sundown/solution/palisade"
 	"github.com/sundown/solution/prism"
 )
@@ -62,9 +64,12 @@ func (env *Environment) analysePrimeApplicable(app palisade.Applicable, lType, r
 
 func (env *Environment) analyseApplicable(app palisade.Applicable, lType, rType prism.Type) prism.Function {
 	var function prism.Function
+
 	if app.Operator != nil {
 		if lType == nil {
 			function = env.monadicOperatorToFunction(env.analyseMonadicOperator(app, rType))
+		} else {
+			panic(fmt.Sprintf("Dyadic operators not implemented: %s", app.Operator))
 		}
 		// TODO implement dyadic operators
 		/* else {
