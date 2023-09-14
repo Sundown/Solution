@@ -18,16 +18,17 @@ Solution is a compiler for an array-oriented language, providing the cognition o
 
 </p>
 
+The following demonstrates Solution's implicit typing system, `Demo` is automatically typed as `Int×Int` and takes the minimum of the two arguments to the power of the maximum using a dyadic train.
+
 ```swift
 @Package dev;
 
 Main Int → Void {
 	8 Demo 2;
-	3 dev::Demo 2;
+	3.5 dev::Demo 2.0;
 }
 
- Demo → Void {
+Demo → Void {
 	Println α (⌊*⌈) ω;
 }
-
 ```
