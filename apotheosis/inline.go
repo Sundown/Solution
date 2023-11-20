@@ -48,7 +48,7 @@ func (env *Environment) invokePrint(val prism.Value, end string) value.Value {
 				i32(0), vectorBodyOffset)))
 	}
 
-	// TODO extend this once matrices work so it is recursive
+	// TODO APO extend this once matrices work so it is recursive
 	if prism.IsVector(val.Type) {
 		env.newInlineMap(prism.MakeMC(env.newInlinePrintSpace, true), val)
 

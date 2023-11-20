@@ -1,7 +1,9 @@
 @Package dev;
 
 Main Int → Void {
-	Println Avg 2.3 5.1 1.1;
+	Println Fn 1.5;
 }
 
-Avg ← (+/÷≢) ω;
+Fn Int → Int {
+	← ω;
+}

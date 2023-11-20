@@ -116,7 +116,7 @@ func (env *Environment) newInlineDiv(alpha, omega prism.Value) value.Value {
 	case prism.IntType.ID:
 		return env.Block.NewFDiv(env.Block.NewSIToFP(alpha.Value, types.Double), env.Block.NewSIToFP(omega.Value, types.Double))
 	case prism.RealType.ID:
-		// TODO this is messy and needs to apply to all mathematical functions
+		// TODO APO this is messy and needs to apply to all mathematical functions
 		// Perhaps this is a good time to take a look at casting and how it works in Subtle too
 		if omega.Type.Kind() == prism.IntType.ID {
 			return env.Block.NewFDiv(alpha.Value, env.Block.NewSIToFP(omega.Value, types.Double))
