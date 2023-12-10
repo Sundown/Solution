@@ -1,5 +1,7 @@
 package prism
 
+import "fmt"
+
 func DeferMonadicApplicationTypes(function *MonadicFunction, y *Expression) {
 	// Enclose all function-side types in a vector if operand is vector and the function is not a vector-function (auto map)
 	if !function.Attrs().DisallowAutoVector &&
@@ -104,6 +106,7 @@ func DeferDyadicApplicationTypes(function *DyadicFunction, x, y *Expression) {
 // to is the function-side type which contains the sum type.
 func RoundhouseCast(from Expression, otherside Type, to Type) (res *Cast) {
 	if !to.IsAlgebraic() {
+		fmt.Println(QueryCast(from.Type(), to))
 		panic("RoundhouseCast: to is not algebraic")
 	}
 

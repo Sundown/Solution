@@ -1,7 +1,8 @@
 package palisade
 
 type Expression struct {
-	Monadic   *Monadic  `parser:"( @@"`
+	Bool      *[]string `parser:"( @( 'true' | 'false' )"`
+	Monadic   *Monadic  `parser:"| @@"`
 	Dyadic    *Dyadic   `parser:"| @@"`
 	Morphemes *Morpheme `parser:"| @@ )"`
 }
