@@ -188,6 +188,14 @@ func (env Environment) InternBuiltins() {
 		Returns:   GenericType{},
 	})
 
+	env.Intern(DyadicFunction{
+		Attribute: Attribute{Special: true, DisallowAutoVector: false},
+		Name:      Ident{Package: "_", Name: "⍴"},
+		AlphaType: GenericType{},
+		OmegaType: GenericType{},
+		Returns:   GenericType{},
+	})
+
 	env.Intern(MonadicFunction{
 		Attribute: Attribute{Special: true, DisallowAutoVector: true},
 		Name:      Ident{Package: "_", Name: "⊂"},

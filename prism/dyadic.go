@@ -18,6 +18,10 @@ type DyadicFunction struct {
 	Attribute Attribute
 }
 
+func (DyadicFunction) Arity() int {
+	return 1
+}
+
 type DyadicApplication struct {
 	Operator DyadicFunction
 	Left     Expression

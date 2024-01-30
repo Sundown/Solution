@@ -35,7 +35,9 @@ func (env *Environment) newInlineAppend(alpha prism.Value, omega prism.Value) va
 
 	env.Block = new
 
-	env.Block.NewCall(env.getRealloc(), alphaBody, env.Block.NewSExt(totalLen, types.I64))
+	castAlphaBody := env.Block.NewBitCast(alphaBody, types.NewPointer(types.I8))
+
+	env.Block.NewCall(env.getRealloc(), castAlphaBody, env.Block.NewSExt(totalLen, types.I64))
 	env.Block.NewBr(cur)
 
 	env.Block = cur

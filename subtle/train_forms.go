@@ -146,7 +146,7 @@ func (env Environment) m3Train(f prism.MonadicFunction, g prism.DyadicFunction, 
 	match(&h.Returns, &g.OmegaType)
 
 	if g.Returns.IsAlgebraic() {
-		g.Returns = g.Returns.Resolve(h.Returns /* <- wrong */)
+		g.Returns = g.Returns.Resolve(h.Returns /* <- wrong, TODO */)
 	}
 
 	dy := prism.MonadicFunction{

@@ -155,6 +155,7 @@ func (env *Environment) insertCallables() {
 	env.LLDyadicCallables["⊃"] = prism.MakeDC(env.newInlineIndex, true)
 	env.LLDyadicCallables["⊢"] = prism.MakeDC(env.newInlineRightTacD, false)
 	env.LLDyadicCallables["⊣"] = prism.MakeDC(env.newInlineLeftTacD, false)
+	env.LLDyadicCallables["⍴"] = prism.MakeDC(env.newInlineReshape, false)
 
 	env.LLMonadicCallables["*"] = prism.MakeMC(env.newInlineExp, false)
 	env.LLMonadicCallables["-"] = prism.MakeMC(env.newInlineMSub, false)
