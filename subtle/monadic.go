@@ -7,7 +7,6 @@ import (
 
 func (env Environment) analyseMonadic(d *palisade.Monadic) prism.MonadicApplication {
 	right := env.analyseExpression(d.Expression)
-
 	fn := env.analyseApplicable(*d.Applicable, nil, right.Type())
 
 	if _, ok := fn.(prism.MonadicFunction); !ok {

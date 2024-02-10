@@ -1,8 +1,6 @@
 package apotheosis
 
 import (
-	"fmt"
-
 	"github.com/alecthomas/repr"
 	"github.com/sundown/solution/prism"
 
@@ -13,8 +11,7 @@ import (
 
 func (env *Environment) newInlineMap(in prism.Callable, vec prism.Value) value.Value {
 	var retType prism.Type
-	fmt.Println(in.Arity())
-	repr.Println(in)
+
 	if fn, ok := in.(prism.MonadicFunction); ok {
 		retType = fn.Type()
 	} else {
