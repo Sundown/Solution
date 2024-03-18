@@ -1,12 +1,10 @@
-@Package jan;
+@Package dev;
 
 Main Int → Void {
-	Generic 0 1 2 3;
+	8 Demo 2;
+	3 dev::Demo 2;
 }
 
-Generic {
-	Print ¨ ω;
-	Print "\n";
-	Println +/ ω;
-	← ω;
+ Demo → Void {
+	Println α (⌊*⌈) ω;
 }

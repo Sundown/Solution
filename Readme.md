@@ -17,3 +17,17 @@ Solution is a compiler for an array-oriented language, providing the cognition o
   </a>
 
 </p>
+
+```swift
+@Package dev;
+
+Main Int → Void {
+	8 Demo 2;
+	3 dev::Demo 2;
+}
+
+ Demo → Void {
+	Println α (⌊*⌈) ω;
+}
+
+```

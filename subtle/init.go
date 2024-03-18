@@ -78,7 +78,11 @@ func (env Environment) internFunction(f palisade.Function) {
 		dyadic = env.determineArity(&f)
 		alpha = prism.Universal{}
 		omega = prism.Universal{}
-		sigma = prism.Universal{}
+		if p.Returns != nil {
+			sigma = env.SubstantiateType(*p.Returns)
+		} else {
+			sigma = prism.Universal{}
+		}
 		ident = env.AwareIntern(*p.Ident)
 	}
 

@@ -23,6 +23,8 @@ func IsConstant(e Expression) bool {
 		return true
 	case Vector:
 		return true // TODO: not always safe
+		// this is causing some issues with vectors of strings
+		// may be a root issue in matrices and high order vectors
 	}
 
 	return false
@@ -74,7 +76,7 @@ func Emit(env *Environment) {
 	out := []byte((*env.Module).String())
 
 	if env.EmitFormat == "purellvm" {
-		ioutil.WriteFile(env.Output+".ll", out, 0644)
+		os.WriteFile(env.Output+".ll", out, 0644)
 		Notify("compiled", env.Output, "to LLVM").Exit()
 	}
 
@@ -82,7 +84,7 @@ func Emit(env *Environment) {
 	temp_name := env.Output + "_" + hex.EncodeToString(sum[:]) + ".ll"
 
 	Verbose("Temp file", temp_name)
-	ioutil.WriteFile(temp_name, out, 0644)
+	os.WriteFile(temp_name, out, 0644)
 
 	VerifyClangVersion()
 
