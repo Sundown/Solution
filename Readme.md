@@ -20,15 +20,22 @@ Solution is a compiler for an array-oriented language, providing the cognition o
 
 The following demonstrates Solution's implicit typing system, `Demo` is automatically typed as `Int×Int` and takes the minimum of the two arguments to the power of the maximum using a dyadic train.
 
+The second function calculates the average of a numeric vector using a similar 3-arity dyadic train, however the leftmost side of this train is a function-operator combination, `+/` which is equivalent to a sum.
+
 ```swift
 @Package dev;
 
 Main Int → Void {
 	8 Demo 2;
-	3.5 dev::Demo 2.0;
+	dev::Avg 1 3 99;
 }
 
 Demo → Void {
 	Println α (⌊*⌈) ω;
 }
+
+Avg → Void {
+	Println (+/÷≢) ω;
+}
+
 ```
