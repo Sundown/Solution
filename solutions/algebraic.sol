@@ -1,13 +1,7 @@
 @Package dev;
 
 Main Int → Void {
-	dev::Avg 1 3 99;
+	Println 1 Div 2;
 }
 
-Demo → Void {
-	Println α (⌊*⌈) ω;
-}
-
-Avg → Void {
-	Println (+/ ÷ ≢) ω;
-}
+Div ← α÷ω;

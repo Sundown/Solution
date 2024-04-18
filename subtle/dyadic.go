@@ -5,6 +5,29 @@ import (
 	"github.com/sundown/solution/prism"
 )
 
+func (env Environment) analyseDBody(f *prism.DyadicFunction) {
+	if _, okr := f.OmegaType.(prism.Universal); okr || f.Attrs().Special || f.Attrs().SkipBuilder {
+		return
+	}
+
+	if _, okl := f.AlphaType.(prism.Universal); okl {
+		return
+	}
+
+	t := env.CurrentFunctionIR
+	env.CurrentFunctionIR = *f
+
+	if len(f.Body) == 0 {
+		for _, expr := range *f.PreBody {
+			f.Body = append(f.Body, env.analyseExpression(&expr))
+		}
+	} else {
+		panic("Body already filled somehow")
+	}
+
+	env.CurrentFunctionIR = t
+}
+
 func (env Environment) analyseDyadic(d *palisade.Dyadic) prism.DyadicApplication {
 	var left prism.Expression
 	if d.Monadic != nil {
@@ -24,16 +47,6 @@ func (env Environment) analyseDyadic(d *palisade.Dyadic) prism.DyadicApplication
 	function := fn.(prism.DyadicFunction)
 
 	prism.DeferDyadicApplicationTypes(&function, &left, &right)
-
-	if function.Ident().Package == "_" && function.Ident().Name == "←" {
-		if !env.CurrentFunctionIR.Type().Equals(function.Type()) {
-			if !env.CurrentFunctionIR.Type().IsAlgebraic() {
-				prism.Panic("Return receives type which does not match determined-function's type")
-			} else {
-				prism.Panic("Not implemented, pain")
-			}
-		}
-	}
 
 	return prism.DyadicApplication{
 		Operator: function,
