@@ -1,7 +1,7 @@
 @Package dev;
 
 Main Int → Void {
-	Println 1 Div 2;
+	Println Avg 2.3 5.1 1.1;
 }
 
-Div ← α÷ω;
+Avg ← (+/÷≢) ω;
