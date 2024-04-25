@@ -42,7 +42,7 @@ func (env Environment) castChar(from prism.Value) value.Value {
 	}
 
 	prism.Panic("Unreachable")
-		panic(nil)
+	panic(nil)
 }
 
 func (env Environment) castBool(from prism.Value) value.Value {
@@ -52,7 +52,7 @@ func (env Environment) castBool(from prism.Value) value.Value {
 	}
 
 	prism.Panic("Unreachable")
-	
+
 	panic(nil)
 }
 

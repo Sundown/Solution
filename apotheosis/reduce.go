@@ -9,7 +9,7 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-// TODO:
+// TODO APO:
 // Consider binary/ternary system for reducing, only checking n every so many iterations.
 // Create different blocks to handle 1, 2, or 3 operations at a time, branching probably
 // makes this slow

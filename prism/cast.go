@@ -60,7 +60,7 @@ func QueryCast(from, to Type) bool {
 			}
 		case TypeString:
 			switch to.Kind() {
-			case TypeBool, TypeInt, TypeReal, TypeString:
+			case TypeString:
 				return true
 			}
 		}

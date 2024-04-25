@@ -30,7 +30,7 @@ func (env *Environment) newExpression(expr *prism.Expression) value.Value {
 		return env.CurrentFunction.Params[1]
 
 	case prism.Cast, *prism.Cast:
-		panic("Casts dont' exist yet really")
+		panic("Casts don't exist yet")
 	}
 
 	panic(expr)
