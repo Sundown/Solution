@@ -66,6 +66,20 @@ func (env Environment) analyseExpression(e *palisade.Expression) prism.Expressio
 		return env.analyseDyadic(e.Dyadic)
 	} else if e.Morphemes != nil {
 		return env.analyseMorphemes(e.Morphemes)
+	} else if e.Bool != nil {
+		if len(*e.Bool) == 1 {
+			return prism.Bool{Value: (*e.Bool)[0] == "true"}
+		}
+
+		vec := make([]prism.Expression, len(*e.Bool))
+		for i, c := range *e.Bool {
+			vec[i] = prism.Bool{Value: c == "true"}
+		}
+
+		return prism.Vector{
+			ElementType: prism.VectorType{Type: prism.BoolType},
+			Body:        &vec,
+		}
 	}
 
 	prism.Panic("unreachable")

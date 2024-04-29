@@ -1,6 +1,7 @@
 package apotheosis
 
 import (
+	"github.com/alecthomas/repr"
 	"github.com/sundown/solution/prism"
 
 	"github.com/llir/llvm/ir/value"
@@ -30,7 +31,9 @@ func (env *Environment) newExpression(expr *prism.Expression) value.Value {
 		return env.CurrentFunction.Params[1]
 
 	case prism.Cast, *prism.Cast:
-		panic("Casts don't exist yet")
+		repr.Println(expr)
+		c := env.newCast((*expr).(prism.Cast))
+		return c
 	}
 
 	panic(expr)
