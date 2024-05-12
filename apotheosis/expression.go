@@ -53,5 +53,5 @@ func (env *Environment) newMonadicOperator(dop *prism.OperatorApplication) value
 	}
 
 	prism.Panic("unreachable")
-	panic(nil)
+	panic("Unknown error")
 }

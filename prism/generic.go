@@ -16,11 +16,11 @@ func (s GenericType) Equals(b Type) bool {
 // Interface Type width for LLVM codegen
 func (s GenericType) Width() int64 {
 	Panic("Impossible")
-	panic(nil)
+	panic("Unknown error")
 }
 
 func (s GenericType) String() string {
-	return "T"
+	return "#T"
 }
 
 // Resolve composes Integrate with Derive,

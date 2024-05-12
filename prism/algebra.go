@@ -70,7 +70,7 @@ func Delegate(mould, cast *Type) (determined Type, failure *string) {
 	}
 
 	Panic("unreachable")
-	panic(nil)
+	panic("Unknown error")
 }
 
 // Integrate a concrete type into a sum or generic type

@@ -31,7 +31,7 @@ func (do MonadicOperator) Type() Type {
 	}
 
 	Panic("Need to impl type")
-	panic(nil)
+	panic("Unknown error")
 }
 
 func (d OperatorApplication) String() string {

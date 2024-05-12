@@ -100,5 +100,5 @@ func (env Environment) analyseMorpheme(m *palisade.Morpheme) prism.Expression {
 	}
 
 	prism.Panic("Other types not implemented")
-	panic(nil)
+	panic("Unknown error")
 }

@@ -14,10 +14,15 @@ func (env Environment) analyseMBody(f *prism.MonadicFunction) {
 
 	t := env.CurrentFunctionIR
 	env.CurrentFunctionIR = *f
+	fmt.Println(f.Name.String(), "Returns: ", f.Returns)
 
 	if len(f.Body) == 0 {
 		for _, expr := range *f.PreBody {
 			f.Body = append(f.Body, env.analyseExpression(&expr))
+		}
+
+		if f.Returns.Kind() == prism.VoidType.ID {
+			f.Body = append(f.Body, prism.Void{})
 		}
 	}
 

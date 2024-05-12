@@ -38,11 +38,11 @@ func (m MonadicApplication) Type() Type {
 
 // String function for interface
 func (f MonadicFunction) String() (s string) {
-	s += f.Name.String() + " " + f.OmegaType.String() + " → " + f.Returns.String() + "{\n"
+	s += f.Name.String() + " " + f.OmegaType.String() + " → " + f.Returns.String() + " {\n"
 
 	if f.Body != nil {
 		for _, p := range f.Body {
-			s += "  " + p.String() + "\n"
+			s += "  " + p.String() + ";\n"
 		}
 	} else if f.PreBody != nil {
 		fmt.Println("PREBODY")

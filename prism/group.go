@@ -81,7 +81,7 @@ func (g TypeGroup) String() (s string) {
 		s += t.String()
 	}
 
-	return ("{" + s + "}")
+	return ("#Group<" + s + ">")
 }
 
 func (Universal) String() string {

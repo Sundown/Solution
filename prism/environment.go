@@ -8,10 +8,31 @@ import (
 
 func (e Environment) String() (s string) {
 	for _, f := range e.DyadicFunctions {
-		s += f.String()
+		if f.Name.Package != "_" {
+			continue
+		}
+		s += f.String() + "\n"
 	}
+
 	for _, f := range e.MonadicFunctions {
-		s += f.String()
+		if f.Name.Package != "_" {
+			continue
+		}
+		s += f.String() + "\n"
+	}
+
+	for _, f := range e.DyadicFunctions {
+		if f.Name.Package == "_" {
+			continue
+		}
+		s += f.String() + "\n"
+	}
+
+	for _, f := range e.MonadicFunctions {
+		if f.Name.Package == "_" {
+			continue
+		}
+		s += f.String() + "\n"
 	}
 
 	return
@@ -106,7 +127,7 @@ func (env Environment) FetchDVerb(v *palisade.Ident) DyadicFunction {
 	}
 
 	Panic("Dyadic verb " + *v.Ident + " not found")
-	panic(nil)
+	panic("Unknown error")
 }
 
 func (env Environment) FetchMVerb(v *palisade.Ident) MonadicFunction {
@@ -125,7 +146,7 @@ func (env Environment) FetchMVerb(v *palisade.Ident) MonadicFunction {
 	}
 
 	Panic("Monadic verb " + *v.Ident + " not found")
-	panic(nil)
+	panic("Unknown error")
 }
 
 func (env Environment) FetchVerb(v *palisade.Ident) Expression {
@@ -136,5 +157,5 @@ func (env Environment) FetchVerb(v *palisade.Ident) Expression {
 	}
 
 	Panic("Verb " + *v.Ident + " not found")
-	panic(nil)
+	panic("Unknown error")
 }

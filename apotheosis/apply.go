@@ -53,5 +53,5 @@ func (env *Environment) apply(c prism.Callable, params ...prism.Value) value.Val
 	}
 
 	prism.Panic("unreachable")
-	panic(nil)
+	panic("Unknown error")
 }

@@ -30,7 +30,7 @@ func (env *Environment) newInlineDAdd(alpha, omega prism.Value) value.Value {
 		return env.Block.NewAdd(alpha.Value, omega.Value)
 	}
 	prism.Panic("unreachable")
-	panic(nil)
+	panic("Unknown error")
 }
 
 func (env *Environment) newInlineMSub(omega prism.Value) value.Value {
@@ -44,7 +44,7 @@ func (env *Environment) newInlineMSub(omega prism.Value) value.Value {
 	}
 
 	prism.Panic("unreachable")
-	panic(nil)
+	panic("Unknown error")
 }
 
 func (env *Environment) newInlinePow(alpha, omega prism.Value) value.Value {
@@ -62,7 +62,7 @@ func (env *Environment) newInlinePow(alpha, omega prism.Value) value.Value {
 	}
 
 	prism.Panic("unreachable")
-	panic(nil)
+	panic("Unknown error")
 }
 
 func (env *Environment) newInlineExp(omega prism.Value) value.Value {
@@ -80,7 +80,7 @@ func (env *Environment) newInlineExp(omega prism.Value) value.Value {
 	}
 
 	prism.Panic("unreachable")
-	panic(nil)
+	panic("Unknown error")
 }
 
 func (env *Environment) newInlineDSub(alpha, omega prism.Value) value.Value {
@@ -94,7 +94,7 @@ func (env *Environment) newInlineDSub(alpha, omega prism.Value) value.Value {
 	}
 
 	prism.Panic("unreachable")
-	panic(nil)
+	panic("Unknown error")
 }
 
 func (env *Environment) newInlineMul(alpha, omega prism.Value) value.Value {
@@ -108,7 +108,7 @@ func (env *Environment) newInlineMul(alpha, omega prism.Value) value.Value {
 	}
 
 	prism.Panic("unreachable")
-	panic(nil)
+	panic("Unknown error")
 }
 
 func (env *Environment) newInlineDiv(alpha, omega prism.Value) value.Value {
@@ -125,7 +125,7 @@ func (env *Environment) newInlineDiv(alpha, omega prism.Value) value.Value {
 	}
 
 	prism.Panic("unreachable")
-	panic(nil)
+	panic("Unknown error")
 }
 
 func (env *Environment) newInlineMax(alpha, omega prism.Value) value.Value {
@@ -146,7 +146,7 @@ func (env *Environment) newInlineMax(alpha, omega prism.Value) value.Value {
 	}
 
 	prism.Panic("unreachable")
-	panic(nil)
+	panic("Unknown error")
 }
 
 func (env *Environment) newInlineMin(alpha, omega prism.Value) value.Value {
@@ -165,7 +165,7 @@ func (env *Environment) newInlineMin(alpha, omega prism.Value) value.Value {
 	}
 
 	prism.Panic("unreachable")
-	panic(nil)
+	panic("Unknown error")
 }
 
 func (env *Environment) newInlineCeil(omega prism.Value) value.Value {
@@ -180,7 +180,7 @@ func (env *Environment) newInlineCeil(omega prism.Value) value.Value {
 	}
 
 	prism.Panic("unreachable")
-	panic(nil)
+	panic("Unknown error")
 }
 
 func (env *Environment) newInlineFloor(omega prism.Value) value.Value {
@@ -193,5 +193,5 @@ func (env *Environment) newInlineFloor(omega prism.Value) value.Value {
 	}
 
 	prism.Panic("unreachable")
-	panic(nil)
+	panic("Unknown error")
 }
