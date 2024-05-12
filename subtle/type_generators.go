@@ -83,3 +83,7 @@ func (env *Environment) generateDyadicTypes(app *palisade.Applicable, rType pris
 	env.DyadicFunctions[f.Name] = &f
 	*function = f
 }
+
+func isReturn(m prism.MonadicFunction) bool {
+	return m.Name.Package == "_" && m.Name.Name == "←"
+}

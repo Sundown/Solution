@@ -98,10 +98,11 @@ func cdr(expr *palisade.Expression) *palisade.Expression {
 	panic("Abominable expression structure")
 }
 
+// TODO this probably doesn't need pointers
 func match(e *prism.Type, t *prism.Type) {
 	if !(*e).Equals(*t) { // perhaps?
 		if !prism.QueryCast(*e, *t) { // maybe?
-			if _, err := prism.Delegate(t, e); err != nil { // possibly?
+			if _, err := prism.Delegate(*e, *t); err != nil { // possibly?
 				panic(*err)
 			}
 		}

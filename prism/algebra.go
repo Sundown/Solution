@@ -1,72 +1,54 @@
 package prism
 
 // I have no clue what this does
-func Delegate(mould, cast *Type) (determined Type, failure *string) {
+// cast is input
+// mould is working algebraic type
+func Delegate(cast, mould Type) (determined Type, failure *string) {
 	if mould == nil {
 		return nil, Ref("mould is nil")
 	} else if cast == nil {
 		return nil, Ref("cast is nil")
 	}
 
-	if _, sd := (*cast).(GenericType); sd {
-		return nil, Ref("Cast cannot be T: " + (*cast).String())
+	if _, sd := cast.(GenericType); sd {
+		return nil, Ref("Cast cannot be T: " + cast.String())
 	}
 
-	if _, sdg := (*cast).(Group); sdg {
-		return nil, Ref("Cast cannot be sum: " + (*cast).String())
+	if _, sdg := cast.(Group); sdg {
+		return nil, Ref("Cast cannot be sum: " + cast.String())
 	}
 
 	// First
-	switch (*mould).(type) {
+	switch m := mould.(type) {
 	case AtomicType:
-		if mt, ok := (*cast).(AtomicType); ok {
-			if (*mould).(AtomicType).ID == mt.ID {
-				temp := Type(mt)
-				return temp, nil // Success; matched atomic types together
-			} else {
-				return nil, Ref("Atomic type mismatch")
-			}
-		} else {
+		if _, ok := cast.(AtomicType); !ok {
 			return nil, Ref("Type class mismatch, cast is not atomic")
 		}
-	case VectorType:
-		if vt, vtp := (*cast).(VectorType); vtp {
-			temp := (*mould).(VectorType).Type
-			del, err := Delegate(&temp, &vt.Type)
-			if err != nil {
-				return nil, err
-			}
 
-			*mould = *cast
-			return del, nil
-		} else {
+		if mould.Equals(cast) {
+			return nil, Ref("Atomic type mismatch")
+		}
+
+		return cast, nil
+	case VectorType:
+		if _, ok := cast.(VectorType); ok {
 			return nil, Ref("Type class mismatch, cast is not a vector")
 		}
-	}
 
-	// Second
-	// T has been matched with a determined type directly
-	if _, tp := (*mould).(GenericType); tp {
-		*mould = *cast
-		return *cast, nil
-	}
-
-	if group, tgp := (*mould).(Group); tgp {
-		if group.Universal() {
-			panic("TODO")
+		return Delegate(m.Type, cast.(VectorType))
+	case GenericType:
+		return cast, nil
+	case Group:
+		if m.Universal() {
+			return cast, nil
 		}
 
-		for _, elm := range group.(TypeGroup).Set {
-			typ, fail := Delegate(&elm, cast)
-
-			// Errors are expected, don't check for them
-			if fail == nil {
-				*mould = *cast
-				return typ, nil
-			}
+		if !m.Has(cast) {
+			return nil, Ref("Cast does not fit within algebraic group")
 		}
 
-		return nil, Ref("Cast does not fit within algebraic group")
+		return cast, nil
+
 	}
 
 	Panic("unreachable")
@@ -77,17 +59,14 @@ func Delegate(mould, cast *Type) (determined Type, failure *string) {
 func Integrate(this, from Type) Type {
 	switch j := this.(type) {
 	case VectorType:
-		if j.IsAlgebraic() {
-			return Integrate(j, from)
-		} else {
+		if !j.IsAlgebraic() {
 			Panic("Vector is not algebraic")
 		}
-	case Group:
-		if j.Universal() {
-			return from
-		}
 
-		if j.Has(from) {
+		return Integrate(j, from)
+
+	case Group:
+		if j.Universal() || j.Has(from) {
 			return from
 		}
 	case GenericType:
@@ -103,7 +82,9 @@ func Derive(this, like Type) Type {
 	case VectorType:
 		if !j.IsAlgebraic() {
 			Panic("Vector is not algebraic")
-		} else if like.IsAlgebraic() {
+		}
+
+		if like.IsAlgebraic() {
 			panic("Cannot derive algebraic type from algebraic type")
 		}
 
@@ -118,7 +99,8 @@ func Derive(this, like Type) Type {
 		}
 
 		if like.IsAlgebraic() {
-			panic("Cannot derive algebraic type from algebraic type")
+			return like.(TypeGroup).Intersection(j).(Type)
+
 		}
 
 		if j.Has(like) {

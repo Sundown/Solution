@@ -5,10 +5,6 @@ import (
 	"github.com/sundown/solution/prism"
 )
 
-func isReturn(m prism.MonadicFunction) bool {
-	return m.Name.Package == "_" && m.Name.Name == "←"
-}
-
 func (env *Environment) analysePrimeApplicable(app palisade.Applicable, lType, rType prism.Type) prism.Function {
 	var function prism.Function
 	if app.Verb != nil {

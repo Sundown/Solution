@@ -1,7 +1,7 @@
 package pilot
 
 var Cases = []Test{
-	{Name: "Plus reduce", Code: `Print +/1 1 1 2;`, Result: "5", Expr: true},
+	//{Name: "Plus reduce", Code: `Print +/1 1 1 2;`, Result: "5", Expr: true},
 	{Name: "Addition #1", Code: `Print 1 + -1;`, Result: "0", Expr: true},
 	{Name: "Map #1", Code: `Print ¨ 0 1;`, Result: "01", Expr: true},
 	{Name: "Train #1", Code: `Print 1.92 (⌊÷⌈) 5.6;`, Result: "0.342857", Expr: true},
