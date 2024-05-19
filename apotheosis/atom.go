@@ -24,5 +24,5 @@ func (env *Environment) newAtom(morpheme *prism.Morpheme) value.Value {
 		prism.Panic("unreachable")
 	}
 
-	panic(nil)
+	panic("unlabelled error")
 }

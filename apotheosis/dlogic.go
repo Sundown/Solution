@@ -22,7 +22,7 @@ func (env *Environment) newInlineNot(omega prism.Value) value.Value {
 	}
 
 	prism.Panic("unreachable")
-	panic(nil)
+	panic("unlabelled error")
 }
 
 func (env *Environment) newInlineAnd(alpha, omega prism.Value) value.Value {
@@ -44,7 +44,7 @@ func (env *Environment) newInlineAnd(alpha, omega prism.Value) value.Value {
 	}
 
 	prism.Panic("unreachable")
-	panic(nil)
+	panic("unlabelled error")
 }
 func (env *Environment) newInlineOr(alpha, omega prism.Value) value.Value {
 	switch alpha.Type.Kind() {
@@ -66,5 +66,5 @@ func (env *Environment) newInlineOr(alpha, omega prism.Value) value.Value {
 	}
 
 	prism.Panic("unreachable")
-	panic(nil)
+	panic("unlabelled error")
 }

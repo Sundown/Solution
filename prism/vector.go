@@ -32,7 +32,7 @@ func QueryAutoVector(atom, vec Type) bool {
 	}
 
 	t := vec.(VectorType).Type
-	_, err := Delegate(&atom, &t)
+	_, err := Delegate(atom, t)
 	if err != nil {
 		panic(*err)
 	}

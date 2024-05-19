@@ -1,76 +1,56 @@
 package prism
 
 // I have no clue what this does
-func Delegate(mould, cast *Type) (determined Type, failure *string) {
-	if mould == nil {
+func Delegate(algebraic, concrete Type) (determined Type, failure *string) {
+	if algebraic == nil {
 		return nil, Ref("mould is nil")
-	} else if cast == nil {
+	} else if concrete == nil {
 		return nil, Ref("cast is nil")
 	}
 
-	if _, sd := (*cast).(GenericType); sd {
-		return nil, Ref("Cast cannot be T: " + (*cast).String())
+	if _, sd := (concrete).(GenericType); sd {
+		return nil, Ref("Cast cannot be T: " + (concrete).String())
 	}
 
-	if _, sdg := (*cast).(Group); sdg {
-		return nil, Ref("Cast cannot be sum: " + (*cast).String())
+	if _, sdg := (concrete).(Group); sdg {
+		return nil, Ref("Cast cannot be sum: " + (concrete).String())
 	}
 
 	// First
-	switch (*mould).(type) {
+	switch m := algebraic.(type) {
 	case AtomicType:
-		if mt, ok := (*cast).(AtomicType); ok {
-			if (*mould).(AtomicType).ID == mt.ID {
-				temp := Type(mt)
-				return temp, nil // Success; matched atomic types together
-			} else {
-				return nil, Ref("Atomic type mismatch")
-			}
-		} else {
+		if _, ok := concrete.(AtomicType); !ok {
 			return nil, Ref("Type class mismatch, cast is not atomic")
 		}
-	case VectorType:
-		if vt, vtp := (*cast).(VectorType); vtp {
-			temp := (*mould).(VectorType).Type
-			del, err := Delegate(&temp, &vt.Type)
-			if err != nil {
-				return nil, err
-			}
 
-			*mould = *cast
-			return del, nil
-		} else {
+		if !algebraic.Equals(concrete) {
+			return nil, Ref("Atomic type mismatch")
+		}
+
+		return concrete, nil
+	case VectorType:
+		if _, ok := concrete.(VectorType); !ok {
 			return nil, Ref("Type class mismatch, cast is not a vector")
 		}
-	}
 
-	// Second
-	// T has been matched with a determined type directly
-	if _, tp := (*mould).(GenericType); tp {
-		*mould = *cast
-		return *cast, nil
-	}
-
-	if group, tgp := (*mould).(Group); tgp {
-		if group.Universal() {
-			panic("TODO")
+		// TODO maybe this should be `return Vector(Delegate(...))?`
+		return Delegate(concrete.(VectorType), m.Type)
+	case GenericType:
+		return concrete, nil
+	case Group:
+		if m.Universal() {
+			return concrete, nil
 		}
 
-		for _, elm := range group.(TypeGroup).Set {
-			typ, fail := Delegate(&elm, cast)
-
-			// Errors are expected, don't check for them
-			if fail == nil {
-				*mould = *cast
-				return typ, nil
-			}
+		if !m.Has(concrete) {
+			return nil, Ref("Cast does not fit within algebraic group")
 		}
 
-		return nil, Ref("Cast does not fit within algebraic group")
+		return concrete, nil
+
 	}
 
-	Panic("unreachable")
-	panic(nil)
+	panic("Unreachable")
 }
 
 // Integrate a concrete type into a sum or generic type

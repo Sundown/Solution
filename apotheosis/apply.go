@@ -52,6 +52,5 @@ func (env *Environment) apply(c prism.Callable, params ...prism.Value) value.Val
 		return fn.MCallable(params[0])
 	}
 
-	prism.Panic("unreachable")
-	panic(nil)
+	panic("unlabelled error")
 }

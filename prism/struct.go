@@ -9,13 +9,13 @@ type StructType struct {
 // Interface Type comparison
 func (s StructType) Equals(b Type) (acc bool) {
 	Panic("Not implemented yet")
-	panic(nil)
+	panic("unlabelled error")
 }
 
 // Interface Type algebraic predicate
 func (s StructType) IsAlgebraic() (acc bool) {
 	Panic("Not implemented yet")
-	panic(nil)
+	panic("unlabelled error")
 }
 
 // Interface Type width for LLVM codegen
@@ -58,5 +58,5 @@ func (s StructType) Kind() int {
 // Fills in sum/generic type based on a concrete type
 func (s StructType) Resolve(t Type) Type {
 	Panic("Not implemented yet")
-	panic(nil)
+	panic("unlabelled error")
 }

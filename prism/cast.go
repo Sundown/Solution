@@ -31,7 +31,7 @@ func DelegateCast(from Expression, to Type) Expression {
 	}
 
 	Panic("not implemented")
-	panic(nil)
+	panic("unlabelled error")
 }
 
 func QueryCast(from, to Type) bool {

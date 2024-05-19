@@ -99,9 +99,11 @@ func cdr(expr *palisade.Expression) *palisade.Expression {
 }
 
 func match(e *prism.Type, t *prism.Type) {
-	if !(*e).Equals(*t) { // perhaps?
-		if !prism.QueryCast(*e, *t) { // maybe?
-			if _, err := prism.Delegate(t, e); err != nil { // possibly?
+	if !(*e).Equals(*t) {
+		if !prism.QueryCast(*e, *t) {
+			if tmp, err := prism.Delegate(*t, *e); err == nil {
+				*t = tmp
+			} else {
 				panic(*err)
 			}
 		}

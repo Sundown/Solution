@@ -16,7 +16,7 @@ func (s GenericType) Equals(b Type) bool {
 // Interface Type width for LLVM codegen
 func (s GenericType) Width() int64 {
 	Panic("Impossible")
-	panic(nil)
+	panic("unlabelled error")
 }
 
 func (s GenericType) String() string {
