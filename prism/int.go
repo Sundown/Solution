@@ -19,7 +19,7 @@ func (t Int) Equals(b Type) bool {
 // Should not be used on concrete types
 func (i Int) Resolve(t Type) Type {
 	Panic("Unreachable")
-	panic("Unknown error")
+	panic("unlabelled error")
 }
 
 // Type property for interface

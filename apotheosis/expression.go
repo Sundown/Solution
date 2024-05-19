@@ -34,11 +34,8 @@ func (env *Environment) newExpression(expr *prism.Expression) value.Value {
 		repr.Println(expr)
 		c := env.newCast((*expr).(prism.Cast))
 		return c
-	case prism.Void:
-		return nil
 	}
 
-	repr.Println(expr)
 	panic(expr)
 }
 
@@ -56,5 +53,5 @@ func (env *Environment) newMonadicOperator(dop *prism.OperatorApplication) value
 	}
 
 	prism.Panic("unreachable")
-	panic("Unknown error")
+	panic("unlabelled error")
 }

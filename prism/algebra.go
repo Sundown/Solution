@@ -1,72 +1,73 @@
 package prism
 
 // I have no clue what this does
-// cast is input
-// mould is working algebraic type
-func Delegate(cast, mould Type) (determined Type, failure *string) {
-	if mould == nil {
+func Delegate(algebraic, concrete Type) (determined Type, failure *string) {
+	if algebraic == nil {
 		return nil, Ref("mould is nil")
-	} else if cast == nil {
+	} else if concrete == nil {
 		return nil, Ref("cast is nil")
 	}
 
-	if _, sd := cast.(GenericType); sd {
-		return nil, Ref("Cast cannot be T: " + cast.String())
+	if _, sd := (concrete).(GenericType); sd {
+		return nil, Ref("Cast cannot be T: " + (concrete).String())
 	}
 
-	if _, sdg := cast.(Group); sdg {
-		return nil, Ref("Cast cannot be sum: " + cast.String())
+	if _, sdg := (concrete).(Group); sdg {
+		return nil, Ref("Cast cannot be sum: " + (concrete).String())
 	}
 
 	// First
-	switch m := mould.(type) {
+	switch m := algebraic.(type) {
 	case AtomicType:
-		if _, ok := cast.(AtomicType); !ok {
+		if _, ok := concrete.(AtomicType); !ok {
 			return nil, Ref("Type class mismatch, cast is not atomic")
 		}
 
-		if mould.Equals(cast) {
+		if !algebraic.Equals(concrete) {
 			return nil, Ref("Atomic type mismatch")
 		}
 
-		return cast, nil
+		return concrete, nil
 	case VectorType:
-		if _, ok := cast.(VectorType); ok {
+		if _, ok := concrete.(VectorType); !ok {
 			return nil, Ref("Type class mismatch, cast is not a vector")
 		}
 
-		return Delegate(m.Type, cast.(VectorType))
+		// TODO maybe this should be `return Vector(Delegate(...))?`
+		return Delegate(concrete.(VectorType), m.Type)
 	case GenericType:
-		return cast, nil
+		return concrete, nil
 	case Group:
 		if m.Universal() {
-			return cast, nil
+			return concrete, nil
 		}
 
-		if !m.Has(cast) {
+		if !m.Has(concrete) {
 			return nil, Ref("Cast does not fit within algebraic group")
 		}
 
-		return cast, nil
+		return concrete, nil
 
 	}
 
-	Panic("unreachable")
-	panic("Unknown error")
+	panic("Unreachable")
 }
 
 // Integrate a concrete type into a sum or generic type
 func Integrate(this, from Type) Type {
 	switch j := this.(type) {
 	case VectorType:
-		if !j.IsAlgebraic() {
+		if j.IsAlgebraic() {
+			return Integrate(j, from)
+		} else {
 			Panic("Vector is not algebraic")
 		}
-
-		return Integrate(j, from)
-
 	case Group:
-		if j.Universal() || j.Has(from) {
+		if j.Universal() {
+			return from
+		}
+
+		if j.Has(from) {
 			return from
 		}
 	case GenericType:
@@ -82,9 +83,7 @@ func Derive(this, like Type) Type {
 	case VectorType:
 		if !j.IsAlgebraic() {
 			Panic("Vector is not algebraic")
-		}
-
-		if like.IsAlgebraic() {
+		} else if like.IsAlgebraic() {
 			panic("Cannot derive algebraic type from algebraic type")
 		}
 
@@ -99,8 +98,7 @@ func Derive(this, like Type) Type {
 		}
 
 		if like.IsAlgebraic() {
-			return like.(TypeGroup).Intersection(j).(Type)
-
+			panic("Cannot derive algebraic type from algebraic type")
 		}
 
 		if j.Has(like) {

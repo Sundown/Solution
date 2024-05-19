@@ -3,7 +3,6 @@ package subtle
 import (
 	"fmt"
 
-	"github.com/alecthomas/repr"
 	"github.com/sundown/solution/prism"
 )
 
@@ -32,7 +31,6 @@ func (env Environment) d3Train(f, g, h prism.DyadicFunction, APre, BPre prism.Ty
 	match(&BPre, &h.OmegaType)
 
 	if f.Returns.IsAlgebraic() {
-		repr.Println(f.AlphaType)
 		f.Returns = f.Returns.Resolve(f.AlphaType)
 	}
 

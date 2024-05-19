@@ -20,5 +20,5 @@ func (env *Environment) newInlineEqual(left prism.Value, right prism.Value) valu
 	}
 
 	prism.Panic("unreachable")
-	panic("Unknown error")
+	panic("unlabelled error")
 }

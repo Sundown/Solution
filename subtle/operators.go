@@ -11,8 +11,7 @@ func (env *Environment) createMapOperator(function prism.MonadicFunction, rType 
 
 	if !rType.Equals(function.OmegaType) {
 		if !prism.QueryCast(rType, function.OmegaType) {
-			tmp := rType
-			_, err := prism.Delegate(tmp, function.OmegaType)
+			_, err := prism.Delegate(function.OmegaType, rType)
 			if err != nil {
 				panic(*err)
 			}
@@ -39,8 +38,9 @@ func (env *Environment) createMapOperator(function prism.MonadicFunction, rType 
 func (env *Environment) createReduceOperator(function prism.DyadicFunction, rType prism.Type) prism.MonadicOperator {
 	if !rType.Equals(function.OmegaType) {
 		if !prism.QueryCast(rType, function.OmegaType) {
-			tmp := rType
-			_, err := prism.Delegate(tmp, function.OmegaType)
+
+			j, err := prism.Delegate(function.OmegaType, rType)
+			function.OmegaType = j
 			if err != nil {
 				prism.Panic(*err)
 			}
@@ -49,15 +49,17 @@ func (env *Environment) createReduceOperator(function prism.DyadicFunction, rTyp
 
 	if !rType.Equals(function.AlphaType) {
 		if !prism.QueryCast(rType, function.AlphaType) {
-			tmp := rType
-			_, err := prism.Delegate(tmp, function.AlphaType)
+			j, err := prism.Delegate(function.AlphaType, rType)
+			function.AlphaType = j
 			if err != nil {
 				prism.Panic(*err)
 			}
 		}
 	}
 
-	if _, err := prism.Delegate(function.OmegaType, function.AlphaType); err != nil {
+	if j, err := prism.Delegate(function.AlphaType, function.OmegaType); err == nil {
+		function.AlphaType = j
+	} else {
 		prism.Panic(*err)
 	}
 

@@ -41,7 +41,7 @@ func (r Real) String() string {
 // Should not be used on concrete types
 func (i Real) Resolve(t Type) Type {
 	Panic("Unreachable")
-	panic("Unknown error")
+	panic("unlabelled error")
 }
 
 // Interface Type algebraic predicate

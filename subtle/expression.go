@@ -32,5 +32,5 @@ func (env Environment) analyseExpression(e *palisade.Expression) prism.Expressio
 	}
 
 	prism.Panic("unreachable")
-	panic("Unknown error")
+	panic("unlabelled error")
 }

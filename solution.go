@@ -1,9 +1,9 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
+	"github.com/sundown/solution/apotheosis"
 	"github.com/sundown/solution/pilot"
 	"github.com/sundown/solution/prism"
 	"github.com/sundown/solution/subtle"
@@ -30,10 +30,9 @@ func main() {
 	// Parse lexed tokens to AST and resolve compiler directives
 	subtle.Parse(env)
 
-	fmt.Println(env.String())
 	// Compile AST to LLVM
-	//	apotheosis.Compile(env)
+	apotheosis.Compile(env)
 
 	// Write LLVM IR to file or invoke Clang on LLVM Bitcode
-	//prism.Emit(env)
+	prism.Emit(env)
 }

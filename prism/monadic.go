@@ -42,7 +42,7 @@ func (f MonadicFunction) String() (s string) {
 
 	if f.Body != nil {
 		for _, p := range f.Body {
-			s += "  " + p.String() + ";\n"
+			s += "  " + p.String() + "\n"
 		}
 	} else if f.PreBody != nil {
 		fmt.Println("PREBODY")

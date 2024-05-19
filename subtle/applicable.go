@@ -5,15 +5,19 @@ import (
 	"github.com/sundown/solution/prism"
 )
 
+// Everything wrong with the compiler starts in this function
 func (env *Environment) analysePrimeApplicable(app palisade.Applicable, lType, rType prism.Type) prism.Function {
 	var function prism.Function
 	if app.Verb != nil {
 		if lType == nil {
-			// Iter until we find a return (←) statement
-			env.generateMonadicTypes(app, rType, &function)
+			f := env.generateMonadicTypes(env.FetchMVerb(app.Verb), rType)
+			env.MonadicFunctions[f.Name] = &f
+			function = f
 		} else {
-			// Iter until we find a return (←) statement
-			env.generateDyadicTypes(&app, rType, lType, &function)
+			f := env.generateDyadicTypes(env.FetchDVerb(app.Verb), lType, rType)
+
+			env.DyadicFunctions[f.Name] = &f
+			function = f
 		}
 	} else if app.Subexpr != nil {
 		// Monadic/dyadic cases are handled within train system

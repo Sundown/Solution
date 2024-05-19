@@ -11,7 +11,7 @@ func (t String) Equals(b Type) bool {
 // Should not be used on concrete types
 func (i String) Resolve(t Type) Type {
 	Panic("Unreachable")
-	panic("Unknown error")
+	panic("unlabelled error")
 }
 
 type String struct {

@@ -18,7 +18,7 @@ func (env Environment) castInt(from prism.Value) value.Value {
 	}
 
 	prism.Panic("Unreachable")
-	panic("Unknown error")
+	panic("unlabelled error")
 }
 
 func (env Environment) castReal(from prism.Value) value.Value {
@@ -30,7 +30,7 @@ func (env Environment) castReal(from prism.Value) value.Value {
 	}
 
 	prism.Panic("Unreachable")
-	panic("Unknown error")
+	panic("unlabelled error")
 }
 
 func (env Environment) castChar(from prism.Value) value.Value {
@@ -42,7 +42,7 @@ func (env Environment) castChar(from prism.Value) value.Value {
 	}
 
 	prism.Panic("Unreachable")
-	panic("Unknown error")
+	panic("unlabelled error")
 }
 
 func (env Environment) castBool(from prism.Value) value.Value {
@@ -53,7 +53,7 @@ func (env Environment) castBool(from prism.Value) value.Value {
 
 	prism.Panic("Unreachable")
 
-	panic("Unknown error")
+	panic("unlabelled error")
 }
 
 func (env Environment) newCast(cast prism.Cast) value.Value {

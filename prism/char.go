@@ -37,7 +37,7 @@ func (c Char) String() string {
 // Should not be used on concrete types
 func (i Char) Resolve(t Type) Type {
 	Panic("Unreachable")
-	panic("Unknown error")
+	panic("unlabelled error")
 }
 
 // Interface Type algebraic predicate

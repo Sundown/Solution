@@ -19,7 +19,7 @@ func (env *Environment) newFunction(f *prism.Function) value.Value {
 	}
 
 	prism.Panic("Not found")
-	panic("Unknown error")
+	panic("unlabelled error")
 }
 
 func (env *Environment) buildBlock(body *[]prism.Expression) {

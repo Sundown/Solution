@@ -1,7 +1,9 @@
 @Package dev;
 
 Main Int → Void {
-	Function ¨ 1 2 3;
+	Println Fn 1;
 }
 
-Function ω;
+Fn Real → Real {
+	← ω;
+}
