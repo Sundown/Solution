@@ -34,7 +34,7 @@ func (env *Environment) analyseMonadic(d *palisade.Monadic) prism.MonadicApplica
 
 	function := fn.(prism.MonadicFunction)
 
-	prism.DeferMonadicApplicationTypes(&function, &right)
+	function, right = prism.DeferMonadicApplicationTypes(function, right)
 
 	if isReturn(function) {
 		if !env.CurrentFunctionIR.Type().Equals(function.Returns) {

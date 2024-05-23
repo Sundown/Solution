@@ -1,14 +1,13 @@
 @Package dev;
 
 Main Int → Void {
-	 Func 4 1;
+	 Fn 4;
 }
 
 Func {
 	← ⊂ ω;
-
 }
 
-Fn Real → Real {
+Fn T → T {
 	← ω;
 }

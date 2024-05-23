@@ -2,18 +2,18 @@ package prism
 
 import "fmt"
 
-func DeferMonadicApplicationTypes(function *MonadicFunction, y *Expression) {
+func DeferMonadicApplicationTypes(function MonadicFunction, y Expression) (MonadicFunction, Expression) {
 	// Enclose all function-side types in a vector if operand is vector and the function is not a vector-function (auto map)
 	if !function.Attrs().DisallowAutoVector &&
-		QueryAutoVector(function.OmegaType, (*y).Type()) {
+		QueryAutoVector(function.OmegaType, y.Type()) {
 		function.OmegaType = VectorType{Type: function.OmegaType}
 		function.Returns = VectorType{Type: function.Returns}
 	}
 
 	// There is simple equality between function- and operand-side type (regardless of autovectorisation)
 	// ... do nothing and return
-	if (*y).Type().Equals(function.OmegaType) && !function.Returns.IsAlgebraic() {
-		return
+	if y.Type().Equals(function.OmegaType) && !function.Returns.IsAlgebraic() {
+		return function, y
 	}
 
 	// ... otherwise, cast the operands to the function-side types
@@ -26,29 +26,30 @@ func DeferMonadicApplicationTypes(function *MonadicFunction, y *Expression) {
 	// 		There is no mapping from the operand-side type to the function-side type, however, the
 	// 		function-side type is a sum type and it is possible to map the operand-side type to one of
 	// 		the types within the sum.
-	if newY := function.OmegaType.Resolve((*y).Type()); newY != nil { // 1
+	if newY := function.OmegaType.Resolve(y.Type()); newY != nil { // 1
 		function.OmegaType = newY
-	} else if QueryCast((*y).Type(), function.OmegaType) { // 2
-		*y = DelegateCast(*y, function.OmegaType)
-	} else if cast := RoundhouseCast(*y, nil, function.OmegaType); cast != nil { // 3
-		*y = *cast
+	} else if QueryCast(y.Type(), function.OmegaType) { // 2
+		y = DelegateCast(y, function.OmegaType)
+	} else if cast := RoundhouseCast(y, nil, function.OmegaType); cast != nil { // 3
+		y = *cast // TODO see if this even works
 	} else {
-		Panic("Cannot find mapping between ", (*y).Type(), " and ", function.OmegaType)
+		Panic("Cannot find mapping between ", y.Type(), " and ", function.OmegaType)
 	}
 
 	// Function return type may be reliant on the input type, substitute.
 	if function.Returns.IsAlgebraic() {
-		function.Returns = function.Returns.Resolve((*y).Type())
+		function.Returns = function.Returns.Resolve(y.Type())
 	}
 
+	return function, y
 }
 
-func DeferDyadicApplicationTypes(function *DyadicFunction, x, y *Expression) {
+func DeferDyadicApplicationTypes(function DyadicFunction, x, y Expression) (DyadicFunction, Expression, Expression) {
 	// Enclose all function-side types in a vector if operands are vectors and the function is not a vector-function
 	// TOOD allow X f Y : A f [B] -> A f B.0, A f B.1, ... ,A f B.n
 	if !function.Attrs().DisallowAutoVector &&
-		QueryAutoVector(function.OmegaType, (*y).Type()) &&
-		QueryAutoVector(function.AlphaType, (*x).Type()) {
+		QueryAutoVector(function.OmegaType, y.Type()) &&
+		QueryAutoVector(function.AlphaType, x.Type()) {
 		function.AlphaType = VectorType{Type: function.AlphaType}
 		function.OmegaType = VectorType{Type: function.OmegaType}
 		function.Returns = VectorType{Type: function.Returns}
@@ -56,8 +57,8 @@ func DeferDyadicApplicationTypes(function *DyadicFunction, x, y *Expression) {
 
 	// There is simple equality between function- and operand-side types (regardless of autovectorisation)
 	// ... do nothing and return
-	if (*x).Type().Equals(function.AlphaType) && (*y).Type().Equals(function.OmegaType) && !function.Returns.IsAlgebraic() {
-		return
+	if x.Type().Equals(function.AlphaType) && y.Type().Equals(function.OmegaType) && !function.Returns.IsAlgebraic() {
+		return function, x, y
 	}
 
 	// ... otherwise, cast the operands to the function-side types
@@ -70,25 +71,25 @@ func DeferDyadicApplicationTypes(function *DyadicFunction, x, y *Expression) {
 	// 		There is no mapping from the operand-side type to the function-side type, however, the
 	// 		function-side type is a sum type and it is possible to map the operand-side type to one of
 	// 		the types within the sum.
-	if newX := function.AlphaType.Resolve((*x).Type()); newX != nil { // 1
+	if newX := function.AlphaType.Resolve(x.Type()); newX != nil { // 1
 		function.AlphaType = newX
-	} else if QueryCast((*x).Type(), function.AlphaType) { // 2
-		*x = DelegateCast(*x, function.AlphaType)
-	} else if cast := RoundhouseCast(*x, (*y).Type(), function.AlphaType); cast != nil { // 3
-		*x = cast
+	} else if QueryCast(x.Type(), function.AlphaType) { // 2
+		x = DelegateCast(x, function.AlphaType)
+	} else if cast := RoundhouseCast(x, y.Type(), function.AlphaType); cast != nil { // 3
+		x = cast
 	} else {
-		Panic("Cannot find mapping between ", (*x).Type(), " and ", function.AlphaType)
+		Panic("Cannot find mapping between ", x.Type(), " and ", function.AlphaType)
 	}
 
 	// Same as above
-	if newY := function.OmegaType.Resolve((*y).Type()); newY != nil { // 1
+	if newY := function.OmegaType.Resolve(y.Type()); newY != nil { // 1
 		function.OmegaType = newY
-	} else if QueryCast((*y).Type(), function.OmegaType) { // 2
-		*y = DelegateCast(*y, function.OmegaType)
-	} else if cast := RoundhouseCast(*y, (*x).Type(), function.OmegaType); cast != nil { // 3
-		*y = *cast
+	} else if QueryCast(y.Type(), function.OmegaType) { // 2
+		y = DelegateCast(y, function.OmegaType)
+	} else if cast := RoundhouseCast(y, x.Type(), function.OmegaType); cast != nil { // 3
+		y = *cast
 	} else {
-		Panic("Cannot find mapping between ", (*y).Type(), " and ", function.OmegaType)
+		Panic("Cannot find mapping between ", y.Type(), " and ", function.OmegaType)
 	}
 
 	// Function return type may be reliant on the input type, substitute.
@@ -96,8 +97,10 @@ func DeferDyadicApplicationTypes(function *DyadicFunction, x, y *Expression) {
 	// Need to extend generic so it specifies Left/Right and whether it can be a vector,
 	// otherwise non-deterministic.
 	if function.Returns.IsAlgebraic() {
-		function.Returns = function.Returns.Resolve((*x).Type())
+		function.Returns = function.Returns.Resolve(x.Type())
 	}
+
+	return function, x, y
 }
 
 // RoundhouseCast attempts to find a mapping from a type to a type within a sum

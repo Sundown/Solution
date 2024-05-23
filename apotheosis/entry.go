@@ -54,6 +54,7 @@ func (env *Environment) declareFunctions() *Environment {
 			continue
 		}
 
+		// TODO maybe these should also check for generic
 		if _, ok := (*fn).OmegaType.(prism.Universal); ok {
 			continue
 		}

@@ -119,7 +119,7 @@ func (env *Environment) SubstantiateType(t palisade.Type) Type {
 
 		return StructType{FieldTypes: acc}
 	} else {
-		return Universal{}
+		return GenericType{}
 	}
 
 	Panic("Unknown type")

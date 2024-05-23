@@ -21,8 +21,6 @@ func (env *Environment) analyseDBody(f *prism.DyadicFunction) {
 		for _, expr := range *f.PreBody {
 			f.Body = append(f.Body, env.analyseExpression(&expr))
 		}
-	} else {
-		panic("Body already filled somehow")
 	}
 
 	env.CurrentFunctionIR = t
@@ -46,7 +44,7 @@ func (env *Environment) analyseDyadic(d *palisade.Dyadic) prism.DyadicApplicatio
 
 	function := fn.(prism.DyadicFunction)
 
-	prism.DeferDyadicApplicationTypes(&function, &left, &right)
+	function, left, right = prism.DeferDyadicApplicationTypes(function, left, right)
 
 	return prism.DyadicApplication{
 		Operator: function,

@@ -7,24 +7,24 @@ import (
 
 // Everything wrong with the compiler starts in this function
 func (env *Environment) analysePrimeApplicable(app palisade.Applicable, lType, rType prism.Type) prism.Function {
-	var function prism.Function
 	if app.Verb != nil {
 		if lType == nil {
 			f := env.generateMonadicTypes(env.FetchMVerb(app.Verb), rType)
+
 			env.MonadicFunctions[f.Name] = &f
-			function = f
+			return f
 		} else {
 			f := env.generateDyadicTypes(env.FetchDVerb(app.Verb), lType, rType)
 
 			env.DyadicFunctions[f.Name] = &f
-			function = f
+			return f
 		}
 	} else if app.Subexpr != nil {
 		// Monadic/dyadic cases are handled within train system
-		function = env.boardTrain(app.Subexpr, lType, rType)
+		return env.boardTrain(app.Subexpr, lType, rType)
 	}
 
-	return function
+	panic("unreachable")
 }
 
 func (env *Environment) analyseApplicable(app palisade.Applicable, lType, rType prism.Type) prism.Function {
