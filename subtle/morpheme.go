@@ -5,7 +5,7 @@ import (
 	"github.com/sundown/solution/prism"
 )
 
-func (env Environment) analyseMorphemes(ms *palisade.Morpheme) prism.Expression {
+func (env *Environment) analyseMorphemes(ms *palisade.Morpheme) prism.Expression {
 	mor := env.analyseMorpheme(ms)
 	if vec, ok := mor.(prism.Vector); ok {
 		if len(*vec.Body) == 1 {
@@ -16,7 +16,7 @@ func (env Environment) analyseMorphemes(ms *palisade.Morpheme) prism.Expression 
 	return mor
 }
 
-func (env Environment) analyseMorpheme(m *palisade.Morpheme) prism.Expression {
+func (env *Environment) analyseMorpheme(m *palisade.Morpheme) prism.Expression {
 	switch {
 	case m.Char != nil:
 		vec := make([]prism.Expression, len(*m.Char))

@@ -5,7 +5,7 @@ import (
 	"github.com/sundown/solution/prism"
 )
 
-func (env Environment) internFunction(f palisade.Function) {
+func (env *Environment) internFunction(f palisade.Function) {
 	var alpha, omega, sigma prism.Type
 	var dyadic = false
 	var ident prism.Ident

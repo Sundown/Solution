@@ -90,7 +90,7 @@ func NewEnvironment() *Environment {
 	return &env
 }
 
-func (env Environment) Intern(f Function) {
+func (env *Environment) Intern(f Function) {
 	if fn, ok := f.(MonadicFunction); ok {
 		if _, ok := env.MonadicFunctions[fn.Name]; ok {
 			panic("Monadic function " + fn.Name.String() + " already exists")
@@ -111,7 +111,7 @@ func (e *Environment) Iterate() int {
 	return int(e.Iter)
 }
 
-func (env Environment) FetchDVerb(v *palisade.Ident) DyadicFunction {
+func (env *Environment) FetchDVerb(v *palisade.Ident) DyadicFunction {
 	if found, ok := env.DyadicFunctions[env.AwareIntern(*v)]; ok {
 		return *found
 	}
@@ -130,7 +130,7 @@ func (env Environment) FetchDVerb(v *palisade.Ident) DyadicFunction {
 	panic("Unknown error")
 }
 
-func (env Environment) FetchMVerb(v *palisade.Ident) MonadicFunction {
+func (env *Environment) FetchMVerb(v *palisade.Ident) MonadicFunction {
 	if found, ok := env.MonadicFunctions[env.AwareIntern(*v)]; ok {
 		return *found
 	}
@@ -149,7 +149,7 @@ func (env Environment) FetchMVerb(v *palisade.Ident) MonadicFunction {
 	panic("Unknown error")
 }
 
-func (env Environment) FetchVerb(v *palisade.Ident) Expression {
+func (env *Environment) FetchVerb(v *palisade.Ident) Expression {
 	if found, ok := env.MonadicFunctions[env.AwareIntern(*v)]; ok {
 		return *found
 	} else if found, ok := env.DyadicFunctions[env.AwareIntern(*v)]; ok {

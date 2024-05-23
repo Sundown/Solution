@@ -7,7 +7,7 @@ import (
 	"github.com/sundown/solution/prism"
 )
 
-func (env Environment) analyseMBody(f *prism.MonadicFunction) {
+func (env *Environment) analyseMBody(f *prism.MonadicFunction) {
 	if _, ok := f.OmegaType.(prism.Universal); ok || f.Attrs().Special || f.Attrs().SkipBuilder {
 		return
 	}
@@ -24,7 +24,7 @@ func (env Environment) analyseMBody(f *prism.MonadicFunction) {
 	env.CurrentFunctionIR = t
 }
 
-func (env Environment) analyseMonadic(d *palisade.Monadic) prism.MonadicApplication {
+func (env *Environment) analyseMonadic(d *palisade.Monadic) prism.MonadicApplication {
 	right := env.analyseExpression(d.Expression)
 	fn := env.analyseApplicable(*d.Applicable, nil, right.Type())
 

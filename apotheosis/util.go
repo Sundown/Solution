@@ -9,7 +9,7 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-func (env Environment) new(val value.Value) (res value.Value) {
+func (env *Environment) new(val value.Value) (res value.Value) {
 	res = env.Block.NewAlloca(val.Type())
 	env.Block.NewStore(val, res)
 	return

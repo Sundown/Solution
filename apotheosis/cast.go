@@ -9,7 +9,7 @@ import (
 	"github.com/llir/llvm/ir/value"
 )
 
-func (env Environment) castInt(from prism.Value) value.Value {
+func (env *Environment) castInt(from prism.Value) value.Value {
 	switch from.Type.Kind() {
 	case prism.TypeInt:
 		return from.Value
@@ -21,7 +21,7 @@ func (env Environment) castInt(from prism.Value) value.Value {
 	panic("unlabelled error")
 }
 
-func (env Environment) castReal(from prism.Value) value.Value {
+func (env *Environment) castReal(from prism.Value) value.Value {
 	switch from.Type.Kind() {
 	case prism.TypeBool, prism.TypeChar, prism.TypeInt:
 		return env.Block.NewSIToFP(from.Value, types.Double)
@@ -33,7 +33,7 @@ func (env Environment) castReal(from prism.Value) value.Value {
 	panic("unlabelled error")
 }
 
-func (env Environment) castChar(from prism.Value) value.Value {
+func (env *Environment) castChar(from prism.Value) value.Value {
 	switch from.Type.Kind() {
 	case prism.TypeChar:
 		return from.Value
@@ -45,7 +45,7 @@ func (env Environment) castChar(from prism.Value) value.Value {
 	panic("unlabelled error")
 }
 
-func (env Environment) castBool(from prism.Value) value.Value {
+func (env *Environment) castBool(from prism.Value) value.Value {
 	switch from.Type.Kind() {
 	case prism.TypeBool:
 		return from.Value
@@ -56,7 +56,7 @@ func (env Environment) castBool(from prism.Value) value.Value {
 	panic("unlabelled error")
 }
 
-func (env Environment) newCast(cast prism.Cast) value.Value {
+func (env *Environment) newCast(cast prism.Cast) value.Value {
 	val := prism.Value{Value: env.newExpression(&cast.Value), Type: cast.Value.Type()}
 	var castfn prism.MCallable
 	var from prism.Type

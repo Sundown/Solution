@@ -9,7 +9,7 @@ import (
 )
 
 // https://hackage.haskell.org/package/base-4.16.0.0/docs/Prelude.html#v:zipWith
-func (env Environment) combineOf(in prism.Callable, a, b prism.Value) value.Value {
+func (env *Environment) combineOf(in prism.Callable, a, b prism.Value) value.Value {
 	var retType prism.Type
 	if fn, ok := in.(prism.DyadicFunction); ok {
 		retType = fn.Type()

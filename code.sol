@@ -1,4 +1,5 @@
 @Package nov;
+
 Main Int → Void {
 	show 1;
 	show 1.5;
@@ -6,5 +7,5 @@ Main Int → Void {
 
 show {
 	Print ω;
-	← ω;
+
 }

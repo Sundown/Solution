@@ -24,7 +24,7 @@ import (
 // 		(gh) b <=> g (h b)
 
 // a (fgh) b <=> (a f b) g (a h b)
-func (env Environment) d3Train(f, g, h prism.DyadicFunction, APre, BPre prism.Type) prism.DyadicFunction {
+func (env *Environment) d3Train(f, g, h prism.DyadicFunction, APre, BPre prism.Type) prism.DyadicFunction {
 	match(&APre, &f.AlphaType)
 	match(&APre, &h.AlphaType)
 	match(&BPre, &f.OmegaType)
@@ -83,7 +83,7 @@ func (env Environment) d3Train(f, g, h prism.DyadicFunction, APre, BPre prism.Ty
 }
 
 // a (gh) b <=> g (a h b)
-func (env Environment) d2Train(g prism.MonadicFunction, h prism.DyadicFunction, APre, BPre prism.Type) prism.DyadicFunction {
+func (env *Environment) d2Train(g prism.MonadicFunction, h prism.DyadicFunction, APre, BPre prism.Type) prism.DyadicFunction {
 	match(&APre, &h.AlphaType)
 	match(&BPre, &h.OmegaType)
 
@@ -130,7 +130,7 @@ func (env Environment) d2Train(g prism.MonadicFunction, h prism.DyadicFunction, 
 }
 
 // (fgh) b <=> (f b) g (h b)
-func (env Environment) m3Train(f prism.MonadicFunction, g prism.DyadicFunction, h prism.MonadicFunction, BPre prism.Type) prism.MonadicFunction {
+func (env *Environment) m3Train(f prism.MonadicFunction, g prism.DyadicFunction, h prism.MonadicFunction, BPre prism.Type) prism.MonadicFunction {
 	match(&BPre, &f.OmegaType)
 	match(&BPre, &h.OmegaType)
 
@@ -184,7 +184,7 @@ func (env Environment) m3Train(f prism.MonadicFunction, g prism.DyadicFunction, 
 }
 
 // (gh) b <=> g (h b)
-func (env Environment) m2Train(g prism.MonadicFunction, h prism.MonadicFunction, BPre prism.Type) prism.MonadicFunction {
+func (env *Environment) m2Train(g prism.MonadicFunction, h prism.MonadicFunction, BPre prism.Type) prism.MonadicFunction {
 	match(&BPre, &h.OmegaType)
 
 	if h.Returns.IsAlgebraic() {

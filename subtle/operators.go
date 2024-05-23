@@ -111,7 +111,7 @@ func (env *Environment) analyseMonadicOperator(app palisade.Applicable, rType pr
 	panic("Unknown operator")
 }
 
-func (env Environment) monadicOperatorToFunction(op prism.MonadicOperator) prism.MonadicFunction {
+func (env *Environment) monadicOperatorToFunction(op prism.MonadicOperator) prism.MonadicFunction {
 	fn := prism.MonadicFunction{
 		Attribute: prism.Attribute{
 			SkipBuilder: true,

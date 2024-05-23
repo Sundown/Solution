@@ -48,7 +48,7 @@ func (DyadicCallable) Arity() int {
 	return 2
 }
 
-func (env Environment) FetchDyadicCallable(v string) Callable {
+func (env *Environment) FetchDyadicCallable(v string) Callable {
 	if found, ok := env.LLDyadicCallables[v]; ok {
 		return found
 	}
@@ -56,7 +56,7 @@ func (env Environment) FetchDyadicCallable(v string) Callable {
 	return nil
 }
 
-func (env Environment) FetchMonadicCallable(v string) Callable {
+func (env *Environment) FetchMonadicCallable(v string) Callable {
 	if found, ok := env.LLMonadicCallables[v]; ok {
 		return found
 	}

@@ -58,7 +58,7 @@ func Intern(i palisade.Ident) (p Ident) {
 	return
 }
 
-func (env Environment) AwareIntern(i palisade.Ident) (p Ident) {
+func (env *Environment) AwareIntern(i palisade.Ident) (p Ident) {
 	if i.Namespace == nil {
 		p.Package = env.Output
 	} else {
@@ -102,7 +102,7 @@ func ParseIdent(s string) (p Ident) {
 	return Intern(t)
 }
 
-func (env Environment) SubstantiateType(t palisade.Type) Type {
+func (env *Environment) SubstantiateType(t palisade.Type) Type {
 	if t.Primitive != nil {
 		if ptr := env.Types[Intern(*t.Primitive)]; ptr != nil {
 			return ptr

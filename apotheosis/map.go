@@ -14,7 +14,7 @@ func (env *Environment) newInlineMap(in prism.Callable, vec prism.Value) value.V
 	if fn, ok := in.(prism.MonadicFunction); ok {
 		retType = fn.Type()
 	} else {
-		panic("Unreachable")
+		retType = prism.VoidType // TODO works for print but not necessarily for all functions
 	}
 
 	writePred := retType.Kind() != prism.VoidType.ID

@@ -239,7 +239,7 @@ func (env *Environment) validateVectorIndex(vec prism.Value, index value.Value) 
 	env.Block = btrue
 }
 
-func (env Environment) vectorFactory(elmType prism.Type, size value.Value) prism.Value {
+func (env *Environment) vectorFactory(elmType prism.Type, size value.Value) prism.Value {
 	head := env.Block.NewBitCast(
 		env.Block.NewCall(env.getCalloc(), i32(3), i32(8)),
 		types.NewPointer(prism.Vec(elmType).Realise()))
@@ -254,7 +254,7 @@ func (env Environment) vectorFactory(elmType prism.Type, size value.Value) prism
 	return prism.Val(head, prism.Vec(elmType))
 }
 
-func (env Environment) dualVectorFactory(elmType prism.Type, size value.Value) (value.Value, value.Value) {
+func (env *Environment) dualVectorFactory(elmType prism.Type, size value.Value) (value.Value, value.Value) {
 	head := env.Block.NewBitCast(
 		env.Block.NewCall(env.getCalloc(), i32(3), i32(8)),
 		types.NewPointer(prism.VectorType{Type: elmType}.Realise()))

@@ -5,7 +5,7 @@ import (
 	"github.com/sundown/solution/prism"
 )
 
-func (env Environment) analyseExpression(e *palisade.Expression) prism.Expression {
+func (env *Environment) analyseExpression(e *palisade.Expression) prism.Expression {
 	if e.Monadic != nil {
 		if e.Monadic.Expression == nil {
 			return env.FetchMVerb(e.Monadic.Applicable.Verb)

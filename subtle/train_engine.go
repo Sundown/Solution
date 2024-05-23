@@ -13,7 +13,7 @@ func trainLength(expr *palisade.Expression) int {
 	return 1
 }
 
-func (env Environment) boardTrain(
+func (env *Environment) boardTrain(
 	expr *palisade.Expression, left, right prism.Type,
 ) prism.Function {
 	var train prism.Function

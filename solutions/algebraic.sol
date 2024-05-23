@@ -1,7 +1,12 @@
 @Package dev;
 
 Main Int → Void {
-	Println Fn 1;
+	 Func 4 1;
+}
+
+Func {
+	← ⊂ ω;
+
 }
 
 Fn Real → Real {

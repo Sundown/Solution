@@ -5,6 +5,6 @@ import (
 	"github.com/sundown/solution/prism"
 )
 
-func (env Environment) newInlineReshape(alpha, omega prism.Value) value.Value {
+func (env *Environment) newInlineReshape(alpha, omega prism.Value) value.Value {
 	return nil
 }

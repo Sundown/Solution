@@ -5,7 +5,7 @@ var (
 	Countable = TypeGroup{[]Type{IntType, CharType, BoolType}}
 )
 
-func (env Environment) InternBuiltins() {
+func (env *Environment) InternBuiltins() {
 	env.Intern(MonadicFunction{
 		Attribute: Attribute{Special: true, DisallowAutoVector: true},
 		Name:      Ident{Package: "_", Name: "←"},

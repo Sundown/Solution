@@ -5,7 +5,7 @@ import (
 	"github.com/sundown/solution/prism"
 )
 
-func (env Environment) analyseDBody(f *prism.DyadicFunction) {
+func (env *Environment) analyseDBody(f *prism.DyadicFunction) {
 	if _, okr := f.OmegaType.(prism.Universal); okr || f.Attrs().Special || f.Attrs().SkipBuilder {
 		return
 	}
@@ -28,7 +28,7 @@ func (env Environment) analyseDBody(f *prism.DyadicFunction) {
 	env.CurrentFunctionIR = t
 }
 
-func (env Environment) analyseDyadic(d *palisade.Dyadic) prism.DyadicApplication {
+func (env *Environment) analyseDyadic(d *palisade.Dyadic) prism.DyadicApplication {
 	var left prism.Expression
 	if d.Monadic != nil {
 		left = env.analyseMonadic(d.Monadic)

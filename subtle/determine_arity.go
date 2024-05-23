@@ -4,7 +4,7 @@ import (
 	"github.com/sundown/solution/palisade"
 )
 
-func (env Environment) determineArity(f *palisade.Function) bool {
+func (env *Environment) determineArity(f *palisade.Function) bool {
 	if f.Tacit != nil {
 		return env.determineExpression(f.Tacit)
 	}
@@ -18,7 +18,7 @@ func (env Environment) determineArity(f *palisade.Function) bool {
 	return false
 }
 
-func (env Environment) determineExpression(e *palisade.Expression) bool {
+func (env *Environment) determineExpression(e *palisade.Expression) bool {
 	if e.Monadic != nil {
 		return env.determineMonadic(e.Monadic)
 	} else if e.Dyadic != nil {
@@ -30,11 +30,11 @@ func (env Environment) determineExpression(e *palisade.Expression) bool {
 	panic("Unreachable")
 }
 
-func (env Environment) determineMorphemes(ms *palisade.Morpheme) bool {
+func (env *Environment) determineMorphemes(ms *palisade.Morpheme) bool {
 	return ms.Alpha != nil
 }
 
-func (env Environment) determineDyadic(d *palisade.Dyadic) bool {
+func (env *Environment) determineDyadic(d *palisade.Dyadic) bool {
 	var alpha bool
 	if d.Monadic != nil {
 		alpha = false
@@ -47,6 +47,6 @@ func (env Environment) determineDyadic(d *palisade.Dyadic) bool {
 	return alpha || omega
 }
 
-func (env Environment) determineMonadic(d *palisade.Monadic) bool {
+func (env *Environment) determineMonadic(d *palisade.Monadic) bool {
 	return env.determineExpression(d.Expression)
 }
