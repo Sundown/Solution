@@ -14,6 +14,14 @@ func IsVector(t Type) bool {
 	return ok
 }
 
+func IsMatrix(t Type) bool {
+	if !IsVector(t) {
+		return false
+	}
+
+	return IsVector(t.(VectorType).Type)
+}
+
 func VectorDepth(t Type) int {
 	if !IsVector(t) {
 		return 0
@@ -60,7 +68,7 @@ func (v VectorType) Realise() types.Type {
 	}
 
 	return types.NewStruct(
-		types.I32, types.I32,
+		types.I32, types.I32, types.I32,
 		types.NewPointer(v.Type.Realise()))
 }
 

@@ -1,6 +1,8 @@
 package apotheosis
 
 import (
+	"fmt"
+
 	"github.com/sundown/solution/prism"
 
 	"github.com/llir/llvm/ir/enum"
@@ -33,6 +35,8 @@ func (env *Environment) newInlineIota(val prism.Value) value.Value {
 
 func (env *Environment) newInlineEnclose(val prism.Value) value.Value {
 	head := env.vectorFactory(val.Type, i32(1))
+	fmt.Println(head)
+	fmt.Println(val)
 	env.writeElement(head, val.Value, i32(0))
 	return head.Value
 }
