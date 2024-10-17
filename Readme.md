@@ -2,25 +2,24 @@
 
 <h2 align="center"> Solution</h2>
 <p align="center">
-Solution is a compiler for an array-oriented language, providing the cognition of APL in an accessible, compiled, and open-source platform. The Solution Language is inspired by the work of Kenneth Iverson.
+<i>An array-oriented language with a modular backend</i>
 </p>
 
-<p align="center">
-  <a href="https://github.com/Sundown/Solution/blob/master/go.mod">
-		<img alt="Go Version" src="https://img.shields.io/github/go-mod/go-version/sundown/solution?style=for-the-badge&logo=go&color=f1f1f1&logoColor=f1f1f1&labelColor=262D3A">
-  </a>
-  <a href="https://github.com/sundown/solution/blob/main/LICENSE">
-    <img src="https://img.shields.io/static/v1.svg?style=for-the-badge&logo=gnu&label=License&message=GPL-2.0&color=f1f1f1&logoColor=f1f1f1&labelColor=262D3A"/>
-  </a>
-  <a href="https://llvm.org">
-    <img src="https://img.shields.io/static/v1.svg?style=for-the-badge&logo=llvm&label=LLVM&message=v13.0&color=f1f1f1&logoColor=f1f1f1&labelColor=262D3A"/>
-  </a>
+A compiled array-oriented language running on LLVM with a modular backend to support development for multiple platforms. This compiler supports optional implicit typing so it remains safe while not getting in your way.
 
-</p>
+This project relies heavily on:
+
+- [llir/llvm](github.com/llir/llvm) which provides LLVM generation for Go
+- [participle](github.com/alecthomas/participle) which is used to define the parser
+- [clang](https://clang.llvm.org) for the heavy lifting as linker and assembler
+
+---
+
+### Demo
 
 The following demonstrates Solution's implicit typing system, `Demo` is automatically typed as `Int×Int` and takes the minimum of the two arguments to the power of the maximum using a dyadic train.
 
-The second function calculates the average of a numeric vector using a similar 3-arity dyadic train, however the leftmost side of this train is a function-operator combination, `+/` which is equivalent to a sum.
+The second function calculates the average of a numeric vector using a similar 3-arity dyadic train, however the leftmost side of this train is a function-operator combination, `+/` (add-reduce) which is equivalent to a sum.
 
 ```swift
 @Package dev;
@@ -39,3 +38,7 @@ Avg → Void {
 }
 
 ```
+
+---
+
+<p align="center">GPL2 </p>
