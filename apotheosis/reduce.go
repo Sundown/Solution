@@ -31,8 +31,8 @@ T Reduce(F, A) {
 func (env *Environment) newInlineReduce(fn prism.DyadicFunction, vec prism.Value) value.Value {
 	vectyp := vec.Type.(prism.VectorType).Type
 
-	len := env.readVectorLength(vec)
-	storeCounter := env.new(env.Block.NewSub(len, i32(2)))
+	leng := env.readVectorLength(vec)
+	storeCounter := env.new(env.Block.NewSub(leng, i32(2)))
 
 	// Alloc memory for accum, bitcast to ptr of vector element type
 	accum := env.Block.NewBitCast(
@@ -40,7 +40,7 @@ func (env *Environment) newInlineReduce(fn prism.DyadicFunction, vec prism.Value
 		types.NewPointer(vectyp.Realise()))
 
 	// Load the last element of vector
-	e := env.unsafeReadVectorElement(vec, env.Block.NewSub(len, i32(1)))
+	e := env.unsafeReadVectorElement(vec, env.Block.NewSub(leng, i32(1)))
 	if prism.IsVector(vectyp) {
 		// Memcpy if subtype is vector
 		e = env.Block.NewBitCast(e, types.I8Ptr)
@@ -59,7 +59,7 @@ func (env *Environment) newInlineReduce(fn prism.DyadicFunction, vec prism.Value
 	exitblock := env.newBlock(env.CurrentFunction)
 
 	// Return immediately if only one element in vector
-	env.Block.NewCondBr(env.Block.NewICmp(enum.IPredEQ, len, i32(1)), exitblock, loopblock)
+	env.Block.NewCondBr(env.Block.NewICmp(enum.IPredEQ, leng, i32(1)), exitblock, loopblock)
 
 	env.Block = loopblock
 

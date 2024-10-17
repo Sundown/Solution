@@ -237,6 +237,7 @@ func (env *Environment) getCreateVectorHeader() *ir.Func {
 		env.Specials["createVectorHeader"] = env.Module.NewFunc(
 			"createVectorHeader",
 			types.NewPointer(voidVector),
+			ir.NewParam("length", types.I32),
 			ir.NewParam("capacity", types.I32),
 			ir.NewParam("width", types.I32))
 	}

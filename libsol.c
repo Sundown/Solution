@@ -29,11 +29,18 @@ finline int32_t readVectorWidth(Vector *v) { return v->width; }
 
 finline void writeVectorPointer(Vector *v, void *data) { v->data = data; }
 
-Vector *createVectorHeader(int32_t capacity, int32_t width) {
+Vector *createVectorHeader(int32_t length, int32_t capacity, int32_t width) {
   Vector *v = calloc(1, sizeof(Vector));
-  v->length = 0;
+  v->length = length;
   v->capacity = capacity;
   v->width = width;
   v->data = NULL;
+  return v;
+}
+
+Vector *mapVector(Vector *v, void (*f)(void *)) {
+  for (int i = 0; i < v->length; i++) {
+    f((char *)v->data + i * v->width);
+  }
   return v;
 }

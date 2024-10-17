@@ -22,7 +22,7 @@ var (
 
 // newVector maps from prism.Vector to Value contaning LLVM vector.
 func (env *Environment) newVector(vector prism.Vector) value.Value {
-	_, cap := calculateVectorSizes(len(*vector.Body))
+	leng, cap := calculateVectorSizes(len(*vector.Body))
 	elmType := vector.Type().(prism.VectorType).Type.Realise()
 	//headType := vector.Type().Realise()
 
@@ -33,7 +33,7 @@ func (env *Environment) newVector(vector prism.Vector) value.Value {
 	// env.writeVectorLength(head, leng)
 	// env.writeVectorCapacity(head, cap)
 	var head value.Value
-	head = env.Block.NewCall(env.getCreateVectorHeader(), constant.NewInt(types.I32, cap), constant.NewInt(types.I32, vector.Type().(prism.VectorType).Type.Width()))
+	head = env.Block.NewCall(env.getCreateVectorHeader(), constant.NewInt(types.I32, leng), constant.NewInt(types.I32, cap), constant.NewInt(types.I32, vector.Type().(prism.VectorType).Type.Width()))
 	//head = env.Block.NewBitCast(head, headType)
 	// Perform calloc for body and place width and capacity and let LLVM know the type.
 	//
@@ -245,7 +245,7 @@ func (env *Environment) vectorFactory(elmType prism.Type, size value.Value) pris
 	// env.writeLLVectorLength(prism.Val(head, prism.Vec(elmType)), size)
 	// env.writeLLVectorCapacity(prism.Val(head, prism.Vec(elmType)), size)
 
-	head := env.Block.NewCall(env.getCreateVectorHeader(), size, constant.NewInt(types.I32, elmType.Width()))
+	head := env.Block.NewCall(env.getCreateVectorHeader(), constant.NewInt(types.I32, 0), size, constant.NewInt(types.I32, elmType.Width()))
 
 	env.writeVectorPointer(
 		prism.Val(head, prism.Vec(elmType)),
