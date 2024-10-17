@@ -2,7 +2,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
-#define finline
+#define finline __attribute__((always_inline))
 
 typedef struct {
   int32_t length;
@@ -29,7 +29,8 @@ finline int32_t readVectorWidth(Vector *v) { return v->width; }
 
 finline void writeVectorPointer(Vector *v, void *data) { v->data = data; }
 
-Vector *createVectorHeader(int32_t length, int32_t capacity, int32_t width) {
+finline Vector *createVectorHeader(int32_t length, int32_t capacity,
+                                   int32_t width) {
   Vector *v = calloc(1, sizeof(Vector));
   v->length = length;
   v->capacity = capacity;
@@ -38,7 +39,7 @@ Vector *createVectorHeader(int32_t length, int32_t capacity, int32_t width) {
   return v;
 }
 
-Vector *mapVector(Vector *v, void (*f)(void *)) {
+finline Vector *mapVector(Vector *v, void (*f)(void *)) {
   for (int i = 0; i < v->length; i++) {
     f((char *)v->data + i * v->width);
   }
