@@ -41,4 +41,21 @@ Avg → Void {
 
 ---
 
+### Usage
+
+```sh
+go run solution.go test
+
+go build solution.go
+
+./solution input.sol -emit purellvm
+
+clang libsol.c -S -emit-llvm -O0 -o libsol.ll
+
+clang input.ll libsol.ll -Og -o bin
+
+./bin
+```
+
 <p align="center">GPL2 </p>
+````

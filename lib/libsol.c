@@ -38,10 +38,3 @@ finline Vector *createVectorHeader(int32_t length, int32_t capacity,
   v->data = NULL;
   return v;
 }
-
-finline Vector *mapVector(Vector *v, void (*f)(void *)) {
-  for (int i = 0; i < v->length; i++) {
-    f((char *)v->data + i * v->width);
-  }
-  return v;
-}

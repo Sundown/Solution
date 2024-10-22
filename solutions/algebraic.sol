@@ -1,5 +1,5 @@
 @Package dev;
 
 Main Int → Void {
-	Print +/ 69 420 1 4 9;
+	Print +/1 1 1 2;
 }

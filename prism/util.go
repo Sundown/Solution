@@ -5,7 +5,6 @@ import (
 	"encoding/hex"
 	"flag"
 	"fmt"
-	"io/ioutil"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -119,20 +118,29 @@ func Emit(env *Environment) {
 
 func PilotEmit(env *Environment) (string, bool) {
 	out := []byte((*env.Module).String())
-	sum := [32]byte(sha256.Sum256(out))
-	temp_name := env.Output + "_" + hex.EncodeToString(sum[:]) + ".ll"
+	path, err := os.MkdirTemp("", "pilot-")
 
-	ioutil.WriteFile(temp_name, out, 0644)
-
-	VerifyClangVersion()
-
-	err := exec.Command("clang", temp_name, "-Og", "-o", env.Output).Run()
 	if err != nil {
 		return err.Error(), false
 	}
 
-	res, err := exec.Command("./" + env.Output).Output()
-	exec.Command("rm", "-f", temp_name, env.Output).Run()
+	os.WriteFile(path+"/output.ll", out, 0644)
+
+	VerifyClangVersion()
+
+	err = exec.Command("clang", "lib/libsol.c", "-S", "-emit-llvm", "-O0", "-o", path+"/libsol.ll").Run()
+
+	if err != nil {
+		return err.Error(), false
+	}
+
+	err = exec.Command("clang", path+"/output.ll", path+"/libsol.ll", "-Og", "-o", "output").Run()
+	if err != nil {
+		return err.Error(), false
+	}
+
+	res, err := exec.Command("./output").Output()
+	exec.Command("rm", "-rf", path).Run()
 
 	if err != nil {
 		return err.Error(), false
