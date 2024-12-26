@@ -1,6 +1,7 @@
 #include <stdint.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <string.h>
 
 #define finline __attribute__((always_inline))
 
@@ -37,4 +38,12 @@ finline Vector *createVectorHeader(int32_t length, int32_t capacity,
   v->width = width;
   v->data = NULL;
   return v;
+}
+
+finline void writeAtomicElement(Vector *v, int32_t index, void *element) {
+  memcpy((char *)v->data + index * v->width, &element, v->width);
+}
+
+finline void writeVectorElement(Vector *v, int32_t index, Vector *element) {
+  memcpy((char *)v->data + index * v->width, element, v->width);
 }

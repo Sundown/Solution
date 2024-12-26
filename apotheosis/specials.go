@@ -5,7 +5,7 @@ import (
 	"github.com/llir/llvm/ir/types"
 )
 
-var voidVector = types.NewStruct(types.I32, types.I32, types.I32, types.I64Ptr)
+var voidVector = types.NewStruct(types.I32, types.I32, types.I32, types.I8Ptr)
 
 func (env *Environment) getCalloc() *ir.Func {
 	if env.Specials["calloc"] == nil {
