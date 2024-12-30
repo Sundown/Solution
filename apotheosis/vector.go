@@ -24,46 +24,29 @@ func (env *Environment) newVector(vector prism.Vector) value.Value {
 	leng, cap := calculateVectorSizes(len(*vector.Body))
 	elmType := vector.Type().(prism.VectorType).Type.Realise()
 
-	//head := env.Block.NewCall(env.getCreateVectorHeader(), constant.NewInt(types.I32, leng), constant.NewInt(types.I32, cap), constant.NewInt(types.I32, vector.Type().(prism.VectorType).Type.Width()))
 	head := env.vectorFactory(vector.Type().(prism.VectorType).Type, i32(leng))
 
-	//head = env.Block.NewBitCast(head, headType)
-	// Perform calloc for body and place width and capacity and let LLVM know the type.
-	//
 	body := env.buildVectorBody(elmType, cap, vector.Type().(prism.VectorType).Width())
 
 	if len(*vector.Body) > 0 {
 		// Are all elements const?
 		if lo.ContainsBy(*vector.Body, prism.IsConstant) {
+			constant := env.Module.NewGlobalDef(
+				fmt.Sprint(env.newID()),
+				constant.NewArray(
+					types.NewArray(uint64(len(*vector.Body)), elmType),
+					lo.Map(*vector.Body, func(e prism.Expression, _ int) constant.Constant {
+						return env.newExpression(&e).(constant.Constant)
+					})...))
 
-			allocSize := env.Block.NewMul(i64(int64(len(*vector.Body))),
-				i64(vector.Type().(prism.VectorType).Type.Width()))
-
-			env.Block.NewCall(
-				env.getMemcpy(),
-				body, //env.Block.NewBitCast(body, types.I8Ptr), // TODO maybe should just be body, try later
-				env.populateConstBody(elmType, *vector.Body),
-				allocSize,
-				constant.NewInt(types.I1, 0))
+			bodyptr := env.Block.NewGetElementPtr(head.Type.Realise(), head.Value, i32(0), vectorBodyOffset)
+			env.Block.NewStore(env.Block.NewBitCast(constant, types.NewPointer(elmType)), bodyptr)
 		} else {
 			env.populateBody(body, elmType, *vector.Body)
 		}
 	}
 
-	env.writeVectorPointer(prism.Val(head.Value, vector.Type()), body)
-
 	return head.Value
-}
-
-func (env *Environment) populateConstBody(elementType types.Type, exprVec []prism.Expression) value.Value {
-	accum := make([]constant.Constant, len(exprVec))
-	for i, expr := range exprVec {
-		accum[i] = env.newExpression(&expr).(constant.Constant)
-	}
-
-	return env.Module.NewGlobalDef(
-		fmt.Sprint(env.newID()),
-		constant.NewArray(types.NewArray(uint64(len(exprVec)), elementType), accum...))
 }
 
 // Maps from expression[] to vector in LLVM
@@ -247,7 +230,7 @@ func (env *Environment) newVectorHeader(elmType prism.Type, size value.Value) (h
 
 	//head := env.Block.NewCall(env.getCreateVectorHeader(), size, capacity, width)
 
-	head.Value = env.Block.NewCall(env.getCalloc(), i32(4), i32(1))
+	head.Value = env.Block.NewCall(env.getCalloc(), i32(8), i32(4))
 	head.Value = env.Block.NewBitCast(head.Value, types.NewPointer(prism.Vec(elmType).Realise()))
 	head.Type = prism.Vec(elmType)
 	env.writeLLVectorLength(head, size)

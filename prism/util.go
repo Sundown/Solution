@@ -125,26 +125,21 @@ func PilotEmit(env *Environment) (string, bool) {
 	}
 
 	os.WriteFile(path+"/output.ll", out, 0644)
+	os.WriteFile("output.ll", out, 0644)
 
 	VerifyClangVersion()
 
-	err = exec.Command("clang", "lib/libsol.c", "-S", "-emit-llvm", "-O0", "-o", path+"/libsol.ll").Run()
-
-	if err != nil {
-		return err.Error(), false
-	}
-
-	err = exec.Command("clang", path+"/output.ll", path+"/libsol.ll", "-Og", "-o", "output").Run()
+	err = exec.Command("clang", path+"/output.ll", "-Og", "-o", "output").Run()
 	if err != nil {
 		return err.Error(), false
 	}
 
 	res, err := exec.Command("./output").Output()
-	exec.Command("rm", "-rf", path).Run()
 
 	if err != nil {
 		return err.Error(), false
 	} else {
+		//exec.Command("rm", "-rf", path).Run()
 		return string(res), true
 	}
 

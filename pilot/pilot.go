@@ -16,17 +16,14 @@ type Test struct {
 	Name   string
 	Code   string
 	Result string
-	Expr   bool
 }
 
 func newRun(t Test) {
 	env := prism.NewEnvironment()
 	env.IsPilotRun = true
-	if t.Expr {
-		env.File = `@Package pilot_test_output; @Entry Main; Main Int → Void{` + t.Code + `}`
-	} else {
-		env.File = t.Code
-	}
+
+	env.File = `@Package pilot_test_output; @Entry Main; Main Int → Void{` + t.Code + `}`
+
 	prism.Lex(env)
 	subtle.Parse(env)
 	apotheosis.Compile(env)
