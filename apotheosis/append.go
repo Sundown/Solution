@@ -54,7 +54,7 @@ func (env *Environment) newInlineAppend(alpha prism.Value, omega prism.Value) va
 		lentimessize,
 		constant.NewBool(false))
 
-	env.writeLLVectorLength(alpha, totalLen)
+	env.writeVectorLength(alpha, totalLen)
 
 	exit := env.newBlock(env.CurrentFunction)
 	env.Block.NewBr(exit)

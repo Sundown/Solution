@@ -101,8 +101,8 @@ func (env *Environment) vectorCast(caster prism.MCallable, vec prism.Value, to p
 	cap := env.readVectorCapacity(vec)
 	head = env.Block.NewAlloca(toHeadType)
 
-	env.writeLLVectorLength(prism.Value{Value: head, Type: irToHeadType}, leng)
-	env.writeLLVectorCapacity(prism.Value{Value: head, Type: irToHeadType}, cap)
+	env.writeVectorLength(prism.Value{Value: head, Type: irToHeadType}, leng)
+	env.writeVectorCapacity(prism.Value{Value: head, Type: irToHeadType}, cap)
 
 	// Allocate a body of capacity * element width, and cast to element type
 	body = env.Block.NewBitCast(

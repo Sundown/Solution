@@ -26,7 +26,7 @@ func (env *Environment) newVector(vector prism.Vector) value.Value {
 
 	head := env.vectorFactory(vector.Type().(prism.VectorType).Type, i32(leng))
 
-	body := env.buildVectorBody(elmType, cap, vector.Type().(prism.VectorType).Width())
+	bodyptr := env.Block.NewGetElementPtr(head.Type.Realise(), head.Value, i32(0), vectorBodyOffset)
 
 	if len(*vector.Body) > 0 {
 		// Are all elements const?
@@ -39,27 +39,24 @@ func (env *Environment) newVector(vector prism.Vector) value.Value {
 						return env.newExpression(&e).(constant.Constant)
 					})...))
 
-			bodyptr := env.Block.NewGetElementPtr(head.Type.Realise(), head.Value, i32(0), vectorBodyOffset)
 			env.Block.NewStore(env.Block.NewBitCast(constant, types.NewPointer(elmType)), bodyptr)
 		} else {
-			env.populateBody(body, elmType, *vector.Body)
+			body := env.buildVectorBody(i32(cap), vector.Type().(prism.VectorType).Width())
+			for index, element := range *vector.Body {
+				v := env.newExpression(&element)
+
+				if _, ok := (*vector.Body)[0].Type().(prism.AtomicType); !ok {
+					v = env.Block.NewLoad(elmType, v)
+				}
+
+				env.Block.NewStore(v, env.Block.NewGetElementPtr(elmType, body, i32(int64(index))))
+			}
+
+			env.Block.NewStore(body, bodyptr)
 		}
 	}
 
 	return head.Value
-}
-
-// Maps from expression[] to vector in LLVM
-func (env *Environment) populateBody(body value.Value, elmType types.Type, exprVec []prism.Expression) {
-	for index, element := range exprVec {
-		v := env.newExpression(&element)
-
-		if _, ok := exprVec[0].Type().(prism.AtomicType); !ok {
-			v = env.Block.NewLoad(elmType, v)
-		}
-
-		env.Block.NewStore(v, env.Block.NewGetElementPtr(elmType, body, i32(int64(index))))
-	}
 }
 
 func (env *Environment) writeVectorPointer(head prism.Value, body value.Value) value.Value {
@@ -70,27 +67,20 @@ func (env *Environment) writeVectorPointer(head prism.Value, body value.Value) v
 	return head.Value
 }
 
-func (env *Environment) buildVectorBody(typ types.Type, cap int64, width int64) value.Value {
-	return env.Block.NewCall(
-		env.getCalloc(),
-		i32(width),
-		i32(cap))
-}
-
-func (env *Environment) buildLLVectorBody(typ prism.Type, cap value.Value, width int64) value.Value {
+func (env *Environment) buildVectorBody(cap value.Value, width int64) value.Value {
 	return env.Block.NewCall(
 		env.getCalloc(),
 		i32(width),
 		cap)
 }
 
-func (env *Environment) writeLLVectorLength(vec prism.Value, len value.Value) {
+func (env *Environment) writeVectorLength(vec prism.Value, len value.Value) {
 	typ := vec.Type.Realise()
 	dest := env.Block.NewGetElementPtr(typ, vec.Value, i32(0), vectorLenOffset)
 	env.Block.NewStore(len, dest)
 }
 
-func (env *Environment) writeLLVectorCapacity(vec prism.Value, cap value.Value) {
+func (env *Environment) writeVectorCapacity(vec prism.Value, cap value.Value) {
 	typ := vec.Type.Realise()
 	dest := env.Block.NewGetElementPtr(typ, vec.Value, i32(0), vectorCapOffset)
 	env.Block.NewStore(cap, dest)
@@ -113,11 +103,6 @@ func (env *Environment) readVectorLength(vec prism.Value) value.Value {
 
 func (env *Environment) readVectorCapacity(vec prism.Value) value.Value {
 	src := env.Block.NewGetElementPtr(vec.Type.Realise(), vec.Value, vectorCapOffset)
-	return env.Block.NewLoad(types.I32, src)
-}
-
-func (env *Environment) readVectorWidth(vec prism.Value) value.Value {
-	src := env.Block.NewGetElementPtr(vec.Type.Realise(), vec.Value, vectorWidthOffset)
 	return env.Block.NewLoad(types.I32, src)
 }
 
@@ -228,13 +213,11 @@ func (env *Environment) newVectorHeader(elmType prism.Type, size value.Value) (h
 	capacity := env.calculateCapacity(size)
 	width := constant.NewInt(types.I32, elmType.Width())
 
-	//head := env.Block.NewCall(env.getCreateVectorHeader(), size, capacity, width)
-
 	head.Value = env.Block.NewCall(env.getCalloc(), i32(8), i32(4))
 	head.Value = env.Block.NewBitCast(head.Value, types.NewPointer(prism.Vec(elmType).Realise()))
 	head.Type = prism.Vec(elmType)
-	env.writeLLVectorLength(head, size)
-	env.writeLLVectorCapacity(head, capacity)
+	env.writeVectorLength(head, size)
+	env.writeVectorCapacity(head, capacity)
 	env.writeLLVectorWidth(head, width)
 	// Body pointer guaranteed to be null due to use of calloc
 
@@ -248,7 +231,7 @@ func (env *Environment) vectorFactory(elmType prism.Type, size value.Value) pris
 
 	env.writeVectorPointer(
 		prism.Val(head, prism.Vec(elmType)),
-		env.buildLLVectorBody(elmType, size, elmType.Width()))
+		env.buildVectorBody(size, elmType.Width()))
 
 	return prism.Val(head, prism.Vec(elmType))
 }
