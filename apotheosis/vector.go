@@ -80,7 +80,10 @@ func (env *Environment) populateBody(body value.Value, elmType types.Type, exprV
 }
 
 func (env *Environment) writeVectorPointer(head prism.Value, body value.Value) value.Value {
-	env.Block.NewCall(env.getWriteVectorPointer(), head.Value, body)
+	typ := head.Type.Realise()
+	dest := env.Block.NewGetElementPtr(typ, head.Value, i32(0), vectorBodyOffset)
+	src := env.Block.NewBitCast(body, types.NewPointer(head.Type.(prism.VectorType).Type.Realise()))
+	env.Block.NewStore(src, dest)
 	return head.Value
 }
 
@@ -98,20 +101,22 @@ func (env *Environment) buildLLVectorBody(typ prism.Type, cap value.Value, width
 		cap)
 }
 
-func (env *Environment) writeVectorLength(vectorStruct value.Value, len int64) {
-	env.Block.NewCall(env.getWriteVectorLength(), vectorStruct, i32(len))
-}
-
-func (env *Environment) writeVectorCapacity(vectorStruct value.Value, cap int64) {
-	env.Block.NewCall(env.getWriteVectorCapacity(), vectorStruct, i32(cap))
-}
-
 func (env *Environment) writeLLVectorLength(vec prism.Value, len value.Value) {
-	env.Block.NewCall(env.getWriteVectorLength(), vec.Value, len)
+	typ := vec.Type.Realise()
+	dest := env.Block.NewGetElementPtr(typ, vec.Value, i32(0), vectorLenOffset)
+	env.Block.NewStore(len, dest)
 }
 
 func (env *Environment) writeLLVectorCapacity(vec prism.Value, cap value.Value) {
-	env.Block.NewCall(env.getWriteVectorCapacity(), vec.Value, cap)
+	typ := vec.Type.Realise()
+	dest := env.Block.NewGetElementPtr(typ, vec.Value, i32(0), vectorCapOffset)
+	env.Block.NewStore(cap, dest)
+}
+
+func (env *Environment) writeLLVectorWidth(vec prism.Value, width value.Value) {
+	typ := vec.Type.Realise()
+	dest := env.Block.NewGetElementPtr(typ, vec.Value, i32(0), vectorWidthOffset)
+	env.Block.NewStore(width, dest)
 }
 
 func (env *Environment) readVectorSizes(vec prism.Value) (length value.Value, capacity value.Value) {
@@ -119,11 +124,18 @@ func (env *Environment) readVectorSizes(vec prism.Value) (length value.Value, ca
 }
 
 func (env *Environment) readVectorLength(vec prism.Value) value.Value {
-	return env.Block.NewCall(env.getReadVectorLength(), vec.Value)
+	src := env.Block.NewGetElementPtr(vec.Type.Realise(), vec.Value, vectorLenOffset)
+	return env.Block.NewLoad(types.I32, src)
 }
 
 func (env *Environment) readVectorCapacity(vec prism.Value) value.Value {
-	return env.Block.NewCall(env.getReadVectorCapacity(), vec.Value)
+	src := env.Block.NewGetElementPtr(vec.Type.Realise(), vec.Value, vectorCapOffset)
+	return env.Block.NewLoad(types.I32, src)
+}
+
+func (env *Environment) readVectorWidth(vec prism.Value) value.Value {
+	src := env.Block.NewGetElementPtr(vec.Type.Realise(), vec.Value, vectorWidthOffset)
+	return env.Block.NewLoad(types.I32, src)
 }
 
 func (env *Environment) writeElement(vec prism.Value, elm value.Value, index value.Value) {
@@ -194,6 +206,10 @@ func (env *Environment) unsafeReadVectorElement(vec prism.Value, index value.Val
 	return elm
 }
 
+func (env *Environment) calculateCapacity(length value.Value) value.Value {
+	return env.Block.NewCall(env.getCalculateCapacity(), length)
+}
+
 func calculateVectorSizes(l int) (leng int64, cap int64) {
 	leng = int64(l)
 	if leng < 4 {
@@ -211,7 +227,7 @@ func (env *Environment) validateVectorIndex(vec prism.Value, index value.Value) 
 
 	leng := env.readVectorLength(vec)
 
-	env.newPanic(bfalse, "RUBICON: index %d out of bounds [%d]\n", index, leng)
+	env.newPanic(bfalse, "Index %d out of bounds [%d]\n", index, leng)
 
 	bfalse.NewUnreachable()
 
@@ -225,11 +241,28 @@ func (env *Environment) validateVectorIndex(vec prism.Value, index value.Value) 
 	env.Block = btrue
 }
 
-func (env *Environment) vectorFactory(elmType prism.Type, size value.Value) prism.Value {
-	newHead := env.Block.NewCall(env.getCreateVectorHeader(), size, size, constant.NewInt(types.I32, elmType.Width()))
-	head := env.Block.NewBitCast(newHead, types.NewPointer(prism.Vec(elmType).Realise()))
+func (env *Environment) newVectorHeader(elmType prism.Type, size value.Value) (head prism.Value) {
+	capacity := env.calculateCapacity(size)
+	width := constant.NewInt(types.I32, elmType.Width())
 
-	fmt.Println("Vector factory", elmType, head)
+	//head := env.Block.NewCall(env.getCreateVectorHeader(), size, capacity, width)
+
+	head.Value = env.Block.NewCall(env.getCalloc(), i32(4), i32(1))
+	head.Value = env.Block.NewBitCast(head.Value, types.NewPointer(prism.Vec(elmType).Realise()))
+	head.Type = prism.Vec(elmType)
+	env.writeLLVectorLength(head, size)
+	env.writeLLVectorCapacity(head, capacity)
+	env.writeLLVectorWidth(head, width)
+	// Body pointer guaranteed to be null due to use of calloc
+
+	return head
+}
+
+func (env *Environment) vectorFactory(elmType prism.Type, size value.Value) prism.Value {
+	newHead := env.newVectorHeader(elmType, size)
+
+	head := env.Block.NewBitCast(newHead.Value, types.NewPointer(prism.Vec(elmType).Realise()))
+
 	env.writeVectorPointer(
 		prism.Val(head, prism.Vec(elmType)),
 		env.buildLLVectorBody(elmType, size, elmType.Width()))

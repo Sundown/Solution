@@ -144,103 +144,21 @@ func (env *Environment) getPrintf() *ir.Func {
 	return env.Specials["printf"]
 }
 
-func (env *Environment) getWriteVectorLength() *ir.Func {
-	if env.Specials["writeVectorLength"] == nil {
-		env.Specials["writeVectorLength"] = env.Module.NewFunc(
-			"writeVectorLength",
-			types.Void,
-			ir.NewParam("v", types.NewPointer(voidVector)),
+func (env *Environment) getCalculateCapacity() *ir.Func {
+	if env.Specials["calculateCapacity"] == nil {
+
+		fn := env.Module.NewFunc(
+			"calculateCapacity",
+			types.I32,
 			ir.NewParam("length", types.I32))
 
+		oldBlock := env.Block
+		env.Block = fn.NewBlock("entry")
+		env.Block.NewRet(env.Block.NewMul(i32(2), fn.Params[0]))
+		env.Block = oldBlock
+
+		env.Specials["calculateCapacity"] = fn
 	}
 
-	return env.Specials["writeVectorLength"]
-}
-
-func (env *Environment) getWriteVectorCapacity() *ir.Func {
-	if env.Specials["writeVectorCapacity"] == nil {
-		env.Specials["writeVectorCapacity"] = env.Module.NewFunc(
-			"writeVectorCapacity",
-			types.Void,
-			ir.NewParam("v", types.NewPointer(voidVector)),
-			ir.NewParam("length", types.I32))
-
-	}
-
-	return env.Specials["writeVectorCapacity"]
-}
-
-func (env *Environment) getWriteVectorWidth() *ir.Func {
-	if env.Specials["writeVectorWidth"] == nil {
-		env.Specials["writeVectorWidth"] = env.Module.NewFunc(
-			"writeVectorWidth",
-			types.Void,
-			ir.NewParam("v", types.NewPointer(voidVector)),
-			ir.NewParam("length", types.I32))
-
-	}
-
-	return env.Specials["writeVectorWidth"]
-}
-
-func (env *Environment) getWriteVectorPointer() *ir.Func {
-	if env.Specials["writeVectorPointer"] == nil {
-		env.Specials["writeVectorPointer"] = env.Module.NewFunc(
-			"writeVectorPointer",
-			types.Void,
-			ir.NewParam("v", types.NewPointer(voidVector)),
-			ir.NewParam("data", types.I8Ptr))
-
-	}
-
-	return env.Specials["writeVectorPointer"]
-}
-
-func (env *Environment) getReadVectorLength() *ir.Func {
-	if env.Specials["readVectorLength"] == nil {
-		env.Specials["readVectorLength"] = env.Module.NewFunc(
-			"readVectorLength",
-			types.I32,
-			ir.NewParam("v", types.NewPointer(voidVector)))
-
-	}
-
-	return env.Specials["readVectorLength"]
-}
-
-func (env *Environment) getReadVectorCapacity() *ir.Func {
-	if env.Specials["readVectorCapacity"] == nil {
-		env.Specials["readVectorCapacity"] = env.Module.NewFunc(
-			"readVectorCapacity",
-			types.I32,
-			ir.NewParam("v", types.NewPointer(voidVector)))
-
-	}
-
-	return env.Specials["readVectorCapacity"]
-}
-
-func (env *Environment) getReadVectorWidth() *ir.Func {
-	if env.Specials["readVectorWidth"] == nil {
-		env.Specials["readVectorWidth"] = env.Module.NewFunc(
-			"readVectorWidth",
-			types.I32,
-			ir.NewParam("v", types.NewPointer(voidVector)))
-
-	}
-
-	return env.Specials["readVectorWidth"]
-}
-
-func (env *Environment) getCreateVectorHeader() *ir.Func {
-	if env.Specials["createVectorHeader"] == nil {
-		env.Specials["createVectorHeader"] = env.Module.NewFunc(
-			"createVectorHeader",
-			types.NewPointer(voidVector),
-			ir.NewParam("length", types.I32),
-			ir.NewParam("capacity", types.I32),
-			ir.NewParam("width", types.I32))
-	}
-
-	return env.Specials["createVectorHeader"]
+	return env.Specials["calculateCapacity"]
 }

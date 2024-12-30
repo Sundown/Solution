@@ -9,8 +9,8 @@ A compiled array-oriented language running on LLVM with a modular backend to sup
 
 This project relies heavily on:
 
-- [llir/llvm](github.com/llir/llvm) which provides LLVM generation for Go
-- [participle](github.com/alecthomas/participle) which is used to define the parser
+- [llir/llvm](https://github.com/llir/llvm) which provides LLVM generation for Go
+- [participle](https://github.com/alecthomas/participle) which is used to define the parser
 - [clang](https://clang.llvm.org) for the heavy lifting as linker and assembler
 
 ---
