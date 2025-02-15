@@ -3,10 +3,10 @@ package main
 import (
 	"os"
 
-	"github.com/sundown/solution/apotheosis"
 	"github.com/sundown/solution/pilot"
 	"github.com/sundown/solution/prism"
 	"github.com/sundown/solution/subtle"
+	"github.com/sundown/solution/tiny"
 )
 
 func main() {
@@ -27,12 +27,13 @@ func main() {
 	// Open file, lex, and close
 	prism.Lex(env)
 
-	// Parse lexed tokens to AST and resolve compiler directives
+	// Parse lexed tokens to AST
 	subtle.Parse(env)
 
+	tiny.Entry(env)
 	// Compile AST to LLVM
-	apotheosis.Compile(env)
+	// apotheosis.Compile(env)
 
-	// Write LLVM IR to file or invoke Clang on LLVM Bitcode
-	prism.Emit(env)
+	// // Write LLVM IR to file or invoke Clang on LLVM Bitcode
+	//  prism.Emit(env)
 }

@@ -123,14 +123,19 @@ func (env *Environment) writeVectorElement(vec prism.Value, elm value.Value, ind
 			index))
 }
 
+// /1⊃
 func (env *Environment) writeMatrixElement(vec prism.Value, elm value.Value, index value.Value) {
+	//offset := env.Block.NewMul(i32(32), index)
+	bodyPtr := env.getBodyPointer(vec)
+	//dest := env.Block.NewAdd(bodyPtr, offset)
 
-	offset := env.Block.NewMul(i32(vec.Type.(prism.VectorType).Type.Width()), index)
-	bodyPtr := env.Block.NewPtrToInt(env.getBodyPointer(vec), types.I32)
-	dest := env.Block.NewAdd(bodyPtr, offset)
-
-	width := constant.NewInt(types.I64, vec.Type.(prism.VectorType).Type.Width())
-	env.Block.NewCall(env.getMemcpy(), env.Block.NewIntToPtr(dest, types.NewPointer(types.I8)), env.Block.NewBitCast(elm, types.I8Ptr), width, constant.NewInt(types.I1, 0))
+	width := constant.NewInt(types.I64, vec.Type.(prism.VectorType).Type.Width()) // usually 32
+	env.Block.NewCall(
+		env.getMemcpy(),
+		bodyPtr,
+		env.Block.NewBitCast(elm, types.I8Ptr),
+		width,
+		constant.NewInt(types.I1, 0))
 }
 
 func (env *Environment) getBodyPointer(vec prism.Value) value.Value {

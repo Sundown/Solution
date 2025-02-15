@@ -105,9 +105,7 @@ func (v Vector) Type() Type {
 
 // Interface prism.Type width for LLVM codegen
 func (v VectorType) Width() int64 {
-	return 16
-	// (32 + 32 + 64) / 8
-	// len + cap + ptr
+	return 32
 }
 
 // Interface prism.Type comparison

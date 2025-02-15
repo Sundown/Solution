@@ -1,6 +1,8 @@
 package apotheosis
 
 import (
+	"fmt"
+
 	"github.com/sundown/solution/prism"
 
 	"github.com/llir/llvm/ir/enum"
@@ -32,8 +34,11 @@ func (env *Environment) newInlineIota(val prism.Value) value.Value {
 }
 
 func (env *Environment) newInlineEnclose(val prism.Value) value.Value {
+
 	head := env.vectorFactory(val.Type, i32(1))
+
 	env.writeElement(head, val.Value, i32(0))
+
 	return head.Value
 }
 
@@ -50,6 +55,7 @@ func (env *Environment) invokePrint(val prism.Value, end string) value.Value {
 
 	// TODO APO extend this once matrices work so it is recursive
 	if prism.IsVector(val.Type) {
+		fmt.Println(val.Type)
 		env.newInlineMap(prism.MakeMC(env.newInlinePrintSpace, true), val)
 
 		if end == "\x0A" {
