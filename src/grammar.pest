@@ -38,13 +38,13 @@ typedFunctionHead = {
     typedDyadic
     | typedMonadic
   )
-  ~ "→"
+  ~ "->"
   ~ typeActual
 }
 
 ambiguousFunctionHead = {
   ident
-  ~ ( "→" ~ typeActual )?
+  ~ ( "->" ~ typeActual )?
 }
 
 block = {
@@ -115,8 +115,7 @@ name = @{
 }
 
 ident = {
-  (name ~ "::")?
-  ~ name
+  name
 }
 
 string = @{

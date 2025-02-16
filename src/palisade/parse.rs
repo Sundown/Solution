@@ -183,17 +183,8 @@ impl prism::Environment {
     }
 
     fn parse_ident(&mut self, pair: pest::iterators::Pair<Rule>) -> prism::Ident {
-        let p = pair.clone().into_inner().next().unwrap();
-        let mut q = p.clone().into_inner();
+        let p = pair.clone().into_inner().next().unwrap().as_str();
 
-        // Normalise identifiers from user
-        // "x" -> ( , x) -> ::x
-        // "y::x" -> (y, x) -> y::x
-        let (package, name) = match &q.clone().count() {
-            0 => ("", p.as_str()),
-            _ => (q.next().unwrap().as_str(), q.next().unwrap().as_str()),
-        };
-
-        prism::Ident::new(package, name)
+        prism::Ident::new("", p)
     }
 }
